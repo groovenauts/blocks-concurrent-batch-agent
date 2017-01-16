@@ -15,7 +15,9 @@ import (
 
 type (
 	apiHandler struct {}
-	taskHandler struct {}
+	taskHandler struct {
+		factory ProcessorFactory
+	}
 )
 
 func withAEContext(impl func (c echo.Context) error) (func(c echo.Context) error) {
@@ -54,9 +56,20 @@ func (ah *apiHandler)callPipelineTask(base string) (func(c echo.Context) error) 
 	})
 }
 
+func (th *taskHandler)pipelineTask(processor string) (func(c echo.Context) error) {
+	return withPipeline(func(c echo.Context, pl *Pipeline) error {
+		ctx := c.Get("aecontext").(context.Context)
+		pr, err := th.factory.Create(ctx, processor)
+		if err != nil {
+			return err
+		}
+		return pr.Process(ctx, pl)
+	})
+}
+
 func init() {
 	ah := &apiHandler{}
-	th := &taskHandler{}
+	th := &taskHandler{&DefaultProcessorFactory{}}
 
 	g := e.Group("/pipelines")
 	g.Use(middleware.CORS())
@@ -66,19 +79,19 @@ func init() {
 	g.DELETE("/:id", withPipeline(ah.destroy))
 
 	g.POST(""               , withAEContext(ah.create))
-	g.POST("/:id/build_task", th.build)
+	g.POST("/:id/build_task", th.pipelineTask("builder"))
 
 	g.POST("/:id/close"     , ah.callPipelineTask("close"))
-	g.POST("/:id/close_task", th.close)
+	g.POST("/:id/close_task", th.pipelineTask("closer"))
 
 	g.PUT( "/:id/update"     , ah.callPipelineTask("update"))
-	g.POST("/:id/update_task", th.update)
+	g.POST("/:id/update_task", th.pipelineTask("updater"))
 
 	g.PUT( "/:id/resize"     , ah.callPipelineTask("resize"))
-	g.POST("/:id/resize_task", th.resize)
+	g.POST("/:id/resize_task", th.pipelineTask("resizer"))
 
 	g.GET( "/refresh"         , withAEContext(ah.refresh)) // from cron
-	g.POST("/:id/refresh_task", th.refresh)
+	g.POST("/:id/refresh_task", th.pipelineTask("refresher"))
 }
 
 // curl -v -X POST http://localhost:8080/pipelines --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
@@ -98,9 +111,6 @@ func (h *apiHandler) create(c echo.Context) error {
 	}
 	return c.JSON(http.StatusCreated, pl)
 }
-func (t *taskHandler) build(c echo.Context) error {
-	return nil
-}
 
 // curl -v http://localhost:8080/pipelines
 func (h *apiHandler) index(c echo.Context) error {
@@ -117,22 +127,7 @@ func (h *apiHandler) destroy(c echo.Context, pl *Pipeline) error {
 	return c.JSON(http.StatusOK, map[string]string{})
 }
 
-func (t *taskHandler) close(c echo.Context) error {
-	return nil
-}
-
-func (t *taskHandler) update(c echo.Context) error {
-	return nil
-}
-
-func (t *taskHandler) resize(c echo.Context) error {
-	return nil
-}
-
 // curl -v -X PUT http://localhost:8080/pipelines/refresh
 func (h *apiHandler) refresh(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]string{})
-}
-func (t *taskHandler) refresh(c echo.Context) error {
-	return nil
 }
