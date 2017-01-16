@@ -48,8 +48,8 @@ func init() {
 	g.GET("/:id", withPipeline(ah.show))
 	g.DELETE("/:id", withPipeline(ah.destroy))
 
-	g.POST(""          , withAEContext(ah.create))
-	g.POST("/:id/build", th.build)
+	g.POST(""               , withAEContext(ah.create))
+	g.POST("/:id/build_task", th.build)
 
 	g.POST("/:id/close"     , withPipeline(ah.close))
 	g.POST("/:id/close_task", th.close)
