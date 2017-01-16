@@ -9,6 +9,7 @@ import (
 	"golang.org/x/net/context"
 
 	"google.golang.org/appengine"
+	"google.golang.org/appengine/taskqueue"
 )
 
 type (
@@ -66,7 +67,20 @@ func init() {
 
 // curl -v -X POST http://localhost:8080/pipelines --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
 func (h *apiHandler) create(c echo.Context) error {
-	return c.JSON(http.StatusCreated, map[string]string{})
+	pl := &Pipeline{}
+	if err := c.Bind(pl); err != nil {
+		return err
+	}
+	ctx := c.Get("aecontext").(context.Context)
+	id, err := CreatePipeline(ctx, pl)
+	if err != nil {
+		return err
+	}
+	t := taskqueue.NewPOSTTask("/" + id + "/build_task", map[string][]string{})
+	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
+		return err
+	}
+	return c.JSON(http.StatusCreated, pl)
 }
 func (t *taskHandler) build(c echo.Context) error {
 	return nil

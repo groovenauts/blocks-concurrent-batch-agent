@@ -18,6 +18,10 @@ type (
 	}
 )
 
+func CreatePipeline(ctx context.Context, pl *Pipeline) (string, error) {
+	return "encoded key", nil
+}
+
 func FindPipeline(ctx context.Context, id string) (*Pipeline, error) {
 	return &Pipeline{}, nil
 }
