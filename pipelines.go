@@ -82,7 +82,7 @@ func (h *apiHandler) show(c echo.Context, pl *Pipeline) error {
 	return c.JSON(http.StatusOK, map[string]string{})
 }
 
-// curl -v http://localhost:8080/pipelines/1
+// curl -v -X DELETE http://localhost:8080/pipelines/1
 func (h *apiHandler) destroy(c echo.Context, pl *Pipeline) error {
 	return c.JSON(http.StatusOK, map[string]string{})
 }
