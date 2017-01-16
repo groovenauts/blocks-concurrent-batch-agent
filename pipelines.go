@@ -81,14 +81,11 @@ func init() {
 	g.POST(""               , withAEContext(ah.create))
 	g.POST("/:id/build_task", th.pipelineTask("build"))
 
-	g.PUT("/:id/close"     , ah.callPipelineTask("close"))
-	g.POST("/:id/close_task", th.pipelineTask("close"))
-
-	g.PUT( "/:id/update"     , ah.callPipelineTask("update"))
-	g.POST("/:id/update_task", th.pipelineTask("update"))
-
-	g.PUT( "/:id/resize"     , ah.callPipelineTask("resize"))
-	g.POST("/:id/resize_task", th.pipelineTask("resize"))
+	actions := []string{"close", "update", "resize"}
+	for _, action := range actions {
+		g.PUT( "/:id/" + action          , ah.callPipelineTask(action))
+		g.POST("/:id/" + action + "_task", th.pipelineTask(action))
+	}
 
 	g.GET( "/refresh"         , withAEContext(ah.refresh)) // from cron
 	g.POST("/:id/refresh_task", th.pipelineTask("refresh"))
