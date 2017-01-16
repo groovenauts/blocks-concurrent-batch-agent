@@ -6,7 +6,7 @@ import (
 )
 
 type ProcessorFactory interface {
-	Create(ctx context.Context, name string) (*Processor, error)
+	Create(ctx context.Context, name string) (Processor, error)
 }
 
 type DefaultProcessorFactory struct {}
