@@ -1,5 +1,9 @@
 package pipeline
 
+import (
+	"golang.org/x/net/context"
+)
+
 type (
 	Pipeline struct {
 		ProjectID								 string `json:"project_id"`
@@ -13,3 +17,7 @@ type (
 		Status									 int		`json:"status"`
 	}
 )
+
+func FindPipeline(ctx context.Context, id string) (*Pipeline, error) {
+	return &Pipeline{}, nil
+}
