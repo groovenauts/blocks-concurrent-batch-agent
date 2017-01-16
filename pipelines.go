@@ -41,7 +41,7 @@ func withPipeline(impl func (c echo.Context, pl *Pipeline) error) (func(c echo.C
 	})
 }
 
-// curl -v -X POST http://localhost:8080/pipelines/1/close
+// curl -v -X PUT http://localhost:8080/pipelines/1/close
 // curl -v -X PUT http://localhost:8080/pipelines/1/update
 // curl -v -X PUT http://localhost:8080/pipelines/1/resize
 func (ah *apiHandler)callPipelineTask(action string) (func(c echo.Context) error) {
@@ -81,7 +81,7 @@ func init() {
 	g.POST(""               , withAEContext(ah.create))
 	g.POST("/:id/build_task", th.pipelineTask("build"))
 
-	g.POST("/:id/close"     , ah.callPipelineTask("close"))
+	g.PUT("/:id/close"     , ah.callPipelineTask("close"))
 	g.POST("/:id/close_task", th.pipelineTask("close"))
 
 	g.PUT( "/:id/update"     , ah.callPipelineTask("update"))
