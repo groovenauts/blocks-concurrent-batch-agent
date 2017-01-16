@@ -11,13 +11,13 @@ type ProcessorFactory interface {
 
 type DefaultProcessorFactory struct {}
 
-func (dpf *DefaultProcessorFactory) Create(ctx context.Context, name string) (Processor, error) {
-	switch name {
-	case "builder": return &Builder{}, nil
-	case "updater": return &Updater{}, nil
-	case "resizer": return &Resizer{}, nil
-	case "closer": return &Closer{}, nil
-	case "refresher": return &Refresher{}, nil
-	default: return nil, fmt.Errorf("Unknown processor name: %v\n", name)
+func (dpf *DefaultProcessorFactory) Create(ctx context.Context, action string) (Processor, error) {
+	switch action {
+	case "build": return &Builder{}, nil
+	case "update": return &Updater{}, nil
+	case "resize": return &Resizer{}, nil
+	case "close": return &Closer{}, nil
+	case "refresh": return &Refresher{}, nil
+	default: return nil, fmt.Errorf("Unknown processor action: %v\n", action)
 	}
 }

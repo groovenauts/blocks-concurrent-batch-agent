@@ -44,11 +44,11 @@ func withPipeline(impl func (c echo.Context, pl *Pipeline) error) (func(c echo.C
 // curl -v -X POST http://localhost:8080/pipelines/1/close
 // curl -v -X PUT http://localhost:8080/pipelines/1/update
 // curl -v -X PUT http://localhost:8080/pipelines/1/resize
-func (ah *apiHandler)callPipelineTask(base string) (func(c echo.Context) error) {
+func (ah *apiHandler)callPipelineTask(action string) (func(c echo.Context) error) {
 	return withPipeline(func(c echo.Context, pl *Pipeline) error {
 		id := c.Param("id")
 		ctx := c.Get("aecontext").(context.Context)
-		t := taskqueue.NewPOSTTask(fmt.Sprintf("/%s/%s_task", id, base), map[string][]string{})
+		t := taskqueue.NewPOSTTask(fmt.Sprintf("/%s/%s_task", id, action), map[string][]string{})
 		if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 			return err
 		}
@@ -56,10 +56,10 @@ func (ah *apiHandler)callPipelineTask(base string) (func(c echo.Context) error) 
 	})
 }
 
-func (th *taskHandler)pipelineTask(processor string) (func(c echo.Context) error) {
+func (th *taskHandler)pipelineTask(action string) (func(c echo.Context) error) {
 	return withPipeline(func(c echo.Context, pl *Pipeline) error {
 		ctx := c.Get("aecontext").(context.Context)
-		pr, err := th.factory.Create(ctx, processor)
+		pr, err := th.factory.Create(ctx, action)
 		if err != nil {
 			return err
 		}
@@ -79,19 +79,19 @@ func init() {
 	g.DELETE("/:id", withPipeline(ah.destroy))
 
 	g.POST(""               , withAEContext(ah.create))
-	g.POST("/:id/build_task", th.pipelineTask("builder"))
+	g.POST("/:id/build_task", th.pipelineTask("build"))
 
 	g.POST("/:id/close"     , ah.callPipelineTask("close"))
-	g.POST("/:id/close_task", th.pipelineTask("closer"))
+	g.POST("/:id/close_task", th.pipelineTask("close"))
 
 	g.PUT( "/:id/update"     , ah.callPipelineTask("update"))
-	g.POST("/:id/update_task", th.pipelineTask("updater"))
+	g.POST("/:id/update_task", th.pipelineTask("update"))
 
 	g.PUT( "/:id/resize"     , ah.callPipelineTask("resize"))
-	g.POST("/:id/resize_task", th.pipelineTask("resizer"))
+	g.POST("/:id/resize_task", th.pipelineTask("resize"))
 
 	g.GET( "/refresh"         , withAEContext(ah.refresh)) // from cron
-	g.POST("/:id/refresh_task", th.pipelineTask("refresher"))
+	g.POST("/:id/refresh_task", th.pipelineTask("refresh"))
 }
 
 // curl -v -X POST http://localhost:8080/pipelines --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
