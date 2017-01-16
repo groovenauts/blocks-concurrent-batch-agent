@@ -1,6 +1,7 @@
 package pipeline
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -38,6 +39,21 @@ func withPipeline(impl func (c echo.Context, pl *Pipeline) error) (func(c echo.C
 	})
 }
 
+// curl -v -X POST http://localhost:8080/pipelines/1/close
+// curl -v -X PUT http://localhost:8080/pipelines/1/update
+// curl -v -X PUT http://localhost:8080/pipelines/1/resize
+func (ah *apiHandler)callPipelineTask(base string) (func(c echo.Context) error) {
+	return withPipeline(func(c echo.Context, pl *Pipeline) error {
+		id := c.Param("id")
+		ctx := c.Get("aecontext").(context.Context)
+		t := taskqueue.NewPOSTTask(fmt.Sprintf("/%s/%s_task", id, base), map[string][]string{})
+		if _, err := taskqueue.Add(ctx, t, ""); err != nil {
+			return err
+		}
+		return c.JSON(http.StatusCreated, pl)
+	})
+}
+
 func init() {
 	ah := &apiHandler{}
 	th := &taskHandler{}
@@ -52,13 +68,13 @@ func init() {
 	g.POST(""               , withAEContext(ah.create))
 	g.POST("/:id/build_task", th.build)
 
-	g.POST("/:id/close"     , withPipeline(ah.close))
+	g.POST("/:id/close"     , ah.callPipelineTask("close"))
 	g.POST("/:id/close_task", th.close)
 
-	g.PUT( "/:id/update"     , withPipeline(ah.update))
+	g.PUT( "/:id/update"     , ah.callPipelineTask("update"))
 	g.POST("/:id/update_task", th.update)
 
-	g.PUT( "/:id/resize"     , withPipeline(ah.resize))
+	g.PUT( "/:id/resize"     , ah.callPipelineTask("resize"))
 	g.POST("/:id/resize_task", th.resize)
 
 	g.GET( "/refresh"         , withAEContext(ah.refresh)) // from cron
@@ -101,26 +117,14 @@ func (h *apiHandler) destroy(c echo.Context, pl *Pipeline) error {
 	return c.JSON(http.StatusOK, map[string]string{})
 }
 
-// curl -v -X POST http://localhost:8080/pipelines/1/close
-func (h *apiHandler) close(c echo.Context, pl *Pipeline) error {
-	return c.JSON(http.StatusOK, map[string]string{})
-}
 func (t *taskHandler) close(c echo.Context) error {
 	return nil
 }
 
-// curl -v -X PUT http://localhost:8080/pipelines/1
-func (h *apiHandler) update(c echo.Context, pl *Pipeline) error {
-	return c.JSON(http.StatusOK, map[string]string{})
-}
 func (t *taskHandler) update(c echo.Context) error {
 	return nil
 }
 
-// curl -v -X PUT http://localhost:8080/pipelines/1/resize
-func (h *apiHandler) resize(c echo.Context, pl *Pipeline) error {
-	return c.JSON(http.StatusOK, map[string]string{})
-}
 func (t *taskHandler) resize(c echo.Context) error {
 	return nil
 }
