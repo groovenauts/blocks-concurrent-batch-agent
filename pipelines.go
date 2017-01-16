@@ -29,8 +29,8 @@ func init() {
 	g.POST("/:id/close"     , ah.close)
 	g.POST("/:id/close_task", th.close)
 
-	g.PUT( "/:id/update_instance_template"     , ah.updateInstanceTemplate)
-	g.POST("/:id/update_instance_template_task", th.updateInstanceTemplate)
+	g.PUT( "/:id/update"     , ah.update)
+	g.POST("/:id/update_task", th.update)
 
 	g.PUT( "/:id/resize"     , ah.resize)
 	g.POST("/:id/resize_task", th.resize)
@@ -70,11 +70,11 @@ func (t *taskHandler) close(c echo.Context) error {
 	return nil
 }
 
-// curl -v -X PUT http://localhost:8080/pipelines/1/update_instance_template
-func (h *apiHandler) updateInstanceTemplate(c echo.Context) error {
+// curl -v -X PUT http://localhost:8080/pipelines/1
+func (h *apiHandler) update(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]string{})
 }
-func (t *taskHandler) updateInstanceTemplate(c echo.Context) error {
+func (t *taskHandler) update(c echo.Context) error {
 	return nil
 }
 
