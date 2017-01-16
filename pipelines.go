@@ -8,50 +8,88 @@ import (
 )
 
 type (
-	user struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
-	}
-)
-
-var (
-	users map[string]user
+	apiHandler struct {}
+	taskHandler struct {}
 )
 
 func init() {
-	users = map[string]user{
-		"1": user{
-			ID:   "1",
-			Name: "Wreck-It Ralph",
-		},
-	}
+	ah := &apiHandler{}
+	th := &taskHandler{}
 
-	// hook into the echo instance to create an endpoint group
-	// and add specific middleware to it plus handlers
-	g := e.Group("/users")
+	g := e.Group("/pipelines")
 	g.Use(middleware.CORS())
 
-	g.POST("", createUser)
-	g.GET("", getUsers)
-	g.GET("/:id", getUser)
+	g.GET("", ah.index)
+	g.GET("/:id", ah.show)
+	g.DELETE("/:id", ah.destroy)
+
+	g.POST(""          , ah.create)
+	g.POST("/:id/build", th.build)
+
+	g.POST("/:id/close"     , ah.close)
+	g.POST("/:id/close_task", th.close)
+
+	g.PUT( "/:id/update_instance_template"     , ah.updateInstanceTemplate)
+	g.POST("/:id/update_instance_template_task", th.updateInstanceTemplate)
+
+	g.PUT( "/:id/resize"     , ah.resize)
+	g.POST("/:id/resize_task", th.resize)
+
+	g.GET( "/refresh"         , ah.refresh) // from cron
+	g.POST("/:id/refresh_task", th.refresh)
 }
 
-// curl -v -X POST http://localhost:8080/users --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
-func createUser(c echo.Context) error {
-	u := new(user)
-	if err := c.Bind(u); err != nil {
-		return err
-	}
-	users[u.ID] = *u
-	return c.JSON(http.StatusCreated, u)
+// curl -v -X POST http://localhost:8080/pipelines --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
+func (h *apiHandler) create(c echo.Context) error {
+	return c.JSON(http.StatusCreated, map[string]string{})
+}
+func (t *taskHandler) build(c echo.Context) error {
+	return nil
 }
 
-// curl -v http://localhost:8080/users
-func getUsers(c echo.Context) error {
-	return c.JSON(http.StatusOK, users)
+// curl -v http://localhost:8080/pipelines
+func (h *apiHandler) index(c echo.Context) error {
+	return c.JSON(http.StatusOK, map[string]string{})
 }
 
-// curl -v http://localhost:8080/users/1
-func getUser(c echo.Context) error {
-	return c.JSON(http.StatusOK, users[c.Param("id")])
+// curl -v http://localhost:8080/pipelines/1
+func (h *apiHandler) show(c echo.Context) error {
+	return c.JSON(http.StatusOK, map[string]string{})
+}
+
+// curl -v http://localhost:8080/pipelines/1
+func (h *apiHandler) destroy(c echo.Context) error {
+	return c.JSON(http.StatusOK, map[string]string{})
+}
+
+// curl -v -X POST http://localhost:8080/pipelines/1/close
+func (h *apiHandler) close(c echo.Context) error {
+	return c.JSON(http.StatusOK, map[string]string{})
+}
+func (t *taskHandler) close(c echo.Context) error {
+	return nil
+}
+
+// curl -v -X PUT http://localhost:8080/pipelines/1/update_instance_template
+func (h *apiHandler) updateInstanceTemplate(c echo.Context) error {
+	return c.JSON(http.StatusOK, map[string]string{})
+}
+func (t *taskHandler) updateInstanceTemplate(c echo.Context) error {
+	return nil
+}
+
+// curl -v -X PUT http://localhost:8080/pipelines/1/resize
+func (h *apiHandler) resize(c echo.Context) error {
+	return c.JSON(http.StatusOK, map[string]string{})
+}
+func (t *taskHandler) resize(c echo.Context) error {
+	return nil
+}
+
+// curl -v -X PUT http://localhost:8080/pipelines/refresh
+func (h *apiHandler) refresh(c echo.Context) error {
+	return c.JSON(http.StatusOK, map[string]string{})
+}
+func (t *taskHandler) refresh(c echo.Context) error {
+	return nil
 }
