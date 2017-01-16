@@ -111,20 +111,40 @@ func (h *apiHandler) create(c echo.Context) error {
 
 // curl -v http://localhost:8080/pipelines
 func (h *apiHandler) index(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]string{})
+	ctx := c.Get("aecontext").(context.Context)
+	pipelines, err := GetAllPipeline(ctx)
+	if err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, pipelines)
 }
 
 // curl -v http://localhost:8080/pipelines/1
 func (h *apiHandler) show(c echo.Context, pl *Pipeline) error {
-	return c.JSON(http.StatusOK, map[string]string{})
+	return c.JSON(http.StatusOK, pl)
 }
 
 // curl -v -X DELETE http://localhost:8080/pipelines/1
 func (h *apiHandler) destroy(c echo.Context, pl *Pipeline) error {
-	return c.JSON(http.StatusOK, map[string]string{})
+	ctx := c.Get("aecontext").(context.Context)
+	if err := pl.destroy(ctx); err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, pl)
 }
 
 // curl -v -X PUT http://localhost:8080/pipelines/refresh
 func (h *apiHandler) refresh(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]string{})
+	ctx := c.Get("aecontext").(context.Context)
+	ids, err := GetAllActivePipelineIDs(ctx)
+	if err != nil {
+		return err
+	}
+	for _, id := range ids {
+		t := taskqueue.NewPOSTTask(fmt.Sprintf("/%s/refresh_task", id), map[string][]string{})
+		if _, err := taskqueue.Add(ctx, t, ""); err != nil {
+			return err
+		}
+	}
+	return c.JSON(http.StatusOK, ids)
 }

@@ -25,3 +25,15 @@ func CreatePipeline(ctx context.Context, pl *Pipeline) (string, error) {
 func FindPipeline(ctx context.Context, id string) (*Pipeline, error) {
 	return &Pipeline{}, nil
 }
+
+func GetAllPipeline(ctx context.Context) ([]Pipeline, error) {
+	return []Pipeline{ Pipeline{} }, nil
+}
+
+func GetAllActivePipelineIDs(ctx context.Context) ([]string, error) {
+	return []string{""}, nil
+}
+
+func (pl *Pipeline) destroy(ctx context.Context) error {
+	return nil
+}
