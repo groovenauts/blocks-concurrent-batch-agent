@@ -1,0 +1,9 @@
+# application: my-application-id  # defined when you create your app using google dev console
+module: blocks-concurrent-batch-agent # see https://cloud.google.com/appengine/docs/go/
+# version: alpha                  # you can run multiple versions of an app and A/B test
+runtime: go                     # see https://cloud.google.com/appengine/docs/go/
+api_version: go1                # used when appengine supports different go versions
+
+handlers:
+- url: /.*
+  script: _go_app
