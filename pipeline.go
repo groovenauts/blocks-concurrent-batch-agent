@@ -4,6 +4,21 @@ import (
 	"golang.org/x/net/context"
 )
 
+// Status constants
+type Status int
+
+const (
+	initialized Status = iota
+	broken
+	building
+	opened
+	closing
+	closed
+	resizing
+	updating
+	recreating
+)
+
 type (
 	Pipeline struct {
 		ProjectID								     string `json:"project_id"`
