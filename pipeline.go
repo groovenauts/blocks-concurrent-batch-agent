@@ -32,7 +32,7 @@ type (
 		InstanceGroupSize				 int		`json:"instance_group_size"`
 		InstanceTemplateName		 string `json:"instance_template_name"`
 		StartupScript						 string `json:"startup_script"`
-		Status									 int		`json:"status"`
+		Status									 Status		`json:"status"`
 	}
 )
 
