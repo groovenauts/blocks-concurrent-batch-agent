@@ -2,8 +2,10 @@ package pipeline
 
 import (
 	"fmt"
+	"errors"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
+	"google.golang.org/appengine/log"
 )
 
 // Status constants
@@ -22,6 +24,8 @@ const (
 )
 
 var processorFactory ProcessorFactory = &DefaultProcessorFactory{}
+
+var ErrNoSuchPipeline = errors.New("No such data in Pipelines")
 
 type (
 	PipelineProps struct {
@@ -57,11 +61,17 @@ func CreatePipeline(ctx context.Context, plp *PipelineProps) (*Pipeline, error) 
 func FindPipeline(ctx context.Context, id string) (*Pipeline, error) {
 	key, err := datastore.DecodeKey(id)
 	if err != nil {
+		log.Errorf(ctx, "@FindPipeline %v id: %v\n", err, id)
 		return nil, err
 	}
 	ctx = context.WithValue(ctx, "Pipeline.key", key)
 	pl := &Pipeline{ID: id}
-	if err := datastore.Get(ctx, key, &pl.Props); err != nil {
+	err = datastore.Get(ctx, key, &pl.Props)
+	switch {
+	case err == datastore.ErrNoSuchEntity:
+		return nil, ErrNoSuchPipeline
+	case err != nil:
+		log.Errorf(ctx, "@withPipeline %v id: %v\n", err, id)
 		return nil, err
 	}
 	return pl, nil
@@ -80,6 +90,7 @@ func GetAllPipeline(ctx context.Context) ([]Pipeline, error) {
 		if err != nil {
 			return nil, err
 		}
+		log.Debugf(ctx, "GetAllPipeline pl: %v\n", pl)
 		pl.ID = key.Encode()
 		res = append(res, pl)
 	}
