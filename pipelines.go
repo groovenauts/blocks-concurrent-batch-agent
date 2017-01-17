@@ -14,7 +14,7 @@ import (
 )
 
 type (
-	apiHandler struct {}
+	handler struct {}
 )
 
 func withAEContext(impl func (c echo.Context) error) (func(c echo.Context) error) {
@@ -61,7 +61,7 @@ func pipelineTask(action string) (func(c echo.Context) error) {
 }
 
 func init() {
-	ah := &apiHandler{}
+	ah := &handler{}
 
 	g := e.Group("/pipelines")
 	g.Use(middleware.CORS())
@@ -84,7 +84,7 @@ func init() {
 }
 
 // curl -v -X POST http://localhost:8080/pipelines --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
-func (h *apiHandler) create(c echo.Context) error {
+func (h *handler) create(c echo.Context) error {
 	plp := &PipelineProps{}
 	if err := c.Bind(plp); err != nil {
 		return err
@@ -102,7 +102,7 @@ func (h *apiHandler) create(c echo.Context) error {
 }
 
 // curl -v http://localhost:8080/pipelines
-func (h *apiHandler) index(c echo.Context) error {
+func (h *handler) index(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pipelines, err := GetAllPipeline(ctx)
 	if err != nil {
@@ -112,12 +112,12 @@ func (h *apiHandler) index(c echo.Context) error {
 }
 
 // curl -v http://localhost:8080/pipelines/1
-func (h *apiHandler) show(c echo.Context, pl *Pipeline) error {
+func (h *handler) show(c echo.Context, pl *Pipeline) error {
 	return c.JSON(http.StatusOK, pl)
 }
 
 // curl -v -X DELETE http://localhost:8080/pipelines/1
-func (h *apiHandler) destroy(c echo.Context, pl *Pipeline) error {
+func (h *handler) destroy(c echo.Context, pl *Pipeline) error {
 	ctx := c.Get("aecontext").(context.Context)
 	if err := pl.destroy(ctx); err != nil {
 		return err
@@ -126,7 +126,7 @@ func (h *apiHandler) destroy(c echo.Context, pl *Pipeline) error {
 }
 
 // curl -v -X PUT http://localhost:8080/pipelines/refresh
-func (h *apiHandler) refresh(c echo.Context) error {
+func (h *handler) refresh(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	ids, err := GetAllActivePipelineIDs(ctx)
 	if err != nil {
