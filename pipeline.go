@@ -10,15 +10,15 @@ import (
 type Status int
 
 const (
-	initialized Status = iota
-	broken
-	building
-	opened
-	closing
-	closed
-	resizing
-	updating
-	recreating
+	initialized Status = 0
+	broken     = 1
+	building   = 2
+	opened     = 3
+	resizing   = 4
+	updating   = 5
+	recreating = 6
+	closing    = 8
+	closed     = 9
 )
 
 var processorFactory ProcessorFactory = &DefaultProcessorFactory{}
@@ -87,7 +87,7 @@ func GetAllPipeline(ctx context.Context) ([]Pipeline, error) {
 }
 
 func GetAllActivePipelineIDs(ctx context.Context) ([]string, error) {
-	q := datastore.NewQuery("Pipelines").Filter("status !=", closed).KeysOnly()
+	q := datastore.NewQuery("Pipelines").Filter("Status <", closed).KeysOnly()
 	keys, err := q.GetAll(ctx, nil)
 	if err != nil {
 		return nil, err
