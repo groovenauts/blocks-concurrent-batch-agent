@@ -41,7 +41,7 @@ func withPipeline(impl func (c echo.Context, pl *Pipeline) error) (func(c echo.C
 // curl -v -X PUT http://localhost:8080/pipelines/1/close
 // curl -v -X PUT http://localhost:8080/pipelines/1/update
 // curl -v -X PUT http://localhost:8080/pipelines/1/resize
-func (ah *apiHandler)callPipelineTask(action string) (func(c echo.Context) error) {
+func callPipelineTask(action string) (func(c echo.Context) error) {
 	return withPipeline(func(c echo.Context, pl *Pipeline) error {
 		id := c.Param("id")
 		ctx := c.Get("aecontext").(context.Context)
@@ -75,7 +75,7 @@ func init() {
 
 	actions := []string{"close", "update", "resize"}
 	for _, action := range actions {
-		g.PUT( "/:id/" + action          , ah.callPipelineTask(action))
+		g.PUT( "/:id/" + action          , callPipelineTask(action))
 		g.POST("/:id/" + action + "_task", pipelineTask(action))
 	}
 
