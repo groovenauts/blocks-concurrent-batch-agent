@@ -1,6 +1,7 @@
 package pipeline
 
 import (
+	"fmt"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 )
@@ -43,6 +44,7 @@ func CreatePipeline(ctx context.Context, pl *Pipeline) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	ctx = context.WithValue(ctx, "Pipeline.key", res)
 	return res.Encode(), nil
 }
 
@@ -51,6 +53,7 @@ func FindPipeline(ctx context.Context, id string) (*Pipeline, error) {
 	if err != nil {
 		return nil, err
 	}
+	ctx = context.WithValue(ctx, "Pipeline.key", key)
 	pl := &Pipeline{}
 	if err := datastore.Get(ctx, key, pl); err != nil {
 		return nil, err
@@ -82,5 +85,12 @@ func GetAllActivePipelineIDs(ctx context.Context) ([]string, error) {
 }
 
 func (pl *Pipeline) destroy(ctx context.Context) error {
+	if pl.Status != closed {
+		return fmt.Errorf("Can't destroy pipeline which has status: %v", pl.Status)
+	}
+	key := ctx.Value("Pipeline.key").(*datastore.Key)
+	if err := datastore.Delete(ctx, key); err != nil {
+		return err
+	}
 	return nil
 }
