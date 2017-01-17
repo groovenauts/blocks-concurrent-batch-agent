@@ -40,8 +40,8 @@ type (
 	}
 
 	Pipeline struct {
-		id string
-		props PipelineProps
+		id string           `json:"id"`
+		props PipelineProps `json:"props"`
 	}
 )
 
@@ -120,4 +120,28 @@ func (pl *Pipeline) process(ctx context.Context, action string) error {
 		return err
 	}
 	return processor.Process(ctx, pl)
+}
+
+func (pl *Pipeline) Map() map[string]interface{} {
+	return map[string]interface{}{
+		"id": pl.id,
+		"props": pl.props.Map(),
+	}
+}
+
+func (pl *PipelineProps) Map() map[string]interface{} {
+	return map[string]interface{}{
+		"project_id":                         pl.ProjectID,
+		"job_topic_name":                   	pl.JobTopicName,
+		"job_subscription_name":            	pl.JobSubscriptionName,
+		"job_subscription_ack_deadline":    	pl.JobSubscriptionAckDeadline,
+		"progress_topic_name":              	pl.ProgressTopicName,
+		"progress_subscription_name":       	pl.ProgressSubscriptionName,
+		"progress_subscription_ack_deadline": pl.ProgressSubscriptionAckDeadline,
+		"instance_group_name":              	pl.InstanceGroupName,
+		"instance_group_size":              	pl.InstanceGroupSize,
+		"instance_template_name":           	pl.InstanceTemplateName,
+		"startup_script":                   	pl.StartupScript,
+		"status":                           	pl.Status,
+	}
 }

@@ -10,6 +10,7 @@ import (
 	"golang.org/x/net/context"
 
 	"google.golang.org/appengine"
+	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/taskqueue"
 )
 
@@ -85,11 +86,15 @@ type (
 
 // curl -v -X POST http://localhost:8080/pipelines --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
 func (h *handler) create(c echo.Context) error {
+	ctx := c.Get("aecontext").(context.Context)
+	req := c.Request()
 	plp := &PipelineProps{}
 	if err := c.Bind(plp); err != nil {
+		log.Errorf(ctx, "err: %v\n", err)
+		log.Errorf(ctx, "req: %v\n", req)
 		return err
 	}
-	ctx := c.Get("aecontext").(context.Context)
+	log.Debugf(ctx, "plp: %v\n", plp)
 	pl, err := CreatePipeline(ctx, plp)
 	if err != nil {
 		return err
@@ -98,7 +103,11 @@ func (h *handler) create(c echo.Context) error {
 	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 		return err
 	}
-	return c.JSON(http.StatusCreated, pl)
+	log.Debugf(ctx, "pl: %v\n", pl)
+	// return c.JSON(http.StatusCreated, pl)
+	r := pl.Map()
+	log.Debugf(ctx, "r: %v\n", r)
+	return c.JSON(http.StatusOK, r)
 }
 
 // curl -v http://localhost:8080/pipelines
