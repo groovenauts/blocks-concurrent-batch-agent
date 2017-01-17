@@ -43,13 +43,13 @@ type (
 	}
 )
 
-func CreatePipeline(ctx context.Context, plp *PipelineProps) (string, error) {
+func CreatePipeline(ctx context.Context, plp *PipelineProps) (*Pipeline, error) {
 	key := datastore.NewIncompleteKey(ctx, "Pipelines", nil)
 	res, err := datastore.Put(ctx, key, plp)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return res.Encode(), nil
+	return &Pipeline{id: res.Encode(), props: *plp}, nil
 }
 
 func FindPipeline(ctx context.Context, id string) (*Pipeline, error) {

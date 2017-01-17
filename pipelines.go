@@ -98,15 +98,15 @@ func (h *apiHandler) create(c echo.Context) error {
 		return err
 	}
 	ctx := c.Get("aecontext").(context.Context)
-	id, err := CreatePipeline(ctx, plp)
+	pl, err := CreatePipeline(ctx, plp)
 	if err != nil {
 		return err
 	}
-	t := taskqueue.NewPOSTTask("/" + id + "/build_task", map[string][]string{})
+	t := taskqueue.NewPOSTTask("/" + pl.id + "/build_task", map[string][]string{})
 	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 		return err
 	}
-	return c.JSON(http.StatusCreated, plp)
+	return c.JSON(http.StatusCreated, pl)
 }
 
 // curl -v http://localhost:8080/pipelines
