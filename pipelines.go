@@ -93,12 +93,12 @@ func init() {
 
 // curl -v -X POST http://localhost:8080/pipelines --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
 func (h *apiHandler) create(c echo.Context) error {
-	pl := &Pipeline{}
-	if err := c.Bind(pl); err != nil {
+	plp := &PipelineProps{}
+	if err := c.Bind(plp); err != nil {
 		return err
 	}
 	ctx := c.Get("aecontext").(context.Context)
-	id, err := CreatePipeline(ctx, pl)
+	id, err := CreatePipeline(ctx, plp)
 	if err != nil {
 		return err
 	}
@@ -106,7 +106,7 @@ func (h *apiHandler) create(c echo.Context) error {
 	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 		return err
 	}
-	return c.JSON(http.StatusCreated, pl)
+	return c.JSON(http.StatusCreated, plp)
 }
 
 // curl -v http://localhost:8080/pipelines

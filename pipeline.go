@@ -22,7 +22,7 @@ const (
 )
 
 type (
-	Pipeline struct {
+	PipelineProps struct {
 		ProjectID								     string `json:"project_id"`
 		JobTopicName							   string `json:"job_topic_name"`
 		JobSubscriptionName				   string `json:"job_subscription_name"`
@@ -36,15 +36,19 @@ type (
 		StartupScript						 string `json:"startup_script"`
 		Status									 Status		`json:"status"`
 	}
+
+	Pipeline struct {
+		id string
+		props PipelineProps
+	}
 )
 
-func CreatePipeline(ctx context.Context, pl *Pipeline) (string, error) {
+func CreatePipeline(ctx context.Context, plp *PipelineProps) (string, error) {
 	key := datastore.NewIncompleteKey(ctx, "Pipelines", nil)
-	res, err := datastore.Put(ctx, key, pl)
+	res, err := datastore.Put(ctx, key, plp)
 	if err != nil {
 		return "", err
 	}
-	ctx = context.WithValue(ctx, "Pipeline.key", res)
 	return res.Encode(), nil
 }
 
@@ -54,8 +58,8 @@ func FindPipeline(ctx context.Context, id string) (*Pipeline, error) {
 		return nil, err
 	}
 	ctx = context.WithValue(ctx, "Pipeline.key", key)
-	pl := &Pipeline{}
-	if err := datastore.Get(ctx, key, pl); err != nil {
+	pl := &Pipeline{id: id}
+	if err := datastore.Get(ctx, key, &pl.props); err != nil {
 		return nil, err
 	}
 	return pl, nil
@@ -63,10 +67,19 @@ func FindPipeline(ctx context.Context, id string) (*Pipeline, error) {
 
 func GetAllPipeline(ctx context.Context) ([]Pipeline, error) {
 	q := datastore.NewQuery("Pipelines")
-	var res []Pipeline
-	_, err := q.GetAll(ctx, &res)
-	if err != nil {
-		return nil, err
+	iter := q.Run(ctx)
+	var res = []Pipeline{}
+	for {
+		pl := Pipeline{}
+		key, err := iter.Next(&pl.props)
+    if err == datastore.Done {
+			break
+    }
+		if err != nil {
+			return nil, err
+		}
+		pl.id = key.Encode()
+		res = append(res, pl)
 	}
 	return res, nil
 }
@@ -85,10 +98,14 @@ func GetAllActivePipelineIDs(ctx context.Context) ([]string, error) {
 }
 
 func (pl *Pipeline) destroy(ctx context.Context) error {
-	if pl.Status != closed {
-		return fmt.Errorf("Can't destroy pipeline which has status: %v", pl.Status)
+	plp := pl.props
+	if plp.Status != closed {
+		return fmt.Errorf("Can't destroy pipeline which has status: %v", pl.props.Status)
 	}
-	key := ctx.Value("Pipeline.key").(*datastore.Key)
+	key, err := datastore.DecodeKey(pl.id)
+	if err != nil {
+		return err
+	}
 	if err := datastore.Delete(ctx, key); err != nil {
 		return err
 	}
