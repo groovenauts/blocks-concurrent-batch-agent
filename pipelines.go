@@ -15,9 +15,6 @@ import (
 
 type (
 	apiHandler struct {}
-	taskHandler struct {
-		factory ProcessorFactory
-	}
 )
 
 func withAEContext(impl func (c echo.Context) error) (func(c echo.Context) error) {
@@ -56,20 +53,15 @@ func (ah *apiHandler)callPipelineTask(action string) (func(c echo.Context) error
 	})
 }
 
-func (th *taskHandler)pipelineTask(action string) (func(c echo.Context) error) {
+func pipelineTask(action string) (func(c echo.Context) error) {
 	return withPipeline(func(c echo.Context, pl *Pipeline) error {
 		ctx := c.Get("aecontext").(context.Context)
-		pr, err := th.factory.Create(ctx, action)
-		if err != nil {
-			return err
-		}
-		return pr.Process(ctx, pl)
+		return pl.process(ctx, action)
 	})
 }
 
 func init() {
 	ah := &apiHandler{}
-	th := &taskHandler{&DefaultProcessorFactory{}}
 
 	g := e.Group("/pipelines")
 	g.Use(middleware.CORS())
@@ -79,16 +71,16 @@ func init() {
 	g.DELETE("/:id", withPipeline(ah.destroy))
 
 	g.POST(""               , withAEContext(ah.create))
-	g.POST("/:id/build_task", th.pipelineTask("build"))
+	g.POST("/:id/build_task", pipelineTask("build"))
 
 	actions := []string{"close", "update", "resize"}
 	for _, action := range actions {
 		g.PUT( "/:id/" + action          , ah.callPipelineTask(action))
-		g.POST("/:id/" + action + "_task", th.pipelineTask(action))
+		g.POST("/:id/" + action + "_task", pipelineTask(action))
 	}
 
 	g.GET( "/refresh"         , withAEContext(ah.refresh)) // from cron
-	g.POST("/:id/refresh_task", th.pipelineTask("refresh"))
+	g.POST("/:id/refresh_task", pipelineTask("refresh"))
 }
 
 // curl -v -X POST http://localhost:8080/pipelines --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
