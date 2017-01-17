@@ -49,9 +49,14 @@ func withAEContext(impl func (c echo.Context) error) (func(c echo.Context) error
 func withPipeline(impl func (c echo.Context, pl *Pipeline) error) (func(c echo.Context) error) {
 	return withAEContext(func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
+		log.Debugf(ctx, "@withPipeline c: %v\n", c)
 		id := c.Param("id")
 		pl, err := FindPipeline(ctx, id)
-		if err != nil {
+		switch {
+		case err == ErrNoSuchPipeline:
+			return c.JSON(http.StatusNotFound, map[string]string{"message": "Not found for " + id})
+		case err != nil:
+			log.Errorf(ctx, "@withPipeline %v id: %v\n", err, id)
 			return err
 		}
 		return impl(c, pl)
@@ -76,7 +81,11 @@ func callPipelineTask(action string) (func(c echo.Context) error) {
 func pipelineTask(action string) (func(c echo.Context) error) {
 	return withPipeline(func(c echo.Context, pl *Pipeline) error {
 		ctx := c.Get("aecontext").(context.Context)
-		return pl.process(ctx, action)
+		err := pl.process(ctx, action)
+		if err != nil {
+			return err
+		}
+		return c.JSON(http.StatusOK, pl)
 	})
 }
 
@@ -114,11 +123,14 @@ func (h *handler) index(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+	log.Debugf(ctx, "pipelines: %v\n", pipelines)
 	return c.JSON(http.StatusOK, pipelines)
 }
 
 // curl -v http://localhost:8080/pipelines/1
 func (h *handler) show(c echo.Context, pl *Pipeline) error {
+	ctx := c.Get("aecontext").(context.Context)
+	log.Debugf(ctx, "show pl: %v\n", pl)
 	return c.JSON(http.StatusOK, pl)
 }
 
