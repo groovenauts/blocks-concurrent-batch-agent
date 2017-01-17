@@ -2,6 +2,7 @@ package pipeline
 
 import (
 	"golang.org/x/net/context"
+	"google.golang.org/appengine/datastore"
 )
 
 // Status constants
@@ -37,19 +38,47 @@ type (
 )
 
 func CreatePipeline(ctx context.Context, pl *Pipeline) (string, error) {
-	return "encoded key", nil
+	key := datastore.NewIncompleteKey(ctx, "Pipelines", nil)
+	res, err := datastore.Put(ctx, key, pl)
+	if err != nil {
+		return "", err
+	}
+	return res.Encode(), nil
 }
 
 func FindPipeline(ctx context.Context, id string) (*Pipeline, error) {
-	return &Pipeline{}, nil
+	key, err := datastore.DecodeKey(id)
+	if err != nil {
+		return nil, err
+	}
+	pl := &Pipeline{}
+	if err := datastore.Get(ctx, key, pl); err != nil {
+		return nil, err
+	}
+	return pl, nil
 }
 
 func GetAllPipeline(ctx context.Context) ([]Pipeline, error) {
-	return []Pipeline{ Pipeline{} }, nil
+	q := datastore.NewQuery("Pipelines")
+	var res []Pipeline
+	_, err := q.GetAll(ctx, &res)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }
 
 func GetAllActivePipelineIDs(ctx context.Context) ([]string, error) {
-	return []string{""}, nil
+	q := datastore.NewQuery("Pipelines").Filter("status !=", closed).KeysOnly()
+	keys, err := q.GetAll(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	res := []string{}
+	for _, key := range keys {
+		res = append(res, key.Encode())
+	}
+	return res, nil
 }
 
 func (pl *Pipeline) destroy(ctx context.Context) error {
