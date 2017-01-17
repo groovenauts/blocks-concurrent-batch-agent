@@ -6,10 +6,13 @@ import (
 
 type (
 	Pipeline struct {
-		ProjectID								 string `json:"project_id"`
-		TopicName								 string `json:"topic_name"`
-		SubscriptionName				 string `json:"subscription_name"`
-		SubscriptionAckDeadline	 int		`json:"subscription_ack_deadline"`
+		ProjectID								     string `json:"project_id"`
+		JobTopicName							   string `json:"job_topic_name"`
+		JobSubscriptionName				   string `json:"job_subscription_name"`
+		JobSubscriptionAckDeadline	 int		`json:"job_subscription_ack_deadline"`
+		ProgressTopicName							   string `json:"progress_topic_name"`
+		ProgressSubscriptionName				 string `json:"progress_subscription_name"`
+		ProgressSubscriptionAckDeadline	 int		`json:"progress_subscription_ack_deadline"`
 		InstanceGroupName				 string `json:"instance_group_name"`
 		InstanceGroupSize				 int		`json:"instance_group_size"`
 		InstanceTemplateName		 string `json:"instance_template_name"`
