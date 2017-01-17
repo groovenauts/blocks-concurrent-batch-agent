@@ -67,7 +67,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	pl, err := CreatePipeline(ctx, &PipelineProps{ProjectID: proj})
 	FatalIfError(t, err)
 	log.Debugf(ctx, "pl %v\n", pl)
-	key, err := datastore.DecodeKey(pl.id)
+	key, err := datastore.DecodeKey(pl.ID)
 	FatalIfError(t, err)
 
 	pl2 := &PipelineProps{}
@@ -76,9 +76,9 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	ExpectToHaveProps(t, pl2)
 
 	// FindPipeline
-	pl3, err := FindPipeline(ctx, pl.id)
+	pl3, err := FindPipeline(ctx, pl.ID)
 	FatalIfError(t, err)
-	ExpectToHaveProps(t, &pl3.props)
+	ExpectToHaveProps(t, &pl3.Props)
 
 	// GetAllPipeline
 	pls, err := GetAllPipeline(ctx)
@@ -86,7 +86,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	if len(pls) != 1 {
 		t.Fatalf("len(pls) expects %v but was %v\n", 1, len(pls))
 	}
-	ExpectToHaveProps(t, &pls[0].props)
+	ExpectToHaveProps(t, &pls[0].Props)
 
 	// GetAllActivePipelineIDs
 	keys, err := GetAllActivePipelineIDs(ctx)
@@ -94,8 +94,8 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	if len(keys) != 1 {
 		t.Fatalf("len(keys) expects %v but was %v\n", 1, len(keys))
 	}
-	if keys[0] != pl.id {
-		t.Fatalf("keys[0] expects %v but was %v\n", pl.id, keys[0])
+	if keys[0] != pl.ID {
+		t.Fatalf("keys[0] expects %v but was %v\n", pl.ID, keys[0])
 	}
 
 	// destroy
@@ -105,13 +105,13 @@ func TestWatcherCalcDifferences(t *testing.T) {
 		resizing,updating,recreating,
 	}
 	for _, st := range statuses {
-		pl.props.Status = st
+		pl.Props.Status = st
 		err = pl.destroy(ctx)
 		if err == nil {
 			t.Fatalf("Pipeline can't be destroyed with status %v\n", st)
 		}
 	}
-	pl.props.Status = closed
+	pl.Props.Status = closed
 	err = pl.destroy(ctx)
 	FatalIfError(t, err)
 }

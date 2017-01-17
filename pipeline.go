@@ -26,22 +26,22 @@ var processorFactory ProcessorFactory = &DefaultProcessorFactory{}
 type (
 	PipelineProps struct {
 		ProjectID								     string `json:"project_id"`
-		JobTopicName							   string `json:"job_topic_name"`
-		JobSubscriptionName				   string `json:"job_subscription_name"`
-		JobSubscriptionAckDeadline	 int		`json:"job_subscription_ack_deadline"`
-		ProgressTopicName							   string `json:"progress_topic_name"`
-		ProgressSubscriptionName				 string `json:"progress_subscription_name"`
-		ProgressSubscriptionAckDeadline	 int		`json:"progress_subscription_ack_deadline"`
-		InstanceGroupName				 string `json:"instance_group_name"`
-		InstanceGroupSize				 int		`json:"instance_group_size"`
-		InstanceTemplateName		 string `json:"instance_template_name"`
-		StartupScript						 string `json:"startup_script"`
+		// JobTopicName							   string `json:"job_topic_name"`
+		// JobSubscriptionName				   string `json:"job_subscription_name"`
+		// JobSubscriptionAckDeadline	 int		`json:"job_subscription_ack_deadline"`
+		// ProgressTopicName							   string `json:"progress_topic_name"`
+		// ProgressSubscriptionName				 string `json:"progress_subscription_name"`
+		// ProgressSubscriptionAckDeadline	 int		`json:"progress_subscription_ack_deadline"`
+		// InstanceGroupName				 string `json:"instance_group_name"`
+		// InstanceGroupSize				 int		`json:"instance_group_size"`
+		// InstanceTemplateName		 string `json:"instance_template_name"`
+		// StartupScript						 string `json:"startup_script"`
 		Status									 Status		`json:"status"`
 	}
 
 	Pipeline struct {
-		id string           `json:"id"`
-		props PipelineProps `json:"props"`
+	  ID string           `json:"id"`
+		Props PipelineProps `json:"props"`
 	}
 )
 
@@ -51,7 +51,7 @@ func CreatePipeline(ctx context.Context, plp *PipelineProps) (*Pipeline, error) 
 	if err != nil {
 		return nil, err
 	}
-	return &Pipeline{id: res.Encode(), props: *plp}, nil
+	return &Pipeline{ID: res.Encode(), Props: *plp}, nil
 }
 
 func FindPipeline(ctx context.Context, id string) (*Pipeline, error) {
@@ -60,8 +60,8 @@ func FindPipeline(ctx context.Context, id string) (*Pipeline, error) {
 		return nil, err
 	}
 	ctx = context.WithValue(ctx, "Pipeline.key", key)
-	pl := &Pipeline{id: id}
-	if err := datastore.Get(ctx, key, &pl.props); err != nil {
+	pl := &Pipeline{ID: id}
+	if err := datastore.Get(ctx, key, &pl.Props); err != nil {
 		return nil, err
 	}
 	return pl, nil
@@ -73,14 +73,14 @@ func GetAllPipeline(ctx context.Context) ([]Pipeline, error) {
 	var res = []Pipeline{}
 	for {
 		pl := Pipeline{}
-		key, err := iter.Next(&pl.props)
+		key, err := iter.Next(&pl.Props)
     if err == datastore.Done {
 			break
     }
 		if err != nil {
 			return nil, err
 		}
-		pl.id = key.Encode()
+		pl.ID = key.Encode()
 		res = append(res, pl)
 	}
 	return res, nil
@@ -100,11 +100,11 @@ func GetAllActivePipelineIDs(ctx context.Context) ([]string, error) {
 }
 
 func (pl *Pipeline) destroy(ctx context.Context) error {
-	plp := pl.props
+	plp := pl.Props
 	if plp.Status != closed {
-		return fmt.Errorf("Can't destroy pipeline which has status: %v", pl.props.Status)
+		return fmt.Errorf("Can't destroy pipeline which has status: %v", plp.Status)
 	}
-	key, err := datastore.DecodeKey(pl.id)
+	key, err := datastore.DecodeKey(pl.ID)
 	if err != nil {
 		return err
 	}
@@ -120,28 +120,4 @@ func (pl *Pipeline) process(ctx context.Context, action string) error {
 		return err
 	}
 	return processor.Process(ctx, pl)
-}
-
-func (pl *Pipeline) Map() map[string]interface{} {
-	return map[string]interface{}{
-		"id": pl.id,
-		"props": pl.props.Map(),
-	}
-}
-
-func (pl *PipelineProps) Map() map[string]interface{} {
-	return map[string]interface{}{
-		"project_id":                         pl.ProjectID,
-		"job_topic_name":                   	pl.JobTopicName,
-		"job_subscription_name":            	pl.JobSubscriptionName,
-		"job_subscription_ack_deadline":    	pl.JobSubscriptionAckDeadline,
-		"progress_topic_name":              	pl.ProgressTopicName,
-		"progress_subscription_name":       	pl.ProgressSubscriptionName,
-		"progress_subscription_ack_deadline": pl.ProgressSubscriptionAckDeadline,
-		"instance_group_name":              	pl.InstanceGroupName,
-		"instance_group_size":              	pl.InstanceGroupSize,
-		"instance_template_name":           	pl.InstanceTemplateName,
-		"startup_script":                   	pl.StartupScript,
-		"status":                           	pl.Status,
-	}
 }

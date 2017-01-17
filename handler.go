@@ -99,15 +99,12 @@ func (h *handler) create(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	t := taskqueue.NewPOSTTask("/" + pl.id + "/build_task", map[string][]string{})
+	t := taskqueue.NewPOSTTask("/" + pl.ID + "/build_task", map[string][]string{})
 	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 		return err
 	}
 	log.Debugf(ctx, "pl: %v\n", pl)
-	// return c.JSON(http.StatusCreated, pl)
-	r := pl.Map()
-	log.Debugf(ctx, "r: %v\n", r)
-	return c.JSON(http.StatusOK, r)
+	return c.JSON(http.StatusCreated, pl)
 }
 
 // curl -v http://localhost:8080/pipelines

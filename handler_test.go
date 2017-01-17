@@ -40,16 +40,17 @@ func TestActions(t *testing.T) {
 
 	f := withAEContext(h.create)
 	if assert.NoError(t, f(c)) {
-		assert.Equal(t, http.StatusOK, rec.Code)
+		assert.Equal(t, http.StatusCreated, rec.Code)
 
-		// fmt.Printf("rec.Body: %v\n", rec.Body.String())
+		s := rec.Body.String()
+		fmt.Printf("rec.Body: %v\n", s)
 
 		pl := Pipeline{}
-		if assert.NoError(t, json.Unmarshal(rec.Body.Bytes(), &pl)) {
+		if assert.NoError(t, json.Unmarshal([]byte(s), &pl)) {
 			fmt.Printf("pl %v\n", pl)
-			fmt.Printf("pl.props %v\n", pl.props)
-			assert.Equal(t, test_proj1, pl.props.ProjectID)
-			assert.NotNil(t, pl.id)
+			fmt.Printf("pl.props %v\n", pl.Props)
+			assert.Equal(t, test_proj1, pl.Props.ProjectID)
+			assert.NotNil(t, pl.ID)
 		}
 	}
 }
