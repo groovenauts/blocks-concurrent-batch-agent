@@ -13,9 +13,28 @@ import (
 	"google.golang.org/appengine/taskqueue"
 )
 
-type (
-	handler struct {}
-)
+func init() {
+	h := &handler{}
+
+	g := e.Group("/pipelines")
+	g.Use(middleware.CORS())
+
+	g.GET("", withAEContext(h.index))
+	g.GET("/:id", withPipeline(h.show))
+	g.DELETE("/:id", withPipeline(h.destroy))
+
+	g.POST(""               , withAEContext(h.create))
+	g.POST("/:id/build_task", pipelineTask("build"))
+
+	actions := []string{"close", "update", "resize"}
+	for _, action := range actions {
+		g.PUT( "/:id/" + action          , callPipelineTask(action))
+		g.POST("/:id/" + action + "_task", pipelineTask(action))
+	}
+
+	g.GET( "/refresh"         , withAEContext(h.refresh)) // from cron
+	g.POST("/:id/refresh_task", pipelineTask("refresh"))
+}
 
 func withAEContext(impl func (c echo.Context) error) (func(c echo.Context) error) {
 	return func(c echo.Context) error {
@@ -60,28 +79,9 @@ func pipelineTask(action string) (func(c echo.Context) error) {
 	})
 }
 
-func init() {
-	h := &handler{}
-
-	g := e.Group("/pipelines")
-	g.Use(middleware.CORS())
-
-	g.GET("", withAEContext(h.index))
-	g.GET("/:id", withPipeline(h.show))
-	g.DELETE("/:id", withPipeline(h.destroy))
-
-	g.POST(""               , withAEContext(h.create))
-	g.POST("/:id/build_task", pipelineTask("build"))
-
-	actions := []string{"close", "update", "resize"}
-	for _, action := range actions {
-		g.PUT( "/:id/" + action          , callPipelineTask(action))
-		g.POST("/:id/" + action + "_task", pipelineTask(action))
-	}
-
-	g.GET( "/refresh"         , withAEContext(h.refresh)) // from cron
-	g.POST("/:id/refresh_task", pipelineTask("refresh"))
-}
+type (
+	handler struct {}
+)
 
 // curl -v -X POST http://localhost:8080/pipelines --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
 func (h *handler) create(c echo.Context) error {
