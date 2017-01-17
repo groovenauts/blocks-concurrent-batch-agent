@@ -21,6 +21,8 @@ const (
 	recreating
 )
 
+var processorFactory ProcessorFactory = &DefaultProcessorFactory{}
+
 type (
 	PipelineProps struct {
 		ProjectID								     string `json:"project_id"`
@@ -110,4 +112,12 @@ func (pl *Pipeline) destroy(ctx context.Context) error {
 		return err
 	}
 	return nil
+}
+
+func (pl *Pipeline) process(ctx context.Context, action string) error {
+	processor, err := processorFactory.Create(ctx, action)
+	if err != nil {
+		return err
+	}
+	return processor.Process(ctx, pl)
 }
