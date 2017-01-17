@@ -61,16 +61,16 @@ func pipelineTask(action string) (func(c echo.Context) error) {
 }
 
 func init() {
-	ah := &handler{}
+	h := &handler{}
 
 	g := e.Group("/pipelines")
 	g.Use(middleware.CORS())
 
-	g.GET("", withAEContext(ah.index))
-	g.GET("/:id", withPipeline(ah.show))
-	g.DELETE("/:id", withPipeline(ah.destroy))
+	g.GET("", withAEContext(h.index))
+	g.GET("/:id", withPipeline(h.show))
+	g.DELETE("/:id", withPipeline(h.destroy))
 
-	g.POST(""               , withAEContext(ah.create))
+	g.POST(""               , withAEContext(h.create))
 	g.POST("/:id/build_task", pipelineTask("build"))
 
 	actions := []string{"close", "update", "resize"}
@@ -79,7 +79,7 @@ func init() {
 		g.POST("/:id/" + action + "_task", pipelineTask(action))
 	}
 
-	g.GET( "/refresh"         , withAEContext(ah.refresh)) // from cron
+	g.GET( "/refresh"         , withAEContext(h.refresh)) // from cron
 	g.POST("/:id/refresh_task", pipelineTask("refresh"))
 }
 
