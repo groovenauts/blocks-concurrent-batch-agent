@@ -6,6 +6,7 @@ import (
 	// "time"
 
 	"golang.org/x/net/context"
+	"github.com/stretchr/testify/assert"
 	"google.golang.org/appengine/aetest"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
@@ -39,12 +40,6 @@ func ExpectChange(t *testing.T, ctx context.Context, kind string, diff int, f fu
 	}
 }
 
-func FatalIfError(t *testing.T, err error) {
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
 const (
 	proj = "test-project-x"
 )
@@ -58,31 +53,31 @@ func ExpectToHaveProps(t *testing.T, plp *PipelineProps) {
 func TestWatcherCalcDifferences(t *testing.T) {
 	// ctx := context.Background()
 	ctx, done, err := aetest.NewContext()
-	FatalIfError(t, err)
+	assert.NoError(t, err)
 	defer done()
 
 	ClearDatastore(t, ctx, "Pipelines")
 
 	// CreatePipeline
 	pl, err := CreatePipeline(ctx, &PipelineProps{ProjectID: proj})
-	FatalIfError(t, err)
+	assert.NoError(t, err)
 	log.Debugf(ctx, "pl %v\n", pl)
 	key, err := datastore.DecodeKey(pl.ID)
-	FatalIfError(t, err)
+	assert.NoError(t, err)
 
 	pl2 := &PipelineProps{}
 	err = datastore.Get(ctx, key, pl2)
-	FatalIfError(t, err)
+	assert.NoError(t, err)
 	ExpectToHaveProps(t, pl2)
 
 	// FindPipeline
 	pl3, err := FindPipeline(ctx, pl.ID)
-	FatalIfError(t, err)
+	assert.NoError(t, err)
 	ExpectToHaveProps(t, &pl3.Props)
 
 	// GetAllPipeline
 	pls, err := GetAllPipeline(ctx)
-	FatalIfError(t, err)
+	assert.NoError(t, err)
 	if len(pls) != 1 {
 		t.Fatalf("len(pls) expects %v but was %v\n", 1, len(pls))
 	}
@@ -90,7 +85,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 
 	// GetAllActivePipelineIDs
 	keys, err := GetAllActivePipelineIDs(ctx)
-	FatalIfError(t, err)
+	assert.NoError(t, err)
 	if len(keys) != 1 {
 		t.Fatalf("len(keys) expects %v but was %v\n", 1, len(keys))
 	}
@@ -113,5 +108,5 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	}
 	pl.Props.Status = closed
 	err = pl.destroy(ctx)
-	FatalIfError(t, err)
+	assert.NoError(t, err)
 }

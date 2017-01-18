@@ -25,7 +25,7 @@ const (
 
 func TestActions(t *testing.T) {
 	inst, err := aetest.NewInstance(nil)
-	FatalIfError(t, err)
+	assert.NoError(t, err)
 	defer inst.Close()
 
 	e := echo.New()
@@ -35,7 +35,7 @@ func TestActions(t *testing.T) {
 	json1 := `{"project_id":"proj-123"}`
 	req, err := inst.NewRequest(echo.POST, "/pipelines", strings.NewReader(json1))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	FatalIfError(t, err)
+	assert.NoError(t, err)
 
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
@@ -60,7 +60,7 @@ func TestActions(t *testing.T) {
 	path := "/pipelines/" + pl.ID
 	fmt.Printf("path to show: %v\n", path)
 	req, err = inst.NewRequest(echo.GET, path, nil)
-	FatalIfError(t, err)
+	assert.NoError(t, err)
 
 	rec = httptest.NewRecorder()
 	c = e.NewContext(req, rec)
@@ -85,7 +85,7 @@ func TestActions(t *testing.T) {
 	// Test for index
 	req, err = inst.NewRequest(echo.GET, "/pipelines", nil)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	FatalIfError(t, err)
+	assert.NoError(t, err)
 
 	rec = httptest.NewRecorder()
 	c = e.NewContext(req, rec)
@@ -109,7 +109,7 @@ func TestActions(t *testing.T) {
 	close_task_path := path + "/close_task"
 	req, err = inst.NewRequest(echo.POST, close_task_path, nil)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	FatalIfError(t, err)
+	assert.NoError(t, err)
 
 	rec = httptest.NewRecorder()
 	c = e.NewContext(req, rec)
@@ -134,7 +134,7 @@ func TestActions(t *testing.T) {
 	// Test for destroy
 	req, err = inst.NewRequest(echo.DELETE, path, nil)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	FatalIfError(t, err)
+	assert.NoError(t, err)
 
 	rec = httptest.NewRecorder()
 	c = e.NewContext(req, rec)
@@ -159,7 +159,7 @@ func TestActions(t *testing.T) {
 	// 2nd Test for show
 	path = "/pipelines/" + pl.ID
 	req, err = inst.NewRequest(echo.GET, path, nil)
-	FatalIfError(t, err)
+	assert.NoError(t, err)
 
 	rec = httptest.NewRecorder()
 	c = e.NewContext(req, rec)
