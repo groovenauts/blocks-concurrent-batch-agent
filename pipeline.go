@@ -1,8 +1,8 @@
 package pipeline
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
@@ -13,14 +13,14 @@ type Status int
 
 const (
 	initialized Status = 0
-	broken     = 1
-	building   = 2
-	opened     = 3
-	resizing   = 4
-	updating   = 5
-	recreating = 6
-	closing    = 8
-	closed     = 9
+	broken             = 1
+	building           = 2
+	opened             = 3
+	resizing           = 4
+	updating           = 5
+	recreating         = 6
+	closing            = 8
+	closed             = 9
 )
 
 var processorFactory ProcessorFactory = &DefaultProcessorFactory{}
@@ -29,7 +29,7 @@ var ErrNoSuchPipeline = errors.New("No such data in Pipelines")
 
 type (
 	PipelineProps struct {
-		ProjectID								     string `json:"project_id"`
+		ProjectID string `json:"project_id"`
 		// JobTopicName							   string `json:"job_topic_name"`
 		// JobSubscriptionName				   string `json:"job_subscription_name"`
 		// JobSubscriptionAckDeadline	 int		`json:"job_subscription_ack_deadline"`
@@ -40,11 +40,11 @@ type (
 		// InstanceGroupSize				 int		`json:"instance_group_size"`
 		// InstanceTemplateName		 string `json:"instance_template_name"`
 		// StartupScript						 string `json:"startup_script"`
-		Status									 Status		`json:"status"`
+		Status Status `json:"status"`
 	}
 
 	Pipeline struct {
-	  ID string           `json:"id"`
+		ID    string        `json:"id"`
 		Props PipelineProps `json:"props"`
 	}
 )
@@ -84,9 +84,9 @@ func GetAllPipeline(ctx context.Context) ([]Pipeline, error) {
 	for {
 		pl := Pipeline{}
 		key, err := iter.Next(&pl.Props)
-    if err == datastore.Done {
+		if err == datastore.Done {
 			break
-    }
+		}
 		if err != nil {
 			return nil, err
 		}

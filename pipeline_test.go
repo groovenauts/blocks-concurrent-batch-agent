@@ -22,7 +22,7 @@ func ClearDatastore(t *testing.T, ctx context.Context, kind string) {
 	}
 }
 
-func ExpectChange(t *testing.T, ctx context.Context, kind string, diff int, f func() ) {
+func ExpectChange(t *testing.T, ctx context.Context, kind string, diff int, f func()) {
 	q0 := datastore.NewQuery(kind)
 	c0, err := q0.Count(ctx)
 	if err != nil {
@@ -34,7 +34,7 @@ func ExpectChange(t *testing.T, ctx context.Context, kind string, diff int, f fu
 	if err != nil {
 		t.Fatal(err)
 	}
-	if c1 - c0 != diff {
+	if c1-c0 != diff {
 		t.Fatalf("Expect diff is %v, but it changed from %v to %v in %v", diff, c0, c1, kind)
 	}
 }
@@ -100,9 +100,9 @@ func TestWatcherCalcDifferences(t *testing.T) {
 
 	// destroy
 	statuses := []Status{
-		initialized,broken,building,opened,closing,
+		initialized, broken, building, opened, closing,
 		//closed,
-		resizing,updating,recreating,
+		resizing, updating, recreating,
 	}
 	for _, st := range statuses {
 		pl.Props.Status = st

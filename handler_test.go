@@ -1,12 +1,12 @@
 package pipeline
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"testing"
 	"strings"
-	"encoding/json"
+	"testing"
 
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
@@ -19,8 +19,8 @@ import (
 )
 
 const (
-	test_proj1  = "proj-123"
-	test_proj2  = "proj-777"
+	test_proj1 = "proj-123"
+	test_proj2 = "proj-777"
 )
 
 func TestActions(t *testing.T) {
@@ -59,7 +59,7 @@ func TestActions(t *testing.T) {
 	// Test for show
 	path := "/pipelines/" + pl.ID
 	fmt.Printf("path to show: %v\n", path)
-	req, err = inst.NewRequest(echo.GET, path , nil)
+	req, err = inst.NewRequest(echo.GET, path, nil)
 	FatalIfError(t, err)
 
 	rec = httptest.NewRecorder()
@@ -158,7 +158,7 @@ func TestActions(t *testing.T) {
 
 	// 2nd Test for show
 	path = "/pipelines/" + pl.ID
-	req, err = inst.NewRequest(echo.GET, path , nil)
+	req, err = inst.NewRequest(echo.GET, path, nil)
 	FatalIfError(t, err)
 
 	rec = httptest.NewRecorder()
