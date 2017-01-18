@@ -25,7 +25,7 @@ imports:
 - name: github.com/valyala/bytebufferpool
   version: e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7
 - name: github.com/valyala/fasttemplate
-  version: d090d65668a286d9a180d43a19dfdc5dcad8fe88
+  version: 3b874956e03f1636d171bda64b130f9135f42cff
 - name: golang.org/x/crypto
   version: 91902e332b9d47760598861512d2ae148f94ca58
   subpackages:
