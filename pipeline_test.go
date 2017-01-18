@@ -1,9 +1,7 @@
 package pipeline
 
 import (
-	// "sort"
 	"testing"
-	// "time"
 
 	"golang.org/x/net/context"
 	"github.com/stretchr/testify/assert"
@@ -51,7 +49,6 @@ func ExpectToHaveProps(t *testing.T, plp *PipelineProps) {
 }
 
 func TestWatcherCalcDifferences(t *testing.T) {
-	// ctx := context.Background()
 	ctx, done, err := aetest.NewContext()
 	assert.NoError(t, err)
 	defer done()

@@ -2,7 +2,6 @@ package pipeline
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -10,12 +9,7 @@ import (
 
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
-	// "golang.org/x/net/context"
-	// "google.golang.org/appengine"
-	// "google.golang.org/appengine/datastore"
-	// "google.golang.org/appengine/log"
 	"google.golang.org/appengine/aetest"
-	// "appengine_internal"
 )
 
 const (
@@ -46,19 +40,15 @@ func TestActions(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, rec.Code)
 
 	s := rec.Body.String()
-	fmt.Printf("rec.Body: %v\n", s)
 
 	pl := Pipeline{}
 	if assert.NoError(t, json.Unmarshal([]byte(s), &pl)) {
-		fmt.Printf("pl %v\n", pl)
-		fmt.Printf("pl.props %v\n", pl.Props)
 		assert.Equal(t, test_proj1, pl.Props.ProjectID)
 		assert.NotNil(t, pl.ID)
 	}
 
 	// Test for show
 	path := "/pipelines/" + pl.ID
-	fmt.Printf("path to show: %v\n", path)
 	req, err = inst.NewRequest(echo.GET, path, nil)
 	assert.NoError(t, err)
 
@@ -73,12 +63,9 @@ func TestActions(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		s := rec.Body.String()
-		fmt.Printf("rec.Body: %v\n", s)
-
 		pl2 := Pipeline{}
 		if assert.NoError(t, json.Unmarshal([]byte(s), &pl2)) {
 			assert.Equal(t, test_proj1, pl2.Props.ProjectID)
-			fmt.Printf("pl: %v\n", pl2)
 		}
 	}
 
@@ -96,12 +83,9 @@ func TestActions(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		s := rec.Body.String()
-		fmt.Printf("rec.Body: %v\n", s)
-
 		pls := []Pipeline{}
 		if assert.NoError(t, json.Unmarshal([]byte(s), &pls)) {
 			assert.Equal(t, 1, len(pls))
-			fmt.Printf("pls[0] %v\n", pls[0])
 		}
 	}
 
@@ -122,8 +106,6 @@ func TestActions(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		s := rec.Body.String()
-		fmt.Printf("rec.Body: %v\n", s)
-
 		pl2 := Pipeline{}
 		if assert.NoError(t, json.Unmarshal([]byte(s), &pl2)) {
 			assert.Equal(t, test_proj1, pl2.Props.ProjectID)
@@ -147,12 +129,9 @@ func TestActions(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		s := rec.Body.String()
-		fmt.Printf("rec.Body: %v\n", s)
-
 		pl2 := Pipeline{}
 		if assert.NoError(t, json.Unmarshal([]byte(s), &pl2)) {
 			assert.Equal(t, test_proj1, pl2.Props.ProjectID)
-			fmt.Printf("pl: %v\n", pl2)
 		}
 	}
 
@@ -170,7 +149,5 @@ func TestActions(t *testing.T) {
 	f = withPipeline(h.show)
 	if assert.NoError(t, f(c)) {
 		assert.Equal(t, http.StatusNotFound, rec.Code)
-		s := rec.Body.String()
-		fmt.Printf("rec.Body: %v\n", s)
 	}
 }

@@ -49,7 +49,6 @@ func withAEContext(impl func(c echo.Context) error) func(c echo.Context) error {
 func withPipeline(impl func(c echo.Context, pl *Pipeline) error) func(c echo.Context) error {
 	return withAEContext(func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
-		log.Debugf(ctx, "@withPipeline c: %v\n", c)
 		id := c.Param("id")
 		pl, err := FindPipeline(ctx, id)
 		switch {
@@ -103,7 +102,6 @@ func (h *handler) create(c echo.Context) error {
 		log.Errorf(ctx, "req: %v\n", req)
 		return err
 	}
-	log.Debugf(ctx, "plp: %v\n", plp)
 	pl, err := CreatePipeline(ctx, plp)
 	if err != nil {
 		return err
@@ -112,7 +110,6 @@ func (h *handler) create(c echo.Context) error {
 	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 		return err
 	}
-	log.Debugf(ctx, "pl: %v\n", pl)
 	return c.JSON(http.StatusCreated, pl)
 }
 
@@ -123,14 +120,11 @@ func (h *handler) index(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	log.Debugf(ctx, "pipelines: %v\n", pipelines)
 	return c.JSON(http.StatusOK, pipelines)
 }
 
 // curl -v http://localhost:8080/pipelines/1
 func (h *handler) show(c echo.Context, pl *Pipeline) error {
-	ctx := c.Get("aecontext").(context.Context)
-	log.Debugf(ctx, "show pl: %v\n", pl)
 	return c.JSON(http.StatusOK, pl)
 }
 

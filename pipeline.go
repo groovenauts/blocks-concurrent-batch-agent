@@ -90,7 +90,6 @@ func GetAllPipeline(ctx context.Context) ([]Pipeline, error) {
 		if err != nil {
 			return nil, err
 		}
-		log.Debugf(ctx, "GetAllPipeline pl: %v\n", pl)
 		pl.ID = key.Encode()
 		res = append(res, pl)
 	}
