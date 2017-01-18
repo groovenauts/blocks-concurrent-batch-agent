@@ -12,15 +12,15 @@ import (
 type Status int
 
 const (
-	initialized Status = 0
-	broken             = 1
-	building           = 2
-	opened             = 3
-	resizing           = 4
-	updating           = 5
-	recreating         = 6
-	closing            = 8
-	closed             = 9
+	initialized Status = iota
+	broken
+	building
+	opened
+	resizing
+	updating
+	recreating
+	closing
+	closed
 )
 
 var processorFactory ProcessorFactory = &DefaultProcessorFactory{}

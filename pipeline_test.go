@@ -1,6 +1,7 @@
 package pipeline
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -106,4 +107,29 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	pl.Props.Status = closed
 	err = pl.destroy(ctx)
 	assert.NoError(t, err)
+}
+
+func TestStatusTypeAndValue(t *testing.T) {
+	ft := "%T"
+	fv := "%#v"
+	st := "pipeline.Status"
+	assert.Equal(t, st, fmt.Sprintf(ft, initialized))
+	assert.Equal(t, st, fmt.Sprintf(ft, broken))
+	assert.Equal(t, st, fmt.Sprintf(ft, building))
+	assert.Equal(t, st, fmt.Sprintf(ft, opened))
+	assert.Equal(t, st, fmt.Sprintf(ft, resizing))
+	assert.Equal(t, st, fmt.Sprintf(ft, updating))
+	assert.Equal(t, st, fmt.Sprintf(ft, recreating))
+	assert.Equal(t, st, fmt.Sprintf(ft, closing))
+	assert.Equal(t, st, fmt.Sprintf(ft, closed))
+
+	assert.Equal(t, "0", fmt.Sprintf(fv, initialized))
+	assert.Equal(t, "1", fmt.Sprintf(fv, broken))
+	assert.Equal(t, "2", fmt.Sprintf(fv, building))
+	assert.Equal(t, "3", fmt.Sprintf(fv, opened))
+	assert.Equal(t, "4", fmt.Sprintf(fv, resizing))
+	assert.Equal(t, "5", fmt.Sprintf(fv, updating))
+	assert.Equal(t, "6", fmt.Sprintf(fv, recreating))
+	assert.Equal(t, "7", fmt.Sprintf(fv, closing))
+	assert.Equal(t, "8", fmt.Sprintf(fv, closed))
 }
