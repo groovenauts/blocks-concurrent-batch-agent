@@ -12,3 +12,6 @@ handlers:
 
 nobuild_files:
 - vendor/
+
+skip_files:
+- vendor/
