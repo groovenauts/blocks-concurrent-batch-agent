@@ -38,6 +38,13 @@ $ dev_appserver.py \
   ./app.yaml
 ```
 
+### Client example
+
+```
+$ curl -c my.cookie 'http://localhost:8080/_ah/login?email=test%40example.com&admin=True&action=Login&continue='
+$ curl -b my.cookie -X POST http://localhost:8080/pipelines --data '{"project_id":"FOO"}' -H 'Content-Type: application/json'
+$ curl -b my.cookie http://localhost:8080/pipelines
+```
 
 ## Deploy
 

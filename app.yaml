@@ -9,6 +9,7 @@ api_version: go1                # used when appengine supports different go vers
 handlers:
 - url: /.*
   script: _go_app
+  login: admin
 
 nobuild_files:
 - vendor/
