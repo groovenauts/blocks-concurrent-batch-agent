@@ -69,7 +69,7 @@ func callPipelineTask(action string) func(c echo.Context) error {
 	return withPipeline(func(c echo.Context, pl *Pipeline) error {
 		id := c.Param("id")
 		ctx := c.Get("aecontext").(context.Context)
-		t := taskqueue.NewPOSTTask(fmt.Sprintf("/%s/%s_task", id, action), map[string][]string{})
+		t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/%s_task", id, action), map[string][]string{})
 		if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 			return err
 		}
@@ -106,7 +106,7 @@ func (h *handler) create(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	t := taskqueue.NewPOSTTask("/"+pl.ID+"/build_task", map[string][]string{})
+	t := taskqueue.NewPOSTTask("/pipelines/"+pl.ID+"/build_task", map[string][]string{})
 	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 		return err
 	}
