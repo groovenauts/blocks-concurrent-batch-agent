@@ -3,8 +3,8 @@ package pipeline
 import (
 	"testing"
 
-	"golang.org/x/net/context"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/net/context"
 	"google.golang.org/appengine/aetest"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
