@@ -1,0 +1,27 @@
+resources:
+- type: pubsub.v1.topic
+  name: pipeline01-job-topic
+  properties:
+    topic: pipeline01-job-topic
+- type: pubsub.v1.subscription
+  name: pipeline01-job-subscription
+  properties:
+    subscription: pipeline01-job-subscription
+    topic: projects/dummy-proj/topics/pipeline01-job-topic
+    ackDeadlineSeconds: 600
+  metadata:
+    dependsOn:
+    - pipeline01-job-topic
+- type: pubsub.v1.topic
+  name: pipeline01-progress-topic
+  properties:
+    topic: pipeline01-progress-topic
+- type: pubsub.v1.subscription
+  name: pipeline01-progress-subscription
+  properties:
+    subscription: pipeline01-progress-subscription
+    topic: projects/dummy-proj/topics/pipeline01-progress-topic
+    ackDeadlineSeconds: 30
+  metadata:
+    dependsOn:
+    - pipeline01-progress-topic
