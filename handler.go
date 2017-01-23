@@ -89,7 +89,7 @@ func callPipelineTask(action string) func(c echo.Context) error {
 	return withPipeline(func(c echo.Context, pl *Pipeline) error {
 		id := c.Param("id")
 		ctx := c.Get("aecontext").(context.Context)
-		t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/%s_task", id, action), map[string][]string{})
+		t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/%s_task.json", id, action), map[string][]string{})
 		if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 			return err
 		}
@@ -147,7 +147,7 @@ func (h *handler) createImpl(c echo.Context) (*Pipeline, error) {
 	if err != nil {
 		return nil, err
 	}
-	t := taskqueue.NewPOSTTask("/pipelines/"+pl.ID+"/build_task", map[string][]string{})
+	t := taskqueue.NewPOSTTask("/pipelines/"+pl.ID+"/build_task.json", map[string][]string{})
 	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 		return nil, err
 	}
@@ -207,7 +207,7 @@ func (h *handler) refresh(c echo.Context) error {
 		return err
 	}
 	for _, id := range ids {
-		t := taskqueue.NewPOSTTask(fmt.Sprintf("/%s/refresh_task", id), map[string][]string{})
+		t := taskqueue.NewPOSTTask(fmt.Sprintf("/%s/refresh_task.json", id), map[string][]string{})
 		if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 			return err
 		}
