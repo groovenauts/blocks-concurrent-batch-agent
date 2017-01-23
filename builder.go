@@ -13,6 +13,13 @@ type Builder struct {
 }
 
 func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
+	pl.Props.Status = building
+	err := pl.update(ctx)
+	if err != nil {
+		log.Errorf(ctx, "Failed to update Pipeline status to 'building': %v\npl: %v\n", err, pl)
+		return err
+	}
+
 	log.Debugf(ctx, "Building pipeline %v\n", pl.Props)
 	client, err := google.DefaultClient(ctx, "https://www.googleapis.com/auth/cloud-platform", "https://www.googleapis.com/auth/ndev.cloudman")
 	if err != nil {
@@ -31,6 +38,14 @@ func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
 	}
 	s.Deployments.Insert(pl.Props.ProjectID, deployment)
 	log.Infof(ctx, "Built pipeline successfully %v\n", pl.Props)
+
+	pl.Props.Status = opened
+	err = pl.update(ctx)
+	if err != nil {
+		log.Errorf(ctx, "Failed to update Pipeline status to 'opened': %v\npl: %v\n", err, pl)
+		return err
+	}
+
 	return nil
 }
 

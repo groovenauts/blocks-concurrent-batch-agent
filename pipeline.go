@@ -125,6 +125,19 @@ func (pl *Pipeline) destroy(ctx context.Context) error {
 	return nil
 }
 
+func (pl *Pipeline) update(ctx context.Context) error {
+	key, err := datastore.DecodeKey(pl.ID)
+	if err != nil {
+		return err
+	}
+	_, err = datastore.Put(ctx, key, pl.Props)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+
 func (pl *Pipeline) process(ctx context.Context, action string) error {
 	processor, err := processorFactory.Create(ctx, action)
 	if err != nil {
