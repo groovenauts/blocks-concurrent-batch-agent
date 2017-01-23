@@ -42,14 +42,14 @@ func (b *Builder) BuildDeployment(plp *PipelineProps) (*deploymentmanager.Deploy
 
 type (
 	Metadata struct {
-		DependsOn []string `yaml:"dependsOn"`
+		DependsOn []string `yaml:"dependsOn,omitempty"`
 	}
 
 	Resource struct {
 		Type string `yaml:"type"`
 		Name string `yaml:"name"`
 		Properties map[string]string `yaml:"properties"`
-		Metadata Metadata `yaml:"metadata"`
+		Metadata Metadata `yaml:"metadata,omitempty"`
 	}
 
 	Resources struct {
