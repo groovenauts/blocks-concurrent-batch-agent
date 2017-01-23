@@ -7,11 +7,8 @@ resources:
   name: pipeline01-job-subscription
   properties:
     subscription: pipeline01-job-subscription
-    topic: projects/dummy-proj/topics/pipeline01-job-topic
+    topic: $(ref.pipeline01-job-topic.name)
     ackDeadlineSeconds: 600
-  metadata:
-    dependsOn:
-    - pipeline01-job-topic
 - type: pubsub.v1.topic
   name: pipeline01-progress-topic
   properties:
@@ -20,8 +17,5 @@ resources:
   name: pipeline01-progress-subscription
   properties:
     subscription: pipeline01-progress-subscription
-    topic: projects/dummy-proj/topics/pipeline01-progress-topic
+    topic: $(ref.pipeline01-progress-topic.name)
     ackDeadlineSeconds: 30
-  metadata:
-    dependsOn:
-    - pipeline01-progress-topic
