@@ -130,7 +130,7 @@ func (pl *Pipeline) update(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	_, err = datastore.Put(ctx, key, pl.Props)
+	_, err = datastore.Put(ctx, key, &pl.Props)
 	if err != nil {
 		return err
 	}
