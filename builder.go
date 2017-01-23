@@ -52,7 +52,7 @@ func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
 }
 
 func (b *Builder) BuildDeployment(plp *PipelineProps) (*deploymentmanager.Deployment, error) {
-	r := b.GenerateDeploymentResources(plp.ProjectID, plp.Name)
+	r := b.GenerateDeploymentResources(plp)
 	d, err := json.Marshal(r)
 	if err != nil { return nil, err }
 	// https://github.com/google/google-api-go-client/blob/master/deploymentmanager/v2/deploymentmanager-gen.go#L321-L346
@@ -86,15 +86,15 @@ type (
 	}
 )
 
-func (b *Builder) GenerateDeploymentResources(project, name string) *Resources {
+func (b *Builder) GenerateDeploymentResources(plp *PipelineProps) *Resources {
 	t := []Resource{}
 	pubsubs := []Pubsub{
 		Pubsub{Name: "job", AckDeadline: 600},
 		Pubsub{Name: "progress", AckDeadline: 30},
 	}
 	for _, pubsub := range pubsubs {
-		topic := name + "-" + pubsub.Name + "-topic"
-		subscription := name + "-" + pubsub.Name + "-subscription"
+		topic := plp.Name + "-" + pubsub.Name + "-topic"
+		subscription := plp.Name + "-" + pubsub.Name + "-subscription"
 		t = append(t,
 			Resource{
 				Type: "pubsub.v1.topic",
@@ -112,5 +112,49 @@ func (b *Builder) GenerateDeploymentResources(project, name string) *Resources {
 			},
 		)
 	}
+	t = append(t,
+		Resource{
+			Type: "compute.v1.instanceTemplate",
+			Name: plp.Name + "-it",
+			Properties: map[string]interface{}{
+        "zone": plp.Zone,
+        "properties": map[string]interface{}{
+          "machineType": plp.MachineType,
+          "networkInterfaces": []interface{}{
+            map[string]interface{}{
+              "network": "https://www.googleapis.com/compute/v1/projects/" +plp.ProjectID+ "/global/networks/default",
+              "accessConfigs": []interface{}{
+                map[string]interface{}{
+                  "name": "External-IP",
+                  "type": "ONE_TO_ONE_NAT",
+                },
+              },
+            },
+          },
+          "disks": []interface{}{
+            map[string]interface{}{
+              "deviceName": "boot",
+              "type": "PERSISTENT",
+              "boot": true,
+              "autoDelete": true,
+              "initializeParams": map[string]interface{}{
+                "sourceImage": plp.SourceImage,
+              },
+            },
+          },
+				},
+			},
+		},
+		Resource{
+			Type: "compute.v1.instanceGroupManagers",
+			Name: plp.Name + "-igm",
+			Properties: map[string]interface{}{
+        "baseInstanceName": plp.Name + "-instance",
+        "instanceTemplate": "$(ref.pipeline01-it.selfLink)",
+        "targetSize": plp.TargetSize,
+        "zone": plp.Zone,
+      },
+    },
+	)
 	return &Resources{Resources: t}
 }

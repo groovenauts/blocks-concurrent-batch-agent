@@ -29,8 +29,14 @@ var ErrNoSuchPipeline = errors.New("No such data in Pipelines")
 
 type (
 	PipelineProps struct {
+		// Parameters to build pipeline
 		Name string `json:"name"`
 		ProjectID string `json:"project_id"`
+		Zone string `json:"zone"`
+		SourceImage string `json:"source_image"`
+		MachineType string `json:"machine_type"`
+		TargetSize int `json:"target_size"`
+		// Result of building pipeline
 		// JobTopicName							   string `json:"job_topic_name"`
 		// JobSubscriptionName				   string `json:"job_subscription_name"`
 		// JobSubscriptionAckDeadline	 int		`json:"job_subscription_ack_deadline"`

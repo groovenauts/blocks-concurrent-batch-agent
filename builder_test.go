@@ -15,16 +15,25 @@ func TestGenerateContent(t *testing.T) {
 	expected := Resources{}
 	err = json.Unmarshal([]byte(expected_data), &expected)
 	assert.NoError(t, err)
-	// If ackDeadlineSeconds is float65, cast it to int
+	// If ackDeadlineSeconds or targetSize is float64, cast it to int
 	for _, r := range expected.Resources {
-		v := r.Properties["ackDeadlineSeconds"]
-		switch vi := v.(type){
-		case float64:
-			r.Properties["ackDeadlineSeconds"] = int(vi)
+		for k,v := range r.Properties {
+			switch vi := v.(type){
+			case float64:
+				r.Properties[k] = int(vi)
+			}
 		}
 	}
 
-	result := b.GenerateDeploymentResources("dummy-proj", "pipeline01")
+	plp := PipelineProps{
+		Name: "pipeline01",
+		ProjectID: "dummy-proj-999",
+		Zone: "us-central1-f",
+		SourceImage: "https://www.googleapis.com/compute/v1/projects/coreos-cloud/global/images/coreos-stable-1235-6-0-v20170111",
+		MachineType: "f1-micro",
+		TargetSize: 2,
+	}
+	result := b.GenerateDeploymentResources(&plp)
 	assert.Equal(t, &expected, result)
 }
 
@@ -36,7 +45,11 @@ func TestBuildDeployment(t *testing.T) {
 	assert.NoError(t, err)
 	plp := PipelineProps{
 		Name: "pipeline01",
-		ProjectID: "dummy-proj",
+		ProjectID: "dummy-proj-999",
+		Zone: "us-central1-f",
+		SourceImage: "https://www.googleapis.com/compute/v1/projects/coreos-cloud/global/images/coreos-stable-1235-6-0-v20170111",
+		MachineType: "f1-micro",
+		TargetSize: 2,
 	}
 	d, err := b.BuildDeployment(&plp)
 	assert.NoError(t, err)
