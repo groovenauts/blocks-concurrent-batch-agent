@@ -18,14 +18,14 @@ func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
 	if err != nil { return err }
 	s, err := deploymentmanager.New(client)
 	if err != nil { return err }
-	deployment, err := b.BuildDeployment(pl)
+	deployment, err := b.BuildDeployment(&pl.Props)
 	if err != nil { return err }
 	s.Deployments.Insert(pl.Props.ProjectID, deployment)
 	return nil
 }
 
-func (b *Builder) BuildDeployment(pl *Pipeline) (*deploymentmanager.Deployment, error) {
-	r := b.GenerateDeploymentResources(pl.Props.ProjectID, pl.Props.Name)
+func (b *Builder) BuildDeployment(plp *PipelineProps) (*deploymentmanager.Deployment, error) {
+	r := b.GenerateDeploymentResources(plp.ProjectID, plp.Name)
 	d, err := yaml.Marshal(r)
 	if err != nil { return nil, err }
 	// https://github.com/google/google-api-go-client/blob/master/deploymentmanager/v2/deploymentmanager-gen.go#L321-L346
@@ -34,7 +34,7 @@ func (b *Builder) BuildDeployment(pl *Pipeline) (*deploymentmanager.Deployment, 
 	tc := deploymentmanager.TargetConfiguration{Config: &c}
 	// https://github.com/google/google-api-go-client/blob/master/deploymentmanager/v2/deploymentmanager-gen.go#L348-L434
 	dm := deploymentmanager.Deployment{
-		Name: pl.Props.Name,
+		Name: plp.Name,
 		Target: &tc,
 	}
 	return &dm, nil
