@@ -20,21 +20,21 @@ func init() {
 	g := e.Group("/pipelines")
 	g.Use(middleware.CORS())
 
-	g.GET("", withAEContext(h.index))
-	g.GET("/:id", withPipeline(h.show))
-	g.DELETE("/:id", withPipeline(h.destroy))
+	g.GET(".json", withAEContext(h.index))
+	g.GET("/:id.json", withPipeline(h.show))
+	g.DELETE("/:id.json", withPipeline(h.destroy))
 
-	g.POST("", withAEContext(h.create))
-	g.POST("/:id/build_task", pipelineTask("build"))
+	g.POST(".json", withAEContext(h.create))
+	g.POST("/:id/build_task.json", pipelineTask("build"))
 
 	actions := []string{"close", "update", "resize"}
 	for _, action := range actions {
-		g.PUT("/:id/"+action, callPipelineTask(action))
-		g.POST("/:id/"+action+"_task", pipelineTask(action))
+		g.PUT("/:id/"+action+".json", callPipelineTask(action))
+		g.POST("/:id/"+action+"_task.json", pipelineTask(action))
 	}
 
-	g.GET("/refresh", withAEContext(h.refresh)) // from cron
-	g.POST("/:id/refresh_task", pipelineTask("refresh"))
+	g.GET("/refresh.json", withAEContext(h.refresh)) // from cron
+	g.POST("/:id/refresh_task.json", pipelineTask("refresh"))
 }
 
 func withAEContext(impl func(c echo.Context) error) func(c echo.Context) error {
@@ -62,9 +62,9 @@ func withPipeline(impl func(c echo.Context, pl *Pipeline) error) func(c echo.Con
 	})
 }
 
-// curl -v -X PUT http://localhost:8080/pipelines/1/close
-// curl -v -X PUT http://localhost:8080/pipelines/1/update
-// curl -v -X PUT http://localhost:8080/pipelines/1/resize
+// curl -v -X PUT http://localhost:8080/pipelines/1/close.json
+// curl -v -X PUT http://localhost:8080/pipelines/1/update.json
+// curl -v -X PUT http://localhost:8080/pipelines/1/resize.json
 func callPipelineTask(action string) func(c echo.Context) error {
 	return withPipeline(func(c echo.Context, pl *Pipeline) error {
 		id := c.Param("id")
@@ -77,6 +77,11 @@ func callPipelineTask(action string) func(c echo.Context) error {
 	})
 }
 
+// curl -v -X POST http://localhost:8080/pipelines/1/build_task.json
+// curl -v -X	POST http://localhost:8080/pipelines/1/close_task.json
+// curl -v -X	POST http://localhost:8080/pipelines/1/update_task.json
+// curl -v -X	POST http://localhost:8080/pipelines/1/resize_task.json
+// curl -v -X	POST http://localhost:8080/pipelines/1/refresh_task.json
 func pipelineTask(action string) func(c echo.Context) error {
 	return withPipeline(func(c echo.Context, pl *Pipeline) error {
 		ctx := c.Get("aecontext").(context.Context)
@@ -92,7 +97,7 @@ type (
 	handler struct{}
 )
 
-// curl -v -X POST http://localhost:8080/pipelines --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
+// curl -v -X POST http://localhost:8080/pipelines.json --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
 func (h *handler) create(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	req := c.Request()
@@ -113,7 +118,7 @@ func (h *handler) create(c echo.Context) error {
 	return c.JSON(http.StatusCreated, pl)
 }
 
-// curl -v http://localhost:8080/pipelines
+// curl -v http://localhost:8080/pipelines.json
 func (h *handler) index(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pipelines, err := GetAllPipeline(ctx)
@@ -123,12 +128,12 @@ func (h *handler) index(c echo.Context) error {
 	return c.JSON(http.StatusOK, pipelines)
 }
 
-// curl -v http://localhost:8080/pipelines/1
+// curl -v http://localhost:8080/pipelines/1.json
 func (h *handler) show(c echo.Context, pl *Pipeline) error {
 	return c.JSON(http.StatusOK, pl)
 }
 
-// curl -v -X DELETE http://localhost:8080/pipelines/1
+// curl -v -X DELETE http://localhost:8080/pipelines/1.json
 func (h *handler) destroy(c echo.Context, pl *Pipeline) error {
 	ctx := c.Get("aecontext").(context.Context)
 	if err := pl.destroy(ctx); err != nil {
@@ -137,7 +142,7 @@ func (h *handler) destroy(c echo.Context, pl *Pipeline) error {
 	return c.JSON(http.StatusOK, pl)
 }
 
-// curl -v -X PUT http://localhost:8080/pipelines/refresh
+// curl -v -X PUT http://localhost:8080/pipelines/refresh.json
 func (h *handler) refresh(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	ids, err := GetAllActivePipelineIDs(ctx)
