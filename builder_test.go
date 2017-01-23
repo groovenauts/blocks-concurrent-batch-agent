@@ -15,6 +15,15 @@ func TestGenerateContent(t *testing.T) {
 	expected := Resources{}
 	err = json.Unmarshal([]byte(expected_data), &expected)
 	assert.NoError(t, err)
+	// If ackDeadlineSeconds is float65, cast it to int
+	for _, r := range expected.Resources {
+		v := r.Properties["ackDeadlineSeconds"]
+		switch vi := v.(type){
+		case float64:
+			r.Properties["ackDeadlineSeconds"] = int(vi)
+		}
+	}
+
 	result := b.GenerateDeploymentResources("dummy-proj", "pipeline01")
 	assert.Equal(t, &expected, result)
 }
