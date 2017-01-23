@@ -60,3 +60,10 @@ If you want to set it active, run the following command
 ```
 $ gcloud app services set-traffic concurrent-batch-agent --splits=$(cat VERSION)=1
 ```
+
+### New Pipeline data
+
+1. Open the https://<hostname>/pipelines.html
+2. Click [New Pipeline]
+3. Fill in the fields
+4. Click [submit]
