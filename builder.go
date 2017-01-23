@@ -13,14 +13,24 @@ type Builder struct {
 }
 
 func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
-	log.Debugf(ctx, "Building pipeline %v\n", pl)
+	log.Debugf(ctx, "Building pipeline %v\n", pl.Props)
 	client, err := google.DefaultClient(ctx, "https://www.googleapis.com/auth/cloud-platform", "https://www.googleapis.com/auth/ndev.cloudman")
-	if err != nil { return err }
+	if err != nil {
+		log.Errorf(ctx, "Failed to get google.DefaultClient: %v\n", err)
+		return err
+	}
 	s, err := deploymentmanager.New(client)
-	if err != nil { return err }
+	if err != nil {
+		log.Errorf(ctx, "Failed to get deploymentmanager.New(client): %v\nclient: %v\n", err, client)
+		return err
+	}
 	deployment, err := b.BuildDeployment(&pl.Props)
-	if err != nil { return err }
+	if err != nil {
+		log.Errorf(ctx, "Failed to BuildDeployment: %v\nProps: %v\n", err, pl.Props)
+		return err
+	}
 	s.Deployments.Insert(pl.Props.ProjectID, deployment)
+	log.Infof(ctx, "Built pipeline successfully %v\n", pl.Props)
 	return nil
 }
 
