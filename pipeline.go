@@ -29,6 +29,7 @@ var ErrNoSuchPipeline = errors.New("No such data in Pipelines")
 
 type (
 	PipelineProps struct {
+		Name string `json:"name"`
 		ProjectID string `json:"project_id"`
 		// JobTopicName							   string `json:"job_topic_name"`
 		// JobSubscriptionName				   string `json:"job_subscription_name"`
