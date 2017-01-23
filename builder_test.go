@@ -5,15 +5,15 @@ import (
 	// "golang.org/x/net/context"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
-	"gopkg.in/yaml.v2"
+	"encoding/json"
 	// "google.golang.org/api/deploymentmanager/v2"
 )
 
 func TestGenerateContent(t *testing.T) {
 	b := &Builder{}
-	expected_data, err := ioutil.ReadFile(`builder_test/pipeline01.yaml`)
+	expected_data, err := ioutil.ReadFile(`builder_test/pipeline01.json`)
 	expected := Resources{}
-	err = yaml.Unmarshal([]byte(expected_data), &expected)
+	err = json.Unmarshal([]byte(expected_data), &expected)
 	assert.NoError(t, err)
 	result := b.GenerateDeploymentResources("dummy-proj", "pipeline01")
 	assert.Equal(t, &expected, result)
@@ -21,9 +21,9 @@ func TestGenerateContent(t *testing.T) {
 
 func TestBuildDeployment(t *testing.T) {
 	b := &Builder{}
-	expected_data, err := ioutil.ReadFile(`builder_test/pipeline01.yaml`)
+	expected_data, err := ioutil.ReadFile(`builder_test/pipeline01.json`)
 	expected := Resources{}
-	err = yaml.Unmarshal([]byte(expected_data), &expected)
+	err = json.Unmarshal([]byte(expected_data), &expected)
 	assert.NoError(t, err)
 	plp := PipelineProps{
 		Name: "pipeline01",
@@ -58,7 +58,7 @@ func TestBuildDeployment(t *testing.T) {
 	assert.Empty(t, c.NullFields)
 
 	actual := Resources{}
-	err = yaml.Unmarshal([]byte(c.Content), &actual)
+	err = json.Unmarshal([]byte(c.Content), &actual)
 	assert.NoError(t, err)
 	assert.Equal(t, &expected, &actual)
 }

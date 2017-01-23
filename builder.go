@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/log"
-	"gopkg.in/yaml.v2"
+	"encoding/json"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/deploymentmanager/v2"
 )
@@ -53,7 +53,7 @@ func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
 
 func (b *Builder) BuildDeployment(plp *PipelineProps) (*deploymentmanager.Deployment, error) {
 	r := b.GenerateDeploymentResources(plp.ProjectID, plp.Name)
-	d, err := yaml.Marshal(r)
+	d, err := json.Marshal(r)
 	if err != nil { return nil, err }
 	// https://github.com/google/google-api-go-client/blob/master/deploymentmanager/v2/deploymentmanager-gen.go#L321-L346
 	c := deploymentmanager.ConfigFile{Content: string(d)}
@@ -69,13 +69,13 @@ func (b *Builder) BuildDeployment(plp *PipelineProps) (*deploymentmanager.Deploy
 
 type (
 	Resource struct {
-		Type string `yaml:"type"`
-		Name string `yaml:"name"`
-		Properties map[string]interface{} `yaml:"properties"`
+		Type string `json:"type"`
+		Name string `json:"name"`
+		Properties map[string]interface{} `json:"properties"`
 	}
 
 	Resources struct {
-		Resources []Resource `yaml:"resources"`
+		Resources []Resource `json:"resources"`
 	}
 )
 
