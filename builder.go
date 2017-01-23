@@ -21,14 +21,16 @@ func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
 	}
 
 	log.Debugf(ctx, "Building pipeline %v\n", pl.Props)
-	client, err := google.DefaultClient(ctx, "https://www.googleapis.com/auth/cloud-platform", "https://www.googleapis.com/auth/ndev.cloudman")
+	// See the "Examples" below "Response"
+	//   https://cloud.google.com/deployment-manager/docs/reference/latest/deployments/insert#response
+	hc, err := google.DefaultClient(ctx, deploymentmanager.CloudPlatformScope)
 	if err != nil {
 		log.Errorf(ctx, "Failed to get google.DefaultClient: %v\n", err)
 		return err
 	}
-	s, err := deploymentmanager.New(client)
+	c, err := deploymentmanager.New(hc)
 	if err != nil {
-		log.Errorf(ctx, "Failed to get deploymentmanager.New(client): %v\nclient: %v\n", err, client)
+		log.Errorf(ctx, "Failed to get deploymentmanager.New(hc): %v\nhc: %v\n", err, hc)
 		return err
 	}
 	deployment, err := b.BuildDeployment(&pl.Props)
@@ -36,7 +38,7 @@ func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
 		log.Errorf(ctx, "Failed to BuildDeployment: %v\nProps: %v\n", err, pl.Props)
 		return err
 	}
-	s.Deployments.Insert(pl.Props.ProjectID, deployment)
+	c.Deployments.Insert(pl.Props.ProjectID, deployment).Context(ctx).Do()
 	log.Infof(ctx, "Built pipeline successfully %v\n", pl.Props)
 
 	pl.Props.Status = opened
