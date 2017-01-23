@@ -68,15 +68,10 @@ func (b *Builder) BuildDeployment(plp *PipelineProps) (*deploymentmanager.Deploy
 }
 
 type (
-	Metadata struct {
-		DependsOn []string `yaml:"dependsOn,omitempty"`
-	}
-
 	Resource struct {
 		Type string `yaml:"type"`
 		Name string `yaml:"name"`
 		Properties map[string]interface{} `yaml:"properties"`
-		Metadata Metadata `yaml:"metadata,omitempty"`
 	}
 
 	Resources struct {
@@ -111,11 +106,8 @@ func (b *Builder) GenerateDeploymentResources(project, name string) *Resources {
 				Name: subscription,
 				Properties: map[string]interface{}{
 					"subscription": subscription,
-					"topic": fmt.Sprintf("projects/%s/topics/%s", project, topic),
+					"topic": fmt.Sprintf("$(ref.%s.name)", topic),
 					"ackDeadlineSeconds": pubsub.AckDeadline,
-				},
-				Metadata: Metadata{
-					DependsOn: []string{ topic },
 				},
 			},
 		)
