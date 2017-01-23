@@ -58,5 +58,5 @@ $ appcfg.py \
 If you want to set it active, run the following command
 
 ```
-$ gcloud app services set-traffic default --splits=$(cat VERSION)=1
+$ gcloud app services set-traffic concurrent-batch-agent --splits=$(cat VERSION)=1
 ```
