@@ -75,7 +75,7 @@ type (
 	Resource struct {
 		Type string `yaml:"type"`
 		Name string `yaml:"name"`
-		Properties map[string]string `yaml:"properties"`
+		Properties map[string]interface{} `yaml:"properties"`
 		Metadata Metadata `yaml:"metadata,omitempty"`
 	}
 
@@ -104,15 +104,15 @@ func (b *Builder) GenerateDeploymentResources(project, name string) *Resources {
 			Resource{
 				Type: "pubsub.v1.topic",
 				Name: topic,
-				Properties: map[string]string{ "topic": topic },
+				Properties: map[string]interface{}{ "topic": topic },
 			},
 			Resource{
 				Type: "pubsub.v1.subscription",
 				Name: subscription,
-				Properties: map[string]string{
+				Properties: map[string]interface{}{
 					"subscription": subscription,
 					"topic": fmt.Sprintf("projects/%s/topics/%s", project, topic),
-					"ackDeadlineSeconds": fmt.Sprintf("%v", pubsub.AckDeadline),
+					"ackDeadlineSeconds": pubsub.AckDeadline,
 				},
 				Metadata: Metadata{
 					DependsOn: []string{ topic },
