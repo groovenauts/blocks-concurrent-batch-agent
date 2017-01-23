@@ -73,6 +73,11 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	assert.NoError(t, err)
 	ExpectToHaveProps(t, &pl3.Props)
 
+	// Update status
+	pl.Props.Status = building
+	err = pl.update(ctx)
+	assert.NoError(t, err)
+
 	// GetAllPipeline
 	pls, err := GetAllPipeline(ctx)
 	assert.NoError(t, err)
@@ -80,6 +85,11 @@ func TestWatcherCalcDifferences(t *testing.T) {
 		t.Fatalf("len(pls) expects %v but was %v\n", 1, len(pls))
 	}
 	ExpectToHaveProps(t, &pls[0].Props)
+
+	// Update status
+	pl.Props.Status = opened
+	err = pl.update(ctx)
+	assert.NoError(t, err)
 
 	// GetAllActivePipelineIDs
 	keys, err := GetAllActivePipelineIDs(ctx)
