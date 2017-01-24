@@ -9,6 +9,7 @@ import (
 
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/appengine"
 	"google.golang.org/appengine/aetest"
 )
 
@@ -89,29 +90,12 @@ func TestActions(t *testing.T) {
 		}
 	}
 
-	// Test for close_task
-	close_task_path := path + "/close_task"
-	req, err = inst.NewRequest(echo.POST, close_task_path, nil)
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	// Make pipeline deletable
+	pl.Props.Status = closed
+	// https://github.com/golang/appengine/blob/master/aetest/instance.go#L32-L46
+	ctx := appengine.NewContext(req)
+	err = pl.update(ctx)
 	assert.NoError(t, err)
-
-	rec = httptest.NewRecorder()
-	c = e.NewContext(req, rec)
-	c.SetPath(close_task_path)
-	c.SetParamNames("id")
-	c.SetParamValues(pl.ID)
-
-	f = pipelineTask("close")
-	if assert.NoError(t, f(c)) {
-		assert.Equal(t, http.StatusOK, rec.Code)
-
-		s := rec.Body.String()
-		pl2 := Pipeline{}
-		if assert.NoError(t, json.Unmarshal([]byte(s), &pl2)) {
-			assert.Equal(t, test_proj1, pl2.Props.ProjectID)
-			assert.Equal(t, Status(closed), pl2.Props.Status)
-		}
-	}
 
 	// Test for destroy
 	req, err = inst.NewRequest(echo.DELETE, path, nil)
