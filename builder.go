@@ -112,6 +112,16 @@ func (b *Builder) GenerateDeploymentResources(plp *PipelineProps) *Resources {
 			},
 		)
 	}
+
+	startup_script :=
+		fmt.Sprintf("for i in {1..%v}; do", plp.ContainerSize) +
+		" docker run -d" +
+		" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref.pipeline01-job-subscription.name)" +
+		" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref.pipeline01-progress-topic.name)" +
+		" " + plp.ContainerName +
+		" " + plp.Command +
+		" ; done"
+
 	t = append(t,
 		Resource{
 			Type: "compute.v1.instanceTemplate",
@@ -120,6 +130,14 @@ func (b *Builder) GenerateDeploymentResources(plp *PipelineProps) *Resources {
         "zone": plp.Zone,
         "properties": map[string]interface{}{
           "machineType": plp.MachineType,
+					"metadata": map[string]interface{}{
+						"items": []interface{} {
+							map[string]interface{}{
+								"key": "startup-script",
+								"value": startup_script,
+							},
+						},
+					},
           "networkInterfaces": []interface{}{
             map[string]interface{}{
               "network": "https://www.googleapis.com/compute/v1/projects/" +plp.ProjectID+ "/global/networks/default",
@@ -131,6 +149,14 @@ func (b *Builder) GenerateDeploymentResources(plp *PipelineProps) *Resources {
               },
             },
           },
+					"serviceAccounts": []interface{}{
+						map[string]interface {}{
+							"scopes": []interface{}{
+								"https://www.googleapis.com/auth/devstorage.full_control",
+								"https://www.googleapis.com/auth/pubsub",
+							},
+						},
+					},
           "disks": []interface{}{
             map[string]interface{}{
               "deviceName": "boot",

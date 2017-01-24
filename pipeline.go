@@ -36,7 +36,10 @@ type (
 		SourceImage string `json:"source_image"`
 		MachineType string `json:"machine_type"`
 		TargetSize int `json:"target_size"`
-		// Result of building pipeline
+		ContainerSize int `json:"container_size"`
+		ContainerName string `json:"container_name"`
+		Command string `json:"command"`
+		// // Result of building pipeline
 		// JobTopicName							   string `json:"job_topic_name"`
 		// JobSubscriptionName				   string `json:"job_subscription_name"`
 		// JobSubscriptionAckDeadline	 int		`json:"job_subscription_ack_deadline"`

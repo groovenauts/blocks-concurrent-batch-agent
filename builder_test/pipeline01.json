@@ -57,10 +57,26 @@
               "boot": true,
               "autoDelete": true,
               "initializeParams": {
-                "sourceImage": "https://www.googleapis.com/compute/v1/projects/coreos-cloud/global/images/coreos-stable-1235-6-0-v20170111"
+                "sourceImage": "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0"
               }
             }
-          ]
+          ],
+          "serviceAccounts": [
+            {
+              "scopes": [
+                "https://www.googleapis.com/auth/devstorage.full_control",
+                "https://www.googleapis.com/auth/pubsub"
+              ]
+            }
+          ],
+          "metadata": {
+            "items": [
+              {
+                "key": "startup-script",
+                "value": "for i in {1..2}; do docker run -d -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref.pipeline01-job-subscription.name) -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref.pipeline01-progress-topic.name) groovenauts/batch_type_iot_example:0.3.1 bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir} ; done"
+              }
+            ]
+          }
         }
       }
     },

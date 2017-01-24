@@ -29,9 +29,12 @@ func TestGenerateContent(t *testing.T) {
 		Name: "pipeline01",
 		ProjectID: "dummy-proj-999",
 		Zone: "us-central1-f",
-		SourceImage: "https://www.googleapis.com/compute/v1/projects/coreos-cloud/global/images/coreos-stable-1235-6-0-v20170111",
+		SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
 		MachineType: "f1-micro",
 		TargetSize: 2,
+		ContainerSize: 2,
+		ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
+		Command: "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
 	}
 	result := b.GenerateDeploymentResources(&plp)
 	assert.Equal(t, &expected, result)
@@ -47,9 +50,12 @@ func TestBuildDeployment(t *testing.T) {
 		Name: "pipeline01",
 		ProjectID: "dummy-proj-999",
 		Zone: "us-central1-f",
-		SourceImage: "https://www.googleapis.com/compute/v1/projects/coreos-cloud/global/images/coreos-stable-1235-6-0-v20170111",
+		SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
 		MachineType: "f1-micro",
 		TargetSize: 2,
+		ContainerSize: 2,
+		ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
+		Command: "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
 	}
 	d, err := b.BuildDeployment(&plp)
 	assert.NoError(t, err)
