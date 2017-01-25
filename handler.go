@@ -14,6 +14,18 @@ import (
 	"google.golang.org/appengine/taskqueue"
 )
 
+
+func withAEContext(impl func(c echo.Context) error) func(c echo.Context) error {
+	return func(c echo.Context) error {
+		req := c.Request()
+		ctx := appengine.NewContext(req)
+		c.Set("aecontext", ctx)
+		return impl(c)
+	}
+}
+
+type handler struct{}
+
 func init() {
 	h := &handler{}
 
@@ -35,15 +47,6 @@ func init() {
 
 	g.GET("/refresh.json", withAEContext(h.refresh)) // from cron
 	g.POST("/:id/refresh_task.json", h.pipelineTask("refresh"))
-}
-
-func withAEContext(impl func(c echo.Context) error) func(c echo.Context) error {
-	return func(c echo.Context) error {
-		req := c.Request()
-		ctx := appengine.NewContext(req)
-		c.Set("aecontext", ctx)
-		return impl(c)
-	}
 }
 
 func (h *handler) withPipeline(impl func(c echo.Context, pl *Pipeline) error) func(c echo.Context) error {
@@ -92,10 +95,6 @@ func (h *handler) pipelineTask(action string) func(c echo.Context) error {
 		return c.JSON(http.StatusOK, pl)
 	})
 }
-
-type (
-	handler struct{}
-)
 
 // curl -v -X POST http://localhost:8080/pipelines.json --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
 func (h *handler) create(c echo.Context) error {
