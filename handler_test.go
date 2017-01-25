@@ -27,6 +27,36 @@ func TestActions(t *testing.T) {
 	e := echo.New()
 	h := &handler{}
 
+	invalid_get_test := func(setup func(req *http.Request)) {
+		req, err := inst.NewRequest(echo.GET, "/pipelines", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		setup(req)
+		assert.NoError(t, err)
+
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetPath("/pipelines")
+
+		f := h.withAuth(h.index)
+		if assert.NoError(t, f(c)) {
+			assert.Equal(t, http.StatusUnauthorized, rec.Code)
+		}
+	}
+
+	invalid_get_test(func(req *http.Request){
+		// do nothing
+	})
+	auth_headers := []string{
+		"",
+		"Bearer ",
+		"Bearer invalid-token:123456789",
+	}
+	for _, v := range auth_headers {
+		invalid_get_test(func(req *http.Request){
+			req.Header.Set(auth_header, v)
+		})
+	}
+
 	req, err := inst.NewRequest(echo.GET, "/pipelines", nil)
 	assert.NoError(t, err)
 	ctx := appengine.NewContext(req)
@@ -44,7 +74,7 @@ func TestActions(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.SetPath("/pipelines")
 
-	f := withAEContext(h.create)
+	f := h.withAuth(h.create)
 	assert.NoError(t, f(c))
 	assert.Equal(t, http.StatusCreated, rec.Code)
 
@@ -89,7 +119,7 @@ func TestActions(t *testing.T) {
 	c = e.NewContext(req, rec)
 	c.SetPath("/pipelines")
 
-	f = withAEContext(h.index)
+	f = h.withAuth(h.index)
 	if assert.NoError(t, f(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
