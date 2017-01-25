@@ -2,9 +2,7 @@ package pipeline
 
 import (
 	"fmt"
-	"io"
 	"net/http"
-	"html/template"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -37,15 +35,6 @@ func init() {
 
 	g.GET("/refresh.json", withAEContext(h.refresh)) // from cron
 	g.POST("/:id/refresh_task.json", pipelineTask("refresh"))
-
-	t := &Template{
-    templates: template.Must(template.ParseGlob("views/*.html")),
-	}
-
-	e.Renderer = t
-	e.GET("/pipelines.html", withAEContext(h.indexPage))
-	e.GET("/pipelines/new.html", withAEContext(h.newPage))
-	e.POST("/pipelines.html", withAEContext(h.createPage))
 }
 
 func withAEContext(impl func(c echo.Context) error) func(c echo.Context) error {
@@ -56,15 +45,6 @@ func withAEContext(impl func(c echo.Context) error) func(c echo.Context) error {
 		return impl(c)
 	}
 }
-
-type Template struct {
-    templates *template.Template
-}
-
-func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	return t.templates.ExecuteTemplate(w, name, data)
-}
-
 
 func withPipeline(impl func(c echo.Context, pl *Pipeline) error) func(c echo.Context) error {
 	return withAEContext(func(c echo.Context) error {
@@ -124,15 +104,6 @@ func (h *handler) create(c echo.Context) error {
 	return c.JSON(http.StatusCreated, pl)
 }
 
-// POST http://localhost:8080/pipelines.html
-func (h *handler) createPage(c echo.Context) error {
-	_, err := h.createImpl(c)
-	if err != nil {
-		return c.Render(http.StatusOK, "new", err)
-	}
-	return c.Redirect(http.StatusSeeOther, "/pipelines.html")
-}
-
 func (h *handler) createImpl(c echo.Context) (*Pipeline, error) {
 	ctx := c.Get("aecontext").(context.Context)
 	req := c.Request()
@@ -164,25 +135,6 @@ func (h *handler) index(c echo.Context) error {
 	return c.JSON(http.StatusOK, pipelines)
 }
 
-// curl -v http://localhost:8080/pipelines.html
-func (h *handler) indexPage(c echo.Context) error {
-	ctx := c.Get("aecontext").(context.Context)
-	log.Debugf(ctx, "indexPage\n")
-	pipelines, err := GetAllPipeline(ctx)
-	if err != nil {
-		log.Errorf(ctx, "indexPage error: %v\n", err)
-		return err
-	}
-	log.Debugf(ctx, "indexPage pipelines: %v\n", pipelines)
-	r := c.Render(http.StatusOK, "index", pipelines)
-	log.Debugf(ctx, "indexPage r: %v\n", r)
-	return r
-}
-
-// curl -v http://localhost:8080/pipelines.html
-func (h *handler) newPage(c echo.Context) error {
-	return c.Render(http.StatusOK, "new", nil)
-}
 
 
 // curl -v http://localhost:8080/pipelines/1.json
