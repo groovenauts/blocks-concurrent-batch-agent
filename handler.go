@@ -3,6 +3,7 @@ package pipeline
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -32,11 +33,11 @@ func init() {
 	g := e.Group("/pipelines")
 	g.Use(middleware.CORS())
 
-	g.GET(".json", withAEContext(h.index))
+	g.GET(".json", h.withAuth(h.index))
 	g.GET("/:id.json", h.withPipeline(h.show))
 	g.DELETE("/:id.json", h.withPipeline(h.destroy))
 
-	g.POST(".json", withAEContext(h.create))
+	g.POST(".json", h.withAuth(h.create))
 	g.POST("/:id/build_task.json", h.pipelineTask("build"))
 
 	actions := []string{"close", "update", "resize"}
@@ -45,12 +46,26 @@ func init() {
 		g.POST("/:id/"+action+"_task.json", h.pipelineTask(action))
 	}
 
-	g.GET("/refresh.json", withAEContext(h.refresh)) // from cron
+	g.GET("/refresh.json", h.withAuth(h.refresh)) // from cron
 	g.POST("/:id/refresh_task.json", h.pipelineTask("refresh"))
 }
 
-func (h *handler) withPipeline(impl func(c echo.Context, pl *Pipeline) error) func(c echo.Context) error {
+func (h *handler) withAuth(impl func(c echo.Context) error) func(c echo.Context) error {
 	return withAEContext(func(c echo.Context) error {
+		ctx := c.Get("aecontext").(context.Context)
+		req := c.Request()
+		re := regexp.MustCompile(`\ABearer\s+`)
+		token := re.ReplaceAllString(req.Header.Get("Authorization"), "")
+		_, err := FindAuthWithToken(ctx, token)
+		if err != nil {
+			return err
+		}
+		return impl(c)
+	})
+}
+
+func (h *handler) withPipeline(impl func(c echo.Context, pl *Pipeline) error) func(c echo.Context) error {
+	return h.withAuth(func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		id := c.Param("id")
 		pl, err := FindPipeline(ctx, id)
