@@ -15,7 +15,6 @@ import (
 	"google.golang.org/appengine/taskqueue"
 )
 
-
 func withAEContext(impl func(c echo.Context) error) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		req := c.Request()
@@ -114,7 +113,9 @@ func (h *handler) pipelineTask(action string) func(c echo.Context) error {
 // curl -v -X POST http://localhost:8080/pipelines.json --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
 func (h *handler) create(c echo.Context) error {
 	pl, err := h.createImpl(c)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	return c.JSON(http.StatusCreated, pl)
 }
 
@@ -148,8 +149,6 @@ func (h *handler) index(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, pipelines)
 }
-
-
 
 // curl -v http://localhost:8080/pipelines/1.json
 func (h *handler) show(c echo.Context, pl *Pipeline) error {

@@ -3,9 +3,9 @@ package pipeline
 import (
 	"testing"
 	// "golang.org/x/net/context"
+	"encoding/json"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
-	"encoding/json"
 	// "google.golang.org/api/deploymentmanager/v2"
 )
 
@@ -18,7 +18,7 @@ func TestGenerateContent(t *testing.T) {
 	// If ackDeadlineSeconds is float65, cast it to int
 	for _, r := range expected.Resources {
 		v := r.Properties["ackDeadlineSeconds"]
-		switch vi := v.(type){
+		switch vi := v.(type) {
 		case float64:
 			r.Properties["ackDeadlineSeconds"] = int(vi)
 		}
@@ -35,7 +35,7 @@ func TestBuildDeployment(t *testing.T) {
 	err = json.Unmarshal([]byte(expected_data), &expected)
 	assert.NoError(t, err)
 	plp := PipelineProps{
-		Name: "pipeline01",
+		Name:      "pipeline01",
 		ProjectID: "dummy-proj",
 	}
 	d, err := b.BuildDeployment(&plp)

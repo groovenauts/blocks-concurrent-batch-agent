@@ -2,9 +2,9 @@ package pipeline
 
 import (
 	"fmt"
+	"html/template"
 	"io"
 	"net/http"
-	"html/template"
 	"time"
 
 	"github.com/labstack/echo"
@@ -21,7 +21,7 @@ func init() {
 	h := &adminHandler{}
 
 	t := &Template{
-    templates: template.Must(template.ParseGlob("admin/*.html")),
+		templates: template.Must(template.ParseGlob("admin/*.html")),
 	}
 	e.Renderer = t
 
@@ -33,7 +33,7 @@ func init() {
 }
 
 type Template struct {
-    templates *template.Template
+	templates *template.Template
 }
 
 func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
@@ -41,7 +41,7 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 }
 
 type Flash struct {
-	Alert string
+	Alert  string
 	Notice string
 }
 
@@ -92,8 +92,8 @@ func (h *adminHandler) index(c echo.Context) error {
 // POST http://localhost:8080/admin/auths.html
 
 type CreateRes struct {
-	Flash *Flash
-	Auth *Auth
+	Flash    *Flash
+	Auth     *Auth
 	Hostname string
 }
 
@@ -110,14 +110,14 @@ func (h *adminHandler) create(c echo.Context) error {
 		return err
 	}
 	r := CreateRes{
-		Auth: auth,
+		Auth:     auth,
 		Hostname: hostname,
 	}
 	r.Flash = h.loadFlash(c)
 	return c.Render(http.StatusOK, "create", &r)
 }
 
-func (h *adminHandler) AuthHandler(f func(c echo.Context, ctx context.Context, auth *Auth) error) (func(c echo.Context) error) {
+func (h *adminHandler) AuthHandler(f func(c echo.Context, ctx context.Context, auth *Auth) error) func(c echo.Context) error {
 	return withAEContext(func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		auth, err := FindAuth(ctx, c.Param("id"))

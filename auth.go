@@ -3,26 +3,26 @@ package pipeline
 import (
 	"encoding/base64"
 	"errors"
-	"math/rand"
-	"strings"
-	"time"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
+	"math/rand"
+	"strings"
+	"time"
 )
 
 type (
 	AuthProps struct {
-		Password string `datastore:"-"`
+		Password          string `datastore:"-"`
 		EncryptedPassword string
-		Disabled bool
-		CreatedAt time.Time
-		UpdatedAt time.Time
+		Disabled          bool
+		CreatedAt         time.Time
+		UpdatedAt         time.Time
 	}
 
 	Auth struct {
-		ID string
+		ID    string
 		Token string
 		Props AuthProps
 	}
@@ -50,7 +50,7 @@ func CreateAuth(ctx context.Context) (*Auth, error) {
 		return nil, err
 	}
 	id := res.Encode()
-	return &Auth{ID: id, Token: id +":"+ mp.Password, Props: mp}, nil
+	return &Auth{ID: id, Token: id + ":" + mp.Password, Props: mp}, nil
 }
 
 func FindAuth(ctx context.Context, id string) (*Auth, error) {
