@@ -5,7 +5,7 @@ import (
 	"html/template"
 	"io"
 	"net/http"
-	// "time"
+	"time"
 
 	"github.com/labstack/echo"
 
@@ -46,49 +46,47 @@ type Flash struct {
 }
 
 func (h *adminHandler) setFlash(c echo.Context, name, value string) {
+	h.setFlashWithExpire(c, name, value, time.Now().Add(10 * time.Minute))
+}
+
+func (h *adminHandler) setFlashWithExpire(c echo.Context, name, value string, expire time.Time) {
 	cookie := new(http.Cookie)
+	cookie.Path = "/admin/"
 	cookie.Name = name
 	cookie.Value = value
-	// cookie.Expires = time.Now().Add(10 * time.Minute)
+	cookie.Expires = expire
 	c.SetCookie(cookie)
 }
 
 func (h *adminHandler) loadFlash(c echo.Context) *Flash {
-	ctx := c.Get("aecontext").(context.Context)
 	f := Flash{}
 	cookie, err := c.Cookie("alert")
-	log.Debugf(ctx, "cookie, err: %v", cookie, err)
 	if err == nil {
 		f.Alert = cookie.Value
 	}
 	cookie, err = c.Cookie("notice")
-	log.Debugf(ctx, "cookie, err: %v", cookie, err)
 	if err == nil {
 		f.Notice = cookie.Value
 	}
-	log.Debugf(ctx, "flash: %v", f)
 	return &f
 }
 
 func (h *adminHandler) clearFlash(c echo.Context) {
-	cookie, err := c.Cookie("alert")
+	_, err := c.Cookie("alert")
 	if err == nil {
-		cookie.Value = ""
+		h.setFlashWithExpire(c, "alert", "", time.Now().AddDate(0, 0, 1))
 	}
-	cookie, err = c.Cookie("notice")
+	_, err = c.Cookie("notice")
 	if err == nil {
-		cookie.Value = ""
+		h.setFlashWithExpire(c, "notice", "", time.Now().AddDate(0, 0, 1))
 	}
 }
 
 func (h *adminHandler) withFlash(impl func(c echo.Context) error) func(c echo.Context) error {
 	return withAEContext(func(c echo.Context) error {
-		ctx := c.Get("aecontext").(context.Context)
 		f := h.loadFlash(c)
-		log.Debugf(ctx, "flash1: %v", f)
 		c.Set("flash", f)
-		// h.clearFlash(c)
-		log.Debugf(ctx, "flash2: %v", f)
+		h.clearFlash(c)
 		return impl(c)
 	})
 }
