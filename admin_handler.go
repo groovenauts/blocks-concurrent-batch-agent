@@ -28,8 +28,8 @@ func init() {
 	g := e.Group("/admin/auths")
 	g.GET(".html", withAEContext(h.index))
 	g.POST(".html", withAEContext(h.create))
-	g.PUT("/:id.html", h.AuthHandler(h.disable))
-	g.DELETE("/:id.html", h.AuthHandler(h.destroy))
+	g.POST("/:id/disable.html", h.AuthHandler(h.disable))
+	g.POST("/:id/delete.html", h.AuthHandler(h.destroy))
 }
 
 type Template struct {

@@ -15,8 +15,11 @@
     <td>{{.Props.CreatedAt}} </td>
     <td>{{.Props.UpdatedAt}} </td>
     <td>
-      <form action="/admin/auths/{{.ID}}.html" method="PUT">
+      <form action="/admin/auths/{{.ID}}/disable.html" method="POST">
         <input type="submit" value="Disable"/>
+      </form>
+      <form action="/admin/auths/{{.ID}}/delete.html" method="POST">
+        <input type="submit" value="Delete"/>
       </form>
     </td>
   </tr>

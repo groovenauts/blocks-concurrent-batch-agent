@@ -54,11 +54,13 @@ func CreateAuth(ctx context.Context) (*Auth, error) {
 }
 
 func FindAuth(ctx context.Context, id string) (*Auth, error) {
+	log.Debugf(ctx, "@FindAuth id: %v\n", id)
 	key, err := datastore.DecodeKey(id)
 	if err != nil {
 		log.Errorf(ctx, "@FindAuth %v id: %v\n", err, id)
 		return nil, err
 	}
+	log.Debugf(ctx, "@FindAuth key: %v\n", key)
 	ctx = context.WithValue(ctx, "Auth.key", key)
 	m := &Auth{ID: id}
 	err = datastore.Get(ctx, key, &m.Props)
@@ -66,28 +68,28 @@ func FindAuth(ctx context.Context, id string) (*Auth, error) {
 	case err == datastore.ErrNoSuchEntity:
 		return nil, ErrNoSuchAuth
 	case err != nil:
-		log.Errorf(ctx, "@withAuth %v id: %v\n", err, id)
+		log.Errorf(ctx, "@FindAuth %v id: %v\n", err, id)
 		return nil, err
 	}
 	return m, nil
 }
 
-func FindAuthWithPassword(ctx context.Context, token string) (*Auth, error) {
+func FindAuthWithToken(ctx context.Context, token string) (*Auth, error) {
 	parts := strings.SplitN(token, ":", 2)
 	id := parts[0]
 	pw := parts[1]
 	auth, err := FindAuth(ctx, id)
 	if err != nil {
-		log.Errorf(ctx, "@FindAuthWithPassword Auth not found %v id: %v\n", err, id)
+		log.Errorf(ctx, "@FindAuthWithToken Auth not found %v id: %v\n", err, id)
 		return nil, err
 	}
 	if auth.Props.Disabled {
-		log.Errorf(ctx, "@FindAuthWithPassword Auth is disabled. id: %v\n", id)
+		log.Errorf(ctx, "@FindAuthWithToken Auth is disabled. id: %v\n", id)
 		return nil, err
 	}
 	enc_pw := auth.Props.EncryptedPassword // EncryptedPassword is binary string
 	if err = bcrypt.CompareHashAndPassword([]byte(enc_pw), []byte(pw)); err != nil {
-		log.Errorf(ctx, "@FindAuthWithPassword Auth is disabled. id: %v\n", id)
+		log.Errorf(ctx, "@FindAuthWithToken Auth is disabled. id: %v\n", id)
 		return nil, err
 	}
 	return auth, nil
