@@ -5,7 +5,7 @@ import (
 	"html/template"
 	"io"
 	"net/http"
-	"time"
+	// "time"
 
 	"github.com/labstack/echo"
 
@@ -26,8 +26,8 @@ func init() {
 	e.Renderer = t
 
 	g := e.Group("/admin/auths")
-	g.GET(".html", withAEContext(h.index))
-	g.POST(".html", withAEContext(h.create))
+	g.GET(".html", h.withFlash(h.index))
+	g.POST(".html", h.withFlash(h.create))
 	g.POST("/:id/disable.html", h.AuthHandler(h.disable))
 	g.POST("/:id/delete.html", h.AuthHandler(h.destroy))
 }
@@ -49,21 +49,48 @@ func (h *adminHandler) setFlash(c echo.Context, name, value string) {
 	cookie := new(http.Cookie)
 	cookie.Name = name
 	cookie.Value = value
-	cookie.Expires = time.Now().Add(10 * time.Minute)
+	// cookie.Expires = time.Now().Add(10 * time.Minute)
 	c.SetCookie(cookie)
 }
 
 func (h *adminHandler) loadFlash(c echo.Context) *Flash {
+	ctx := c.Get("aecontext").(context.Context)
 	f := Flash{}
 	cookie, err := c.Cookie("alert")
+	log.Debugf(ctx, "cookie, err: %v", cookie, err)
 	if err == nil {
 		f.Alert = cookie.Value
 	}
 	cookie, err = c.Cookie("notice")
+	log.Debugf(ctx, "cookie, err: %v", cookie, err)
 	if err == nil {
 		f.Notice = cookie.Value
 	}
+	log.Debugf(ctx, "flash: %v", f)
 	return &f
+}
+
+func (h *adminHandler) clearFlash(c echo.Context) {
+	cookie, err := c.Cookie("alert")
+	if err == nil {
+		cookie.Value = ""
+	}
+	cookie, err = c.Cookie("notice")
+	if err == nil {
+		cookie.Value = ""
+	}
+}
+
+func (h *adminHandler) withFlash(impl func(c echo.Context) error) func(c echo.Context) error {
+	return withAEContext(func(c echo.Context) error {
+		ctx := c.Get("aecontext").(context.Context)
+		f := h.loadFlash(c)
+		log.Debugf(ctx, "flash1: %v", f)
+		c.Set("flash", f)
+		// h.clearFlash(c)
+		log.Debugf(ctx, "flash2: %v", f)
+		return impl(c)
+	})
 }
 
 // GET http://localhost:8080/admin/auths.html
@@ -85,14 +112,14 @@ func (h *adminHandler) index(c echo.Context) error {
 	r := IndexRes{
 		Auths: auths,
 	}
-	r.Flash = h.loadFlash(c)
+	r.Flash = c.Get("flash").(*Flash)
 	return c.Render(http.StatusOK, "index", &r)
 }
 
 // POST http://localhost:8080/admin/auths.html
 
 type CreateRes struct {
-	Flash    *Flash
+	Flash *Flash
 	Auth     *Auth
 	Hostname string
 }
@@ -113,21 +140,21 @@ func (h *adminHandler) create(c echo.Context) error {
 		Auth:     auth,
 		Hostname: hostname,
 	}
-	r.Flash = h.loadFlash(c)
+	// r.Flash = c.Get("flash").(*Flash)
 	return c.Render(http.StatusOK, "create", &r)
 }
 
 func (h *adminHandler) AuthHandler(f func(c echo.Context, ctx context.Context, auth *Auth) error) func(c echo.Context) error {
-	return withAEContext(func(c echo.Context) error {
+	return h.withFlash(func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		auth, err := FindAuth(ctx, c.Param("id"))
 		if err == ErrNoSuchAuth {
 			h.setFlash(c, "alert", fmt.Sprintf("Auth not found for id: %v", c.Param("id")))
-			return c.Redirect(http.StatusNotModified, "/admin/auths.html")
+			return c.Redirect(http.StatusFound, "/admin/auths.html")
 		}
 		if err != nil {
 			h.setFlash(c, "alert", fmt.Sprintf("Failed to find Auth for id: %v error: ", c.Param("id"), err))
-			return c.Redirect(http.StatusNotModified, "/admin/auths.html")
+			return c.Redirect(http.StatusFound, "/admin/auths.html")
 		}
 		return f(c, ctx, auth)
 	})
@@ -139,10 +166,10 @@ func (h *adminHandler) disable(c echo.Context, ctx context.Context, auth *Auth) 
 	err := auth.update(ctx)
 	if err != nil {
 		h.setFlash(c, "alert", fmt.Sprintf("Failed to update Auth. id: %v error: ", auth.ID, err))
-		return c.Redirect(http.StatusNotModified, "/admin/auths.html")
+		return c.Redirect(http.StatusFound, "/admin/auths.html")
 	}
 	h.setFlash(c, "notice", fmt.Sprintf("Disabled the Auth successfully. id: %v", auth.ID))
-	return c.Redirect(http.StatusSeeOther, "/admin/auths.html")
+	return c.Redirect(http.StatusFound, "/admin/auths.html")
 }
 
 // DELETE http://localhost:8080/admin/auths/:id.html
@@ -150,8 +177,8 @@ func (h *adminHandler) destroy(c echo.Context, ctx context.Context, auth *Auth) 
 	err := auth.destroy(ctx)
 	if err != nil {
 		h.setFlash(c, "alert", fmt.Sprintf("Failed to destroy Auth. id: %v error: ", auth.ID, err))
-		return c.Redirect(http.StatusNotModified, "/admin/auths.html")
+		return c.Redirect(http.StatusFound, "/admin/auths.html")
 	}
-	h.setFlash(c, "notice", fmt.Sprintf("The Auth is disabled. id: %v", auth.ID))
-	return c.Redirect(http.StatusSeeOther, "/admin/auths.html")
+	h.setFlash(c, "notice", fmt.Sprintf("The Auth is deleted successfully. id: %v", auth.ID))
+	return c.Redirect(http.StatusFound, "/admin/auths.html")
 }

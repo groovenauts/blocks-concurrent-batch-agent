@@ -119,32 +119,24 @@ func (h *handler) pipelineTask(action string) func(c echo.Context) error {
 
 // curl -v -X POST http://localhost:8080/pipelines.json --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
 func (h *handler) create(c echo.Context) error {
-	pl, err := h.createImpl(c)
-	if err != nil {
-		return err
-	}
-	return c.JSON(http.StatusCreated, pl)
-}
-
-func (h *handler) createImpl(c echo.Context) (*Pipeline, error) {
 	ctx := c.Get("aecontext").(context.Context)
 	req := c.Request()
 	plp := &PipelineProps{}
 	if err := c.Bind(plp); err != nil {
 		log.Errorf(ctx, "err: %v\n", err)
 		log.Errorf(ctx, "req: %v\n", req)
-		return nil, err
+		return err
 	}
 	pl, err := CreatePipeline(ctx, plp)
 	log.Debugf(ctx, "Created pipeline: %v\nProps: %v\n", pl, pl.Props)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	t := taskqueue.NewPOSTTask("/pipelines/"+pl.ID+"/build_task.json", map[string][]string{})
 	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
-		return nil, err
+		return err
 	}
-	return pl, nil
+	return c.JSON(http.StatusCreated, pl)
 }
 
 // curl -v http://localhost:8080/pipelines.json

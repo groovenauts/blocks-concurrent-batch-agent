@@ -1,4 +1,13 @@
 {{define "create"}}
+
+{{if .Flash.Alert}}
+<p>ALERT: {{.Flash.Alert}}</p>
+{{end}}
+
+{{if .Flash.Notice}}
+<p>Notice: {{.Flash.Notice}}</p>
+{{end}}
+
 <p>Generated new token successfully.</p>
 <p>Remember the following HTTP Header</p>
 
