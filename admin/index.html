@@ -1,0 +1,30 @@
+{{define "index"}}
+<table>
+  <thead>
+    <th>ID</th>
+    <th>Disabled</th>
+    <th>Created at</th>
+    <th>Updated at</th>
+    <th></th>
+  </thead>
+  <tbody>
+  {{range .Auths}}
+  <tr>
+    <td>{{.ID}} </td>
+    <td>{{.Props.Disabled}}</td>
+    <td>{{.Props.CreatedAt}} </td>
+    <td>{{.Props.UpdatedAt}} </td>
+    <td>
+      <form action="/admin/auths/{{.ID}}.html" method="PUT">
+        <input type="submit" value="Disable"/>
+      </form>
+    </td>
+  </tr>
+  </tbody>
+  {{end}}
+</table>
+
+<form action="/admin/auths.html" method="POST">
+  <input type="submit" value="Create New Token"/>
+</form>
+{{end}}

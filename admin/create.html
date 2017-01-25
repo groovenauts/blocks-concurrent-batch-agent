@@ -1,0 +1,14 @@
+{{define "create"}}
+<p>Generated new token successfully.</p>
+<p>Remember the following HTTP Header</p>
+
+<pre><code>
+Authorization: Bearer {{.Auth.Token}}
+</code></pre>
+
+<pre><code>
+curl -H "Authorization: Bearer {{.Auth.Token}}" http://{{.Hostname}}/pipelines.json
+</code></pre>
+
+<a href="/admin/auths.html">Back to list</a>
+{{end}}
