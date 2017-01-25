@@ -53,11 +53,18 @@ func (h *handler) withAuth(impl func(c echo.Context) error) func(c echo.Context)
 	return withAEContext(func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		req := c.Request()
+		raw := req.Header.Get("Authorization")
+		if raw == "" {
+			return c.JSON(http.StatusUnauthorized, map[string]string{"message": "Unauthorized"})
+		}
 		re := regexp.MustCompile(`\ABearer\s+`)
-		token := re.ReplaceAllString(req.Header.Get("Authorization"), "")
+		token := re.ReplaceAllString(raw, "")
+		if token == "" {
+			return c.JSON(http.StatusUnauthorized, map[string]string{"message": "Unauthorized"})
+		}
 		_, err := FindAuthWithToken(ctx, token)
 		if err != nil {
-			return err
+			return c.JSON(http.StatusUnauthorized, map[string]string{"message": "Invalid token"})
 		}
 		return impl(c)
 	})
