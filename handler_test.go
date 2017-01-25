@@ -9,12 +9,14 @@ import (
 
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/appengine"
 	"google.golang.org/appengine/aetest"
 )
 
 const (
 	test_proj1 = "proj-123"
 	test_proj2 = "proj-777"
+	auth_header = "Authorization"
 )
 
 func TestActions(t *testing.T) {
@@ -25,12 +27,19 @@ func TestActions(t *testing.T) {
 	e := echo.New()
 	h := &handler{}
 
+	req, err := inst.NewRequest(echo.GET, "/pipelines", nil)
+	assert.NoError(t, err)
+	ctx := appengine.NewContext(req)
+	auth, err := CreateAuth(ctx)
+	assert.NoError(t, err)
+	token := "Bearer " + auth.Token
+
 	// Test for create
 	json1 := `{"project_id":"proj-123"}`
-	req, err := inst.NewRequest(echo.POST, "/pipelines", strings.NewReader(json1))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	req, err = inst.NewRequest(echo.POST, "/pipelines", strings.NewReader(json1))
 	assert.NoError(t, err)
-
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	req.Header.Set(auth_header, token)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 	c.SetPath("/pipelines")
@@ -50,6 +59,7 @@ func TestActions(t *testing.T) {
 	// Test for show
 	path := "/pipelines/" + pl.ID
 	req, err = inst.NewRequest(echo.GET, path, nil)
+	req.Header.Set(auth_header, token)
 	assert.NoError(t, err)
 
 	rec = httptest.NewRecorder()
@@ -72,6 +82,7 @@ func TestActions(t *testing.T) {
 	// Test for index
 	req, err = inst.NewRequest(echo.GET, "/pipelines", nil)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	req.Header.Set(auth_header, token)
 	assert.NoError(t, err)
 
 	rec = httptest.NewRecorder()
@@ -93,6 +104,7 @@ func TestActions(t *testing.T) {
 	close_task_path := path + "/close_task"
 	req, err = inst.NewRequest(echo.POST, close_task_path, nil)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	req.Header.Set(auth_header, token)
 	assert.NoError(t, err)
 
 	rec = httptest.NewRecorder()
@@ -116,6 +128,7 @@ func TestActions(t *testing.T) {
 	// Test for destroy
 	req, err = inst.NewRequest(echo.DELETE, path, nil)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	req.Header.Set(auth_header, token)
 	assert.NoError(t, err)
 
 	rec = httptest.NewRecorder()
@@ -138,6 +151,7 @@ func TestActions(t *testing.T) {
 	// 2nd Test for show
 	path = "/pipelines/" + pl.ID
 	req, err = inst.NewRequest(echo.GET, path, nil)
+	req.Header.Set(auth_header, token)
 	assert.NoError(t, err)
 
 	rec = httptest.NewRecorder()
