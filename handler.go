@@ -21,20 +21,20 @@ func init() {
 	g.Use(middleware.CORS())
 
 	g.GET(".json", withAEContext(h.index))
-	g.GET("/:id.json", withPipeline(h.show))
-	g.DELETE("/:id.json", withPipeline(h.destroy))
+	g.GET("/:id.json", h.withPipeline(h.show))
+	g.DELETE("/:id.json", h.withPipeline(h.destroy))
 
 	g.POST(".json", withAEContext(h.create))
-	g.POST("/:id/build_task.json", pipelineTask("build"))
+	g.POST("/:id/build_task.json", h.pipelineTask("build"))
 
 	actions := []string{"close", "update", "resize"}
 	for _, action := range actions {
-		g.PUT("/:id/"+action+".json", callPipelineTask(action))
-		g.POST("/:id/"+action+"_task.json", pipelineTask(action))
+		g.PUT("/:id/"+action+".json", h.callPipelineTask(action))
+		g.POST("/:id/"+action+"_task.json", h.pipelineTask(action))
 	}
 
 	g.GET("/refresh.json", withAEContext(h.refresh)) // from cron
-	g.POST("/:id/refresh_task.json", pipelineTask("refresh"))
+	g.POST("/:id/refresh_task.json", h.pipelineTask("refresh"))
 }
 
 func withAEContext(impl func(c echo.Context) error) func(c echo.Context) error {
@@ -46,7 +46,7 @@ func withAEContext(impl func(c echo.Context) error) func(c echo.Context) error {
 	}
 }
 
-func withPipeline(impl func(c echo.Context, pl *Pipeline) error) func(c echo.Context) error {
+func (h *handler) withPipeline(impl func(c echo.Context, pl *Pipeline) error) func(c echo.Context) error {
 	return withAEContext(func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		id := c.Param("id")
@@ -65,8 +65,8 @@ func withPipeline(impl func(c echo.Context, pl *Pipeline) error) func(c echo.Con
 // curl -v -X PUT http://localhost:8080/pipelines/1/close.json
 // curl -v -X PUT http://localhost:8080/pipelines/1/update.json
 // curl -v -X PUT http://localhost:8080/pipelines/1/resize.json
-func callPipelineTask(action string) func(c echo.Context) error {
-	return withPipeline(func(c echo.Context, pl *Pipeline) error {
+func (h *handler) callPipelineTask(action string) func(c echo.Context) error {
+	return h.withPipeline(func(c echo.Context, pl *Pipeline) error {
 		id := c.Param("id")
 		ctx := c.Get("aecontext").(context.Context)
 		t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/%s_task.json", id, action), map[string][]string{})
@@ -82,8 +82,8 @@ func callPipelineTask(action string) func(c echo.Context) error {
 // curl -v -X	POST http://localhost:8080/pipelines/1/update_task.json
 // curl -v -X	POST http://localhost:8080/pipelines/1/resize_task.json
 // curl -v -X	POST http://localhost:8080/pipelines/1/refresh_task.json
-func pipelineTask(action string) func(c echo.Context) error {
-	return withPipeline(func(c echo.Context, pl *Pipeline) error {
+func (h *handler) pipelineTask(action string) func(c echo.Context) error {
+	return h.withPipeline(func(c echo.Context, pl *Pipeline) error {
 		ctx := c.Get("aecontext").(context.Context)
 		err := pl.process(ctx, action)
 		if err != nil {
