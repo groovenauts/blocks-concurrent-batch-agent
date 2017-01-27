@@ -29,16 +29,16 @@ var ErrNoSuchPipeline = errors.New("No such data in Pipelines")
 
 type (
 	PipelineProps struct {
-		Name      string `json:"name"`
-		ProjectID string `json:"project_id"`
-		Zone string `json:"zone"`
-		SourceImage string `json:"source_image"`
-		MachineType string `json:"machine_type"`
-		TargetSize int `json:"target_size"`
-		ContainerSize int `json:"container_size"`
+		Name          string `json:"name"`
+		ProjectID     string `json:"project_id"`
+		Zone          string `json:"zone"`
+		SourceImage   string `json:"source_image"`
+		MachineType   string `json:"machine_type"`
+		TargetSize    int    `json:"target_size"`
+		ContainerSize int    `json:"container_size"`
 		ContainerName string `json:"container_name"`
-		Command string `json:"command"`
-		Status Status `json:"status"`
+		Command       string `json:"command"`
+		Status        Status `json:"status"`
 	}
 
 	Pipeline struct {

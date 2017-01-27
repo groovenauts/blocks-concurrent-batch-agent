@@ -2,9 +2,9 @@ package pipeline
 
 import (
 	"golang.org/x/net/context"
-	"google.golang.org/appengine/log"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/deploymentmanager/v2"
+	"google.golang.org/appengine/log"
 )
 
 type Closer struct {

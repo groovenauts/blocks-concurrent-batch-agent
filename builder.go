@@ -122,59 +122,59 @@ func (b *Builder) GenerateDeploymentResources(plp *PipelineProps) *Resources {
 
 	startup_script :=
 		fmt.Sprintf("for i in {1..%v}; do", plp.ContainerSize) +
-		" docker run -d" +
-		" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref.pipeline01-job-subscription.name)" +
-		" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref.pipeline01-progress-topic.name)" +
-		" " + plp.ContainerName +
-		" " + plp.Command +
-		" ; done"
+			" docker run -d" +
+			" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref.pipeline01-job-subscription.name)" +
+			" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref.pipeline01-progress-topic.name)" +
+			" " + plp.ContainerName +
+			" " + plp.Command +
+			" ; done"
 
 	t = append(t,
 		Resource{
 			Type: "compute.v1.instanceTemplate",
 			Name: plp.Name + "-it",
 			Properties: map[string]interface{}{
-        "zone": plp.Zone,
-        "properties": map[string]interface{}{
-          "machineType": plp.MachineType,
+				"zone": plp.Zone,
+				"properties": map[string]interface{}{
+					"machineType": plp.MachineType,
 					"metadata": map[string]interface{}{
-						"items": []interface{} {
+						"items": []interface{}{
 							map[string]interface{}{
-								"key": "startup-script",
+								"key":   "startup-script",
 								"value": startup_script,
 							},
 						},
 					},
-          "networkInterfaces": []interface{}{
-            map[string]interface{}{
-              "network": "https://www.googleapis.com/compute/v1/projects/" +plp.ProjectID+ "/global/networks/default",
-              "accessConfigs": []interface{}{
-                map[string]interface{}{
-                  "name": "External-IP",
-                  "type": "ONE_TO_ONE_NAT",
-                },
-              },
-            },
-          },
+					"networkInterfaces": []interface{}{
+						map[string]interface{}{
+							"network": "https://www.googleapis.com/compute/v1/projects/" + plp.ProjectID + "/global/networks/default",
+							"accessConfigs": []interface{}{
+								map[string]interface{}{
+									"name": "External-IP",
+									"type": "ONE_TO_ONE_NAT",
+								},
+							},
+						},
+					},
 					"serviceAccounts": []interface{}{
-						map[string]interface {}{
+						map[string]interface{}{
 							"scopes": []interface{}{
 								"https://www.googleapis.com/auth/devstorage.full_control",
 								"https://www.googleapis.com/auth/pubsub",
 							},
 						},
 					},
-          "disks": []interface{}{
-            map[string]interface{}{
-              "deviceName": "boot",
-              "type": "PERSISTENT",
-              "boot": true,
-              "autoDelete": true,
-              "initializeParams": map[string]interface{}{
-                "sourceImage": plp.SourceImage,
-              },
-            },
-          },
+					"disks": []interface{}{
+						map[string]interface{}{
+							"deviceName": "boot",
+							"type":       "PERSISTENT",
+							"boot":       true,
+							"autoDelete": true,
+							"initializeParams": map[string]interface{}{
+								"sourceImage": plp.SourceImage,
+							},
+						},
+					},
 				},
 			},
 		},
@@ -182,12 +182,12 @@ func (b *Builder) GenerateDeploymentResources(plp *PipelineProps) *Resources {
 			Type: "compute.v1.instanceGroupManagers",
 			Name: plp.Name + "-igm",
 			Properties: map[string]interface{}{
-        "baseInstanceName": plp.Name + "-instance",
-        "instanceTemplate": "$(ref.pipeline01-it.selfLink)",
-        "targetSize": plp.TargetSize,
-        "zone": plp.Zone,
-      },
-    },
+				"baseInstanceName": plp.Name + "-instance",
+				"instanceTemplate": "$(ref.pipeline01-it.selfLink)",
+				"targetSize":       plp.TargetSize,
+				"zone":             plp.Zone,
+			},
+		},
 	)
 	return &Resources{Resources: t}
 }
