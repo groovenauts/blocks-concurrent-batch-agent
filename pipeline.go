@@ -87,8 +87,17 @@ func FindPipeline(ctx context.Context, id string) (*Pipeline, error) {
 
 func GetAllPipelines(ctx context.Context) ([]*Pipeline, error) {
 	q := datastore.NewQuery("Pipelines")
+	return GetPipelinesByQuery(ctx, q)
+}
+
+func GetPipelinesByStatus(ctx context.Context, st Status) ([]*Pipeline, error) {
+	q := datastore.NewQuery("Pipelines").Filter("Status =", st)
+	return GetPipelinesByQuery(ctx, q)
+}
+
+func GetPipelinesByQuery(ctx context.Context, q *datastore.Query) ([]*Pipeline, error) {
 	iter := q.Run(ctx)
-	var res = []Pipeline{}
+	var res = []*Pipeline{}
 	for {
 		pl := Pipeline{}
 		key, err := iter.Next(&pl.Props)
@@ -99,7 +108,7 @@ func GetAllPipelines(ctx context.Context) ([]*Pipeline, error) {
 			return nil, err
 		}
 		pl.ID = key.Encode()
-		res = append(res, pl)
+		res = append(res, &pl)
 	}
 	return res, nil
 }
