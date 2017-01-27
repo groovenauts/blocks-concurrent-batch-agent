@@ -1,5 +1,7 @@
 # blocks-concurrent-batch-agent
 
+[![Build Status](https://secure.travis-ci.org/groovenauts/blocks-concurrent-batch-agent.png)](https://travis-ci.org/groovenauts/blocks-concurrent-batch-agent/)
+
 ## Overview
 
 `blocks-concurrent-batch-agent` is an agent for `concurrent bacth board` of [magellan-blocks](https://www.magellanic-clouds.com/blocks/).
@@ -38,12 +40,19 @@ $ dev_appserver.py \
   ./app.yaml
 ```
 
-### Client example
+### Get Token on browser
+
+1. Open http://localhost:8080/_ah/login and login
+2. Open http://localhost:8080/admin/auths
+3. Click [Create new token]
+4. Copy the token shown
+
+### Call API with curl
 
 ```
-$ curl -c my.cookie 'http://localhost:8080/_ah/login?email=test%40example.com&admin=True&action=Login&continue='
-$ curl -b my.cookie -X POST http://localhost:8080/pipelines.json --data '{"project_id":"FOO"}' -H 'Content-Type: application/json'
-$ curl -b my.cookie http://localhost:8080/pipelines.json
+$ TOKEN="[the token you got before]"
+$ curl -H "Authorization: Bearer $TOKEN" -X POST http://localhost:8080/pipelines.json --data '{"project_id":"dummy-proj", "name": "testpipeline1"}' -H 'Content-Type: application/json'
+$ curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/pipelines.json
 ```
 
 ## Deploy

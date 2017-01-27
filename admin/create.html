@@ -1,0 +1,23 @@
+{{define "create"}}
+
+{{if .Flash.Alert}}
+<p>ALERT: {{.Flash.Alert}}</p>
+{{end}}
+
+{{if .Flash.Notice}}
+<p>Notice: {{.Flash.Notice}}</p>
+{{end}}
+
+<p>Generated new token successfully.</p>
+<p>Remember the following HTTP Header</p>
+
+<pre><code>
+Authorization: Bearer {{.Auth.Token}}
+</code></pre>
+
+<pre><code>
+curl -H "Authorization: Bearer {{.Auth.Token}}" http://{{.Hostname}}/pipelines.json
+</code></pre>
+
+<a href="/admin/auths.html">Back to list</a>
+{{end}}

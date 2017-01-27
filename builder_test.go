@@ -3,9 +3,9 @@ package pipeline
 import (
 	"testing"
 	// "golang.org/x/net/context"
+	"encoding/json"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
-	"encoding/json"
 	// "google.golang.org/api/deploymentmanager/v2"
 )
 
