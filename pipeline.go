@@ -29,7 +29,6 @@ var ErrNoSuchPipeline = errors.New("No such data in Pipelines")
 
 type (
 	PipelineProps struct {
-		// Parameters to build pipeline
 		Name      string `json:"name"`
 		ProjectID string `json:"project_id"`
 		Zone string `json:"zone"`
@@ -39,17 +38,6 @@ type (
 		ContainerSize int `json:"container_size"`
 		ContainerName string `json:"container_name"`
 		Command string `json:"command"`
-		// // Result of building pipeline
-		// JobTopicName							   string `json:"job_topic_name"`
-		// JobSubscriptionName				   string `json:"job_subscription_name"`
-		// JobSubscriptionAckDeadline	 int		`json:"job_subscription_ack_deadline"`
-		// ProgressTopicName							   string `json:"progress_topic_name"`
-		// ProgressSubscriptionName				 string `json:"progress_subscription_name"`
-		// ProgressSubscriptionAckDeadline	 int		`json:"progress_subscription_ack_deadline"`
-		// InstanceGroupName				 string `json:"instance_group_name"`
-		// InstanceGroupSize				 int		`json:"instance_group_size"`
-		// InstanceTemplateName		 string `json:"instance_template_name"`
-		// StartupScript						 string `json:"startup_script"`
 		Status Status `json:"status"`
 	}
 
