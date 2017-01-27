@@ -75,7 +75,8 @@ func TestActions(t *testing.T) {
 		`,"container_size":2` +
 		`,"container_name":"groovenauts/batch_type_iot_example:0.3.1"` +
 		`,"command":"bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}"` +
-		`}`
+		`,"dryrun":true` +
+	`}`
 	req, err = inst.NewRequest(echo.POST, "/pipelines", strings.NewReader(json1))
 	assert.NoError(t, err)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
