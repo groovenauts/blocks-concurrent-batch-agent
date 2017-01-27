@@ -65,7 +65,17 @@ func TestActions(t *testing.T) {
 	token := "Bearer " + auth.Token
 
 	// Test for create
-	json1 := `{"project_id":"proj-123"}`
+	json1 := `{` +
+		`"name":"pipeline01"` +
+		`,"project_id":"proj-123"` +
+		`,"zone":"us-central1-f"` +
+		`,"source_image":"https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0"` +
+		`,"machine_type":"f1-micro"` +
+		`,"target_size":2` +
+		`,"container_size":2` +
+		`,"container_name":"groovenauts/batch_type_iot_example:0.3.1"` +
+		`,"command":"bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}"` +
+		`}`
 	req, err = inst.NewRequest(echo.POST, "/pipelines", strings.NewReader(json1))
 	assert.NoError(t, err)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)

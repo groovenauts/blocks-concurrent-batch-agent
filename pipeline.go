@@ -6,6 +6,7 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 // Status constants
@@ -29,16 +30,17 @@ var ErrNoSuchPipeline = errors.New("No such data in Pipelines")
 
 type (
 	PipelineProps struct {
-		Name          string `json:"name"`
-		ProjectID     string `json:"project_id"`
-		Zone          string `json:"zone"`
-		SourceImage   string `json:"source_image"`
-		MachineType   string `json:"machine_type"`
-		TargetSize    int    `json:"target_size"`
-		ContainerSize int    `json:"container_size"`
-		ContainerName string `json:"container_name"`
-		Command       string `json:"command"`
+		Name          string `json:"name"           validate:"required"`
+		ProjectID     string `json:"project_id"     validate:"required"`
+		Zone          string `json:"zone"           validate:"required"`
+		SourceImage   string `json:"source_image"   validate:"required"`
+		MachineType   string `json:"machine_type"   validate:"required"`
+		TargetSize    int    `json:"target_size"    validate:"required"`
+		ContainerSize int    `json:"container_size" validate:"required"`
+		ContainerName string `json:"container_name" validate:"required"`
+		Command       string `json:"command"        validate:"required"`
 		Status        Status `json:"status"`
+		Dryrun        bool   `json:"dryrun"`
 	}
 
 	Pipeline struct {
@@ -48,6 +50,12 @@ type (
 )
 
 func CreatePipeline(ctx context.Context, plp *PipelineProps) (*Pipeline, error) {
+	validator := validator.New()
+	err := validator.Struct(plp)
+	if err != nil {
+		return nil, err
+	}
+
 	key := datastore.NewIncompleteKey(ctx, "Pipelines", nil)
 	res, err := datastore.Put(ctx, key, plp)
 	if err != nil {

@@ -9,6 +9,7 @@ import (
 	"google.golang.org/appengine/aetest"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 func ClearDatastore(t *testing.T, ctx context.Context, kind string) {
@@ -56,8 +57,50 @@ func TestWatcherCalcDifferences(t *testing.T) {
 
 	ClearDatastore(t, ctx, "Pipelines")
 
-	// CreatePipeline
-	pl, err := CreatePipeline(ctx, &PipelineProps{ProjectID: proj})
+	detectErrorFor := func(errors validator.ValidationErrors, field string) validator.FieldError {
+		for _, err := range errors {
+			if err.StructField() == field {
+				return err
+			}
+		}
+		return nil
+	}
+
+	// CreatePipeline invalid
+	_, err = CreatePipeline(ctx, &PipelineProps{})
+	assert.Error(t, err)
+	errors := err.(validator.ValidationErrors)
+
+	fields := []string{
+		"Name",
+		"ProjectID",
+		"Zone",
+		"SourceImage",
+		"MachineType",
+		"TargetSize",
+		"ContainerSize",
+		"ContainerName",
+		"Command",
+	}
+	for _, field := range fields {
+		err := detectErrorFor(errors, field)
+		assert.NotNil(t, err)
+		assert.Equal(t, "required", err.ActualTag())
+	}
+
+	// CreatePipeline valid
+	plp := PipelineProps{
+		Name:          "pipeline01",
+		ProjectID:     proj,
+		Zone:          "us-central1-f",
+		SourceImage:   "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+		MachineType:   "f1-micro",
+		TargetSize:    2,
+		ContainerSize: 2,
+		ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
+		Command:       "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
+	}
+	pl, err := CreatePipeline(ctx, &plp)
 	assert.NoError(t, err)
 	log.Debugf(ctx, "pl %v\n", pl)
 	key, err := datastore.DecodeKey(pl.ID)
