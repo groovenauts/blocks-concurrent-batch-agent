@@ -2,8 +2,6 @@ package pipeline
 
 import (
 	"golang.org/x/net/context"
-	"golang.org/x/oauth2/google"
-	"google.golang.org/api/deploymentmanager/v2"
 	"google.golang.org/appengine/log"
 )
 
@@ -22,19 +20,9 @@ func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 func (b *Refresher) UpdateStatusByDeployment(ctx context.Context, pl *Pipeline) error {
 	// See the "Examples" below "Response"
 	//   https://cloud.google.com/deployment-manager/docs/reference/latest/deployments/insert#response
-	hc, err := google.DefaultClient(ctx, deploymentmanager.CloudPlatformScope)
-	if err != nil {
-		log.Errorf(ctx, "Failed to get google.DefaultClient: %v\n", err)
-		return err
-	}
-	c, err := deploymentmanager.New(hc)
-	if err != nil {
-		log.Errorf(ctx, "Failed to get deploymentmanager.New(hc): %v\nhc: %v\n", err, hc)
-		return err
-	}
 	proj := pl.Props.ProjectID
 	dep_name := pl.Props.DeploymentName
-	deployment, err := c.Deployments.Get(proj, dep_name).Context(ctx).Do()
+	deployment, err := b.deployer.Get(proj, dep_name).Context(ctx).Do()
 	if err != nil {
 		log.Errorf(ctx, "Failed to get deployment %v\nproject: %v deployment: %v\nhc: %v\n", err, proj, dep_name)
 		return err
