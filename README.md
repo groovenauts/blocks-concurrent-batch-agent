@@ -49,9 +49,25 @@ $ dev_appserver.py \
 
 ### Call API with curl
 
+Make `pipeline.json` like this:
+
+```json
+{
+  "name":"pipeline01",
+  "project_id":"proj-123",
+  "zone":"us-central1-f",
+  "source_image":"https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+  "machine_type":"f1-micro",
+  "target_size":2,
+  "container_size":2,
+  "container_name":"groovenauts/batch_type_iot_example:0.3.1",
+  "command":"bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}"
+}
+```
+
 ```
 $ TOKEN="[the token you got before]"
-$ curl -H "Authorization: Bearer $TOKEN" -X POST http://localhost:8080/pipelines.json --data '{"project_id":"dummy-proj", "name": "testpipeline1"}' -H 'Content-Type: application/json'
+$ curl -H "Authorization: Bearer $TOKEN" -X POST http://localhost:8080/pipelines.json --data @pipeline.json -H 'Content-Type: application/json'
 $ curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/pipelines.json
 ```
 
