@@ -1,0 +1,21 @@
+{{define "index"}}
+<table>
+  <thead>
+    <th>Name</th>
+    <th>Project ID</th>
+    <th>Status</th>
+    <th></th>
+  </thead>
+  <tbody>
+  {{range .}}
+  <tr>
+    <td>{{.Props.Name}} </td>
+    <td>{{.Props.ProjectID}}</td>
+    <td>{{.Props.Status}} </td>
+  </tr>
+  </tbody>
+  {{end}}
+</table>
+
+<a href="/pipelines/new.html">New Pipeline</a>
+{{end}}

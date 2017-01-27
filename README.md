@@ -44,8 +44,8 @@ $ dev_appserver.py \
 
 ```
 $ curl -c my.cookie 'http://localhost:8080/_ah/login?email=test%40example.com&admin=True&action=Login&continue='
-$ curl -b my.cookie -X POST http://localhost:8080/pipelines --data '{"project_id":"FOO"}' -H 'Content-Type: application/json'
-$ curl -b my.cookie http://localhost:8080/pipelines
+$ curl -b my.cookie -X POST http://localhost:8080/pipelines.json --data '{"project_id":"FOO"}' -H 'Content-Type: application/json'
+$ curl -b my.cookie http://localhost:8080/pipelines.json
 ```
 
 ## Deploy
@@ -60,5 +60,12 @@ $ appcfg.py \
 If you want to set it active, run the following command
 
 ```
-$ gcloud app services set-traffic default --splits=$(cat VERSION)=1
+$ gcloud app services set-traffic concurrent-batch-agent --splits=$(cat VERSION)=1
 ```
+
+### New Pipeline data
+
+1. Open the https://<hostname>/pipelines.html
+2. Click [New Pipeline]
+3. Fill in the fields
+4. Click [submit]

@@ -1,0 +1,36 @@
+{
+  "resources": [
+    {
+      "type": "pubsub.v1.topic",
+      "name": "pipeline01-job-topic",
+      "properties": {
+        "topic": "pipeline01-job-topic"
+      }
+    },
+    {
+      "type": "pubsub.v1.subscription",
+      "name": "pipeline01-job-subscription",
+      "properties": {
+        "subscription": "pipeline01-job-subscription",
+        "topic": "$(ref.pipeline01-job-topic.name)",
+        "ackDeadlineSeconds": 600
+      }
+    },
+    {
+      "type": "pubsub.v1.topic",
+      "name": "pipeline01-progress-topic",
+      "properties": {
+        "topic": "pipeline01-progress-topic"
+      }
+    },
+    {
+      "type": "pubsub.v1.subscription",
+      "name": "pipeline01-progress-subscription",
+      "properties": {
+        "subscription": "pipeline01-progress-subscription",
+        "topic": "$(ref.pipeline01-progress-topic.name)",
+        "ackDeadlineSeconds": 30
+      }
+    }
+  ]
+}
