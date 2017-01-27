@@ -14,8 +14,8 @@ import (
 )
 
 const (
-	test_proj1 = "proj-123"
-	test_proj2 = "proj-777"
+	test_proj1  = "proj-123"
+	test_proj2  = "proj-777"
 	auth_header = "Authorization"
 )
 
@@ -43,7 +43,7 @@ func TestActions(t *testing.T) {
 		}
 	}
 
-	invalid_get_test(func(req *http.Request){
+	invalid_get_test(func(req *http.Request) {
 		// do nothing
 	})
 	auth_headers := []string{
@@ -52,7 +52,7 @@ func TestActions(t *testing.T) {
 		"Bearer invalid-token:123456789",
 	}
 	for _, v := range auth_headers {
-		invalid_get_test(func(req *http.Request){
+		invalid_get_test(func(req *http.Request) {
 			req.Header.Set(auth_header, v)
 		})
 	}

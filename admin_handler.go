@@ -46,7 +46,7 @@ type Flash struct {
 }
 
 func (h *adminHandler) setFlash(c echo.Context, name, value string) {
-	h.setFlashWithExpire(c, name, value, time.Now().Add(10 * time.Minute))
+	h.setFlashWithExpire(c, name, value, time.Now().Add(10*time.Minute))
 }
 
 func (h *adminHandler) setFlashWithExpire(c echo.Context, name, value string, expire time.Time) {
@@ -117,7 +117,7 @@ func (h *adminHandler) index(c echo.Context) error {
 // POST http://localhost:8080/admin/auths.html
 
 type CreateRes struct {
-	Flash *Flash
+	Flash    *Flash
 	Auth     *Auth
 	Hostname string
 }
