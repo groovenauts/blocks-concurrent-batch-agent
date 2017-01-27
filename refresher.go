@@ -8,6 +8,7 @@ import (
 )
 
 type Refresher struct {
+	deployer DeploymentServicer
 }
 
 func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {

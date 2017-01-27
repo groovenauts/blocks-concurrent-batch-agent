@@ -10,6 +10,7 @@ import (
 )
 
 type Builder struct {
+	deployer DeploymentServicer
 }
 
 func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {

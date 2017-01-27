@@ -8,6 +8,7 @@ import (
 )
 
 type Closer struct {
+	deployer DeploymentServicer
 }
 
 func (b *Closer) Process(ctx context.Context, pl *Pipeline) error {
