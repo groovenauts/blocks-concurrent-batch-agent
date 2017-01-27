@@ -33,9 +33,9 @@ func (b *Refresher) UpdateStatusByDeployment(ctx context.Context, pl *Pipeline) 
 			errors := []DeploymentError{}
 			for _, e := range doe.Errors {
 				errors = append(errors, DeploymentError{
-					Code: e.Code,
+					Code:     e.Code,
 					Location: e.Location,
-					Message: e.Message,
+					Message:  e.Message,
 				})
 			}
 			pl.Props.Errors = errors

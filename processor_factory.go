@@ -13,7 +13,9 @@ type DefaultProcessorFactory struct{}
 
 func (dpf *DefaultProcessorFactory) Create(ctx context.Context, action string) (Processor, error) {
 	deployer, err := DefaultDeploymentServicer(ctx)
-	if err != nil { return nil, err }
+	if err != nil {
+		return nil, err
+	}
 	switch action {
 	case "build":
 		return &Builder{deployer: deployer}, nil
