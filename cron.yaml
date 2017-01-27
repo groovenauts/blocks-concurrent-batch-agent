@@ -1,0 +1,5 @@
+cron:
+# TODO activate this setting after some test
+# - description: "Watch every 1 minute"
+#   url: /pipelines/refresh
+#   schedule: every 1 minutes
