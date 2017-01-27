@@ -127,18 +127,20 @@ func (h *adminHandler) create(c echo.Context) error {
 	log.Debugf(ctx, "create\n")
 	auth, err := CreateAuth(ctx)
 	if err != nil {
+		log.Errorf(ctx, "Error on create auth: %v\n", err)
 		return err
 	}
 	log.Debugf(ctx, "create auth: %v\n", auth)
 	hostname, err := appengine.ModuleHostname(ctx, "", "", "")
 	if err != nil {
+		log.Errorf(ctx, "Failed to get ModuleHostname: %v\n", err)
 		return err
 	}
 	r := CreateRes{
 		Auth:     auth,
 		Hostname: hostname,
 	}
-	// r.Flash = c.Get("flash").(*Flash)
+	r.Flash = c.Get("flash").(*Flash)
 	return c.Render(http.StatusOK, "create", &r)
 }
 
