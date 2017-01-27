@@ -30,6 +30,19 @@ var processorFactory ProcessorFactory = &DefaultProcessorFactory{}
 var ErrNoSuchPipeline = errors.New("No such data in Pipelines")
 
 type (
+	// See https://godoc.org/google.golang.org/api/deploymentmanager/v2#OperationErrorErrors
+	DeploymentError struct {
+    // Code: [Output Only] The error type identifier for this error.
+    Code string `json:"code,omitempty"`
+
+    // Location: [Output Only] Indicates the field in the request that
+    // caused the error. This property is optional.
+    Location string `json:"location,omitempty"`
+
+    // Message: [Output Only] An optional, human-readable error message.
+    Message string `json:"message,omitempty"`
+	}
+
 	PipelineProps struct {
 		Name          string `json:"name"           validate:"required"`
 		ProjectID     string `json:"project_id"     validate:"required"`
@@ -43,6 +56,7 @@ type (
 		Status        Status `json:"status"`
 		Dryrun        bool   `json:"dryrun"`
 		DeploymentName string `json:"deployment_name"`
+		Errors        []DeploymentError `json:"errors"`
 	}
 
 	Pipeline struct {
