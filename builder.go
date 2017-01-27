@@ -25,7 +25,7 @@ func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
 		log.Errorf(ctx, "Failed to BuildDeployment: %v\nProps: %v\n", err, pl.Props)
 		return err
 	}
-	ope, err := b.deployer.Insert(pl.Props.ProjectID, deployment).Context(ctx).Do()
+	ope, err := b.deployer.Insert(ctx, pl.Props.ProjectID, deployment)
 	if err != nil {
 		log.Errorf(ctx, "Failed to insert deployment %v\nproject: %v deployment: %v\nhc: %v\n", err, pl.Props.ProjectID, deployment)
 		return err

@@ -22,7 +22,7 @@ func (b *Refresher) UpdateStatusByDeployment(ctx context.Context, pl *Pipeline) 
 	//   https://cloud.google.com/deployment-manager/docs/reference/latest/deployments/insert#response
 	proj := pl.Props.ProjectID
 	dep_name := pl.Props.DeploymentName
-	deployment, err := b.deployer.Get(proj, dep_name).Context(ctx).Do()
+	deployment, err := b.deployer.Get(ctx, proj, dep_name)
 	if err != nil {
 		log.Errorf(ctx, "Failed to get deployment %v\nproject: %v deployment: %v\nhc: %v\n", err, proj, dep_name)
 		return err
