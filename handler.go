@@ -26,6 +26,10 @@ func withAEContext(impl func(c echo.Context) error) func(c echo.Context) error {
 
 type handler struct{}
 
+const (
+	AUTH_HEADER = "Authorization"
+)
+
 func init() {
 	h := &handler{}
 
@@ -53,7 +57,7 @@ func (h *handler) withAuth(impl func(c echo.Context) error) func(c echo.Context)
 	return withAEContext(func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		req := c.Request()
-		raw := req.Header.Get("Authorization")
+		raw := req.Header.Get(AUTH_HEADER)
 		if raw == "" {
 			return c.JSON(http.StatusUnauthorized, map[string]string{"message": "Unauthorized"})
 		}
@@ -93,7 +97,9 @@ func (h *handler) callPipelineTask(action string) func(c echo.Context) error {
 	return h.withPipeline(func(c echo.Context, pl *Pipeline) error {
 		id := c.Param("id")
 		ctx := c.Get("aecontext").(context.Context)
+		req := c.Request()
 		t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/%s_task.json", id, action), map[string][]string{})
+		t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
 		if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 			return err
 		}
@@ -132,9 +138,12 @@ func (h *handler) create(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	t := taskqueue.NewPOSTTask("/pipelines/"+pl.ID+"/build_task.json", map[string][]string{})
-	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
-		return err
+	if !plp.Dryrun {
+		t := taskqueue.NewPOSTTask("/pipelines/"+pl.ID+"/build_task.json", map[string][]string{})
+		t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
+		if _, err := taskqueue.Add(ctx, t, ""); err != nil {
+			return err
+		}
 	}
 	return c.JSON(http.StatusCreated, pl)
 }
@@ -166,12 +175,14 @@ func (h *handler) destroy(c echo.Context, pl *Pipeline) error {
 // curl -v -X PUT http://localhost:8080/pipelines/refresh.json
 func (h *handler) refresh(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
+	req := c.Request()
 	ids, err := GetAllActivePipelineIDs(ctx)
 	if err != nil {
 		return err
 	}
 	for _, id := range ids {
 		t := taskqueue.NewPOSTTask(fmt.Sprintf("/%s/refresh_task.json", id), map[string][]string{})
+		t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
 		if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 			return err
 		}
