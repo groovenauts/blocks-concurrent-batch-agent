@@ -151,7 +151,7 @@ func (h *handler) create(c echo.Context) error {
 // curl -v http://localhost:8080/pipelines.json
 func (h *handler) index(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
-	pipelines, err := GetAllPipeline(ctx)
+	pipelines, err := GetAllPipelines(ctx)
 	if err != nil {
 		return err
 	}

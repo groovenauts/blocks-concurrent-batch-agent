@@ -122,7 +122,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	assert.NoError(t, err)
 
 	// GetAllPipeline
-	pls, err := GetAllPipeline(ctx)
+	pls, err := GetAllPipelines(ctx)
 	assert.NoError(t, err)
 	if len(pls) != 1 {
 		t.Fatalf("len(pls) expects %v but was %v\n", 1, len(pls))
