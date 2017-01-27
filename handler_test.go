@@ -109,7 +109,7 @@ func TestActions(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues(pl.ID)
 
-	f = h.withPipeline(h.show)
+	f = h.withPipeline(h.withAuth, h.show)
 	if assert.NoError(t, f(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
@@ -160,7 +160,7 @@ func TestActions(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues(pl.ID)
 
-	f = h.withPipeline(h.destroy)
+	f = h.withPipeline(h.withAuth, h.destroy)
 	if assert.NoError(t, f(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
@@ -183,7 +183,7 @@ func TestActions(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues(pl.ID)
 
-	f = h.withPipeline(h.show)
+	f = h.withPipeline(h.withAuth, h.show)
 	if assert.NoError(t, f(c)) {
 		assert.Equal(t, http.StatusNotFound, rec.Code)
 	}
