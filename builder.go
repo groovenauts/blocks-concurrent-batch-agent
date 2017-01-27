@@ -123,8 +123,8 @@ func (b *Builder) GenerateDeploymentResources(plp *PipelineProps) *Resources {
 	startup_script :=
 		fmt.Sprintf("for i in {1..%v}; do", plp.ContainerSize) +
 			" docker run -d" +
-			" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref.pipeline01-job-subscription.name)" +
-			" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref.pipeline01-progress-topic.name)" +
+			" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + plp.Name +"-job-subscription.name)" +
+			" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + plp.Name + "-progress-topic.name)" +
 			" " + plp.ContainerName +
 			" " + plp.Command +
 			" ; done"
@@ -183,7 +183,7 @@ func (b *Builder) GenerateDeploymentResources(plp *PipelineProps) *Resources {
 			Name: plp.Name + "-igm",
 			Properties: map[string]interface{}{
 				"baseInstanceName": plp.Name + "-instance",
-				"instanceTemplate": "$(ref.pipeline01-it.selfLink)",
+				"instanceTemplate": "$(ref." + plp.Name + "-it.selfLink)",
 				"targetSize":       plp.TargetSize,
 				"zone":             plp.Zone,
 			},
