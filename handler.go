@@ -49,7 +49,7 @@ func init() {
 		g.POST("/:id/"+action+"_task.json", h.pipelineTask(action))
 	}
 
-	g.GET("/refresh.json", h.withAuth(h.refresh)) // from cron
+	g.GET("/refresh.json", withAEContext(h.refresh)) // Don't use withAuth because this is called from cron
 	g.POST("/:id/refresh_task.json", h.pipelineTask("refresh"))
 }
 
