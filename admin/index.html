@@ -15,6 +15,7 @@
     <th>Created at</th>
     <th>Updated at</th>
     <th></th>
+    <th></th>
   </thead>
   <tbody>
   {{range .Auths}}
@@ -27,6 +28,8 @@
       <form action="/admin/auths/{{.ID}}/disable.html" method="POST">
         <input type="submit" value="Disable"/>
       </form>
+    </td>
+    <td>
       <form action="/admin/auths/{{.ID}}/delete.html" method="POST">
         <input type="submit" value="Delete"/>
       </form>
