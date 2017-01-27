@@ -1,5 +1,5 @@
-hash: fc9d781976bad67fe489a28eff3fbf5340e45c6f015b62f655316dbd8fa1bd09
-updated: 2017-01-23T11:53:52.062168926+09:00
+hash: bcbbd48c1640b8e472871dbd4358c6b0ffb24d1d992adff34940b45c7c231c94
+updated: 2017-01-27T15:33:58.330917496+09:00
 imports:
 - name: cloud.google.com/go
   version: 81b7822b1e798e8f17bf64b59512a5be4097e966
@@ -8,6 +8,12 @@ imports:
   - internal
 - name: github.com/dgrijalva/jwt-go
   version: a601269ab70c205d26370c16f7c81e9017c14e04
+- name: github.com/go-playground/locales
+  version: 273913d3b2ff7127452603d55dd3f6f888e4f268
+  subpackages:
+  - currency
+- name: github.com/go-playground/universal-translator
+  version: 8bf00f2bdf7faea5c3583d41f57bf1eb15b743d7
 - name: github.com/golang/protobuf
   version: 8ee79997227bf9b34611aee7946ae64735e6fd93
   subpackages:
@@ -36,6 +42,8 @@ imports:
   subpackages:
   - acme
   - acme/autocert
+  - bcrypt
+  - blowfish
 - name: golang.org/x/net
   version: 69d4b8aa71caaaa75c3dfc11211d1be495abec7c
   subpackages:
@@ -97,6 +105,8 @@ imports:
   - stats
   - tap
   - transport
+- name: gopkg.in/go-playground/validator.v9
+  version: 077c3830f3971d4a44a94c2249b67ce8c53198fc
 testImports:
 - name: github.com/davecgh/go-spew
   version: 04cdfd42973bb9c8589fd6a731800cf222fde1a9
