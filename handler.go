@@ -189,7 +189,7 @@ func (h *handler) refresh(c echo.Context) error {
 		return err
 	}
 	for _, id := range ids {
-		t := taskqueue.NewPOSTTask(fmt.Sprintf("/%s/refresh_task.json", id), map[string][]string{})
+		t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/refresh_task.json", id), map[string][]string{})
 		if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 			return err
 		}
