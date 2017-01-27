@@ -117,7 +117,7 @@ func (h *handler) pipelineTask(action string) func(c echo.Context) error {
 	var wrapper func(impl func(c echo.Context) error) func(c echo.Context) error
 	switch action {
 	case "refresh":
-		wrapper = func(impl func(c echo.Context) error) func(c echo.Context) error { return impl }
+		wrapper = withAEContext
 	default:
 		wrapper = h.withAuth
 	}
