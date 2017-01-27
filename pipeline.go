@@ -16,6 +16,7 @@ const (
 	initialized Status = iota
 	broken
 	building
+	deploying
 	opened
 	resizing
 	updating
@@ -41,6 +42,7 @@ type (
 		Command       string `json:"command"        validate:"required"`
 		Status        Status `json:"status"`
 		Dryrun        bool   `json:"dryrun"`
+		DeploymentName string `json:"deployment_name"`
 	}
 
 	Pipeline struct {

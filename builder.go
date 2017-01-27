@@ -38,7 +38,7 @@ func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
 		log.Errorf(ctx, "Failed to BuildDeployment: %v\nProps: %v\n", err, pl.Props)
 		return err
 	}
-	_, err = c.Deployments.Insert(pl.Props.ProjectID, deployment).Context(ctx).Do()
+	ope, err := c.Deployments.Insert(pl.Props.ProjectID, deployment).Context(ctx).Do()
 	if err != nil {
 		log.Errorf(ctx, "Failed to insert deployment %v\nproject: %v deployment: %v\nhc: %v\n", err, pl.Props.ProjectID, deployment)
 		return err
@@ -46,10 +46,11 @@ func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
 
 	log.Infof(ctx, "Built pipeline successfully %v\n", pl.Props)
 
-	pl.Props.Status = opened
+	pl.Props.Status = deploying
+	pl.Props.DeploymentName = ope.Name
 	err = pl.update(ctx)
 	if err != nil {
-		log.Errorf(ctx, "Failed to update Pipeline status to 'opened': %v\npl: %v\n", err, pl)
+		log.Errorf(ctx, "Failed to update Pipeline deployment name to %v: %v\npl: %v\n", ope.Name, err, pl)
 		return err
 	}
 
