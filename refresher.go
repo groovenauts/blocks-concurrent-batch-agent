@@ -12,12 +12,12 @@ type Refresher struct {
 func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 	log.Debugf(ctx, "Refreshing pipeline %v\n", pl)
 	if pl.Props.Status == deploying {
-		b.UpdateStatusByDeployment(ctx, pl)
+		b.UpdateDeployingPipeline(ctx, pl)
 	}
 	return nil
 }
 
-func (b *Refresher) UpdateStatusByDeployment(ctx context.Context, pl *Pipeline) error {
+func (b *Refresher) UpdateDeployingPipeline(ctx context.Context, pl *Pipeline) error {
 	// See the "Examples" below "Response"
 	//   https://cloud.google.com/deployment-manager/docs/reference/latest/deployments/insert#response
 	proj := pl.Props.ProjectID
