@@ -19,10 +19,6 @@ func (dpf *DefaultProcessorFactory) Create(ctx context.Context, action string) (
 	switch action {
 	case "build":
 		return &Builder{deployer: deployer}, nil
-	case "update":
-		return &Updater{}, nil
-	case "resize":
-		return &Resizer{}, nil
 	case "close":
 		return &Closer{deployer: deployer}, nil
 	case "refresh":
