@@ -24,9 +24,15 @@ func (b *Refresher) UpdateStatusByDeployment(ctx context.Context, pl *Pipeline) 
 	dep_name := pl.Props.DeploymentName
 	deployment, err := b.deployer.Get(ctx, proj, dep_name)
 	if err != nil {
-		log.Errorf(ctx, "Failed to get deployment %v\nproject: %v deployment: %v\nhc: %v\n", err, proj, dep_name)
+		log.Errorf(ctx, "Failed to get deployment project: %v deployment: %v\n%v\n", proj, dep_name, err)
 		return err
 	}
+	log.Debugf(ctx, "Refreshing development: %v\n", deployment)
+	if deployment.Operation == nil {
+		log.Warningf(ctx, "Deployment operation was nil for %v\nproject: %v deployment: %v\n", proj, dep_name)
+		return nil
+	}
+	log.Debugf(ctx, "Refreshing development operation: %v\n", deployment.Operation)
 	if deployment.Operation.Status == "DONE" {
 		doe := deployment.Operation.Error
 		if doe != nil && len(doe.Errors) > 0 {
