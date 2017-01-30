@@ -44,9 +44,11 @@ func (b *Refresher) UpdateStatusByDeployment(ctx context.Context, pl *Pipeline) 
 					Message:  e.Message,
 				})
 			}
+			log.Errorf(ctx, "Deployment error found for project: %v deployment: %v\n%v\n", proj, dep_name, errors)
 			pl.Props.Errors = errors
 			pl.Props.Status = broken
 		} else {
+			log.Infof(ctx, "Deployment completed successfully %v\n", dep_name)
 			pl.Props.Status = opened
 		}
 		err = pl.update(ctx)

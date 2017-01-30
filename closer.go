@@ -19,6 +19,8 @@ func (b *Closer) Process(ctx context.Context, pl *Pipeline) error {
 		return err
 	}
 
+	log.Infof(ctx, "Deployment closed successfully project: %v deployment: %v\n", pl.Props.ProjectID, pl.Props.Name)
+
 	pl.Props.Status = closed
 	err = pl.update(ctx)
 	if err != nil {
