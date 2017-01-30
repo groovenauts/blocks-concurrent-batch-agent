@@ -37,8 +37,8 @@ func init() {
 	g.Use(middleware.CORS())
 
 	g.GET(".json", h.withAuth(h.index))
-	g.GET("/:id.json", h.withPipeline(h.withAuth, h.show))
-	g.DELETE("/:id.json", h.withPipeline(h.withAuth, h.destroy))
+	g.GET("/:id", h.withPipeline(h.withAuth, h.show))
+	g.DELETE("/:id", h.withPipeline(h.withAuth, h.destroy))
 
 	g.POST(".json", h.withAuth(h.create))
 	g.POST("/:id/build_task.json", h.pipelineTask("build"))
