@@ -177,7 +177,7 @@ func (h *handler) destroy(c echo.Context, pl *Pipeline) error {
 // curl -v -X PUT http://localhost:8080/pipelines/refresh
 func (h *handler) refresh(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
-	ids, err := GetAllActivePipelineIDs(ctx)
+	ids, err := GetPipelineIDsByStatus(ctx, deploying)
 	if err != nil {
 		return err
 	}

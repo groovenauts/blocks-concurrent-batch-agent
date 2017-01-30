@@ -2,7 +2,9 @@ package pipeline
 
 import (
 	"fmt"
+	"math"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/context"
@@ -49,6 +51,21 @@ func ExpectToHaveProps(t *testing.T, plp *PipelineProps) {
 		t.Fatalf("ProjectId is expected %v but it was %v", proj, plp.ProjectID)
 	}
 }
+
+func retryWith(max int, impl func() (func()) )  {
+	for i := 0; i < max + 1; i++ {
+		f := impl()
+		if f == nil { return }
+		if i == max {
+			f()
+		} else {
+			// Exponential backoff
+			d := time.Duration(math.Pow(2.0, float64(i)) * 5.0)
+			time.Sleep(d * time.Millisecond)
+		}
+	}
+}
+
 
 func TestWatcherCalcDifferences(t *testing.T) {
 	ctx, done, err := aetest.NewContext()
@@ -134,22 +151,43 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	err = pl.update(ctx)
 	assert.NoError(t, err)
 
-	// GetAllActivePipelineIDs
-	keys, err := GetAllActivePipelineIDs(ctx)
+	// GetPipelineIDsByStatus
+	statuses := []Status{
+		initialized, broken, building, deploying,
+		// opened,
+		closing, closed,
+	}
+	for _, st := range statuses {
+		retryWith(10, func() (func()) {
+			keys, err := GetPipelineIDsByStatus(ctx, st)
+			assert.NoError(t, err)
+			if len(keys) == 0 {
+				// OK
+				return nil
+			} else {
+				// NG but retryWith calls this function only at the last time
+				return func(){
+					t.Fatalf("len(keys) of %v expects %v but was %v\n", st, 0, len(keys))
+				}
+			}
+		})
+	}
+
+	keys, err := GetPipelineIDsByStatus(ctx, opened)
 	assert.NoError(t, err)
 	if len(keys) != 1 {
-		t.Fatalf("len(keys) expects %v but was %v\n", 1, len(keys))
+		t.Fatalf("len(keys) for opened expects %v but was %v\n", 1, len(keys))
 	}
 	if keys[0] != pl.ID {
 		t.Fatalf("keys[0] expects %v but was %v\n", pl.ID, keys[0])
 	}
 
 	// destroy
-	statuses := []Status{
-		initialized, broken, building, opened, closing,
+	indestructible_statuses := []Status{
+		initialized, broken, building, deploying, opened, closing,
 		//closed,
 	}
-	for _, st := range statuses {
+	for _, st := range indestructible_statuses {
 		pl.Props.Status = st
 		err = pl.destroy(ctx)
 		if err == nil {

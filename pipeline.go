@@ -125,9 +125,13 @@ func GetPipelinesByQuery(ctx context.Context, q *datastore.Query) ([]*Pipeline, 
 	return res, nil
 }
 
-func GetAllActivePipelineIDs(ctx context.Context) ([]string, error) {
-	q := datastore.NewQuery("Pipelines").Filter("Status <", closed).KeysOnly()
-	keys, err := q.GetAll(ctx, nil)
+func GetPipelineIDsByStatus(ctx context.Context, st Status) ([]string, error) {
+	q := datastore.NewQuery("Pipelines").Filter("Status =", st)
+	return GetPipelineIDsByQuery(ctx, q)
+}
+
+func GetPipelineIDsByQuery(ctx context.Context, q *datastore.Query) ([]string, error) {
+	keys, err := q.KeysOnly().GetAll(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -137,6 +141,7 @@ func GetAllActivePipelineIDs(ctx context.Context) ([]string, error) {
 	}
 	return res, nil
 }
+
 
 func (pl *Pipeline) destroy(ctx context.Context) error {
 	plp := pl.Props
