@@ -25,12 +25,12 @@
     <td>{{.Props.CreatedAt}} </td>
     <td>{{.Props.UpdatedAt}} </td>
     <td>
-      <form action="/admin/auths/{{.ID}}/disable.html" method="POST">
+      <form action="/admin/auths/{{.ID}}/disable" method="POST">
         <input type="submit" value="Disable"/>
       </form>
     </td>
     <td>
-      <form action="/admin/auths/{{.ID}}/delete.html" method="POST">
+      <form action="/admin/auths/{{.ID}}/delete" method="POST">
         <input type="submit" value="Delete"/>
       </form>
     </td>
@@ -39,7 +39,7 @@
   {{end}}
 </table>
 
-<form action="/admin/auths.html" method="POST">
+<form action="/admin/auths" method="POST">
   <input type="submit" value="Create New Token"/>
 </form>
 {{end}}

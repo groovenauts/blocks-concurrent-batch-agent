@@ -92,7 +92,7 @@ $ gcloud app services set-traffic concurrent-batch-agent --splits=$(cat VERSION)
 
 ### Get Token on browser
 
-2. Open http://<hostname>/admin/auths.html
+2. Open http://<hostname>/admin/auths
 3. Click [Create new token]
 4. Copy the token shown
 

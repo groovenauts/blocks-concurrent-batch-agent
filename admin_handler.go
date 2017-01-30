@@ -26,10 +26,10 @@ func init() {
 	e.Renderer = t
 
 	g := e.Group("/admin/auths")
-	g.GET(".html", h.withFlash(h.index))
-	g.POST(".html", h.withFlash(h.create))
-	g.POST("/:id/disable.html", h.AuthHandler(h.disable))
-	g.POST("/:id/delete.html", h.AuthHandler(h.destroy))
+	g.GET("", h.withFlash(h.index))
+	g.POST("", h.withFlash(h.create))
+	g.POST("/:id/disable", h.AuthHandler(h.disable))
+	g.POST("/:id/delete", h.AuthHandler(h.destroy))
 }
 
 type Template struct {
@@ -91,7 +91,7 @@ func (h *adminHandler) withFlash(impl func(c echo.Context) error) func(c echo.Co
 	})
 }
 
-// GET http://localhost:8080/admin/auths.html
+// GET http://localhost:8080/admin/auths
 
 type IndexRes struct {
 	Flash *Flash
@@ -114,7 +114,7 @@ func (h *adminHandler) index(c echo.Context) error {
 	return c.Render(http.StatusOK, "index", &r)
 }
 
-// POST http://localhost:8080/admin/auths.html
+// POST http://localhost:8080/admin/auths
 
 type CreateRes struct {
 	Flash    *Flash
@@ -150,35 +150,35 @@ func (h *adminHandler) AuthHandler(f func(c echo.Context, ctx context.Context, a
 		auth, err := FindAuth(ctx, c.Param("id"))
 		if err == ErrNoSuchAuth {
 			h.setFlash(c, "alert", fmt.Sprintf("Auth not found for id: %v", c.Param("id")))
-			return c.Redirect(http.StatusFound, "/admin/auths.html")
+			return c.Redirect(http.StatusFound, "/admin/auths")
 		}
 		if err != nil {
 			h.setFlash(c, "alert", fmt.Sprintf("Failed to find Auth for id: %v error: ", c.Param("id"), err))
-			return c.Redirect(http.StatusFound, "/admin/auths.html")
+			return c.Redirect(http.StatusFound, "/admin/auths")
 		}
 		return f(c, ctx, auth)
 	})
 }
 
-// PUT http://localhost:8080/admin/auths/:id.html
+// PUT http://localhost:8080/admin/auths/:id
 func (h *adminHandler) disable(c echo.Context, ctx context.Context, auth *Auth) error {
 	auth.Props.Disabled = true
 	err := auth.update(ctx)
 	if err != nil {
 		h.setFlash(c, "alert", fmt.Sprintf("Failed to update Auth. id: %v error: ", auth.ID, err))
-		return c.Redirect(http.StatusFound, "/admin/auths.html")
+		return c.Redirect(http.StatusFound, "/admin/auths")
 	}
 	h.setFlash(c, "notice", fmt.Sprintf("Disabled the Auth successfully. id: %v", auth.ID))
-	return c.Redirect(http.StatusFound, "/admin/auths.html")
+	return c.Redirect(http.StatusFound, "/admin/auths")
 }
 
-// DELETE http://localhost:8080/admin/auths/:id.html
+// DELETE http://localhost:8080/admin/auths/:id
 func (h *adminHandler) destroy(c echo.Context, ctx context.Context, auth *Auth) error {
 	err := auth.destroy(ctx)
 	if err != nil {
 		h.setFlash(c, "alert", fmt.Sprintf("Failed to destroy Auth. id: %v error: ", auth.ID, err))
-		return c.Redirect(http.StatusFound, "/admin/auths.html")
+		return c.Redirect(http.StatusFound, "/admin/auths")
 	}
 	h.setFlash(c, "notice", fmt.Sprintf("The Auth is deleted successfully. id: %v", auth.ID))
-	return c.Redirect(http.StatusFound, "/admin/auths.html")
+	return c.Redirect(http.StatusFound, "/admin/auths")
 }
