@@ -1,12 +1,12 @@
 package pipeline
 
 import (
+	"encoding/json"
 	"fmt"
 	"golang.org/x/net/context"
-	"google.golang.org/appengine/log"
-	"encoding/json"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/deploymentmanager/v2"
+	"google.golang.org/appengine/log"
 )
 
 type Builder struct {
@@ -54,14 +54,16 @@ func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
 func (b *Builder) BuildDeployment(plp *PipelineProps) (*deploymentmanager.Deployment, error) {
 	r := b.GenerateDeploymentResources(plp.ProjectID, plp.Name)
 	d, err := json.Marshal(r)
-	if err != nil { return nil, err }
+	if err != nil {
+		return nil, err
+	}
 	// https://github.com/google/google-api-go-client/blob/master/deploymentmanager/v2/deploymentmanager-gen.go#L321-L346
 	c := deploymentmanager.ConfigFile{Content: string(d)}
 	// https://github.com/google/google-api-go-client/blob/master/deploymentmanager/v2/deploymentmanager-gen.go#L1679-L1709
 	tc := deploymentmanager.TargetConfiguration{Config: &c}
 	// https://github.com/google/google-api-go-client/blob/master/deploymentmanager/v2/deploymentmanager-gen.go#L348-L434
 	dm := deploymentmanager.Deployment{
-		Name: plp.Name,
+		Name:   plp.Name,
 		Target: &tc,
 	}
 	return &dm, nil
@@ -69,8 +71,8 @@ func (b *Builder) BuildDeployment(plp *PipelineProps) (*deploymentmanager.Deploy
 
 type (
 	Resource struct {
-		Type string `json:"type"`
-		Name string `json:"name"`
+		Type       string                 `json:"type"`
+		Name       string                 `json:"name"`
 		Properties map[string]interface{} `json:"properties"`
 	}
 
@@ -81,7 +83,7 @@ type (
 
 type (
 	Pubsub struct {
-		Name string
+		Name        string
 		AckDeadline int
 	}
 )
@@ -97,16 +99,16 @@ func (b *Builder) GenerateDeploymentResources(project, name string) *Resources {
 		subscription := name + "-" + pubsub.Name + "-subscription"
 		t = append(t,
 			Resource{
-				Type: "pubsub.v1.topic",
-				Name: topic,
-				Properties: map[string]interface{}{ "topic": topic },
+				Type:       "pubsub.v1.topic",
+				Name:       topic,
+				Properties: map[string]interface{}{"topic": topic},
 			},
 			Resource{
 				Type: "pubsub.v1.subscription",
 				Name: subscription,
 				Properties: map[string]interface{}{
-					"subscription": subscription,
-					"topic": fmt.Sprintf("$(ref.%s.name)", topic),
+					"subscription":       subscription,
+					"topic":              fmt.Sprintf("$(ref.%s.name)", topic),
 					"ackDeadlineSeconds": pubsub.AckDeadline,
 				},
 			},

@@ -1,0 +1,45 @@
+{{define "index"}}
+
+{{if .Flash.Alert}}
+<p>ALERT: {{.Flash.Alert}}</p>
+{{end}}
+
+{{if .Flash.Notice}}
+<p>Notice: {{.Flash.Notice}}</p>
+{{end}}
+
+<table>
+  <thead>
+    <th>ID</th>
+    <th>Disabled</th>
+    <th>Created at</th>
+    <th>Updated at</th>
+    <th></th>
+    <th></th>
+  </thead>
+  <tbody>
+  {{range .Auths}}
+  <tr>
+    <td>{{.ID}} </td>
+    <td>{{.Props.Disabled}}</td>
+    <td>{{.Props.CreatedAt}} </td>
+    <td>{{.Props.UpdatedAt}} </td>
+    <td>
+      <form action="/admin/auths/{{.ID}}/disable.html" method="POST">
+        <input type="submit" value="Disable"/>
+      </form>
+    </td>
+    <td>
+      <form action="/admin/auths/{{.ID}}/delete.html" method="POST">
+        <input type="submit" value="Delete"/>
+      </form>
+    </td>
+  </tr>
+  </tbody>
+  {{end}}
+</table>
+
+<form action="/admin/auths.html" method="POST">
+  <input type="submit" value="Create New Token"/>
+</form>
+{{end}}

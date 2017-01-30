@@ -29,7 +29,7 @@ var ErrNoSuchPipeline = errors.New("No such data in Pipelines")
 
 type (
 	PipelineProps struct {
-		Name string `json:"name"`
+		Name      string `json:"name"`
 		ProjectID string `json:"project_id"`
 		// JobTopicName							   string `json:"job_topic_name"`
 		// JobSubscriptionName				   string `json:"job_subscription_name"`
@@ -136,7 +136,6 @@ func (pl *Pipeline) update(ctx context.Context) error {
 	}
 	return nil
 }
-
 
 func (pl *Pipeline) process(ctx context.Context, action string) error {
 	processor, err := processorFactory.Create(ctx, action)
