@@ -94,7 +94,7 @@ func FindPipeline(ctx context.Context, id string) (*Pipeline, error) {
 	case err == datastore.ErrNoSuchEntity:
 		return nil, ErrNoSuchPipeline
 	case err != nil:
-		log.Errorf(ctx, "@withPipeline %v id: %v\n", err, id)
+		log.Errorf(ctx, "@FindPipeline %v id: %v\n", err, id)
 		return nil, err
 	}
 	return pl, nil
