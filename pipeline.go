@@ -56,6 +56,7 @@ type (
 		Status         Status            `json:"status"`
 		Dryrun         bool              `json:"dryrun"`
 		DeploymentName string            `json:"deployment_name"`
+		OperationName  string            `json:"operation_name"`
 		Errors         []DeploymentError `json:"errors"`
 	}
 
