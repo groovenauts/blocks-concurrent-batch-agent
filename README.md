@@ -67,11 +67,15 @@ Make `pipeline.json` like this:
 
 ```
 $ TOKEN="[the token you got before]"
-$ curl -H "Authorization: Bearer $TOKEN" -X POST http://localhost:8080/pipelines.json --data @pipeline.json -H 'Content-Type: application/json'
-$ curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/pipelines.json
+$ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X POST http://localhost:8080/pipelines.json --data @pipeline.json
+$ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://localhost:8080/pipelines.json
 ```
 
-## Deploy
+```
+$ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X DELETE http://localhost:8080/pipelines/$ID
+```
+
+## Deploy to appengine
 
 ```
 $ appcfg.py \
@@ -86,9 +90,32 @@ If you want to set it active, run the following command
 $ gcloud app services set-traffic concurrent-batch-agent --splits=$(cat VERSION)=1
 ```
 
+### Get Token on browser
+
+2. Open http://<hostname>/admin/auths.html
+3. Click [Create new token]
+4. Copy the token shown
+
 ### New Pipeline data
 
-1. Open the https://<hostname>/pipelines.html
-2. Click [New Pipeline]
-3. Fill in the fields
-4. Click [submit]
+
+```
+$ export TOKEN="[the token you got before]"
+$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X POST http://<hostname>.appspot.com/pipelines.json --data @pipeline.json
+```
+
+#### Temporary work around
+
+Now you have to call the following command to refresh status
+
+```
+$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://<hostname>.appspot.com/pipelines/refresh.json
+```
+
+### Close and Delete data
+
+```
+$ export ID="[id of the result]"
+$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X PUT http://<hostname>.appspot.com/pipelines/$ID/close.json --data ""
+$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X DELETE http://<hostname>.appspot.com/pipelines/$ID
+```
