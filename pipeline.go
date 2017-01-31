@@ -19,6 +19,7 @@ const (
 	deploying
 	opened
 	closing
+	closing_error
 	closed
 )
 

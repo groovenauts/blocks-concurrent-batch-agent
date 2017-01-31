@@ -86,7 +86,7 @@ func (b *Refresher) UpdateClosingPipeline(ctx context.Context, pl *Pipeline) err
 			}
 			log.Errorf(ctx, "Closing error found for project: %v deployment: %v\n%v\n", proj, pl.Props.DeploymentName, errors)
 			pl.Props.ClosingErrors = errors
-			pl.Props.Status = broken
+			pl.Props.Status = closing_error
 		} else {
 			log.Infof(ctx, "Closing completed successfully project: %v deployment: %v\n", proj, pl.Props.DeploymentName)
 			pl.Props.Status = closed
