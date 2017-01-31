@@ -2,6 +2,7 @@ package pipeline
 
 import (
 	"golang.org/x/net/context"
+	"google.golang.org/api/deploymentmanager/v2"
 	"google.golang.org/appengine/log"
 )
 
@@ -38,18 +39,10 @@ func (b *Refresher) UpdateDeployingPipeline(ctx context.Context, pl *Pipeline) e
 	}
 	log.Debugf(ctx, "Refreshing deployment operation: %v\n", deployment.Operation)
 	if deployment.Operation.Status == "DONE" {
-		doe := deployment.Operation.Error
-		if doe != nil && len(doe.Errors) > 0 {
-			errors := []DeploymentError{}
-			for _, e := range doe.Errors {
-				errors = append(errors, DeploymentError{
-					Code:     e.Code,
-					Location: e.Location,
-					Message:  e.Message,
-				})
-			}
+		errors := b.ErrorsFromOperation(deployment.Operation)
+		if errors != nil {
 			log.Errorf(ctx, "Deployment error found for project: %v deployment: %v\n%v\n", proj, dep_name, errors)
-			pl.Props.DeployingErrors = errors
+			pl.Props.DeployingErrors = *errors
 			pl.Props.Status = broken
 		} else {
 			log.Infof(ctx, "Deployment completed successfully %v\n", dep_name)
@@ -74,18 +67,10 @@ func (b *Refresher) UpdateClosingPipeline(ctx context.Context, pl *Pipeline) err
 	}
 	log.Debugf(ctx, "Refreshing closing operation: %v\n", ope)
 	if ope.Status == "DONE" {
-		doe := ope.Error
-		if doe != nil && len(doe.Errors) > 0 {
-			errors := []DeploymentError{}
-			for _, e := range doe.Errors {
-				errors = append(errors, DeploymentError{
-					Code:     e.Code,
-					Location: e.Location,
-					Message:  e.Message,
-				})
-			}
+		errors := b.ErrorsFromOperation(ope)
+		if errors != nil {
 			log.Errorf(ctx, "Closing error found for project: %v deployment: %v\n%v\n", proj, pl.Props.DeploymentName, errors)
-			pl.Props.ClosingErrors = errors
+			pl.Props.ClosingErrors = *errors
 			pl.Props.Status = closing_error
 		} else {
 			log.Infof(ctx, "Closing completed successfully project: %v deployment: %v\n", proj, pl.Props.DeploymentName)
@@ -98,4 +83,21 @@ func (b *Refresher) UpdateClosingPipeline(ctx context.Context, pl *Pipeline) err
 		}
 	}
 	return nil
+}
+
+func (b *Refresher) ErrorsFromOperation(ope *deploymentmanager.Operation) *[]DeploymentError {
+	doe := ope.Error
+	if doe != nil && len(doe.Errors) > 0 {
+		errors := []DeploymentError{}
+		for _, e := range doe.Errors {
+			errors = append(errors, DeploymentError{
+				Code:     e.Code,
+				Location: e.Location,
+				Message:  e.Message,
+			})
+		}
+		return &errors
+	} else {
+		return nil
+	}
 }
