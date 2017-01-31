@@ -26,26 +26,21 @@ func (b *Refresher) UpdateDeployingPipeline(ctx context.Context, pl *Pipeline) e
 	// See the "Examples" below "Response"
 	//   https://cloud.google.com/deployment-manager/docs/reference/latest/deployments/insert#response
 	proj := pl.Props.ProjectID
-	dep_name := pl.Props.DeploymentName
-	deployment, err := b.deployer.Get(ctx, proj, dep_name)
+	ope_name := pl.Props.DeployingOperationName
+	ope, err := b.deployer.GetOperation(ctx, proj, ope_name)
 	if err != nil {
-		log.Errorf(ctx, "Failed to get deployment project: %v deployment: %v\n%v\n", proj, dep_name, err)
+		log.Errorf(ctx, "Failed to get deploying operation project: %v deployment: %v\n%v\n", proj, ope_name, err)
 		return err
 	}
-	log.Debugf(ctx, "Refreshing deployment: %v\n", deployment)
-	if deployment.Operation == nil {
-		log.Warningf(ctx, "Deployment operation was nil for %v\nproject: %v deployment: %v\n", proj, dep_name)
-		return nil
-	}
-	log.Debugf(ctx, "Refreshing deployment operation: %v\n", deployment.Operation)
-	if deployment.Operation.Status == "DONE" {
-		errors := b.ErrorsFromOperation(deployment.Operation)
+	log.Debugf(ctx, "Refreshing deploying operation: %v\n", ope)
+	if ope.Status == "DONE" {
+		errors := b.ErrorsFromOperation(ope)
 		if errors != nil {
-			log.Errorf(ctx, "Deployment error found for project: %v deployment: %v\n%v\n", proj, dep_name, errors)
+			log.Errorf(ctx, "Deployment error found for project: %v deployment: %v\n%v\n", proj, pl.Props.DeploymentName, errors)
 			pl.Props.DeployingErrors = *errors
 			pl.Props.Status = broken
 		} else {
-			log.Infof(ctx, "Deployment completed successfully %v\n", dep_name)
+			log.Infof(ctx, "Deployment completed successfully %v\n", pl.Props.DeploymentName)
 			pl.Props.Status = opened
 		}
 		err = pl.update(ctx)
@@ -62,7 +57,7 @@ func (b *Refresher) UpdateClosingPipeline(ctx context.Context, pl *Pipeline) err
 	ope_name := pl.Props.ClosingOperationName
 	ope, err := b.deployer.GetOperation(ctx, proj, ope_name)
 	if err != nil {
-		log.Errorf(ctx, "Failed to get deployment project: %v deployment: %v\n%v\n", proj, ope_name, err)
+		log.Errorf(ctx, "Failed to get closing operation project: %v deployment: %v\n%v\n", proj, ope_name, err)
 		return err
 	}
 	log.Debugf(ctx, "Refreshing closing operation: %v\n", ope)
