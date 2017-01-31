@@ -125,7 +125,7 @@ func TestRefresherProcess(t *testing.T) {
 		pl2, err := FindPipeline(ctx, pl.ID)
 		assert.NoError(t, err)
 		assert.Equal(t, expection.status, pl2.Props.Status)
-		assert.Equal(t, expection.errors, pl2.Props.Errors)
+		assert.Equal(t, expection.errors, pl2.Props.DeployingErrors)
 	}
 
 }

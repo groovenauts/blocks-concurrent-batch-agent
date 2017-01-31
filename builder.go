@@ -35,7 +35,7 @@ func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
 
 	pl.Props.Status = deploying
 	pl.Props.DeploymentName = deployment.Name
-	pl.Props.OperationName = ope.Name
+	pl.Props.DeployingOperationName = ope.Name
 	err = pl.update(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to update Pipeline deployment name to %v: %v\npl: %v\n", ope.Name, err, pl)
