@@ -131,7 +131,7 @@ func TestActions(t *testing.T) {
 			status: st,
 			result: map[string][]string{
 				"deploying": []string{},
-				"closing": []string{},
+				"closing":   []string{},
 			},
 		})
 	}
@@ -140,14 +140,14 @@ func TestActions(t *testing.T) {
 		status: deploying,
 		result: map[string][]string{
 			"deploying": []string{pl.ID},
-			"closing": []string{},
+			"closing":   []string{},
 		},
 	})
 	expections = append(expections, expection{
 		status: closing,
 		result: map[string][]string{
 			"deploying": []string{},
-			"closing": []string{pl.ID},
+			"closing":   []string{pl.ID},
 		},
 	})
 
@@ -161,7 +161,7 @@ func TestActions(t *testing.T) {
 
 		f = withAEContext(h.refresh)
 
-		retryWith(10, func() (func()){
+		retryWith(10, func() func() {
 			req, err = inst.NewRequest(echo.GET, "/pipelines/refresh", nil)
 			assert.NoError(t, err)
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -173,19 +173,19 @@ func TestActions(t *testing.T) {
 
 			err := f(c)
 			if err != nil {
-				return func(){ assert.NoError(t, err) }
+				return func() { assert.NoError(t, err) }
 			}
 			if http.StatusOK != rec.Code {
-				return func(){ assert.Equal(t, http.StatusOK, rec.Code) }
+				return func() { assert.Equal(t, http.StatusOK, rec.Code) }
 			}
 			s := rec.Body.String()
 			res := map[string][]string{}
 			err = json.Unmarshal([]byte(s), &res)
 			if err != nil {
-				return func(){ assert.NoError(t, err) }
+				return func() { assert.NoError(t, err) }
 			}
 			if !assert.ObjectsAreEqual(expection.result, res) {
-				return func(){ assert.Equal(t, expection.result, res) }
+				return func() { assert.Equal(t, expection.result, res) }
 			}
 			return nil
 		})

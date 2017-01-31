@@ -19,7 +19,7 @@ func (d *TestDeployerRunning) Insert(ctx context.Context, project string, deploy
 	return nil, nil
 }
 func (d *TestDeployerRunning) Get(ctx context.Context, project string, deployment string) (*deploymentmanager.Deployment, error) {
-	ope, _ := d.GetOperation(ctx , project, "")
+	ope, _ := d.GetOperation(ctx, project, "")
 	return &deploymentmanager.Deployment{Operation: ope}, nil
 }
 func (d *TestDeployerRunning) GetOperation(ctx context.Context, project string, operation string) (*deploymentmanager.Operation, error) {
@@ -35,7 +35,7 @@ func (d *TestDeployerOK) Insert(ctx context.Context, project string, deployment 
 	return nil, nil
 }
 func (d *TestDeployerOK) Get(ctx context.Context, project string, deployment string) (*deploymentmanager.Deployment, error) {
-	ope, _ := d.GetOperation(ctx , project, "")
+	ope, _ := d.GetOperation(ctx, project, "")
 	return &deploymentmanager.Deployment{Operation: ope}, nil
 }
 func (d *TestDeployerOK) GetOperation(ctx context.Context, project string, operation string) (*deploymentmanager.Operation, error) {
@@ -54,7 +54,7 @@ func (d *TestDeployerError) Insert(ctx context.Context, project string, deployme
 	return nil, nil
 }
 func (d *TestDeployerError) Get(ctx context.Context, project string, deployment string) (*deploymentmanager.Deployment, error) {
-	ope, _ := d.GetOperation(ctx , project, "")
+	ope, _ := d.GetOperation(ctx, project, "")
 	return &deploymentmanager.Deployment{Operation: ope}, nil
 }
 func (d *TestDeployerError) GetOperation(ctx context.Context, project string, operation string) (*deploymentmanager.Operation, error) {

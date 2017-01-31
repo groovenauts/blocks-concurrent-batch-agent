@@ -53,10 +53,12 @@ func ExpectToHaveProps(t *testing.T, plp *PipelineProps) {
 }
 
 // retry for datastore's eventual consistency
-func retryWith(max int, impl func() (func()) )  {
-	for i := 0; i < max + 1; i++ {
+func retryWith(max int, impl func() func()) {
+	for i := 0; i < max+1; i++ {
 		f := impl()
-		if f == nil { return }
+		if f == nil {
+			return
+		}
 		if i == max {
 			f()
 		} else {
@@ -66,7 +68,6 @@ func retryWith(max int, impl func() (func()) )  {
 		}
 	}
 }
-
 
 func TestWatcherCalcDifferences(t *testing.T) {
 	ctx, done, err := aetest.NewContext()
@@ -159,7 +160,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 		closing, closed,
 	}
 	for _, st := range statuses {
-		retryWith(10, func() (func()) {
+		retryWith(10, func() func() {
 			keys, err := GetPipelineIDsByStatus(ctx, st)
 			assert.NoError(t, err)
 			if len(keys) == 0 {
@@ -167,7 +168,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 				return nil
 			} else {
 				// NG but retryWith calls this function only at the last time
-				return func(){
+				return func() {
 					t.Fatalf("len(keys) of %v expects %v but was %v\n", st, 0, len(keys))
 				}
 			}

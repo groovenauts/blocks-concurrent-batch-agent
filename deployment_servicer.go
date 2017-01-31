@@ -34,7 +34,7 @@ func DefaultDeploymentServicer(ctx context.Context) (DeploymentServicer, error) 
 }
 
 type DeploymentServiceWrapper struct {
-	service *deploymentmanager.DeploymentsService
+	service    *deploymentmanager.DeploymentsService
 	opeService *deploymentmanager.OperationsService
 }
 

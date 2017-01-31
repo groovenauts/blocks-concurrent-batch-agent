@@ -42,18 +42,18 @@ type (
 	}
 
 	PipelineProps struct {
-		Name           string            `json:"name"           validate:"required"`
-		ProjectID      string            `json:"project_id"     validate:"required"`
-		Zone           string            `json:"zone"           validate:"required"`
-		SourceImage    string            `json:"source_image"   validate:"required"`
-		MachineType    string            `json:"machine_type"   validate:"required"`
-		TargetSize     int               `json:"target_size"    validate:"required"`
-		ContainerSize  int               `json:"container_size" validate:"required"`
-		ContainerName  string            `json:"container_name" validate:"required"`
-		Command        string            `json:"command"        validate:"required"`
-		Status         Status            `json:"status"`
-		Dryrun         bool              `json:"dryrun"`
-		DeploymentName string            `json:"deployment_name"`
+		Name                   string            `json:"name"           validate:"required"`
+		ProjectID              string            `json:"project_id"     validate:"required"`
+		Zone                   string            `json:"zone"           validate:"required"`
+		SourceImage            string            `json:"source_image"   validate:"required"`
+		MachineType            string            `json:"machine_type"   validate:"required"`
+		TargetSize             int               `json:"target_size"    validate:"required"`
+		ContainerSize          int               `json:"container_size" validate:"required"`
+		ContainerName          string            `json:"container_name" validate:"required"`
+		Command                string            `json:"command"        validate:"required"`
+		Status                 Status            `json:"status"`
+		Dryrun                 bool              `json:"dryrun"`
+		DeploymentName         string            `json:"deployment_name"`
 		DeployingOperationName string            `json:"deploying_operation_name"`
 		DeployingErrors        []DeploymentError `json:"deploying_errors"`
 		ClosingOperationName   string            `json:"closing_operation_name"`
@@ -144,7 +144,6 @@ func GetPipelineIDsByQuery(ctx context.Context, q *datastore.Query) ([]string, e
 	}
 	return res, nil
 }
-
 
 func (pl *Pipeline) destroy(ctx context.Context) error {
 	plp := pl.Props
