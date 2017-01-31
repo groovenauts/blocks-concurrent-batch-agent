@@ -52,6 +52,7 @@ func ExpectToHaveProps(t *testing.T, plp *PipelineProps) {
 	}
 }
 
+// retry for datastore's eventual consistency
 func retryWith(max int, impl func() (func()) )  {
 	for i := 0; i < max + 1; i++ {
 		f := impl()

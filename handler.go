@@ -177,15 +177,20 @@ func (h *handler) destroy(c echo.Context, pl *Pipeline) error {
 // curl -v -X PUT http://localhost:8080/pipelines/refresh
 func (h *handler) refresh(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
-	ids, err := GetPipelineIDsByStatus(ctx, deploying)
-	if err != nil {
-		return err
-	}
-	for _, id := range ids {
-		t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/refresh_task", id), map[string][]string{})
-		if _, err := taskqueue.Add(ctx, t, ""); err != nil {
+	statuses := map[string]Status{"deploying": deploying, "closing": closing}
+	res := map[string][]string{}
+	for name, st := range statuses {
+		ids, err := GetPipelineIDsByStatus(ctx, st)
+		if err != nil {
 			return err
 		}
+		for _, id := range ids {
+			t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/refresh_task", id), map[string][]string{})
+			if _, err := taskqueue.Add(ctx, t, ""); err != nil {
+				return err
+			}
+		}
+		res[name] = ids
 	}
-	return c.JSON(http.StatusOK, ids)
+	return c.JSON(http.StatusOK, res)
 }
