@@ -11,10 +11,12 @@ type Refresher struct {
 
 func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 	log.Debugf(ctx, "Refreshing pipeline %v\n", pl)
-	if pl.Props.Status == deploying {
-		b.UpdateDeployingPipeline(ctx, pl)
+	switch pl.Props.Status {
+	case deploying:
+		return b.UpdateDeployingPipeline(ctx, pl)
+	default:
+		return nil
 	}
-	return nil
 }
 
 func (b *Refresher) UpdateDeployingPipeline(ctx context.Context, pl *Pipeline) error {
