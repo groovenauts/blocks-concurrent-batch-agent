@@ -25,6 +25,9 @@ func (d *TestDeployerRunning) Get(ctx context.Context, project string, deploymen
 		},
 	}, nil
 }
+func (d *TestDeployerRunning) GetOperation(ctx context.Context, project string, operation string) (*deploymentmanager.Operation, error) {
+	return nil, nil
+}
 
 type TestDeployerOK struct{}
 
@@ -41,6 +44,9 @@ func (d *TestDeployerOK) Get(ctx context.Context, project string, deployment str
 			Error:  nil,
 		},
 	}, nil
+}
+func (d *TestDeployerOK) GetOperation(ctx context.Context, project string, operation string) (*deploymentmanager.Operation, error) {
+	return nil, nil
 }
 
 type TestDeployerError struct{}
@@ -66,6 +72,9 @@ func (d *TestDeployerError) Get(ctx context.Context, project string, deployment 
 			},
 		},
 	}, nil
+}
+func (d *TestDeployerError) GetOperation(ctx context.Context, project string, operation string) (*deploymentmanager.Operation, error) {
+	return nil, nil
 }
 
 func TestRefresherProcess(t *testing.T) {
