@@ -14,36 +14,28 @@ func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 	log.Debugf(ctx, "Refreshing pipeline %v\n", pl)
 	switch pl.Props.Status {
 	case deploying:
-		return b.UpdateDeployingPipeline(ctx, pl)
+		return b.UpdatePipelineWithStatus(ctx, pl, "deploying", pl.Props.DeployingOperationName,
+			func(errors *[]DeploymentError) {
+				pl.Props.DeployingErrors = *errors
+				pl.Props.Status = broken
+			},
+			func() {
+				pl.Props.Status = opened
+			},
+		)
 	case closing:
-		return b.UpdateClosingPipeline(ctx, pl)
+		return b.UpdatePipelineWithStatus(ctx, pl, "closing", pl.Props.ClosingOperationName,
+			func(errors *[]DeploymentError) {
+				pl.Props.ClosingErrors = *errors
+				pl.Props.Status = closing_error
+			},
+			func() {
+				pl.Props.Status = closed
+			},
+		)
 	default:
 		return nil
 	}
-}
-
-func (b *Refresher) UpdateDeployingPipeline(ctx context.Context, pl *Pipeline) error {
-	return b.UpdatePipelineWithStatus(ctx, pl, "deploying", pl.Props.DeployingOperationName,
-		func(errors *[]DeploymentError) {
-			pl.Props.DeployingErrors = *errors
-			pl.Props.Status = broken
-		},
-		func() {
-			pl.Props.Status = opened
-		},
-	)
-}
-
-func (b *Refresher) UpdateClosingPipeline(ctx context.Context, pl *Pipeline) error {
-	return b.UpdatePipelineWithStatus(ctx, pl, "closing", pl.Props.ClosingOperationName,
-		func(errors *[]DeploymentError) {
-			pl.Props.ClosingErrors = *errors
-			pl.Props.Status = closing_error
-		},
-		func() {
-			pl.Props.Status = closed
-		},
-	)
 }
 
 func (b *Refresher) UpdatePipelineWithStatus(ctx context.Context, pl *Pipeline, status, ope_name string, errorHandler func(*[]DeploymentError), succHandler func() ) error {
