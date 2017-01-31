@@ -23,53 +23,47 @@ func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 }
 
 func (b *Refresher) UpdateDeployingPipeline(ctx context.Context, pl *Pipeline) error {
-	// See the "Examples" below "Response"
-	//   https://cloud.google.com/deployment-manager/docs/reference/latest/deployments/insert#response
-	proj := pl.Props.ProjectID
-	ope_name := pl.Props.DeployingOperationName
-	ope, err := b.deployer.GetOperation(ctx, proj, ope_name)
-	if err != nil {
-		log.Errorf(ctx, "Failed to get deploying operation project: %v deployment: %v\n%v\n", proj, ope_name, err)
-		return err
-	}
-	log.Debugf(ctx, "Refreshing deploying operation: %v\n", ope)
-	if ope.Status == "DONE" {
-		errors := b.ErrorsFromOperation(ope)
-		if errors != nil {
-			log.Errorf(ctx, "Deployment error found for project: %v deployment: %v\n%v\n", proj, pl.Props.DeploymentName, errors)
+	return b.UpdatePipelineWithStatus(ctx, pl, "deploying", pl.Props.DeployingOperationName,
+		func(errors *[]DeploymentError) {
 			pl.Props.DeployingErrors = *errors
 			pl.Props.Status = broken
-		} else {
-			log.Infof(ctx, "Deployment completed successfully %v\n", pl.Props.DeploymentName)
+		},
+		func() {
 			pl.Props.Status = opened
-		}
-		err = pl.update(ctx)
-		if err != nil {
-			log.Errorf(ctx, "Failed to update Pipeline Status to %v: %v\npl: %v\n", pl.Props.Status, err, pl)
-			return err
-		}
-	}
-	return nil
+		},
+	)
 }
 
 func (b *Refresher) UpdateClosingPipeline(ctx context.Context, pl *Pipeline) error {
+	return b.UpdatePipelineWithStatus(ctx, pl, "closing", pl.Props.ClosingOperationName,
+		func(errors *[]DeploymentError) {
+			pl.Props.ClosingErrors = *errors
+			pl.Props.Status = closing_error
+		},
+		func() {
+			pl.Props.Status = closed
+		},
+	)
+}
+
+func (b *Refresher) UpdatePipelineWithStatus(ctx context.Context, pl *Pipeline, status, ope_name string, errorHandler func(*[]DeploymentError), succHandler func() ) error {
+	// See the "Examples" below "Response"
+	//   https://cloud.google.com/deployment-manager/docs/reference/latest/deployments/insert#response
 	proj := pl.Props.ProjectID
-	ope_name := pl.Props.ClosingOperationName
 	ope, err := b.deployer.GetOperation(ctx, proj, ope_name)
 	if err != nil {
-		log.Errorf(ctx, "Failed to get closing operation project: %v deployment: %v\n%v\n", proj, ope_name, err)
+		log.Errorf(ctx, "Failed to get %v operation project: %v deployment: %v\n%v\n", status, proj, ope_name, err)
 		return err
 	}
-	log.Debugf(ctx, "Refreshing closing operation: %v\n", ope)
+	log.Debugf(ctx, "Refreshing %v operation: %v\n", status, ope)
 	if ope.Status == "DONE" {
 		errors := b.ErrorsFromOperation(ope)
 		if errors != nil {
-			log.Errorf(ctx, "Closing error found for project: %v deployment: %v\n%v\n", proj, pl.Props.DeploymentName, errors)
-			pl.Props.ClosingErrors = *errors
-			pl.Props.Status = closing_error
+			log.Errorf(ctx, "%v error found for project: %v deployment: %v\n%v\n", status, proj, pl.Props.DeploymentName, errors)
+			errorHandler(errors)
 		} else {
-			log.Infof(ctx, "Closing completed successfully project: %v deployment: %v\n", proj, pl.Props.DeploymentName)
-			pl.Props.Status = closed
+			log.Infof(ctx, "%v completed successfully project: %v deployment: %v\n", status, proj, pl.Props.DeploymentName)
+			succHandler()
 		}
 		err = pl.update(ctx)
 		if err != nil {
