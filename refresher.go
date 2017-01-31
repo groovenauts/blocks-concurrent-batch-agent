@@ -14,6 +14,8 @@ func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 	switch pl.Props.Status {
 	case deploying:
 		return b.UpdateDeployingPipeline(ctx, pl)
+	case closing:
+		return b.UpdateClosingPipeline(ctx, pl)
 	default:
 		return nil
 	}
@@ -52,6 +54,42 @@ func (b *Refresher) UpdateDeployingPipeline(ctx context.Context, pl *Pipeline) e
 		} else {
 			log.Infof(ctx, "Deployment completed successfully %v\n", dep_name)
 			pl.Props.Status = opened
+		}
+		err = pl.update(ctx)
+		if err != nil {
+			log.Errorf(ctx, "Failed to update Pipeline Status to %v: %v\npl: %v\n", pl.Props.Status, err, pl)
+			return err
+		}
+	}
+	return nil
+}
+
+func (b *Refresher) UpdateClosingPipeline(ctx context.Context, pl *Pipeline) error {
+	proj := pl.Props.ProjectID
+	ope_name := pl.Props.ClosingOperationName
+	ope, err := b.deployer.GetOperation(ctx, proj, ope_name)
+	if err != nil {
+		log.Errorf(ctx, "Failed to get deployment project: %v deployment: %v\n%v\n", proj, ope_name, err)
+		return err
+	}
+	log.Debugf(ctx, "Refreshing closing operation: %v\n", ope)
+	if ope.Status == "DONE" {
+		doe := ope.Error
+		if doe != nil && len(doe.Errors) > 0 {
+			errors := []DeploymentError{}
+			for _, e := range doe.Errors {
+				errors = append(errors, DeploymentError{
+					Code:     e.Code,
+					Location: e.Location,
+					Message:  e.Message,
+				})
+			}
+			log.Errorf(ctx, "Closing error found for project: %v deployment: %v\n%v\n", proj, pl.Props.DeploymentName, errors)
+			pl.Props.ClosingErrors = errors
+			pl.Props.Status = broken
+		} else {
+			log.Infof(ctx, "Closing completed successfully project: %v deployment: %v\n", proj, pl.Props.DeploymentName)
+			pl.Props.Status = closed
 		}
 		err = pl.update(ctx)
 		if err != nil {

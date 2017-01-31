@@ -55,6 +55,8 @@ type (
 		DeploymentName string            `json:"deployment_name"`
 		DeployingOperationName string            `json:"deploying_operation_name"`
 		DeployingErrors        []DeploymentError `json:"deploying_errors"`
+		ClosingOperationName   string            `json:"closing_operation_name"`
+		ClosingErrors          []DeploymentError `json:"closing_errors"`
 	}
 
 	Pipeline struct {
