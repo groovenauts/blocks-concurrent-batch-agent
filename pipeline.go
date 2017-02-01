@@ -18,9 +18,6 @@ const (
 	building
 	deploying
 	opened
-	resizing
-	updating
-	recreating
 	closing
 	closed
 )

@@ -43,11 +43,8 @@ func init() {
 	g.POST(".json", h.withAuth(h.create))
 	g.POST("/:id/build_task.json", h.pipelineTask("build"))
 
-	actions := []string{"close", "update", "resize"}
-	for _, action := range actions {
-		g.PUT("/:id/"+action+".json", h.callPipelineTask(action))
-		g.POST("/:id/"+action+"_task.json", h.pipelineTask(action))
-	}
+	g.PUT("/:id/close.json", h.callPipelineTask("close"))
+	g.POST("/:id/close_task.json", h.pipelineTask("close"))
 
 	g.GET("/refresh.json", withAEContext(h.refresh)) // Don't use withAuth because this is called from cron
 	g.POST("/:id/refresh_task.json", h.pipelineTask("refresh"))
@@ -92,8 +89,6 @@ func (h *handler) withPipeline(wrapper func(func(echo.Context) error) func(echo.
 }
 
 // curl -v -X PUT http://localhost:8080/pipelines/1/close.json
-// curl -v -X PUT http://localhost:8080/pipelines/1/update.json
-// curl -v -X PUT http://localhost:8080/pipelines/1/resize.json
 func (h *handler) callPipelineTask(action string) func(c echo.Context) error {
 	return h.withPipeline(h.withAuth, func(c echo.Context, pl *Pipeline) error {
 		id := c.Param("id")
@@ -110,8 +105,6 @@ func (h *handler) callPipelineTask(action string) func(c echo.Context) error {
 
 // curl -v -X POST http://localhost:8080/pipelines/1/build_task.json
 // curl -v -X	POST http://localhost:8080/pipelines/1/close_task.json
-// curl -v -X	POST http://localhost:8080/pipelines/1/update_task.json
-// curl -v -X	POST http://localhost:8080/pipelines/1/resize_task.json
 // curl -v -X	POST http://localhost:8080/pipelines/1/refresh_task.json
 func (h *handler) pipelineTask(action string) func(c echo.Context) error {
 	var wrapper func(impl func(c echo.Context) error) func(c echo.Context) error
