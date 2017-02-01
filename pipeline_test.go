@@ -9,6 +9,7 @@ import (
 	"google.golang.org/appengine/aetest"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 func ClearDatastore(t *testing.T, ctx context.Context, kind string) {
@@ -56,8 +57,50 @@ func TestWatcherCalcDifferences(t *testing.T) {
 
 	ClearDatastore(t, ctx, "Pipelines")
 
-	// CreatePipeline
-	pl, err := CreatePipeline(ctx, &PipelineProps{ProjectID: proj})
+	detectErrorFor := func(errors validator.ValidationErrors, field string) validator.FieldError {
+		for _, err := range errors {
+			if err.StructField() == field {
+				return err
+			}
+		}
+		return nil
+	}
+
+	// CreatePipeline invalid
+	_, err = CreatePipeline(ctx, &PipelineProps{})
+	assert.Error(t, err)
+	errors := err.(validator.ValidationErrors)
+
+	fields := []string{
+		"Name",
+		"ProjectID",
+		"Zone",
+		"SourceImage",
+		"MachineType",
+		"TargetSize",
+		"ContainerSize",
+		"ContainerName",
+		"Command",
+	}
+	for _, field := range fields {
+		err := detectErrorFor(errors, field)
+		assert.NotNil(t, err)
+		assert.Equal(t, "required", err.ActualTag())
+	}
+
+	// CreatePipeline valid
+	plp := PipelineProps{
+		Name:          "pipeline01",
+		ProjectID:     proj,
+		Zone:          "us-central1-f",
+		SourceImage:   "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+		MachineType:   "f1-micro",
+		TargetSize:    2,
+		ContainerSize: 2,
+		ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
+		Command:       "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
+	}
+	pl, err := CreatePipeline(ctx, &plp)
 	assert.NoError(t, err)
 	log.Debugf(ctx, "pl %v\n", pl)
 	key, err := datastore.DecodeKey(pl.ID)
@@ -79,7 +122,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	assert.NoError(t, err)
 
 	// GetAllPipeline
-	pls, err := GetAllPipeline(ctx)
+	pls, err := GetAllPipelines(ctx)
 	assert.NoError(t, err)
 	if len(pls) != 1 {
 		t.Fatalf("len(pls) expects %v but was %v\n", 1, len(pls))
@@ -126,6 +169,7 @@ func TestStatusTypeAndValue(t *testing.T) {
 	assert.Equal(t, st, fmt.Sprintf(ft, initialized))
 	assert.Equal(t, st, fmt.Sprintf(ft, broken))
 	assert.Equal(t, st, fmt.Sprintf(ft, building))
+	assert.Equal(t, st, fmt.Sprintf(ft, deploying))
 	assert.Equal(t, st, fmt.Sprintf(ft, opened))
 	assert.Equal(t, st, fmt.Sprintf(ft, resizing))
 	assert.Equal(t, st, fmt.Sprintf(ft, updating))
@@ -136,10 +180,11 @@ func TestStatusTypeAndValue(t *testing.T) {
 	assert.Equal(t, "0", fmt.Sprintf(fv, initialized))
 	assert.Equal(t, "1", fmt.Sprintf(fv, broken))
 	assert.Equal(t, "2", fmt.Sprintf(fv, building))
-	assert.Equal(t, "3", fmt.Sprintf(fv, opened))
-	assert.Equal(t, "4", fmt.Sprintf(fv, resizing))
-	assert.Equal(t, "5", fmt.Sprintf(fv, updating))
-	assert.Equal(t, "6", fmt.Sprintf(fv, recreating))
-	assert.Equal(t, "7", fmt.Sprintf(fv, closing))
-	assert.Equal(t, "8", fmt.Sprintf(fv, closed))
+	assert.Equal(t, "3", fmt.Sprintf(fv, deploying))
+	assert.Equal(t, "4", fmt.Sprintf(fv, opened))
+	assert.Equal(t, "5", fmt.Sprintf(fv, resizing))
+	assert.Equal(t, "6", fmt.Sprintf(fv, updating))
+	assert.Equal(t, "7", fmt.Sprintf(fv, recreating))
+	assert.Equal(t, "8", fmt.Sprintf(fv, closing))
+	assert.Equal(t, "9", fmt.Sprintf(fv, closed))
 }

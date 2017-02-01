@@ -11,6 +11,8 @@ import:
   - datastore
   - log
   - taskqueue
+- package: gopkg.in/go-playground/validator.v9
+  version: ~9.3.2
 testImport:
 - package: github.com/stretchr/testify
   subpackages:

@@ -6,6 +6,7 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 // Status constants
@@ -15,6 +16,7 @@ const (
 	initialized Status = iota
 	broken
 	building
+	deploying
 	opened
 	resizing
 	updating
@@ -28,20 +30,34 @@ var processorFactory ProcessorFactory = &DefaultProcessorFactory{}
 var ErrNoSuchPipeline = errors.New("No such data in Pipelines")
 
 type (
+	// See https://godoc.org/google.golang.org/api/deploymentmanager/v2#OperationErrorErrors
+	DeploymentError struct {
+		// Code: [Output Only] The error type identifier for this error.
+		Code string `json:"code,omitempty"`
+
+		// Location: [Output Only] Indicates the field in the request that
+		// caused the error. This property is optional.
+		Location string `json:"location,omitempty"`
+
+		// Message: [Output Only] An optional, human-readable error message.
+		Message string `json:"message,omitempty"`
+	}
+
 	PipelineProps struct {
-		Name      string `json:"name"`
-		ProjectID string `json:"project_id"`
-		// JobTopicName							   string `json:"job_topic_name"`
-		// JobSubscriptionName				   string `json:"job_subscription_name"`
-		// JobSubscriptionAckDeadline	 int		`json:"job_subscription_ack_deadline"`
-		// ProgressTopicName							   string `json:"progress_topic_name"`
-		// ProgressSubscriptionName				 string `json:"progress_subscription_name"`
-		// ProgressSubscriptionAckDeadline	 int		`json:"progress_subscription_ack_deadline"`
-		// InstanceGroupName				 string `json:"instance_group_name"`
-		// InstanceGroupSize				 int		`json:"instance_group_size"`
-		// InstanceTemplateName		 string `json:"instance_template_name"`
-		// StartupScript						 string `json:"startup_script"`
-		Status Status `json:"status"`
+		Name           string            `json:"name"           validate:"required"`
+		ProjectID      string            `json:"project_id"     validate:"required"`
+		Zone           string            `json:"zone"           validate:"required"`
+		SourceImage    string            `json:"source_image"   validate:"required"`
+		MachineType    string            `json:"machine_type"   validate:"required"`
+		TargetSize     int               `json:"target_size"    validate:"required"`
+		ContainerSize  int               `json:"container_size" validate:"required"`
+		ContainerName  string            `json:"container_name" validate:"required"`
+		Command        string            `json:"command"        validate:"required"`
+		Status         Status            `json:"status"`
+		Dryrun         bool              `json:"dryrun"`
+		DeploymentName string            `json:"deployment_name"`
+		OperationName  string            `json:"operation_name"`
+		Errors         []DeploymentError `json:"errors"`
 	}
 
 	Pipeline struct {
@@ -51,6 +67,12 @@ type (
 )
 
 func CreatePipeline(ctx context.Context, plp *PipelineProps) (*Pipeline, error) {
+	validator := validator.New()
+	err := validator.Struct(plp)
+	if err != nil {
+		return nil, err
+	}
+
 	key := datastore.NewIncompleteKey(ctx, "Pipelines", nil)
 	res, err := datastore.Put(ctx, key, plp)
 	if err != nil {
@@ -72,16 +94,25 @@ func FindPipeline(ctx context.Context, id string) (*Pipeline, error) {
 	case err == datastore.ErrNoSuchEntity:
 		return nil, ErrNoSuchPipeline
 	case err != nil:
-		log.Errorf(ctx, "@withPipeline %v id: %v\n", err, id)
+		log.Errorf(ctx, "@FindPipeline %v id: %v\n", err, id)
 		return nil, err
 	}
 	return pl, nil
 }
 
-func GetAllPipeline(ctx context.Context) ([]Pipeline, error) {
+func GetAllPipelines(ctx context.Context) ([]*Pipeline, error) {
 	q := datastore.NewQuery("Pipelines")
+	return GetPipelinesByQuery(ctx, q)
+}
+
+func GetPipelinesByStatus(ctx context.Context, st Status) ([]*Pipeline, error) {
+	q := datastore.NewQuery("Pipelines").Filter("Status =", st)
+	return GetPipelinesByQuery(ctx, q)
+}
+
+func GetPipelinesByQuery(ctx context.Context, q *datastore.Query) ([]*Pipeline, error) {
 	iter := q.Run(ctx)
-	var res = []Pipeline{}
+	var res = []*Pipeline{}
 	for {
 		pl := Pipeline{}
 		key, err := iter.Next(&pl.Props)
@@ -92,7 +123,7 @@ func GetAllPipeline(ctx context.Context) ([]Pipeline, error) {
 			return nil, err
 		}
 		pl.ID = key.Encode()
-		res = append(res, pl)
+		res = append(res, &pl)
 	}
 	return res, nil
 }

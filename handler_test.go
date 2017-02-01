@@ -65,7 +65,18 @@ func TestActions(t *testing.T) {
 	token := "Bearer " + auth.Token
 
 	// Test for create
-	json1 := `{"project_id":"proj-123"}`
+	json1 := `{` +
+		`"name":"pipeline01"` +
+		`,"project_id":"proj-123"` +
+		`,"zone":"us-central1-f"` +
+		`,"source_image":"https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0"` +
+		`,"machine_type":"f1-micro"` +
+		`,"target_size":2` +
+		`,"container_size":2` +
+		`,"container_name":"groovenauts/batch_type_iot_example:0.3.1"` +
+		`,"command":"bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}"` +
+		`,"dryrun":true` +
+		`}`
 	req, err = inst.NewRequest(echo.POST, "/pipelines", strings.NewReader(json1))
 	assert.NoError(t, err)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -98,7 +109,7 @@ func TestActions(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues(pl.ID)
 
-	f = h.withPipeline(h.show)
+	f = h.withPipeline(h.withAuth, h.show)
 	if assert.NoError(t, f(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
@@ -130,30 +141,12 @@ func TestActions(t *testing.T) {
 		}
 	}
 
-	// Test for close_task
-	close_task_path := path + "/close_task"
-	req, err = inst.NewRequest(echo.POST, close_task_path, nil)
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	req.Header.Set(auth_header, token)
+	// Make pipeline deletable
+	pl.Props.Status = closed
+	// https://github.com/golang/appengine/blob/master/aetest/instance.go#L32-L46
+	ctx = appengine.NewContext(req)
+	err = pl.update(ctx)
 	assert.NoError(t, err)
-
-	rec = httptest.NewRecorder()
-	c = e.NewContext(req, rec)
-	c.SetPath(close_task_path)
-	c.SetParamNames("id")
-	c.SetParamValues(pl.ID)
-
-	f = h.pipelineTask("close")
-	if assert.NoError(t, f(c)) {
-		assert.Equal(t, http.StatusOK, rec.Code)
-
-		s := rec.Body.String()
-		pl2 := Pipeline{}
-		if assert.NoError(t, json.Unmarshal([]byte(s), &pl2)) {
-			assert.Equal(t, test_proj1, pl2.Props.ProjectID)
-			assert.Equal(t, Status(closed), pl2.Props.Status)
-		}
-	}
 
 	// Test for destroy
 	req, err = inst.NewRequest(echo.DELETE, path, nil)
@@ -167,7 +160,7 @@ func TestActions(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues(pl.ID)
 
-	f = h.withPipeline(h.destroy)
+	f = h.withPipeline(h.withAuth, h.destroy)
 	if assert.NoError(t, f(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
@@ -190,7 +183,7 @@ func TestActions(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues(pl.ID)
 
-	f = h.withPipeline(h.show)
+	f = h.withPipeline(h.withAuth, h.show)
 	if assert.NoError(t, f(c)) {
 		assert.Equal(t, http.StatusNotFound, rec.Code)
 	}

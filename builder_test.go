@@ -15,16 +15,28 @@ func TestGenerateContent(t *testing.T) {
 	expected := Resources{}
 	err = json.Unmarshal([]byte(expected_data), &expected)
 	assert.NoError(t, err)
-	// If ackDeadlineSeconds is float65, cast it to int
+	// If ackDeadlineSeconds or targetSize is float64, cast it to int
 	for _, r := range expected.Resources {
-		v := r.Properties["ackDeadlineSeconds"]
-		switch vi := v.(type) {
-		case float64:
-			r.Properties["ackDeadlineSeconds"] = int(vi)
+		for k, v := range r.Properties {
+			switch vi := v.(type) {
+			case float64:
+				r.Properties[k] = int(vi)
+			}
 		}
 	}
 
-	result := b.GenerateDeploymentResources("dummy-proj", "pipeline01")
+	plp := PipelineProps{
+		Name:          "pipeline01",
+		ProjectID:     "dummy-proj-999",
+		Zone:          "us-central1-f",
+		SourceImage:   "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+		MachineType:   "f1-micro",
+		TargetSize:    2,
+		ContainerSize: 2,
+		ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
+		Command:       "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
+	}
+	result := b.GenerateDeploymentResources(&plp)
 	assert.Equal(t, &expected, result)
 }
 
@@ -35,8 +47,15 @@ func TestBuildDeployment(t *testing.T) {
 	err = json.Unmarshal([]byte(expected_data), &expected)
 	assert.NoError(t, err)
 	plp := PipelineProps{
-		Name:      "pipeline01",
-		ProjectID: "dummy-proj",
+		Name:          "pipeline01",
+		ProjectID:     "dummy-proj-999",
+		Zone:          "us-central1-f",
+		SourceImage:   "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+		MachineType:   "f1-micro",
+		TargetSize:    2,
+		ContainerSize: 2,
+		ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
+		Command:       "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
 	}
 	d, err := b.BuildDeployment(&plp)
 	assert.NoError(t, err)

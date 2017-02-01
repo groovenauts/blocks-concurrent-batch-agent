@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"golang.org/x/net/context"
-	"golang.org/x/oauth2/google"
 	"google.golang.org/api/deploymentmanager/v2"
 	"google.golang.org/appengine/log"
 )
 
 type Builder struct {
+	deployer DeploymentServicer
 }
 
 func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
@@ -20,31 +20,25 @@ func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
 		return err
 	}
 
-	log.Debugf(ctx, "Building pipeline %v\n", pl.Props)
-	// See the "Examples" below "Response"
-	//   https://cloud.google.com/deployment-manager/docs/reference/latest/deployments/insert#response
-	hc, err := google.DefaultClient(ctx, deploymentmanager.CloudPlatformScope)
-	if err != nil {
-		log.Errorf(ctx, "Failed to get google.DefaultClient: %v\n", err)
-		return err
-	}
-	c, err := deploymentmanager.New(hc)
-	if err != nil {
-		log.Errorf(ctx, "Failed to get deploymentmanager.New(hc): %v\nhc: %v\n", err, hc)
-		return err
-	}
 	deployment, err := b.BuildDeployment(&pl.Props)
 	if err != nil {
 		log.Errorf(ctx, "Failed to BuildDeployment: %v\nProps: %v\n", err, pl.Props)
 		return err
 	}
-	c.Deployments.Insert(pl.Props.ProjectID, deployment).Context(ctx).Do()
+	ope, err := b.deployer.Insert(ctx, pl.Props.ProjectID, deployment)
+	if err != nil {
+		log.Errorf(ctx, "Failed to insert deployment %v\nproject: %v deployment: %v\nhc: %v\n", err, pl.Props.ProjectID, deployment)
+		return err
+	}
+
 	log.Infof(ctx, "Built pipeline successfully %v\n", pl.Props)
 
-	pl.Props.Status = opened
+	pl.Props.Status = deploying
+	pl.Props.DeploymentName = deployment.Name
+	pl.Props.OperationName = ope.Name
 	err = pl.update(ctx)
 	if err != nil {
-		log.Errorf(ctx, "Failed to update Pipeline status to 'opened': %v\npl: %v\n", err, pl)
+		log.Errorf(ctx, "Failed to update Pipeline deployment name to %v: %v\npl: %v\n", ope.Name, err, pl)
 		return err
 	}
 
@@ -52,7 +46,7 @@ func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
 }
 
 func (b *Builder) BuildDeployment(plp *PipelineProps) (*deploymentmanager.Deployment, error) {
-	r := b.GenerateDeploymentResources(plp.ProjectID, plp.Name)
+	r := b.GenerateDeploymentResources(plp)
 	d, err := json.Marshal(r)
 	if err != nil {
 		return nil, err
@@ -88,15 +82,15 @@ type (
 	}
 )
 
-func (b *Builder) GenerateDeploymentResources(project, name string) *Resources {
+func (b *Builder) GenerateDeploymentResources(plp *PipelineProps) *Resources {
 	t := []Resource{}
 	pubsubs := []Pubsub{
 		Pubsub{Name: "job", AckDeadline: 600},
 		Pubsub{Name: "progress", AckDeadline: 30},
 	}
 	for _, pubsub := range pubsubs {
-		topic := name + "-" + pubsub.Name + "-topic"
-		subscription := name + "-" + pubsub.Name + "-subscription"
+		topic := plp.Name + "-" + pubsub.Name + "-topic"
+		subscription := plp.Name + "-" + pubsub.Name + "-subscription"
 		t = append(t,
 			Resource{
 				Type:       "pubsub.v1.topic",
@@ -114,5 +108,75 @@ func (b *Builder) GenerateDeploymentResources(project, name string) *Resources {
 			},
 		)
 	}
+
+	startup_script :=
+		fmt.Sprintf("for i in {1..%v}; do", plp.ContainerSize) +
+			" docker run -d" +
+			" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + plp.Name + "-job-subscription.name)" +
+			" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + plp.Name + "-progress-topic.name)" +
+			" " + plp.ContainerName +
+			" " + plp.Command +
+			" ; done"
+
+	t = append(t,
+		Resource{
+			Type: "compute.v1.instanceTemplate",
+			Name: plp.Name + "-it",
+			Properties: map[string]interface{}{
+				"zone": plp.Zone,
+				"properties": map[string]interface{}{
+					"machineType": plp.MachineType,
+					"metadata": map[string]interface{}{
+						"items": []interface{}{
+							map[string]interface{}{
+								"key":   "startup-script",
+								"value": startup_script,
+							},
+						},
+					},
+					"networkInterfaces": []interface{}{
+						map[string]interface{}{
+							"network": "https://www.googleapis.com/compute/v1/projects/" + plp.ProjectID + "/global/networks/default",
+							"accessConfigs": []interface{}{
+								map[string]interface{}{
+									"name": "External-IP",
+									"type": "ONE_TO_ONE_NAT",
+								},
+							},
+						},
+					},
+					"serviceAccounts": []interface{}{
+						map[string]interface{}{
+							"scopes": []interface{}{
+								"https://www.googleapis.com/auth/devstorage.full_control",
+								"https://www.googleapis.com/auth/pubsub",
+							},
+						},
+					},
+					"disks": []interface{}{
+						map[string]interface{}{
+							"deviceName": "boot",
+							"type":       "PERSISTENT",
+							"boot":       true,
+							"autoDelete": true,
+							"initializeParams": map[string]interface{}{
+								"sourceImage": plp.SourceImage,
+							},
+						},
+					},
+				},
+			},
+		},
+		Resource{
+			Type: "compute.v1.instanceGroupManagers",
+			Name: plp.Name + "-igm",
+			Properties: map[string]interface{}{
+				"baseInstanceName": plp.Name + "-instance",
+				"instanceTemplate": "$(ref." + plp.Name + "-it.selfLink)",
+				"targetSize":       plp.TargetSize,
+				"zone":             plp.Zone,
+			},
+		},
+	)
 	return &Resources{Resources: t}
 }

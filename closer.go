@@ -2,22 +2,31 @@ package pipeline
 
 import (
 	"golang.org/x/net/context"
-	"google.golang.org/appengine/datastore"
-	// "google.golang.org/appengine/log"
+	"google.golang.org/appengine/log"
 )
 
 type Closer struct {
+	deployer DeploymentServicer
 }
 
 func (b *Closer) Process(ctx context.Context, pl *Pipeline) error {
+	log.Debugf(ctx, "Closing pipeline %v\n", pl.Props)
+
+	// https://cloud.google.com/deployment-manager/docs/reference/latest/deployments/delete#examples
+	_, err := b.deployer.Delete(ctx, pl.Props.ProjectID, pl.Props.Name)
+	if err != nil {
+		log.Errorf(ctx, "Failed to close deployment %v\nproject: %v deployment: %v\nhc: %v\n", err, pl.Props.ProjectID, pl.Props.Name)
+		return err
+	}
+
+	log.Infof(ctx, "Deployment closed successfully project: %v deployment: %v\n", pl.Props.ProjectID, pl.Props.Name)
+
 	pl.Props.Status = closed
-	key, err := datastore.DecodeKey(pl.ID)
+	err = pl.update(ctx)
 	if err != nil {
+		log.Errorf(ctx, "Failed to update Pipeline status to 'closed': %v\npl: %v\n", err, pl)
 		return err
 	}
-	_, err = datastore.Put(ctx, key, &pl.Props)
-	if err != nil {
-		return err
-	}
+
 	return nil
 }
