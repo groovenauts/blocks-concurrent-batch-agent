@@ -120,6 +120,77 @@ func TestActions(t *testing.T) {
 		}
 	}
 
+	type expection struct {
+		status Status
+		result map[string][]string
+	}
+
+	expections := []expection{}
+	for _, st := range []Status{initialized, broken, building, opened, closing_error, closed} {
+		expections = append(expections, expection{
+			status: st,
+			result: map[string][]string{
+				"deploying": []string{},
+				"closing":   []string{},
+			},
+		})
+	}
+
+	expections = append(expections, expection{
+		status: deploying,
+		result: map[string][]string{
+			"deploying": []string{pl.ID},
+			"closing":   []string{},
+		},
+	})
+	expections = append(expections, expection{
+		status: closing,
+		result: map[string][]string{
+			"deploying": []string{},
+			"closing":   []string{pl.ID},
+		},
+	})
+
+	for _, expection := range expections {
+		// Test for refresh
+		pl.Props.Status = expection.status
+		// https://github.com/golang/appengine/blob/master/aetest/instance.go#L32-L46
+		ctx = appengine.NewContext(req)
+		err = pl.update(ctx)
+		assert.NoError(t, err)
+
+		f = withAEContext(h.refresh)
+
+		retryWith(10, func() func() {
+			req, err = inst.NewRequest(echo.GET, "/pipelines/refresh", nil)
+			assert.NoError(t, err)
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			req.Header.Set(auth_header, token)
+
+			rec = httptest.NewRecorder()
+			c = e.NewContext(req, rec)
+			c.SetPath("/pipelines/refresh")
+
+			err := f(c)
+			if err != nil {
+				return func() { assert.NoError(t, err) }
+			}
+			if http.StatusOK != rec.Code {
+				return func() { assert.Equal(t, http.StatusOK, rec.Code) }
+			}
+			s := rec.Body.String()
+			res := map[string][]string{}
+			err = json.Unmarshal([]byte(s), &res)
+			if err != nil {
+				return func() { assert.NoError(t, err) }
+			}
+			if !assert.ObjectsAreEqual(expection.result, res) {
+				return func() { assert.Equal(t, expection.result, res) }
+			}
+			return nil
+		})
+	}
+
 	// Test for index
 	req, err = inst.NewRequest(echo.GET, "/pipelines", nil)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)

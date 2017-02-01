@@ -19,6 +19,7 @@ const (
 	deploying
 	opened
 	closing
+	closing_error
 	closed
 )
 
@@ -41,20 +42,22 @@ type (
 	}
 
 	PipelineProps struct {
-		Name           string            `json:"name"           validate:"required"`
-		ProjectID      string            `json:"project_id"     validate:"required"`
-		Zone           string            `json:"zone"           validate:"required"`
-		SourceImage    string            `json:"source_image"   validate:"required"`
-		MachineType    string            `json:"machine_type"   validate:"required"`
-		TargetSize     int               `json:"target_size"    validate:"required"`
-		ContainerSize  int               `json:"container_size" validate:"required"`
-		ContainerName  string            `json:"container_name" validate:"required"`
-		Command        string            `json:"command"        validate:"required"`
-		Status         Status            `json:"status"`
-		Dryrun         bool              `json:"dryrun"`
-		DeploymentName string            `json:"deployment_name"`
-		OperationName  string            `json:"operation_name"`
-		Errors         []DeploymentError `json:"errors"`
+		Name                   string            `json:"name"           validate:"required"`
+		ProjectID              string            `json:"project_id"     validate:"required"`
+		Zone                   string            `json:"zone"           validate:"required"`
+		SourceImage            string            `json:"source_image"   validate:"required"`
+		MachineType            string            `json:"machine_type"   validate:"required"`
+		TargetSize             int               `json:"target_size"    validate:"required"`
+		ContainerSize          int               `json:"container_size" validate:"required"`
+		ContainerName          string            `json:"container_name" validate:"required"`
+		Command                string            `json:"command"        validate:"required"`
+		Status                 Status            `json:"status"`
+		Dryrun                 bool              `json:"dryrun"`
+		DeploymentName         string            `json:"deployment_name"`
+		DeployingOperationName string            `json:"deploying_operation_name"`
+		DeployingErrors        []DeploymentError `json:"deploying_errors"`
+		ClosingOperationName   string            `json:"closing_operation_name"`
+		ClosingErrors          []DeploymentError `json:"closing_errors"`
 	}
 
 	Pipeline struct {
@@ -125,9 +128,13 @@ func GetPipelinesByQuery(ctx context.Context, q *datastore.Query) ([]*Pipeline, 
 	return res, nil
 }
 
-func GetAllActivePipelineIDs(ctx context.Context) ([]string, error) {
-	q := datastore.NewQuery("Pipelines").Filter("Status <", closed).KeysOnly()
-	keys, err := q.GetAll(ctx, nil)
+func GetPipelineIDsByStatus(ctx context.Context, st Status) ([]string, error) {
+	q := datastore.NewQuery("Pipelines").Filter("Status =", st)
+	return GetPipelineIDsByQuery(ctx, q)
+}
+
+func GetPipelineIDsByQuery(ctx context.Context, q *datastore.Query) ([]string, error) {
+	keys, err := q.KeysOnly().GetAll(ctx, nil)
 	if err != nil {
 		return nil, err
 	}

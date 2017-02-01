@@ -2,6 +2,7 @@ package pipeline
 
 import (
 	"golang.org/x/net/context"
+	"google.golang.org/api/deploymentmanager/v2"
 	"google.golang.org/appengine/log"
 )
 
@@ -11,45 +12,50 @@ type Refresher struct {
 
 func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 	log.Debugf(ctx, "Refreshing pipeline %v\n", pl)
-	if pl.Props.Status == deploying {
-		b.UpdateStatusByDeployment(ctx, pl)
+	switch pl.Props.Status {
+	case deploying:
+		return b.UpdatePipelineWithStatus(ctx, pl, "deploying", pl.Props.DeployingOperationName,
+			func(errors *[]DeploymentError) {
+				pl.Props.DeployingErrors = *errors
+				pl.Props.Status = broken
+			},
+			func() {
+				pl.Props.Status = opened
+			},
+		)
+	case closing:
+		return b.UpdatePipelineWithStatus(ctx, pl, "closing", pl.Props.ClosingOperationName,
+			func(errors *[]DeploymentError) {
+				pl.Props.ClosingErrors = *errors
+				pl.Props.Status = closing_error
+			},
+			func() {
+				pl.Props.Status = closed
+			},
+		)
+	default:
+		return nil
 	}
-	return nil
 }
 
-func (b *Refresher) UpdateStatusByDeployment(ctx context.Context, pl *Pipeline) error {
+func (b *Refresher) UpdatePipelineWithStatus(ctx context.Context, pl *Pipeline, status, ope_name string, errorHandler func(*[]DeploymentError), succHandler func() ) error {
 	// See the "Examples" below "Response"
 	//   https://cloud.google.com/deployment-manager/docs/reference/latest/deployments/insert#response
 	proj := pl.Props.ProjectID
-	dep_name := pl.Props.DeploymentName
-	deployment, err := b.deployer.Get(ctx, proj, dep_name)
+	ope, err := b.deployer.GetOperation(ctx, proj, ope_name)
 	if err != nil {
-		log.Errorf(ctx, "Failed to get deployment project: %v deployment: %v\n%v\n", proj, dep_name, err)
+		log.Errorf(ctx, "Failed to get %v operation project: %v deployment: %v\n%v\n", status, proj, ope_name, err)
 		return err
 	}
-	log.Debugf(ctx, "Refreshing deployment: %v\n", deployment)
-	if deployment.Operation == nil {
-		log.Warningf(ctx, "Deployment operation was nil for %v\nproject: %v deployment: %v\n", proj, dep_name)
-		return nil
-	}
-	log.Debugf(ctx, "Refreshing deployment operation: %v\n", deployment.Operation)
-	if deployment.Operation.Status == "DONE" {
-		doe := deployment.Operation.Error
-		if doe != nil && len(doe.Errors) > 0 {
-			errors := []DeploymentError{}
-			for _, e := range doe.Errors {
-				errors = append(errors, DeploymentError{
-					Code:     e.Code,
-					Location: e.Location,
-					Message:  e.Message,
-				})
-			}
-			log.Errorf(ctx, "Deployment error found for project: %v deployment: %v\n%v\n", proj, dep_name, errors)
-			pl.Props.Errors = errors
-			pl.Props.Status = broken
+	log.Debugf(ctx, "Refreshing %v operation: %v\n", status, ope)
+	if ope.Status == "DONE" {
+		errors := b.ErrorsFromOperation(ope)
+		if errors != nil {
+			log.Errorf(ctx, "%v error found for project: %v deployment: %v\n%v\n", status, proj, pl.Props.DeploymentName, errors)
+			errorHandler(errors)
 		} else {
-			log.Infof(ctx, "Deployment completed successfully %v\n", dep_name)
-			pl.Props.Status = opened
+			log.Infof(ctx, "%v completed successfully project: %v deployment: %v\n", status, proj, pl.Props.DeploymentName)
+			succHandler()
 		}
 		err = pl.update(ctx)
 		if err != nil {
@@ -58,4 +64,21 @@ func (b *Refresher) UpdateStatusByDeployment(ctx context.Context, pl *Pipeline) 
 		}
 	}
 	return nil
+}
+
+func (b *Refresher) ErrorsFromOperation(ope *deploymentmanager.Operation) *[]DeploymentError {
+	doe := ope.Error
+	if doe != nil && len(doe.Errors) > 0 {
+		errors := []DeploymentError{}
+		for _, e := range doe.Errors {
+			errors = append(errors, DeploymentError{
+				Code:     e.Code,
+				Location: e.Location,
+				Message:  e.Message,
+			})
+		}
+		return &errors
+	} else {
+		return nil
+	}
 }

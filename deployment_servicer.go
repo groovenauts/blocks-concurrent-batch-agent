@@ -14,6 +14,7 @@ type (
 		Delete(ctx context.Context, project string, deployment string) (*deploymentmanager.Operation, error)
 		Get(ctx context.Context, project string, deployment string) (*deploymentmanager.Deployment, error)
 		Insert(ctx context.Context, project string, deployment *deploymentmanager.Deployment) (*deploymentmanager.Operation, error)
+		GetOperation(ctx context.Context, project string, operation string) (*deploymentmanager.Operation, error)
 	}
 )
 
@@ -29,11 +30,12 @@ func DefaultDeploymentServicer(ctx context.Context) (DeploymentServicer, error) 
 		log.Errorf(ctx, "Failed to get deploymentmanager.New(hc): %v\nhc: %v\n", err, hc)
 		return nil, err
 	}
-	return &DeploymentServiceWrapper{service: c.Deployments}, nil
+	return &DeploymentServiceWrapper{service: c.Deployments, opeService: c.Operations}, nil
 }
 
 type DeploymentServiceWrapper struct {
-	service *deploymentmanager.DeploymentsService
+	service    *deploymentmanager.DeploymentsService
+	opeService *deploymentmanager.OperationsService
 }
 
 func (w *DeploymentServiceWrapper) Delete(ctx context.Context, project string, deployment string) (*deploymentmanager.Operation, error) {
@@ -46,4 +48,8 @@ func (w *DeploymentServiceWrapper) Get(ctx context.Context, project string, depl
 
 func (w *DeploymentServiceWrapper) Insert(ctx context.Context, project string, deployment *deploymentmanager.Deployment) (*deploymentmanager.Operation, error) {
 	return w.service.Insert(project, deployment).Context(ctx).Do()
+}
+
+func (w *DeploymentServiceWrapper) GetOperation(ctx context.Context, project string, operation string) (*deploymentmanager.Operation, error) {
+	return w.opeService.Get(project, operation).Context(ctx).Do()
 }
