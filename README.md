@@ -67,8 +67,8 @@ Make `pipeline.json` like this:
 
 ```
 $ TOKEN="[the token you got before]"
-$ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X POST http://localhost:8080/pipelines.json --data @pipeline.json
-$ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://localhost:8080/pipelines.json
+$ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X POST http://localhost:8080/pipelines --data @pipeline.json
+$ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://localhost:8080/pipelines
 ```
 
 ```
@@ -92,7 +92,7 @@ $ gcloud app services set-traffic concurrent-batch-agent --splits=$(cat VERSION)
 
 ### Get Token on browser
 
-2. Open http://<hostname>/admin/auths.html
+2. Open http://<hostname>/admin/auths
 3. Click [Create new token]
 4. Copy the token shown
 
@@ -101,7 +101,8 @@ $ gcloud app services set-traffic concurrent-batch-agent --splits=$(cat VERSION)
 
 ```
 $ export TOKEN="[the token you got before]"
-$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X POST http://<hostname>.appspot.com/pipelines.json --data @pipeline.json
+$ export AEHOST="[the host name you deployed]"
+$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X POST http://$AEHOST/pipelines --data @pipeline.json
 ```
 
 #### Temporary work around
@@ -109,13 +110,17 @@ $ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' 
 Now you have to call the following command to refresh status
 
 ```
-$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://<hostname>.appspot.com/pipelines/refresh.json
+$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://$AEHOST/pipelines/refresh
 ```
+
+### Show all Pipeline data
+
+$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://$AEHOST/pipelines
 
 ### Close and Delete data
 
 ```
 $ export ID="[id of the result]"
-$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X PUT http://<hostname>.appspot.com/pipelines/$ID/close.json --data ""
-$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X DELETE http://<hostname>.appspot.com/pipelines/$ID
+$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X PUT http://$AEHOST/pipelines/$ID/close --data ""
+$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X DELETE http://$AEHOST/pipelines/$ID
 ```
