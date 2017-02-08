@@ -212,10 +212,40 @@ func TestActions(t *testing.T) {
 		}
 	}
 
-	// Make pipeline deletable
-	pl.Props.Status = closed
 	// https://github.com/golang/appengine/blob/master/aetest/instance.go#L32-L46
 	ctx = appengine.NewContext(req)
+
+	// Make pipeline opened
+	pl.Props.Status = opened
+	err = pl.update(ctx)
+	assert.NoError(t, err)
+
+	// /pipelines/subscriptions
+	req, err = inst.NewRequest(echo.GET, "/pipelines/subscriptions", nil)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	req.Header.Set(auth_header, token)
+	assert.NoError(t, err)
+
+	rec = httptest.NewRecorder()
+	c = e.NewContext(req, rec)
+	c.SetPath("/pipelines/subscriptions")
+
+	f = h.withAuth(h.subscriptions)
+	if assert.NoError(t, f(c)) {
+		assert.Equal(t, http.StatusOK, rec.Code)
+
+		s := rec.Body.String()
+		subscriptions := []Subscription{}
+		if assert.NoError(t, json.Unmarshal([]byte(s), &subscriptions)) {
+			assert.Equal(t, 1, len(subscriptions))
+			sub := subscriptions[0]
+			assert.Equal(t, "pipeline01", sub.Pipeline)
+			assert.Equal(t, "pipeline01-progress-subscription", sub.Name)
+		}
+	}
+
+	// Make pipeline deletable
+	pl.Props.Status = closed
 	err = pl.update(ctx)
 	assert.NoError(t, err)
 

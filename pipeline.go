@@ -179,3 +179,24 @@ func (pl *Pipeline) process(ctx context.Context, action string) error {
 	}
 	return processor.Process(ctx, pl)
 }
+
+
+type Subscription struct {
+	Pipeline string `json:"pipeline"`
+	Name     string `json:"subscription"`
+}
+
+func GetActiveSubscriptions(ctx context.Context) ([]*Subscription, error) {
+	r := []*Subscription{}
+	pipelines, err := GetPipelinesByStatus(ctx, opened)
+	if err != nil {
+		return nil, err
+	}
+	for _, pipeline := range pipelines {
+		r = append(r, &Subscription{
+			Pipeline: pipeline.Props.Name,
+			Name: pipeline.Props.Name + "-progress-subscription",
+		})
+	}
+	return r, nil
+}

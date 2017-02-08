@@ -37,6 +37,7 @@ func init() {
 	g.Use(middleware.CORS())
 
 	g.GET("", h.withAuth(h.index))
+	g.GET("/subscriptions", h.withAuth(h.subscriptions))
 	g.GET("/:id", h.withPipeline(h.withAuth, h.show))
 	g.DELETE("/:id", h.withPipeline(h.withAuth, h.destroy))
 
@@ -158,6 +159,17 @@ func (h *handler) index(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, pipelines)
 }
+
+// curl -v http://localhost:8080/pipelines/subscriptions
+func (h *handler) subscriptions(c echo.Context) error {
+	ctx := c.Get("aecontext").(context.Context)
+	subscriptions, err := GetActiveSubscriptions(ctx)
+	if err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, subscriptions)
+}
+
 
 // curl -v http://localhost:8080/pipelines/1
 func (h *handler) show(c echo.Context, pl *Pipeline) error {
