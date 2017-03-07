@@ -237,10 +237,11 @@ func TestActions(t *testing.T) {
 		s := rec.Body.String()
 		subscriptions := []Subscription{}
 		if assert.NoError(t, json.Unmarshal([]byte(s), &subscriptions)) {
-			assert.Equal(t, 1, len(subscriptions))
-			sub := subscriptions[0]
-			assert.Equal(t, "pipeline01", sub.Pipeline)
-			assert.Equal(t, "pipeline01-progress-subscription", sub.Name)
+			if assert.Equal(t, 1, len(subscriptions)) {
+				sub := subscriptions[0]
+				assert.Equal(t, "pipeline01", sub.Pipeline)
+				assert.Equal(t, "pipeline01-progress-subscription", sub.Name)
+			}
 		}
 	}
 

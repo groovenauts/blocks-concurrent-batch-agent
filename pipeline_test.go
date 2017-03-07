@@ -102,8 +102,9 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	}
 	for _, field := range fields {
 		err := detectErrorFor(errors, field)
-		assert.NotNil(t, err)
-		assert.Equal(t, "required", err.ActualTag())
+		if assert.NotNil(t, err) {
+			assert.Equal(t, "required", err.ActualTag())
+		}
 	}
 
 	// CreatePipeline valid
