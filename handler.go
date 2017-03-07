@@ -171,7 +171,6 @@ func (h *handler) subscriptions(c echo.Context) error {
 	return c.JSON(http.StatusOK, subscriptions)
 }
 
-
 // curl -v http://localhost:8080/pipelines/1
 func (h *handler) show(c echo.Context, pl *Pipeline) error {
 	return c.JSON(http.StatusOK, pl)
