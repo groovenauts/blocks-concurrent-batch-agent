@@ -58,10 +58,10 @@ Make `pipeline.json` like this:
   "zone":"us-central1-f",
   "source_image":"https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
   "machine_type":"f1-micro",
-  "target_size":2,
-  "container_size":2,
-  "container_name":"groovenauts/batch_type_iot_example:0.3.1",
-  "command":"bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}"
+  "target_size":1,
+  "container_size":1,
+  "container_name":"groovenauts/concurrent_batch_basic_example:0.4.0-alpha2",
+  "command":""
 }
 ```
 
