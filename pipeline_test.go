@@ -99,7 +99,6 @@ func TestWatcherCalcDifferences(t *testing.T) {
 		"TargetSize",
 		"ContainerSize",
 		"ContainerName",
-		"Command",
 	}
 	for _, field := range fields {
 		err := detectErrorFor(errors, field)
