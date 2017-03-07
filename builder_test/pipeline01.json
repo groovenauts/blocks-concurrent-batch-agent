@@ -73,7 +73,7 @@
             "items": [
               {
                 "key": "startup-script",
-                "value": "for i in {1..2}; do docker run -d -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref.pipeline01-job-subscription.name) -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref.pipeline01-progress-topic.name) groovenauts/batch_type_iot_example:0.3.1 bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir} ; done"
+                "value": "for i in {1..2}; do docker run -d -e PROJECT=dummy-proj-999 -e PIPELINE=pipeline01 -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref.pipeline01-job-subscription.name) -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref.pipeline01-progress-topic.name) groovenauts/batch_type_iot_example:0.3.1 bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir} ; done"
               }
             ]
           }
