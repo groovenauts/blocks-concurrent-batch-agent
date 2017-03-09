@@ -136,10 +136,11 @@ func (h *handler) create(c echo.Context) error {
 		return err
 	}
 	pl, err := CreatePipeline(ctx, plp)
-	log.Debugf(ctx, "Created pipeline: %v\nProps: %v\n", pl, pl.Props)
 	if err != nil {
+		log.Errorf(ctx, "Failed to create pipeline with Props: %v\n%v\n", plp, err)
 		return err
 	}
+	log.Debugf(ctx, "Created pipeline: %v\nProps: %v\n", pl, pl.Props)
 	if !plp.Dryrun {
 		t := taskqueue.NewPOSTTask("/pipelines/"+pl.ID+"/build_task", map[string][]string{})
 		t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
@@ -169,7 +170,6 @@ func (h *handler) subscriptions(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, subscriptions)
 }
-
 
 // curl -v http://localhost:8080/pipelines/1
 func (h *handler) show(c echo.Context, pl *Pipeline) error {

@@ -50,7 +50,7 @@ type (
 		TargetSize             int               `json:"target_size"    validate:"required"`
 		ContainerSize          int               `json:"container_size" validate:"required"`
 		ContainerName          string            `json:"container_name" validate:"required"`
-		Command                string            `json:"command"        validate:"required"`
+		Command                string            `json:"command"` // allow blank
 		Status                 Status            `json:"status"`
 		Dryrun                 bool              `json:"dryrun"`
 		DeploymentName         string            `json:"deployment_name"`
@@ -180,7 +180,6 @@ func (pl *Pipeline) process(ctx context.Context, action string) error {
 	return processor.Process(ctx, pl)
 }
 
-
 type Subscription struct {
 	Pipeline string `json:"pipeline"`
 	Name     string `json:"subscription"`
@@ -195,7 +194,7 @@ func GetActiveSubscriptions(ctx context.Context) ([]*Subscription, error) {
 	for _, pipeline := range pipelines {
 		r = append(r, &Subscription{
 			Pipeline: pipeline.Props.Name,
-			Name: pipeline.Props.Name + "-progress-subscription",
+			Name:     pipeline.Props.Name + "-progress-subscription",
 		})
 	}
 	return r, nil
