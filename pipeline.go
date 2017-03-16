@@ -194,7 +194,7 @@ func GetActiveSubscriptions(ctx context.Context) ([]*Subscription, error) {
 	for _, pipeline := range pipelines {
 		r = append(r, &Subscription{
 			Pipeline: pipeline.Props.Name,
-			Name:     pipeline.Props.Name + "-progress-subscription",
+			Name:     fmt.Sprintf("projects/%v/subscriptions/%v-progress-subscription", pipeline.Props.ProjectID, pipeline.Props.Name),
 		})
 	}
 	return r, nil

@@ -20,7 +20,8 @@ const (
 )
 
 func TestActions(t *testing.T) {
-	inst, err := aetest.NewInstance(nil)
+	opt := &aetest.Options{StronglyConsistentDatastore: true}
+	inst, err := aetest.NewInstance(opt)
 	assert.NoError(t, err)
 	defer inst.Close()
 
@@ -240,7 +241,7 @@ func TestActions(t *testing.T) {
 			if assert.Equal(t, 1, len(subscriptions)) {
 				sub := subscriptions[0]
 				assert.Equal(t, "pipeline01", sub.Pipeline)
-				assert.Equal(t, "pipeline01-progress-subscription", sub.Name)
+				assert.Equal(t, "projects/proj-123/subscriptions/pipeline01-progress-subscription", sub.Name)
 			}
 		}
 	}
