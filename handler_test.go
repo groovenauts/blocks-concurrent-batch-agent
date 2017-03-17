@@ -50,6 +50,7 @@ func TestActions(t *testing.T) {
 	auth_headers := []string{
 		"",
 		"Bearer ",
+		"Bearer invalid-token",
 		"Bearer invalid-token:123456789",
 	}
 	for _, v := range auth_headers {
