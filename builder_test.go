@@ -90,3 +90,28 @@ func TestBuildDeployment(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, &expected, &actual)
 }
+
+func TestBuildStartupScript(t *testing.T) {
+	b := &Builder{}
+	plp := PipelineProps{
+		Name:          "pipeline01",
+		ProjectID:     "dummy-proj-999",
+		Zone:          "us-central1-f",
+		SourceImage:   "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+		MachineType:   "f1-micro",
+		TargetSize:    2,
+		ContainerSize: 2,
+		ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
+		Command:       "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
+	}
+	ss := b.buildStartupScript(&plp)
+	expected := "for i in {1..2}; do docker run -d" +
+			" -e PROJECT=" + plp.ProjectID +
+			" -e PIPELINE=" + plp.Name +
+			" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + plp.Name + "-job-subscription.name)" +
+			" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + plp.Name + "-progress-topic.name)" +
+			" " + plp.ContainerName +
+			" " + plp.Command +
+			" ; done"
+	assert.Equal(t, expected, ss)
+}

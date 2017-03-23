@@ -109,16 +109,7 @@ func (b *Builder) GenerateDeploymentResources(plp *PipelineProps) *Resources {
 		)
 	}
 
-	startup_script :=
-		fmt.Sprintf("for i in {1..%v}; do", plp.ContainerSize) +
-			" docker run -d" +
-			" -e PROJECT=" + plp.ProjectID +
-			" -e PIPELINE=" + plp.Name +
-			" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + plp.Name + "-job-subscription.name)" +
-			" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + plp.Name + "-progress-topic.name)" +
-			" " + plp.ContainerName +
-			" " + plp.Command +
-			" ; done"
+	startup_script := b.buildStartupScript(plp)
 
 	t = append(t,
 		Resource{
@@ -181,4 +172,16 @@ func (b *Builder) GenerateDeploymentResources(plp *PipelineProps) *Resources {
 		},
 	)
 	return &Resources{Resources: t}
+}
+
+func (b *Builder) buildStartupScript(plp *PipelineProps) string {
+	return fmt.Sprintf("for i in {1..%v}; do", plp.ContainerSize) +
+		" docker run -d" +
+		" -e PROJECT=" + plp.ProjectID +
+		" -e PIPELINE=" + plp.Name +
+		" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + plp.Name + "-job-subscription.name)" +
+		" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + plp.Name + "-progress-topic.name)" +
+		" " + plp.ContainerName +
+		" " + plp.Command +
+		" ; done"
 }
