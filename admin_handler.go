@@ -153,7 +153,7 @@ func (h *adminHandler) AuthHandler(f func(c echo.Context, ctx context.Context, a
 			return c.Redirect(http.StatusFound, "/admin/auths")
 		}
 		if err != nil {
-			h.setFlash(c, "alert", fmt.Sprintf("Failed to find Auth for id: %v error: ", c.Param("id"), err))
+			h.setFlash(c, "alert", fmt.Sprintf("Failed to find Auth for id: %v error: %v", c.Param("id"), err))
 			return c.Redirect(http.StatusFound, "/admin/auths")
 		}
 		return f(c, ctx, auth)
@@ -165,7 +165,7 @@ func (h *adminHandler) disable(c echo.Context, ctx context.Context, auth *Auth) 
 	auth.Props.Disabled = true
 	err := auth.update(ctx)
 	if err != nil {
-		h.setFlash(c, "alert", fmt.Sprintf("Failed to update Auth. id: %v error: ", auth.ID, err))
+		h.setFlash(c, "alert", fmt.Sprintf("Failed to update Auth. id: %v error: %v", auth.ID, err))
 		return c.Redirect(http.StatusFound, "/admin/auths")
 	}
 	h.setFlash(c, "notice", fmt.Sprintf("Disabled the Auth successfully. id: %v", auth.ID))
@@ -176,7 +176,7 @@ func (h *adminHandler) disable(c echo.Context, ctx context.Context, auth *Auth) 
 func (h *adminHandler) destroy(c echo.Context, ctx context.Context, auth *Auth) error {
 	err := auth.destroy(ctx)
 	if err != nil {
-		h.setFlash(c, "alert", fmt.Sprintf("Failed to destroy Auth. id: %v error: ", auth.ID, err))
+		h.setFlash(c, "alert", fmt.Sprintf("Failed to destroy Auth. id: %v error: %v", auth.ID, err))
 		return c.Redirect(http.StatusFound, "/admin/auths")
 	}
 	h.setFlash(c, "notice", fmt.Sprintf("The Auth is deleted successfully. id: %v", auth.ID))
