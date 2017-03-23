@@ -76,6 +76,11 @@ func FindAuth(ctx context.Context, id string) (*Auth, error) {
 
 func FindAuthWithToken(ctx context.Context, token string) (*Auth, error) {
 	parts := strings.SplitN(token, ":", 2)
+	if len(parts) != 2 {
+		err := errors.New("Invalid token: " + token)
+		log.Errorf(ctx, "@FindAuthWithToken %v", err)
+		return nil, err
+	}
 	id := parts[0]
 	pw := parts[1]
 	auth, err := FindAuth(ctx, id)
