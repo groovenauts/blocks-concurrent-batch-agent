@@ -3,10 +3,10 @@ package pipeline
 import (
 	"encoding/json"
 	"fmt"
-	"regexp"
 	"golang.org/x/net/context"
 	"google.golang.org/api/deploymentmanager/v2"
 	"google.golang.org/appengine/log"
+	"regexp"
 )
 
 type Builder struct {
@@ -186,26 +186,26 @@ var (
 func (b *Builder) buildStartupScript(plp *PipelineProps) string {
 	r :=
 		fmt.Sprintf("for i in {1..%v}; do", plp.ContainerSize) +
-		" docker run -d" +
-		" -e PROJECT=" + plp.ProjectID +
-		" -e PIPELINE=" + plp.Name +
-		" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + plp.Name + "-job-subscription.name)" +
-		" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + plp.Name + "-progress-topic.name)" +
-		" " + plp.ContainerName +
-		" " + plp.Command +
-		" ; done"
+			" docker run -d" +
+			" -e PROJECT=" + plp.ProjectID +
+			" -e PIPELINE=" + plp.Name +
+			" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + plp.Name + "-job-subscription.name)" +
+			" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + plp.Name + "-progress-topic.name)" +
+			" " + plp.ContainerName +
+			" " + plp.Command +
+			" ; done"
 	usingGcr :=
 		CosCloudProjectRegexp.MatchString(plp.SourceImage) &&
-		GcrContainerImageRegexp.MatchString(plp.ContainerName)
+			GcrContainerImageRegexp.MatchString(plp.ContainerName)
 	if usingGcr {
 		host := GcrImageHostRegexp.FindString(plp.ContainerName)
 		r =
 			"METADATA=http://metadata.google.internal/computeMetadata/v1\n" +
-			"SVC_ACCT=$METADATA/instance/service-accounts/default\n" +
-			"ACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'\"' -f 4)\n" +
-			"docker login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://" + host + "\n" +
-			"docker pull " + plp.ContainerName + "\n" +
-			r
+				"SVC_ACCT=$METADATA/instance/service-accounts/default\n" +
+				"ACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'\"' -f 4)\n" +
+				"docker login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://" + host + "\n" +
+				"docker pull " + plp.ContainerName + "\n" +
+				r
 	}
 	return r
 }

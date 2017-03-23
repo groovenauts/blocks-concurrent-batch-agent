@@ -108,13 +108,13 @@ func TestBuildStartupScript(t *testing.T) {
 	}
 	ss := b.buildStartupScript(&plp)
 	expected := "for i in {1..2}; do docker run -d" +
-			" -e PROJECT=" + plp.ProjectID +
-			" -e PIPELINE=" + plp.Name +
-			" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + plp.Name + "-job-subscription.name)" +
-			" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + plp.Name + "-progress-topic.name)" +
-			" " + plp.ContainerName +
-			" " + plp.Command +
-			" ; done"
+		" -e PROJECT=" + plp.ProjectID +
+		" -e PIPELINE=" + plp.Name +
+		" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + plp.Name + "-job-subscription.name)" +
+		" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + plp.Name + "-progress-topic.name)" +
+		" " + plp.ContainerName +
+		" " + plp.Command +
+		" ; done"
 	assert.Equal(t, expected, ss)
 
 	// Use cos-cloud project's image
@@ -128,18 +128,18 @@ func TestBuildStartupScript(t *testing.T) {
 	ss = b.buildStartupScript(&plp)
 	expected =
 		"METADATA=http://metadata.google.internal/computeMetadata/v1\n" +
-		"SVC_ACCT=$METADATA/instance/service-accounts/default\n" +
-		"ACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'\"' -f 4)\n" +
-		"docker login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://asia.gcr.io\n" +
-		"docker pull " + plp.ContainerName + "\n" +
-		"for i in {1..2}; do docker run -d" +
-		" -e PROJECT=" + plp.ProjectID +
-		" -e PIPELINE=" + plp.Name +
-		" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + plp.Name + "-job-subscription.name)" +
-		" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + plp.Name + "-progress-topic.name)" +
-		" " + plp.ContainerName +
-		" " + plp.Command +
-		" ; done"
+			"SVC_ACCT=$METADATA/instance/service-accounts/default\n" +
+			"ACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'\"' -f 4)\n" +
+			"docker login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://asia.gcr.io\n" +
+			"docker pull " + plp.ContainerName + "\n" +
+			"for i in {1..2}; do docker run -d" +
+			" -e PROJECT=" + plp.ProjectID +
+			" -e PIPELINE=" + plp.Name +
+			" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + plp.Name + "-job-subscription.name)" +
+			" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + plp.Name + "-progress-topic.name)" +
+			" " + plp.ContainerName +
+			" " + plp.Command +
+			" ; done"
 	//fmt.Println(ss)
 	assert.Equal(t, expected, ss)
 
