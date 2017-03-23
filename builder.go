@@ -3,6 +3,7 @@ package pipeline
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"golang.org/x/net/context"
 	"google.golang.org/api/deploymentmanager/v2"
 	"google.golang.org/appengine/log"
@@ -174,8 +175,17 @@ func (b *Builder) GenerateDeploymentResources(plp *PipelineProps) *Resources {
 	return &Resources{Resources: t}
 }
 
+const GcrHostPatternBase = `\A[^/]*gcr.io`
+
+var (
+	CosCloudProjectRegexp   = regexp.MustCompile(`/projects/cos-cloud/`)
+	GcrContainerImageRegexp = regexp.MustCompile(GcrHostPatternBase + `\/`)
+	GcrImageHostRegexp      = regexp.MustCompile(GcrHostPatternBase)
+)
+
 func (b *Builder) buildStartupScript(plp *PipelineProps) string {
-	return fmt.Sprintf("for i in {1..%v}; do", plp.ContainerSize) +
+	r :=
+		fmt.Sprintf("for i in {1..%v}; do", plp.ContainerSize) +
 		" docker run -d" +
 		" -e PROJECT=" + plp.ProjectID +
 		" -e PIPELINE=" + plp.Name +
@@ -184,4 +194,18 @@ func (b *Builder) buildStartupScript(plp *PipelineProps) string {
 		" " + plp.ContainerName +
 		" " + plp.Command +
 		" ; done"
+	usingGcr :=
+		CosCloudProjectRegexp.MatchString(plp.SourceImage) &&
+		GcrContainerImageRegexp.MatchString(plp.ContainerName)
+	if usingGcr {
+		host := GcrImageHostRegexp.FindString(plp.ContainerName)
+		r =
+			"METADATA=http://metadata.google.internal/computeMetadata/v1\n" +
+			"SVC_ACCT=$METADATA/instance/service-accounts/default\n" +
+			"ACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'\"' -f 4)\n" +
+			"docker login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://" + host + "\n" +
+			"docker pull " + plp.ContainerName + "\n" +
+			r
+	}
+	return r
 }

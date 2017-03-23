@@ -1,6 +1,8 @@
 package pipeline
 
 import (
+	//"fmt"
+	"regexp"
 	"testing"
 	// "golang.org/x/net/context"
 	"encoding/json"
@@ -102,7 +104,7 @@ func TestBuildStartupScript(t *testing.T) {
 		TargetSize:    2,
 		ContainerSize: 2,
 		ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
-		Command:       "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
+		Command:       "",
 	}
 	ss := b.buildStartupScript(&plp)
 	expected := "for i in {1..2}; do docker run -d" +
@@ -113,5 +115,40 @@ func TestBuildStartupScript(t *testing.T) {
 			" " + plp.ContainerName +
 			" " + plp.Command +
 			" ; done"
+	assert.Equal(t, expected, ss)
+
+	// Use cos-cloud project's image
+	plp.SourceImage = "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-stable-56-9000-84-2"
+	ss = b.buildStartupScript(&plp)
+	assert.Equal(t, expected, ss)
+
+	// Use cos-cloud project's image and private image in asia.gcr.io
+	plp.SourceImage = "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-stable-56-9000-84-2"
+	plp.ContainerName = "asia.gcr.io/example/test_worker:0.0.1"
+	ss = b.buildStartupScript(&plp)
+	expected =
+		"METADATA=http://metadata.google.internal/computeMetadata/v1\n" +
+		"SVC_ACCT=$METADATA/instance/service-accounts/default\n" +
+		"ACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'\"' -f 4)\n" +
+		"docker login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://asia.gcr.io\n" +
+		"docker pull " + plp.ContainerName + "\n" +
+		"for i in {1..2}; do docker run -d" +
+		" -e PROJECT=" + plp.ProjectID +
+		" -e PIPELINE=" + plp.Name +
+		" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + plp.Name + "-job-subscription.name)" +
+		" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + plp.Name + "-progress-topic.name)" +
+		" " + plp.ContainerName +
+		" " + plp.Command +
+		" ; done"
+	//fmt.Println(ss)
+	assert.Equal(t, expected, ss)
+
+	// Use cos-cloud project's image and private image in gcr.io
+	plp.SourceImage = "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-stable-56-9000-84-2"
+	plp.ContainerName = "gcr.io/example/test_worker:0.0.1" // NOT from asia.gcr.io
+	ss = b.buildStartupScript(&plp)
+	re := regexp.MustCompile(`asia.gcr.io`)
+	expected = re.ReplaceAllString(expected, "gcr.io")
+	//fmt.Println(expected)
 	assert.Equal(t, expected, ss)
 }
