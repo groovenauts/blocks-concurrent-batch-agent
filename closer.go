@@ -15,7 +15,7 @@ func (b *Closer) Process(ctx context.Context, pl *Pipeline) error {
 	// https://cloud.google.com/deployment-manager/docs/reference/latest/deployments/delete#examples
 	ope, err := b.deployer.Delete(ctx, pl.Props.ProjectID, pl.Props.Name)
 	if err != nil {
-		log.Errorf(ctx, "Failed to close deployment %v\nproject: %v deployment: %v\nhc: %v\n", err, pl.Props.ProjectID, pl.Props.Name)
+		log.Errorf(ctx, "Failed to close deployment %v\nproject: %v deployment: %v\n", err, pl.Props.ProjectID, pl.Props.Name)
 		return err
 	}
 

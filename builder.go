@@ -6,6 +6,7 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/api/deploymentmanager/v2"
 	"google.golang.org/appengine/log"
+	"regexp"
 )
 
 type Builder struct {
@@ -27,7 +28,7 @@ func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
 	}
 	ope, err := b.deployer.Insert(ctx, pl.Props.ProjectID, deployment)
 	if err != nil {
-		log.Errorf(ctx, "Failed to insert deployment %v\nproject: %v deployment: %v\nhc: %v\n", err, pl.Props.ProjectID, deployment)
+		log.Errorf(ctx, "Failed to insert deployment %v\nproject: %v deployment: %v\n", err, pl.Props.ProjectID, deployment)
 		return err
 	}
 
@@ -109,16 +110,7 @@ func (b *Builder) GenerateDeploymentResources(plp *PipelineProps) *Resources {
 		)
 	}
 
-	startup_script :=
-		fmt.Sprintf("for i in {1..%v}; do", plp.ContainerSize) +
-			" docker run -d" +
-			" -e PROJECT=" + plp.ProjectID +
-			" -e PIPELINE=" + plp.Name +
-			" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + plp.Name + "-job-subscription.name)" +
-			" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + plp.Name + "-progress-topic.name)" +
-			" " + plp.ContainerName +
-			" " + plp.Command +
-			" ; done"
+	startup_script := b.buildStartupScript(plp)
 
 	t = append(t,
 		Resource{
@@ -181,4 +173,43 @@ func (b *Builder) GenerateDeploymentResources(plp *PipelineProps) *Resources {
 		},
 	)
 	return &Resources{Resources: t}
+}
+
+const GcrHostPatternBase = `\A[^/]*gcr.io`
+
+var (
+	CosCloudProjectRegexp   = regexp.MustCompile(`/projects/cos-cloud/`)
+	GcrContainerImageRegexp = regexp.MustCompile(GcrHostPatternBase + `\/`)
+	GcrImageHostRegexp      = regexp.MustCompile(GcrHostPatternBase)
+)
+
+func (b *Builder) buildStartupScript(plp *PipelineProps) string {
+	usingGcr :=
+		CosCloudProjectRegexp.MatchString(plp.SourceImage) &&
+			GcrContainerImageRegexp.MatchString(plp.ContainerName)
+	docker := "docker"
+	if usingGcr {
+		docker = docker + " --config /home/chronos/.docker"
+	}
+	r :=
+		fmt.Sprintf("for i in {1..%v}; do", plp.ContainerSize) +
+			" " + docker + " run -d" +
+			" -e PROJECT=" + plp.ProjectID +
+			" -e PIPELINE=" + plp.Name +
+			" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + plp.Name + "-job-subscription.name)" +
+			" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + plp.Name + "-progress-topic.name)" +
+			" " + plp.ContainerName +
+			" " + plp.Command +
+			" ; done"
+	if usingGcr {
+		host := GcrImageHostRegexp.FindString(plp.ContainerName)
+		r =
+			"METADATA=http://metadata.google.internal/computeMetadata/v1\n" +
+				"SVC_ACCT=$METADATA/instance/service-accounts/default\n" +
+				"ACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'\"' -f 4)\n" +
+				docker + " login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://" + host + "\n" +
+				docker + " pull " + plp.ContainerName + "\n" +
+				r
+	}
+	return r
 }
