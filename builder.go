@@ -184,7 +184,7 @@ var (
 )
 
 func (b *Builder) buildStartupScript(plp *PipelineProps) string {
-	r := ""
+	r := StartupScriptHeader + "\n"
 	usingGcr :=
 		CosCloudProjectRegexp.MatchString(plp.SourceImage) &&
 			GcrContainerImageRegexp.MatchString(plp.ContainerName)
@@ -198,8 +198,8 @@ func (b *Builder) buildStartupScript(plp *PipelineProps) string {
 			"METADATA=http://metadata.google.internal/computeMetadata/v1\n" +
 			"SVC_ACCT=$METADATA/instance/service-accounts/default\n" +
 			"ACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'\"' -f 4)\n" +
-			docker + " login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://" + host + "\n" +
-		  docker + " pull " + plp.ContainerName + "\n"
+			"TIMEOUT=10 with_backoff " + docker + " login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://" + host + "\n" +
+			"TIMEOUT=600 with_backoff " + docker + " pull " + plp.ContainerName + "\n"
 	}
 	r = r +
 		fmt.Sprintf("for i in {1..%v}; do", plp.ContainerSize) +
