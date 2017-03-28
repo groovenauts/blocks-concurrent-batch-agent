@@ -123,6 +123,7 @@ func TestBuildStartupScript(t *testing.T) {
 	ss := b.buildStartupScript(&plp)
 	expected :=
 		StartupScriptHeader +"\n" +
+		"TIMEOUT=600 with_backoff docker pull groovenauts/batch_type_iot_example:0.3.1\n" +
 		"for i in {1..2}; do docker run -d" +
 		" -e PROJECT=" + plp.ProjectID +
 		" -e PIPELINE=" + plp.Name +

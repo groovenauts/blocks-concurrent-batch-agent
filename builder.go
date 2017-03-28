@@ -198,10 +198,10 @@ func (b *Builder) buildStartupScript(plp *PipelineProps) string {
 			"METADATA=http://metadata.google.internal/computeMetadata/v1\n" +
 			"SVC_ACCT=$METADATA/instance/service-accounts/default\n" +
 			"ACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'\"' -f 4)\n" +
-			"TIMEOUT=10 with_backoff " + docker + " login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://" + host + "\n" +
-			"TIMEOUT=600 with_backoff " + docker + " pull " + plp.ContainerName + "\n"
+			"TIMEOUT=10 with_backoff " + docker + " login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://" + host + "\n"
 	}
 	r = r +
+		"TIMEOUT=600 with_backoff " + docker + " pull " + plp.ContainerName + "\n" +
 		fmt.Sprintf("for i in {1..%v}; do", plp.ContainerSize) +
 		" " + docker + " run -d" +
 		" -e PROJECT=" + plp.ProjectID +
