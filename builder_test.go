@@ -1,7 +1,7 @@
 package pipeline
 
 import (
-	"fmt"
+	// "fmt"
 	"regexp"
 	"testing"
 	// "golang.org/x/net/context"
@@ -39,9 +39,6 @@ func TestGenerateContent(t *testing.T) {
 		Command:       "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
 	}
 	result := b.GenerateDeploymentResources(&plp)
-	fmt.Println("result------------------------------------------------")
-	fmt.Println(result)
-	fmt.Println("------------------------------------------------")
 
 	assert.Equal(t, len(expected.Resources), len(result.Resources))
 	for i, expR := range expected.Resources {
