@@ -145,7 +145,7 @@ func TestBuildStartupScript(t *testing.T) {
 		"METADATA=http://metadata.google.internal/computeMetadata/v1\n" +
 			"SVC_ACCT=$METADATA/instance/service-accounts/default\n" +
 			"ACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'\"' -f 4)\n" +
-			"TIMEOUT=10 with_backoff docker --config /home/chronos/.docker login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://asia.gcr.io\n" +
+			"TIMEOUT=60 with_backoff docker --config /home/chronos/.docker login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://asia.gcr.io\n" +
 			"TIMEOUT=600 with_backoff docker --config /home/chronos/.docker pull " + plp.ContainerName + "\n" +
 			"for i in {1..2}; do docker --config /home/chronos/.docker run -d" +
 			" -e PROJECT=" + plp.ProjectID +
