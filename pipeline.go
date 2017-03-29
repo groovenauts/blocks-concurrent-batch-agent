@@ -23,6 +23,25 @@ const (
 	closed
 )
 
+var StatusStrings = map[Status]string{
+	initialized:   "initialized",
+	broken:        "broken",
+	building:      "building",
+	deploying:     "deploying",
+	opened:        "opened",
+	closing:       "closing",
+	closing_error: "closing_error",
+	closed:        "closed",
+}
+
+func (st Status) String() string {
+	res, ok := StatusStrings[st]
+	if !ok {
+		return fmt.Sprintf("Invalid Status: %v", st)
+	}
+	return res
+}
+
 var processorFactory ProcessorFactory = &DefaultProcessorFactory{}
 
 var ErrNoSuchPipeline = errors.New("No such data in Pipelines")
