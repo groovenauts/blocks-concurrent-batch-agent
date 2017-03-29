@@ -3,10 +3,11 @@ package pipeline
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
+
 	"golang.org/x/net/context"
 	"google.golang.org/api/deploymentmanager/v2"
 	"google.golang.org/appengine/log"
-	"regexp"
 )
 
 type Builder struct {
