@@ -3,6 +3,7 @@ package pipeline
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
@@ -37,7 +38,7 @@ var StatusStrings = map[Status]string{
 func (st Status) String() string {
 	res, ok := StatusStrings[st]
 	if !ok {
-		return fmt.Sprintf("Invalid Status: %v", st)
+		return "Invalid Status: " + strconv.Itoa(int(st))
 	}
 	return res
 }
