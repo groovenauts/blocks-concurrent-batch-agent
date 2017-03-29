@@ -1,7 +1,7 @@
 package pipeline
 
 import (
-	//"fmt"
+	// "fmt"
 	"regexp"
 	"testing"
 	// "golang.org/x/net/context"
@@ -14,8 +14,8 @@ import (
 func TestGenerateContent(t *testing.T) {
 	b := &Builder{}
 	expected_data, err := ioutil.ReadFile(`builder_test/pipeline01.json`)
-	expected := Resources{}
-	err = json.Unmarshal([]byte(expected_data), &expected)
+	expected := &Resources{}
+	err = json.Unmarshal([]byte(expected_data), expected)
 	assert.NoError(t, err)
 	// If ackDeadlineSeconds or targetSize is float64, cast it to int
 	for _, r := range expected.Resources {
@@ -39,7 +39,18 @@ func TestGenerateContent(t *testing.T) {
 		Command:       "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
 	}
 	result := b.GenerateDeploymentResources(&plp)
-	assert.Equal(t, &expected, result)
+
+	assert.Equal(t, len(expected.Resources), len(result.Resources))
+	for i, expR := range expected.Resources {
+		actR := result.Resources[i]
+		assert.Equal(t, expR.Type, actR.Type)
+		assert.Equal(t, expR.Name, actR.Name)
+		for key, expV := range expR.Properties {
+			actV := actR.Properties[key]
+			assert.Equal(t, expV, actV, "Value for key: "+key)
+		}
+	}
+	assert.Equal(t, expected, result)
 }
 
 func TestBuildDeployment(t *testing.T) {
@@ -107,7 +118,10 @@ func TestBuildStartupScript(t *testing.T) {
 		Command:       "",
 	}
 	ss := b.buildStartupScript(&plp)
-	expected := "for i in {1..2}; do docker run -d" +
+	expected :=
+		StartupScriptHeader +"\n" +
+		"TIMEOUT=600 with_backoff docker pull groovenauts/batch_type_iot_example:0.3.1\n" +
+		"for i in {1..2}; do docker run -d" +
 		" -e PROJECT=" + plp.ProjectID +
 		" -e PIPELINE=" + plp.Name +
 		" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + plp.Name + "-job-subscription.name)" +
@@ -127,11 +141,12 @@ func TestBuildStartupScript(t *testing.T) {
 	plp.ContainerName = "asia.gcr.io/example/test_worker:0.0.1"
 	ss = b.buildStartupScript(&plp)
 	expected =
+		StartupScriptHeader +"\n" +
 		"METADATA=http://metadata.google.internal/computeMetadata/v1\n" +
 			"SVC_ACCT=$METADATA/instance/service-accounts/default\n" +
 			"ACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'\"' -f 4)\n" +
-			"docker --config /home/chronos/.docker login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://asia.gcr.io\n" +
-			"docker --config /home/chronos/.docker pull " + plp.ContainerName + "\n" +
+			"TIMEOUT=60 with_backoff docker --config /home/chronos/.docker login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://asia.gcr.io\n" +
+			"TIMEOUT=600 with_backoff docker --config /home/chronos/.docker pull " + plp.ContainerName + "\n" +
 			"for i in {1..2}; do docker --config /home/chronos/.docker run -d" +
 			" -e PROJECT=" + plp.ProjectID +
 			" -e PIPELINE=" + plp.Name +
