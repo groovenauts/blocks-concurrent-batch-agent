@@ -41,7 +41,8 @@ type (
 		Message string `json:"message,omitempty"`
 	}
 
-	PipelineProps struct {
+	Pipeline struct {
+		ID                     string            `json:"id"             datastore:"-"`
 		Name                   string            `json:"name"           validate:"required"`
 		ProjectID              string            `json:"project_id"     validate:"required"`
 		Zone                   string            `json:"zone"           validate:"required"`
@@ -59,26 +60,22 @@ type (
 		ClosingOperationName   string            `json:"closing_operation_name"`
 		ClosingErrors          []DeploymentError `json:"closing_errors"`
 	}
-
-	Pipeline struct {
-		ID    string        `json:"id"`
-		Props PipelineProps `json:"props"`
-	}
 )
 
-func CreatePipeline(ctx context.Context, plp *PipelineProps) (*Pipeline, error) {
+func CreatePipeline(ctx context.Context, pl *Pipeline) error {
 	validator := validator.New()
-	err := validator.Struct(plp)
+	err := validator.Struct(pl)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	key := datastore.NewIncompleteKey(ctx, "Pipelines", nil)
-	res, err := datastore.Put(ctx, key, plp)
+	res, err := datastore.Put(ctx, key, pl)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return &Pipeline{ID: res.Encode(), Props: *plp}, nil
+	pl.ID = res.Encode()
+	return nil
 }
 
 func FindPipeline(ctx context.Context, id string) (*Pipeline, error) {
@@ -89,7 +86,7 @@ func FindPipeline(ctx context.Context, id string) (*Pipeline, error) {
 	}
 	ctx = context.WithValue(ctx, "Pipeline.key", key)
 	pl := &Pipeline{ID: id}
-	err = datastore.Get(ctx, key, &pl.Props)
+	err = datastore.Get(ctx, key, &pl)
 	switch {
 	case err == datastore.ErrNoSuchEntity:
 		return nil, ErrNoSuchPipeline
@@ -115,7 +112,7 @@ func GetPipelinesByQuery(ctx context.Context, q *datastore.Query) ([]*Pipeline, 
 	var res = []*Pipeline{}
 	for {
 		pl := Pipeline{}
-		key, err := iter.Next(&pl.Props)
+		key, err := iter.Next(&pl)
 		if err == datastore.Done {
 			break
 		}
@@ -146,9 +143,8 @@ func GetPipelineIDsByQuery(ctx context.Context, q *datastore.Query) ([]string, e
 }
 
 func (pl *Pipeline) destroy(ctx context.Context) error {
-	plp := pl.Props
-	if plp.Status != closed {
-		return fmt.Errorf("Can't destroy pipeline which has status: %v", plp.Status)
+	if pl.Status != closed {
+		return fmt.Errorf("Can't destroy pipeline which has status: %v", pl.Status)
 	}
 	key, err := datastore.DecodeKey(pl.ID)
 	if err != nil {
@@ -165,7 +161,7 @@ func (pl *Pipeline) update(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	_, err = datastore.Put(ctx, key, &pl.Props)
+	_, err = datastore.Put(ctx, key, pl)
 	if err != nil {
 		return err
 	}
@@ -193,8 +189,8 @@ func GetActiveSubscriptions(ctx context.Context) ([]*Subscription, error) {
 	}
 	for _, pipeline := range pipelines {
 		r = append(r, &Subscription{
-			Pipeline: pipeline.Props.Name,
-			Name:     fmt.Sprintf("projects/%v/subscriptions/%v-progress-subscription", pipeline.Props.ProjectID, pipeline.Props.Name),
+			Pipeline: pipeline.Name,
+			Name:     fmt.Sprintf("projects/%v/subscriptions/%v-progress-subscription", pipeline.ProjectID, pipeline.Name),
 		})
 	}
 	return r, nil

@@ -12,25 +12,25 @@ type Refresher struct {
 
 func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 	log.Debugf(ctx, "Refreshing pipeline %v\n", pl)
-	switch pl.Props.Status {
+	switch pl.Status {
 	case deploying:
-		return b.UpdatePipelineWithStatus(ctx, pl, "deploying", pl.Props.DeployingOperationName,
+		return b.UpdatePipelineWithStatus(ctx, pl, "deploying", pl.DeployingOperationName,
 			func(errors *[]DeploymentError) {
-				pl.Props.DeployingErrors = *errors
-				pl.Props.Status = broken
+				pl.DeployingErrors = *errors
+				pl.Status = broken
 			},
 			func() {
-				pl.Props.Status = opened
+				pl.Status = opened
 			},
 		)
 	case closing:
-		return b.UpdatePipelineWithStatus(ctx, pl, "closing", pl.Props.ClosingOperationName,
+		return b.UpdatePipelineWithStatus(ctx, pl, "closing", pl.ClosingOperationName,
 			func(errors *[]DeploymentError) {
-				pl.Props.ClosingErrors = *errors
-				pl.Props.Status = closing_error
+				pl.ClosingErrors = *errors
+				pl.Status = closing_error
 			},
 			func() {
-				pl.Props.Status = closed
+				pl.Status = closed
 			},
 		)
 	default:
@@ -41,7 +41,7 @@ func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 func (b *Refresher) UpdatePipelineWithStatus(ctx context.Context, pl *Pipeline, status, ope_name string, errorHandler func(*[]DeploymentError), succHandler func()) error {
 	// See the "Examples" below "Response"
 	//   https://cloud.google.com/deployment-manager/docs/reference/latest/deployments/insert#response
-	proj := pl.Props.ProjectID
+	proj := pl.ProjectID
 	ope, err := b.deployer.GetOperation(ctx, proj, ope_name)
 	if err != nil {
 		log.Errorf(ctx, "Failed to get %v operation project: %v deployment: %v\n%v\n", status, proj, ope_name, err)
@@ -51,15 +51,15 @@ func (b *Refresher) UpdatePipelineWithStatus(ctx context.Context, pl *Pipeline, 
 	if ope.Status == "DONE" {
 		errors := b.ErrorsFromOperation(ope)
 		if errors != nil {
-			log.Errorf(ctx, "%v error found for project: %v deployment: %v\n%v\n", status, proj, pl.Props.DeploymentName, errors)
+			log.Errorf(ctx, "%v error found for project: %v deployment: %v\n%v\n", status, proj, pl.DeploymentName, errors)
 			errorHandler(errors)
 		} else {
-			log.Infof(ctx, "%v completed successfully project: %v deployment: %v\n", status, proj, pl.Props.DeploymentName)
+			log.Infof(ctx, "%v completed successfully project: %v deployment: %v\n", status, proj, pl.DeploymentName)
 			succHandler()
 		}
 		err = pl.update(ctx)
 		if err != nil {
-			log.Errorf(ctx, "Failed to update Pipeline Status to %v: %v\npl: %v\n", pl.Props.Status, err, pl)
+			log.Errorf(ctx, "Failed to update Pipeline Status to %v: %v\npl: %v\n", pl.Status, err, pl)
 			return err
 		}
 	}

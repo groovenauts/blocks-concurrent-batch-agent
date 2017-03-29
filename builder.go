@@ -14,29 +14,29 @@ type Builder struct {
 }
 
 func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
-	pl.Props.Status = building
+	pl.Status = building
 	err := pl.update(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to update Pipeline status to 'building': %v\npl: %v\n", err, pl)
 		return err
 	}
 
-	deployment, err := b.BuildDeployment(&pl.Props)
+	deployment, err := b.BuildDeployment(pl)
 	if err != nil {
-		log.Errorf(ctx, "Failed to BuildDeployment: %v\nProps: %v\n", err, pl.Props)
+		log.Errorf(ctx, "Failed to BuildDeployment: %v\nPipeline: %v\n", err, pl)
 		return err
 	}
-	ope, err := b.deployer.Insert(ctx, pl.Props.ProjectID, deployment)
+	ope, err := b.deployer.Insert(ctx, pl.ProjectID, deployment)
 	if err != nil {
-		log.Errorf(ctx, "Failed to insert deployment %v\nproject: %v deployment: %v\n", err, pl.Props.ProjectID, deployment)
+		log.Errorf(ctx, "Failed to insert deployment %v\nproject: %v deployment: %v\n", err, pl.ProjectID, deployment)
 		return err
 	}
 
-	log.Infof(ctx, "Built pipeline successfully %v\n", pl.Props)
+	log.Infof(ctx, "Built pipeline successfully %v\n", pl)
 
-	pl.Props.Status = deploying
-	pl.Props.DeploymentName = deployment.Name
-	pl.Props.DeployingOperationName = ope.Name
+	pl.Status = deploying
+	pl.DeploymentName = deployment.Name
+	pl.DeployingOperationName = ope.Name
 	err = pl.update(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to update Pipeline deployment name to %v: %v\npl: %v\n", ope.Name, err, pl)
@@ -46,8 +46,8 @@ func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
 	return nil
 }
 
-func (b *Builder) BuildDeployment(plp *PipelineProps) (*deploymentmanager.Deployment, error) {
-	r := b.GenerateDeploymentResources(plp)
+func (b *Builder) BuildDeployment(pl *Pipeline) (*deploymentmanager.Deployment, error) {
+	r := b.GenerateDeploymentResources(pl)
 	d, err := json.Marshal(r)
 	if err != nil {
 		return nil, err
@@ -58,7 +58,7 @@ func (b *Builder) BuildDeployment(plp *PipelineProps) (*deploymentmanager.Deploy
 	tc := deploymentmanager.TargetConfiguration{Config: &c}
 	// https://github.com/google/google-api-go-client/blob/master/deploymentmanager/v2/deploymentmanager-gen.go#L348-L434
 	dm := deploymentmanager.Deployment{
-		Name:   plp.Name,
+		Name:   pl.Name,
 		Target: &tc,
 	}
 	return &dm, nil
@@ -83,15 +83,15 @@ type (
 	}
 )
 
-func (b *Builder) GenerateDeploymentResources(plp *PipelineProps) *Resources {
+func (b *Builder) GenerateDeploymentResources(pl *Pipeline) *Resources {
 	t := []Resource{}
 	pubsubs := []Pubsub{
 		Pubsub{Name: "job", AckDeadline: 600},
 		Pubsub{Name: "progress", AckDeadline: 30},
 	}
 	for _, pubsub := range pubsubs {
-		topic := plp.Name + "-" + pubsub.Name + "-topic"
-		subscription := plp.Name + "-" + pubsub.Name + "-subscription"
+		topic := pl.Name + "-" + pubsub.Name + "-topic"
+		subscription := pl.Name + "-" + pubsub.Name + "-subscription"
 		t = append(t,
 			Resource{
 				Type:       "pubsub.v1.topic",
@@ -110,16 +110,16 @@ func (b *Builder) GenerateDeploymentResources(plp *PipelineProps) *Resources {
 		)
 	}
 
-	startup_script := b.buildStartupScript(plp)
+	startup_script := b.buildStartupScript(pl)
 
 	t = append(t,
 		Resource{
 			Type: "compute.v1.instanceTemplate",
-			Name: plp.Name + "-it",
+			Name: pl.Name + "-it",
 			Properties: map[string]interface{}{
-				"zone": plp.Zone,
+				"zone": pl.Zone,
 				"properties": map[string]interface{}{
-					"machineType": plp.MachineType,
+					"machineType": pl.MachineType,
 					"metadata": map[string]interface{}{
 						"items": []interface{}{
 							map[string]interface{}{
@@ -130,7 +130,7 @@ func (b *Builder) GenerateDeploymentResources(plp *PipelineProps) *Resources {
 					},
 					"networkInterfaces": []interface{}{
 						map[string]interface{}{
-							"network": "https://www.googleapis.com/compute/v1/projects/" + plp.ProjectID + "/global/networks/default",
+							"network": "https://www.googleapis.com/compute/v1/projects/" + pl.ProjectID + "/global/networks/default",
 							"accessConfigs": []interface{}{
 								map[string]interface{}{
 									"name": "External-IP",
@@ -154,7 +154,7 @@ func (b *Builder) GenerateDeploymentResources(plp *PipelineProps) *Resources {
 							"boot":       true,
 							"autoDelete": true,
 							"initializeParams": map[string]interface{}{
-								"sourceImage": plp.SourceImage,
+								"sourceImage": pl.SourceImage,
 							},
 						},
 					},
@@ -163,12 +163,12 @@ func (b *Builder) GenerateDeploymentResources(plp *PipelineProps) *Resources {
 		},
 		Resource{
 			Type: "compute.v1.instanceGroupManagers",
-			Name: plp.Name + "-igm",
+			Name: pl.Name + "-igm",
 			Properties: map[string]interface{}{
-				"baseInstanceName": plp.Name + "-instance",
-				"instanceTemplate": "$(ref." + plp.Name + "-it.selfLink)",
-				"targetSize":       plp.TargetSize,
-				"zone":             plp.Zone,
+				"baseInstanceName": pl.Name + "-instance",
+				"instanceTemplate": "$(ref." + pl.Name + "-it.selfLink)",
+				"targetSize":       pl.TargetSize,
+				"zone":             pl.Zone,
 			},
 		},
 	)
@@ -183,17 +183,17 @@ var (
 	GcrImageHostRegexp      = regexp.MustCompile(GcrHostPatternBase)
 )
 
-func (b *Builder) buildStartupScript(plp *PipelineProps) string {
+func (b *Builder) buildStartupScript(pl *Pipeline) string {
 	r := StartupScriptHeader + "\n"
 	usingGcr :=
-		CosCloudProjectRegexp.MatchString(plp.SourceImage) &&
-			GcrContainerImageRegexp.MatchString(plp.ContainerName)
+		CosCloudProjectRegexp.MatchString(pl.SourceImage) &&
+			GcrContainerImageRegexp.MatchString(pl.ContainerName)
 	docker := "docker"
 	if usingGcr {
 		docker = docker + " --config /home/chronos/.docker"
 	}
 	if usingGcr {
-		host := GcrImageHostRegexp.FindString(plp.ContainerName)
+		host := GcrImageHostRegexp.FindString(pl.ContainerName)
 		r = r +
 			"METADATA=http://metadata.google.internal/computeMetadata/v1\n" +
 			"SVC_ACCT=$METADATA/instance/service-accounts/default\n" +
@@ -201,15 +201,15 @@ func (b *Builder) buildStartupScript(plp *PipelineProps) string {
 			"TIMEOUT=60 with_backoff " + docker + " login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://" + host + "\n"
 	}
 	r = r +
-		"TIMEOUT=600 with_backoff " + docker + " pull " + plp.ContainerName + "\n" +
-		fmt.Sprintf("for i in {1..%v}; do", plp.ContainerSize) +
+		"TIMEOUT=600 with_backoff " + docker + " pull " + pl.ContainerName + "\n" +
+		fmt.Sprintf("for i in {1..%v}; do", pl.ContainerSize) +
 		" " + docker + " run -d" +
-		" -e PROJECT=" + plp.ProjectID +
-		" -e PIPELINE=" + plp.Name +
-		" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + plp.Name + "-job-subscription.name)" +
-		" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + plp.Name + "-progress-topic.name)" +
-		" " + plp.ContainerName +
-		" " + plp.Command +
+		" -e PROJECT=" + pl.ProjectID +
+		" -e PIPELINE=" + pl.Name +
+		" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + pl.Name + "-job-subscription.name)" +
+		" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + pl.Name + "-progress-topic.name)" +
+		" " + pl.ContainerName +
+		" " + pl.Command +
 		" ; done"
 	return r
 }
