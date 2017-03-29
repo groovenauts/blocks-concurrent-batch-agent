@@ -180,7 +180,13 @@ func (h *handler) show(c echo.Context, pl *Pipeline) error {
 func (h *handler) destroy(c echo.Context, pl *Pipeline) error {
 	ctx := c.Get("aecontext").(context.Context)
 	if err := pl.destroy(ctx); err != nil {
-		return err
+		switch err.(type) {
+		case *InvalidOperation:
+			res := map[string]interface{}{"message": err.Error()}
+			c.JSON(http.StatusNotAcceptable, res)
+		default:
+			return err
+		}
 	}
 	return c.JSON(http.StatusOK, pl)
 }

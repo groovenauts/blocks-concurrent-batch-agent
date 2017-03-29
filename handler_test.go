@@ -247,6 +247,27 @@ func TestActions(t *testing.T) {
 		}
 	}
 
+	// Test for destroy failure
+	req, err = inst.NewRequest(echo.DELETE, path, nil)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	req.Header.Set(auth_header, token)
+	assert.NoError(t, err)
+
+	rec = httptest.NewRecorder()
+	c = e.NewContext(req, rec)
+	c.SetPath(path)
+	c.SetParamNames("id")
+	c.SetParamValues(pl.ID)
+
+	f = h.withPipeline(h.withAuth, h.destroy)
+	if assert.NoError(t, f(c)) {
+		assert.Equal(t, http.StatusNotAcceptable, rec.Code) // http.StatusUnprocessableEntity
+		s := rec.Body.String()
+		assert.Regexp(t, "(?i)can't destroy", s)
+		assert.Regexp(t, "(?i)opened", s)
+		assert.Regexp(t, "(?i)close before delete", s)
+	}
+
 	// Make pipeline deletable
 	pl.Status = closed
 	err = pl.update(ctx)
