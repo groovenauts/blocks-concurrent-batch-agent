@@ -140,6 +140,9 @@ func (b *Builder) GenerateDeploymentResources(pl *Pipeline) *Resources {
 							},
 						},
 					},
+					"scheduling": map[string]interface{}{
+						"preemptible": pl.Preemptible,
+					},
 					"serviceAccounts": []interface{}{
 						map[string]interface{}{
 							"scopes": []interface{}{
