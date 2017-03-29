@@ -42,6 +42,14 @@ func (st Status) String() string {
 	return res
 }
 
+type InvalidOperation struct {
+	Msg string
+}
+
+func (e *InvalidOperation) Error() string {
+	return e.Msg
+}
+
 var processorFactory ProcessorFactory = &DefaultProcessorFactory{}
 
 var ErrNoSuchPipeline = errors.New("No such data in Pipelines")
@@ -163,7 +171,9 @@ func GetPipelineIDsByQuery(ctx context.Context, q *datastore.Query) ([]string, e
 
 func (pl *Pipeline) destroy(ctx context.Context) error {
 	if pl.Status != closed {
-		return fmt.Errorf("Can't destroy pipeline which has status: %v", pl.Status)
+		return &InvalidOperation{
+			Msg: fmt.Sprintf("Can't destroy pipeline which is %v. Close before delete.", pl.Status),
+		}
 	}
 	key, err := datastore.DecodeKey(pl.ID)
 	if err != nil {
