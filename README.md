@@ -78,13 +78,14 @@ $ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X 
 ## Deploy to appengine
 
 ```
-$ appcfg.py -A <YOUR_GCP_PROJECT> -V $(cat VERSION) update .
+$ export PROJECT=<YOUR_GCP_PROJECT>
+$ appcfg.py -A ${PROJECT} -V $(cat VERSION) update .
 ```
 
 If you want to set it active, run the following command
 
 ```
-$ gcloud app services set-traffic concurrent-batch-agent --splits=$(cat VERSION)=1
+$ gcloud --project ${PROJECT} app services set-traffic concurrent-batch-agent --splits=$(cat VERSION)=1
 ```
 
 ### Get Token on browser
