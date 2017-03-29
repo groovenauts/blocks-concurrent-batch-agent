@@ -119,16 +119,16 @@ func TestBuildStartupScript(t *testing.T) {
 	}
 	ss := b.buildStartupScript(&pl)
 	expected :=
-		StartupScriptHeader +"\n" +
-		"TIMEOUT=600 with_backoff docker pull groovenauts/batch_type_iot_example:0.3.1\n" +
-		"for i in {1..2}; do docker run -d" +
-		" -e PROJECT=" + pl.ProjectID +
-		" -e PIPELINE=" + pl.Name +
-		" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + pl.Name + "-job-subscription.name)" +
-		" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + pl.Name + "-progress-topic.name)" +
-		" " + pl.ContainerName +
-		" " + pl.Command +
-		" ; done"
+		StartupScriptHeader + "\n" +
+			"TIMEOUT=600 with_backoff docker pull groovenauts/batch_type_iot_example:0.3.1\n" +
+			"for i in {1..2}; do docker run -d" +
+			" -e PROJECT=" + pl.ProjectID +
+			" -e PIPELINE=" + pl.Name +
+			" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + pl.Name + "-job-subscription.name)" +
+			" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + pl.Name + "-progress-topic.name)" +
+			" " + pl.ContainerName +
+			" " + pl.Command +
+			" ; done"
 	assert.Equal(t, expected, ss)
 
 	// Use cos-cloud project's image
@@ -141,8 +141,8 @@ func TestBuildStartupScript(t *testing.T) {
 	pl.ContainerName = "asia.gcr.io/example/test_worker:0.0.1"
 	ss = b.buildStartupScript(&pl)
 	expected =
-		StartupScriptHeader +"\n" +
-		"METADATA=http://metadata.google.internal/computeMetadata/v1\n" +
+		StartupScriptHeader + "\n" +
+			"METADATA=http://metadata.google.internal/computeMetadata/v1\n" +
 			"SVC_ACCT=$METADATA/instance/service-accounts/default\n" +
 			"ACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'\"' -f 4)\n" +
 			"TIMEOUT=60 with_backoff docker --config /home/chronos/.docker login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://asia.gcr.io\n" +
