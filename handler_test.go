@@ -95,7 +95,7 @@ func TestActions(t *testing.T) {
 
 	pl := Pipeline{}
 	if assert.NoError(t, json.Unmarshal([]byte(s), &pl)) {
-		assert.Equal(t, test_proj1, pl.Props.ProjectID)
+		assert.Equal(t, test_proj1, pl.ProjectID)
 		assert.NotNil(t, pl.ID)
 	}
 
@@ -118,7 +118,7 @@ func TestActions(t *testing.T) {
 		s := rec.Body.String()
 		pl2 := Pipeline{}
 		if assert.NoError(t, json.Unmarshal([]byte(s), &pl2)) {
-			assert.Equal(t, test_proj1, pl2.Props.ProjectID)
+			assert.Equal(t, test_proj1, pl2.ProjectID)
 		}
 	}
 
@@ -155,7 +155,7 @@ func TestActions(t *testing.T) {
 
 	for _, expection := range expections {
 		// Test for refresh
-		pl.Props.Status = expection.status
+		pl.Status = expection.status
 		// https://github.com/golang/appengine/blob/master/aetest/instance.go#L32-L46
 		ctx = appengine.NewContext(req)
 		err = pl.update(ctx)
@@ -218,7 +218,7 @@ func TestActions(t *testing.T) {
 	ctx = appengine.NewContext(req)
 
 	// Make pipeline opened
-	pl.Props.Status = opened
+	pl.Status = opened
 	err = pl.update(ctx)
 	assert.NoError(t, err)
 
@@ -248,7 +248,7 @@ func TestActions(t *testing.T) {
 	}
 
 	// Make pipeline deletable
-	pl.Props.Status = closed
+	pl.Status = closed
 	err = pl.update(ctx)
 	assert.NoError(t, err)
 
@@ -271,7 +271,7 @@ func TestActions(t *testing.T) {
 		s := rec.Body.String()
 		pl2 := Pipeline{}
 		if assert.NoError(t, json.Unmarshal([]byte(s), &pl2)) {
-			assert.Equal(t, test_proj1, pl2.Props.ProjectID)
+			assert.Equal(t, test_proj1, pl2.ProjectID)
 		}
 	}
 

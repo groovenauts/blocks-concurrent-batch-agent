@@ -108,7 +108,7 @@ func TestRefresherProcessForDeploying(t *testing.T) {
 	}
 
 	for _, expection := range expections {
-		plp := PipelineProps{
+		pl := Pipeline{
 			Name:           "pipeline01",
 			ProjectID:      proj,
 			Zone:           "us-central1-f",
@@ -121,15 +121,15 @@ func TestRefresherProcessForDeploying(t *testing.T) {
 			DeploymentName: "pipeline01",
 			Status:         deploying,
 		}
-		pl, err := CreatePipeline(ctx, &plp)
+		err = CreatePipeline(ctx, &pl)
 
 		r := &Refresher{deployer: expection.deployer}
-		err = r.Process(ctx, pl)
+		err = r.Process(ctx, &pl)
 		assert.NoError(t, err)
 		pl2, err := FindPipeline(ctx, pl.ID)
 		assert.NoError(t, err)
-		assert.Equal(t, expection.status, pl2.Props.Status)
-		assert.Equal(t, expection.errors, pl2.Props.DeployingErrors)
+		assert.Equal(t, expection.status, pl2.Status)
+		assert.Equal(t, expection.errors, pl2.DeployingErrors)
 	}
 
 }
@@ -170,7 +170,7 @@ func TestRefresherProcessForClosing(t *testing.T) {
 	}
 
 	for _, expection := range expections {
-		plp := PipelineProps{
+		pl := Pipeline{
 			Name:           "pipeline01",
 			ProjectID:      proj,
 			Zone:           "us-central1-f",
@@ -183,15 +183,15 @@ func TestRefresherProcessForClosing(t *testing.T) {
 			DeploymentName: "pipeline01",
 			Status:         closing,
 		}
-		pl, err := CreatePipeline(ctx, &plp)
+		err = CreatePipeline(ctx, &pl)
 
 		r := &Refresher{deployer: expection.deployer}
-		err = r.Process(ctx, pl)
+		err = r.Process(ctx, &pl)
 		assert.NoError(t, err)
 		pl2, err := FindPipeline(ctx, pl.ID)
 		assert.NoError(t, err)
-		assert.Equal(t, expection.status, pl2.Props.Status)
-		assert.Equal(t, expection.errors, pl2.Props.ClosingErrors)
+		assert.Equal(t, expection.status, pl2.Status)
+		assert.Equal(t, expection.errors, pl2.ClosingErrors)
 	}
 
 }

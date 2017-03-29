@@ -81,17 +81,17 @@ func CreatePipeline(ctx context.Context, pl *Pipeline) error {
 func FindPipeline(ctx context.Context, id string) (*Pipeline, error) {
 	key, err := datastore.DecodeKey(id)
 	if err != nil {
-		log.Errorf(ctx, "@FindPipeline %v id: %v\n", err, id)
+		log.Errorf(ctx, "Failed to decode id(%v) to key because of %v \n", id, err)
 		return nil, err
 	}
 	ctx = context.WithValue(ctx, "Pipeline.key", key)
 	pl := &Pipeline{ID: id}
-	err = datastore.Get(ctx, key, &pl)
+	err = datastore.Get(ctx, key, pl)
 	switch {
 	case err == datastore.ErrNoSuchEntity:
 		return nil, ErrNoSuchPipeline
 	case err != nil:
-		log.Errorf(ctx, "@FindPipeline %v id: %v\n", err, id)
+		log.Errorf(ctx, "Failed to Get pipeline key(%v) to key because of %v \n", key, err)
 		return nil, err
 	}
 	return pl, nil

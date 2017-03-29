@@ -46,9 +46,9 @@ const (
 	proj = "test-project-x"
 )
 
-func ExpectToHaveProps(t *testing.T, plp *PipelineProps) {
-	if plp.ProjectID != proj {
-		t.Fatalf("ProjectId is expected %v but it was %v", proj, plp.ProjectID)
+func ExpectToHaveProps(t *testing.T, pl *Pipeline) {
+	if pl.ProjectID != proj {
+		t.Fatalf("ProjectId is expected %v but it was %v", proj, pl.ProjectID)
 	}
 }
 
@@ -86,7 +86,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	}
 
 	// CreatePipeline invalid
-	_, err = CreatePipeline(ctx, &PipelineProps{})
+	err = CreatePipeline(ctx, &Pipeline{})
 	assert.Error(t, err)
 	errors := err.(validator.ValidationErrors)
 
@@ -108,7 +108,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	}
 
 	// CreatePipeline valid
-	plp := PipelineProps{
+	pl := Pipeline{
 		Name:          "pipeline01",
 		ProjectID:     proj,
 		Zone:          "us-central1-f",
@@ -119,13 +119,13 @@ func TestWatcherCalcDifferences(t *testing.T) {
 		ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
 		Command:       "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
 	}
-	pl, err := CreatePipeline(ctx, &plp)
+	err = CreatePipeline(ctx, &pl)
 	assert.NoError(t, err)
 	log.Debugf(ctx, "pl %v\n", pl)
 	key, err := datastore.DecodeKey(pl.ID)
 	assert.NoError(t, err)
 
-	pl2 := &PipelineProps{}
+	pl2 := &Pipeline{}
 	err = datastore.Get(ctx, key, pl2)
 	assert.NoError(t, err)
 	ExpectToHaveProps(t, pl2)
@@ -133,10 +133,10 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	// FindPipeline
 	pl3, err := FindPipeline(ctx, pl.ID)
 	assert.NoError(t, err)
-	ExpectToHaveProps(t, &pl3.Props)
+	ExpectToHaveProps(t, pl3)
 
 	// Update status
-	pl.Props.Status = building
+	pl.Status = building
 	err = pl.update(ctx)
 	assert.NoError(t, err)
 
@@ -146,10 +146,10 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	if len(pls) != 1 {
 		t.Fatalf("len(pls) expects %v but was %v\n", 1, len(pls))
 	}
-	ExpectToHaveProps(t, &pls[0].Props)
+	ExpectToHaveProps(t, pls[0])
 
 	// Update status
-	pl.Props.Status = opened
+	pl.Status = opened
 	err = pl.update(ctx)
 	assert.NoError(t, err)
 
@@ -190,13 +190,13 @@ func TestWatcherCalcDifferences(t *testing.T) {
 		//closed,
 	}
 	for _, st := range indestructible_statuses {
-		pl.Props.Status = st
+		pl.Status = st
 		err = pl.destroy(ctx)
 		if err == nil {
 			t.Fatalf("Pipeline can't be destroyed with status %v\n", st)
 		}
 	}
-	pl.Props.Status = closed
+	pl.Status = closed
 	err = pl.destroy(ctx)
 	assert.NoError(t, err)
 }
