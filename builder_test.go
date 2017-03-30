@@ -52,6 +52,22 @@ func TestGenerateContent(t *testing.T) {
 		}
 	}
 	assert.Equal(t, expected, result)
+	props0 := result.Resources[4].Properties
+	assert.IsType(t, map[string]interface{}(nil), props0["properties"])
+	props1 := props0["properties"].(map[string]interface{})
+	assert.IsType(t, map[string]interface{}(nil), props1["scheduling"])
+	props2 := props1["scheduling"].(map[string]interface{})
+	assert.Equal(t, false, props2["preemptible"])
+
+	// preemptible
+	pl.Preemptible = true
+	result = b.GenerateDeploymentResources(&pl)
+	props0 = result.Resources[4].Properties
+	assert.IsType(t, map[string]interface{}(nil), props0["properties"])
+	props1 = props0["properties"].(map[string]interface{})
+	assert.IsType(t, map[string]interface{}(nil), props1["scheduling"])
+	props2 = props1["scheduling"].(map[string]interface{})
+	assert.Equal(t, true, props2["preemptible"])
 }
 
 func TestBuildDeployment(t *testing.T) {

@@ -77,6 +77,7 @@ type (
 		Zone                   string            `json:"zone"           validate:"required"`
 		SourceImage            string            `json:"source_image"   validate:"required"`
 		MachineType            string            `json:"machine_type"   validate:"required"`
+		Preemptible            bool              `json:"preemptible,omitempty"`
 		TargetSize             int               `json:"target_size"    validate:"required"`
 		ContainerSize          int               `json:"container_size" validate:"required"`
 		ContainerName          string            `json:"container_name" validate:"required"`

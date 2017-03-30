@@ -57,6 +57,7 @@ Make `pipeline.json` like this:
   "zone":"us-central1-f",
   "source_image":"https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
   "machine_type":"f1-micro",
+  "preemptible": true,
   "target_size":1,
   "container_size":1,
   "container_name":"groovenauts/concurrent_batch_basic_example:0.4.0-alpha2",
@@ -77,13 +78,14 @@ $ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X 
 ## Deploy to appengine
 
 ```
-$ appcfg.py -A <YOUR_GCP_PROJECT> -V $(cat VERSION) update .
+$ export PROJECT=<YOUR_GCP_PROJECT>
+$ appcfg.py -A ${PROJECT} -V $(cat VERSION) update .
 ```
 
 If you want to set it active, run the following command
 
 ```
-$ gcloud app services set-traffic concurrent-batch-agent --splits=$(cat VERSION)=1
+$ gcloud --project ${PROJECT} app services set-traffic concurrent-batch-agent --splits=$(cat VERSION)=1
 ```
 
 ### Get Token on browser

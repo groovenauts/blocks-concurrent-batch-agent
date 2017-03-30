@@ -73,6 +73,7 @@ func TestActions(t *testing.T) {
 		`,"zone":"us-central1-f"` +
 		`,"source_image":"https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0"` +
 		`,"machine_type":"f1-micro"` +
+		`,"preemptible":false` +
 		`,"target_size":2` +
 		`,"container_size":2` +
 		`,"container_name":"groovenauts/batch_type_iot_example:0.3.1"` +
