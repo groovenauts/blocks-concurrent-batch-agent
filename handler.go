@@ -129,19 +129,19 @@ func (h *handler) pipelineTask(action string) func(c echo.Context) error {
 func (h *handler) create(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	req := c.Request()
-	plp := &PipelineProps{}
-	if err := c.Bind(plp); err != nil {
+	pl := &Pipeline{}
+	if err := c.Bind(pl); err != nil {
 		log.Errorf(ctx, "err: %v\n", err)
 		log.Errorf(ctx, "req: %v\n", req)
 		return err
 	}
-	pl, err := CreatePipeline(ctx, plp)
+	err := CreatePipeline(ctx, pl)
 	if err != nil {
-		log.Errorf(ctx, "Failed to create pipeline with Props: %v\n%v\n", plp, err)
+		log.Errorf(ctx, "Failed to create pipeline: %v\n%v\n", pl, err)
 		return err
 	}
-	log.Debugf(ctx, "Created pipeline: %v\nProps: %v\n", pl, pl.Props)
-	if !plp.Dryrun {
+	log.Debugf(ctx, "Created pipeline: %v\n", pl)
+	if !pl.Dryrun {
 		t := taskqueue.NewPOSTTask("/pipelines/"+pl.ID+"/build_task", map[string][]string{})
 		t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
 		if _, err := taskqueue.Add(ctx, t, ""); err != nil {
@@ -180,7 +180,13 @@ func (h *handler) show(c echo.Context, pl *Pipeline) error {
 func (h *handler) destroy(c echo.Context, pl *Pipeline) error {
 	ctx := c.Get("aecontext").(context.Context)
 	if err := pl.destroy(ctx); err != nil {
-		return err
+		switch err.(type) {
+		case *InvalidOperation:
+			res := map[string]interface{}{"message": err.Error()}
+			c.JSON(http.StatusNotAcceptable, res)
+		default:
+			return err
+		}
 	}
 	return c.JSON(http.StatusOK, pl)
 }

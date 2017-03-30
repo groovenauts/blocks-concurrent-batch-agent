@@ -11,10 +11,13 @@ before_install:
   - goapp version
   ## Install glide
   - test -d $GOPATH/bin || mkdir -p $GOPATH/bin
+  - make checksetup
   - curl https://glide.sh/get | sh
 install:
   ## Install dependencies
   - glide install
+before_script:
+  - make check
 script:
   - goapp test
 

@@ -3,13 +3,14 @@ package pipeline
 import (
 	"encoding/base64"
 	"errors"
+	"math/rand"
+	"strings"
+	"time"
+
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
-	"math/rand"
-	"strings"
-	"time"
 )
 
 type (

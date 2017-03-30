@@ -95,7 +95,7 @@ func TestActions(t *testing.T) {
 
 	pl := Pipeline{}
 	if assert.NoError(t, json.Unmarshal([]byte(s), &pl)) {
-		assert.Equal(t, test_proj1, pl.Props.ProjectID)
+		assert.Equal(t, test_proj1, pl.ProjectID)
 		assert.NotNil(t, pl.ID)
 	}
 
@@ -118,7 +118,7 @@ func TestActions(t *testing.T) {
 		s := rec.Body.String()
 		pl2 := Pipeline{}
 		if assert.NoError(t, json.Unmarshal([]byte(s), &pl2)) {
-			assert.Equal(t, test_proj1, pl2.Props.ProjectID)
+			assert.Equal(t, test_proj1, pl2.ProjectID)
 		}
 	}
 
@@ -155,7 +155,7 @@ func TestActions(t *testing.T) {
 
 	for _, expection := range expections {
 		// Test for refresh
-		pl.Props.Status = expection.status
+		pl.Status = expection.status
 		// https://github.com/golang/appengine/blob/master/aetest/instance.go#L32-L46
 		ctx = appengine.NewContext(req)
 		err = pl.update(ctx)
@@ -218,7 +218,7 @@ func TestActions(t *testing.T) {
 	ctx = appengine.NewContext(req)
 
 	// Make pipeline opened
-	pl.Props.Status = opened
+	pl.Status = opened
 	err = pl.update(ctx)
 	assert.NoError(t, err)
 
@@ -247,8 +247,29 @@ func TestActions(t *testing.T) {
 		}
 	}
 
+	// Test for destroy failure
+	req, err = inst.NewRequest(echo.DELETE, path, nil)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	req.Header.Set(auth_header, token)
+	assert.NoError(t, err)
+
+	rec = httptest.NewRecorder()
+	c = e.NewContext(req, rec)
+	c.SetPath(path)
+	c.SetParamNames("id")
+	c.SetParamValues(pl.ID)
+
+	f = h.withPipeline(h.withAuth, h.destroy)
+	if assert.NoError(t, f(c)) {
+		assert.Equal(t, http.StatusNotAcceptable, rec.Code) // http.StatusUnprocessableEntity
+		s := rec.Body.String()
+		assert.Regexp(t, "(?i)can't destroy", s)
+		assert.Regexp(t, "(?i)opened", s)
+		assert.Regexp(t, "(?i)close before delete", s)
+	}
+
 	// Make pipeline deletable
-	pl.Props.Status = closed
+	pl.Status = closed
 	err = pl.update(ctx)
 	assert.NoError(t, err)
 
@@ -271,7 +292,7 @@ func TestActions(t *testing.T) {
 		s := rec.Body.String()
 		pl2 := Pipeline{}
 		if assert.NoError(t, json.Unmarshal([]byte(s), &pl2)) {
-			assert.Equal(t, test_proj1, pl2.Props.ProjectID)
+			assert.Equal(t, test_proj1, pl2.ProjectID)
 		}
 	}
 

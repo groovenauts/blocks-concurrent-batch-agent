@@ -6,8 +6,9 @@ import (
 	"testing"
 	// "golang.org/x/net/context"
 	"encoding/json"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
+
+	"github.com/stretchr/testify/assert"
 	// "google.golang.org/api/deploymentmanager/v2"
 )
 
@@ -27,7 +28,7 @@ func TestGenerateContent(t *testing.T) {
 		}
 	}
 
-	plp := PipelineProps{
+	pl := Pipeline{
 		Name:          "pipeline01",
 		ProjectID:     "dummy-proj-999",
 		Zone:          "us-central1-f",
@@ -38,7 +39,7 @@ func TestGenerateContent(t *testing.T) {
 		ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
 		Command:       "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
 	}
-	result := b.GenerateDeploymentResources(&plp)
+	result := b.GenerateDeploymentResources(&pl)
 
 	assert.Equal(t, len(expected.Resources), len(result.Resources))
 	for i, expR := range expected.Resources {
@@ -59,7 +60,7 @@ func TestBuildDeployment(t *testing.T) {
 	expected := Resources{}
 	err = json.Unmarshal([]byte(expected_data), &expected)
 	assert.NoError(t, err)
-	plp := PipelineProps{
+	pl := Pipeline{
 		Name:          "pipeline01",
 		ProjectID:     "dummy-proj-999",
 		Zone:          "us-central1-f",
@@ -70,7 +71,7 @@ func TestBuildDeployment(t *testing.T) {
 		ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
 		Command:       "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
 	}
-	d, err := b.BuildDeployment(&plp)
+	d, err := b.BuildDeployment(&pl)
 	assert.NoError(t, err)
 	// https://github.com/google/google-api-go-client/blob/master/deploymentmanager/v2/deploymentmanager-gen.go#L348-L434
 	assert.Empty(t, d.Description)
@@ -79,7 +80,7 @@ func TestBuildDeployment(t *testing.T) {
 	assert.Empty(t, d.InsertTime)
 	assert.Empty(t, d.Labels)
 	assert.Empty(t, d.Manifest)
-	assert.Equal(t, plp.Name, d.Name)
+	assert.Equal(t, pl.Name, d.Name)
 	assert.Empty(t, d.Operation)
 	assert.Empty(t, d.SelfLink)
 	assert.NotEmpty(t, d.Target)
@@ -106,7 +107,7 @@ func TestBuildDeployment(t *testing.T) {
 
 func TestBuildStartupScript(t *testing.T) {
 	b := &Builder{}
-	plp := PipelineProps{
+	pl := Pipeline{
 		Name:          "pipeline01",
 		ProjectID:     "dummy-proj-999",
 		Zone:          "us-central1-f",
@@ -117,51 +118,51 @@ func TestBuildStartupScript(t *testing.T) {
 		ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
 		Command:       "",
 	}
-	ss := b.buildStartupScript(&plp)
+	ss := b.buildStartupScript(&pl)
 	expected :=
-		StartupScriptHeader +"\n" +
-		"TIMEOUT=600 with_backoff docker pull groovenauts/batch_type_iot_example:0.3.1\n" +
-		"for i in {1..2}; do docker run -d" +
-		" -e PROJECT=" + plp.ProjectID +
-		" -e PIPELINE=" + plp.Name +
-		" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + plp.Name + "-job-subscription.name)" +
-		" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + plp.Name + "-progress-topic.name)" +
-		" " + plp.ContainerName +
-		" " + plp.Command +
-		" ; done"
+		StartupScriptHeader + "\n" +
+			"TIMEOUT=600 with_backoff docker pull groovenauts/batch_type_iot_example:0.3.1\n" +
+			"for i in {1..2}; do docker run -d" +
+			" -e PROJECT=" + pl.ProjectID +
+			" -e PIPELINE=" + pl.Name +
+			" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + pl.Name + "-job-subscription.name)" +
+			" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + pl.Name + "-progress-topic.name)" +
+			" " + pl.ContainerName +
+			" " + pl.Command +
+			" ; done"
 	assert.Equal(t, expected, ss)
 
 	// Use cos-cloud project's image
-	plp.SourceImage = "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-stable-56-9000-84-2"
-	ss = b.buildStartupScript(&plp)
+	pl.SourceImage = "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-stable-56-9000-84-2"
+	ss = b.buildStartupScript(&pl)
 	assert.Equal(t, expected, ss)
 
 	// Use cos-cloud project's image and private image in asia.gcr.io
-	plp.SourceImage = "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-stable-56-9000-84-2"
-	plp.ContainerName = "asia.gcr.io/example/test_worker:0.0.1"
-	ss = b.buildStartupScript(&plp)
+	pl.SourceImage = "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-stable-56-9000-84-2"
+	pl.ContainerName = "asia.gcr.io/example/test_worker:0.0.1"
+	ss = b.buildStartupScript(&pl)
 	expected =
-		StartupScriptHeader +"\n" +
-		"METADATA=http://metadata.google.internal/computeMetadata/v1\n" +
+		StartupScriptHeader + "\n" +
+			"METADATA=http://metadata.google.internal/computeMetadata/v1\n" +
 			"SVC_ACCT=$METADATA/instance/service-accounts/default\n" +
 			"ACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'\"' -f 4)\n" +
 			"TIMEOUT=60 with_backoff docker --config /home/chronos/.docker login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://asia.gcr.io\n" +
-			"TIMEOUT=600 with_backoff docker --config /home/chronos/.docker pull " + plp.ContainerName + "\n" +
+			"TIMEOUT=600 with_backoff docker --config /home/chronos/.docker pull " + pl.ContainerName + "\n" +
 			"for i in {1..2}; do docker --config /home/chronos/.docker run -d" +
-			" -e PROJECT=" + plp.ProjectID +
-			" -e PIPELINE=" + plp.Name +
-			" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + plp.Name + "-job-subscription.name)" +
-			" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + plp.Name + "-progress-topic.name)" +
-			" " + plp.ContainerName +
-			" " + plp.Command +
+			" -e PROJECT=" + pl.ProjectID +
+			" -e PIPELINE=" + pl.Name +
+			" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + pl.Name + "-job-subscription.name)" +
+			" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + pl.Name + "-progress-topic.name)" +
+			" " + pl.ContainerName +
+			" " + pl.Command +
 			" ; done"
 	//fmt.Println(ss)
 	assert.Equal(t, expected, ss)
 
 	// Use cos-cloud project's image and private image in gcr.io
-	plp.SourceImage = "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-stable-56-9000-84-2"
-	plp.ContainerName = "gcr.io/example/test_worker:0.0.1" // NOT from asia.gcr.io
-	ss = b.buildStartupScript(&plp)
+	pl.SourceImage = "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-stable-56-9000-84-2"
+	pl.ContainerName = "gcr.io/example/test_worker:0.0.1" // NOT from asia.gcr.io
+	ss = b.buildStartupScript(&pl)
 	re := regexp.MustCompile(`asia.gcr.io`)
 	expected = re.ReplaceAllString(expected, "gcr.io")
 	//fmt.Println(expected)
