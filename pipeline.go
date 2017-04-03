@@ -209,8 +209,9 @@ func (pl *Pipeline) process(ctx context.Context, action string) error {
 }
 
 type Subscription struct {
-	Pipeline string `json:"pipeline"`
-	Name     string `json:"subscription"`
+	PipelineID string `json:"pipeline_id"`
+	Pipeline   string `json:"pipeline"`
+	Name       string `json:"subscription"`
 }
 
 func GetActiveSubscriptions(ctx context.Context) ([]*Subscription, error) {
@@ -221,8 +222,9 @@ func GetActiveSubscriptions(ctx context.Context) ([]*Subscription, error) {
 	}
 	for _, pipeline := range pipelines {
 		r = append(r, &Subscription{
-			Pipeline: pipeline.Name,
-			Name:     fmt.Sprintf("projects/%v/subscriptions/%v-progress-subscription", pipeline.ProjectID, pipeline.Name),
+			PipelineID: pipeline.ID,
+			Pipeline:   pipeline.Name,
+			Name:       fmt.Sprintf("projects/%v/subscriptions/%v-progress-subscription", pipeline.ProjectID, pipeline.Name),
 		})
 	}
 	return r, nil

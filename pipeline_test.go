@@ -8,6 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/context"
+	"google.golang.org/appengine"
 	"google.golang.org/appengine/aetest"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
@@ -222,4 +223,47 @@ func TestStatusTypeAndValue(t *testing.T) {
 	assert.Equal(t, "5", fmt.Sprintf(fv, closing))
 	assert.Equal(t, "6", fmt.Sprintf(fv, closing_error))
 	assert.Equal(t, "7", fmt.Sprintf(fv, closed))
+}
+
+func TestGetActiveSubscriptions(t *testing.T) {
+	// See https://github.com/golang/appengine/blob/master/aetest/instance.go#L36-L50
+	opt := &aetest.Options{StronglyConsistentDatastore: true}
+	inst, err := aetest.NewInstance(opt)
+	assert.NoError(t, err)
+	defer inst.Close()
+
+	req, err := inst.NewRequest("GET", "/", nil)
+	if !assert.NoError(t, err) {
+		inst.Close()
+		return
+	}
+	ctx := appengine.NewContext(req)
+
+	pipelines := map[Status]*Pipeline{}
+
+	for st, name := range StatusStrings {
+		pl := &Pipeline{
+			Name:          "pipeline-" + name,
+			ProjectID:     proj,
+			Zone:          "us-central1-f",
+			SourceImage:   "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+			MachineType:   "f1-micro",
+			TargetSize:    2,
+			ContainerSize: 2,
+			ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
+			Command:       "",
+			Status:        st,
+		}
+		assert.NoError(t, CreatePipeline(ctx, pl))
+		pipelines[st] = pl
+	}
+
+	res, err := GetActiveSubscriptions(ctx)
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(res))
+
+	subscription := res[0]
+	assert.Equal(t, pipelines[opened].ID, subscription.PipelineID)
+	assert.Equal(t, "pipeline-opened", subscription.Pipeline)
+	assert.Equal(t, "projects/test-project-x/subscriptions/pipeline-opened-progress-subscription", subscription.Name)
 }
