@@ -46,20 +46,22 @@ func CreateAuth(ctx context.Context) (*Auth, error) {
 		log.Errorf(ctx, "@CreateAuth %v mp: %v\n", err, &m)
 		return nil, err
 	}
+	// log.Debugf(ctx, "CreateAuth res: %v\n", res)
 	id := res.Encode()
 	m.ID = id
 	m.Token = id + ":" + m.Password
+	// log.Debugf(ctx, "CreateAuth result: %v\n", m)
 	return &m, nil
 }
 
 func FindAuth(ctx context.Context, id string) (*Auth, error) {
-	log.Debugf(ctx, "@FindAuth id: %q\n", id)
+	// log.Debugf(ctx, "@FindAuth id: %q\n", id)
 	key, err := datastore.DecodeKey(id)
 	if err != nil {
 		log.Errorf(ctx, "@FindAuth %v id: %q\n", err, id)
 		return nil, err
 	}
-	log.Debugf(ctx, "@FindAuth key: %q\n", key)
+	// log.Debugf(ctx, "@FindAuth key: %q\n", key)
 	ctx = context.WithValue(ctx, "Auth.key", key)
 	m := &Auth{ID: id}
 	err = datastore.Get(ctx, key, m)
