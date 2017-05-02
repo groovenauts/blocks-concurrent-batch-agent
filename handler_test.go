@@ -25,7 +25,6 @@ func TestActions(t *testing.T) {
 	assert.NoError(t, err)
 	defer inst.Close()
 
-	e := echo.New()
 	h := &handler{}
 
 	invalid_get_test := func(setup func(req *http.Request)) {
