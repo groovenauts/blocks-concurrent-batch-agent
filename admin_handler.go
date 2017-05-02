@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/labstack/echo"
@@ -144,6 +145,10 @@ func (h *adminHandler) create(c echo.Context) error {
 }
 
 func (h *adminHandler) getHostname(c echo.Context) (string, error) {
+	r := os.ExpandEnv("BATCH_AGENT_HOSTNAME")
+	if r != "" {
+		return r, nil
+	}
 	ctx := c.Get("aecontext").(context.Context)
 	hostname, err := appengine.ModuleHostname(ctx, "", "", "")
 	if err != nil {
