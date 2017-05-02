@@ -131,9 +131,8 @@ func (h *adminHandler) create(c echo.Context) error {
 		return err
 	}
 	log.Debugf(ctx, "create auth: %v\n", auth)
-	hostname, err := appengine.ModuleHostname(ctx, "", "", "")
+	hostname, err := h.getHostname(c)
 	if err != nil {
-		log.Errorf(ctx, "Failed to get ModuleHostname: %v\n", err)
 		return err
 	}
 	r := CreateRes{
@@ -142,6 +141,16 @@ func (h *adminHandler) create(c echo.Context) error {
 	}
 	r.Flash = c.Get("flash").(*Flash)
 	return c.Render(http.StatusOK, "create", &r)
+}
+
+func (h *adminHandler) getHostname(c echo.Context) (string, error) {
+	ctx := c.Get("aecontext").(context.Context)
+	hostname, err := appengine.ModuleHostname(ctx, "", "", "")
+	if err != nil {
+		log.Errorf(ctx, "Failed to get ModuleHostname: %v\n", err)
+		return "", err
+	}
+	return hostname, err
 }
 
 func (h *adminHandler) AuthHandler(f func(c echo.Context, ctx context.Context, auth *Auth) error) func(c echo.Context) error {
