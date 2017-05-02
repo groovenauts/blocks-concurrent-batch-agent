@@ -176,9 +176,11 @@ func (h *adminHandler) AuthHandler(f func(c echo.Context, ctx context.Context, a
 
 // PUT http://localhost:8080/admin/auths/:id
 func (h *adminHandler) disable(c echo.Context, ctx context.Context, auth *Auth) error {
+	log.Debugf(ctx, "Disable Auth: %v\n", auth)
 	auth.Disabled = true
 	err := auth.update(ctx)
 	if err != nil {
+		log.Errorf(ctx, "Failed to update Auth: %v because of %v\n", auth, err)
 		h.setFlash(c, "alert", fmt.Sprintf("Failed to update Auth. id: %v error: %v", auth.ID, err))
 		return c.Redirect(http.StatusFound, "/admin/auths")
 	}
@@ -190,6 +192,7 @@ func (h *adminHandler) disable(c echo.Context, ctx context.Context, auth *Auth) 
 func (h *adminHandler) destroy(c echo.Context, ctx context.Context, auth *Auth) error {
 	err := auth.destroy(ctx)
 	if err != nil {
+		log.Errorf(ctx, "Failed to destroy Auth: %v because of %v\n", auth, err)
 		h.setFlash(c, "alert", fmt.Sprintf("Failed to destroy Auth. id: %v error: %v", auth.ID, err))
 		return c.Redirect(http.StatusFound, "/admin/auths")
 	}
