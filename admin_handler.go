@@ -101,13 +101,11 @@ type IndexRes struct {
 
 func (h *adminHandler) index(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
-	log.Debugf(ctx, "index\n")
 	auths, err := GetAllAuth(ctx)
 	if err != nil {
 		log.Errorf(ctx, "indexPage error: %v\n", err)
 		return err
 	}
-	log.Debugf(ctx, "indexPage auths: %v\n", auths)
 	r := IndexRes{
 		Auths: auths,
 	}
@@ -125,13 +123,11 @@ type CreateRes struct {
 
 func (h *adminHandler) create(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
-	log.Debugf(ctx, "create\n")
 	auth, err := CreateAuth(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Error on create auth: %v\n", err)
 		return err
 	}
-	log.Debugf(ctx, "create auth: %v\n", auth)
 	hostname, err := h.getHostname(c)
 	if err != nil {
 		return err
@@ -176,7 +172,6 @@ func (h *adminHandler) AuthHandler(f func(c echo.Context, ctx context.Context, a
 
 // PUT http://localhost:8080/admin/auths/:id
 func (h *adminHandler) disable(c echo.Context, ctx context.Context, auth *Auth) error {
-	log.Debugf(ctx, "Disable Auth: %v\n", auth)
 	auth.Disabled = true
 	err := auth.update(ctx)
 	if err != nil {
