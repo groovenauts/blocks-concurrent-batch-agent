@@ -176,7 +176,7 @@ func (h *adminHandler) AuthHandler(f func(c echo.Context, ctx context.Context, a
 
 // PUT http://localhost:8080/admin/auths/:id
 func (h *adminHandler) disable(c echo.Context, ctx context.Context, auth *Auth) error {
-	auth.Props.Disabled = true
+	auth.Disabled = true
 	err := auth.update(ctx)
 	if err != nil {
 		h.setFlash(c, "alert", fmt.Sprintf("Failed to update Auth. id: %v error: %v", auth.ID, err))

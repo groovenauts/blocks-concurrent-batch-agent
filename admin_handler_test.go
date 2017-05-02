@@ -110,7 +110,7 @@ func TestAdminHandler(t *testing.T) {
 	log.Debugf(ctx, "auth: %q %v\n", auth.ID, auth)
 	updated, err := FindAuth(ctx, auth.ID)
 	assert.NoError(t, err)
-	assert.True(t, updated.Props.Disabled)
+	assert.True(t, updated.Disabled)
 
 	// destroy
 	path = "/admin/auths/" + auth.ID + "/delete"
