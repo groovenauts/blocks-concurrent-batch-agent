@@ -55,13 +55,13 @@ func CreateAuth(ctx context.Context) (*Auth, error) {
 }
 
 func FindAuth(ctx context.Context, id string) (*Auth, error) {
-	log.Debugf(ctx, "@FindAuth id: %v\n", id)
+	log.Debugf(ctx, "@FindAuth id: %q\n", id)
 	key, err := datastore.DecodeKey(id)
 	if err != nil {
-		log.Errorf(ctx, "@FindAuth %v id: %v\n", err, id)
+		log.Errorf(ctx, "@FindAuth %v id: %q\n", err, id)
 		return nil, err
 	}
-	log.Debugf(ctx, "@FindAuth key: %v\n", key)
+	log.Debugf(ctx, "@FindAuth key: %q\n", key)
 	ctx = context.WithValue(ctx, "Auth.key", key)
 	m := &Auth{ID: id}
 	err = datastore.Get(ctx, key, &m.Props)
@@ -69,7 +69,7 @@ func FindAuth(ctx context.Context, id string) (*Auth, error) {
 	case err == datastore.ErrNoSuchEntity:
 		return nil, ErrNoSuchAuth
 	case err != nil:
-		log.Errorf(ctx, "@FindAuth %v id: %v\n", err, id)
+		log.Errorf(ctx, "@FindAuth %v id: %q\n", err, id)
 		return nil, err
 	}
 	return m, nil
