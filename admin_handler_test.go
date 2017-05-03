@@ -24,10 +24,10 @@ func TestAdminHandler(t *testing.T) {
 	defer inst.Close()
 
 	user := &user.User{
-    Email: "test@example.com",
+		Email:      "test@example.com",
 		AuthDomain: "example.com",
-		Admin: true,
-    ID: "1",
+		Admin:      true,
+		ID:         "1",
 	}
 
 	// e := echo.New()
@@ -58,7 +58,7 @@ func TestAdminHandler(t *testing.T) {
 	c = e.NewContext(req, rec)
 	c.SetPath("/admin/auths")
 
-	ExpectChange(t, ctx, "Auths", 1, func(){
+	ExpectChange(t, ctx, "Auths", 1, func() {
 		f = h.withFlash(h.create)
 		err = f(c)
 		if err != nil {
@@ -106,7 +106,6 @@ func TestAdminHandler(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusFound, rec.Code)
 
-
 	log.Debugf(ctx, "auth: %q %v\n", auth.ID, auth)
 	updated, err := FindAuth(ctx, auth.ID)
 	assert.NoError(t, err)
@@ -122,7 +121,7 @@ func TestAdminHandler(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues(auth.ID)
 
-	ExpectChange(t, ctx, "Auths", -1, func(){
+	ExpectChange(t, ctx, "Auths", -1, func() {
 		f = h.AuthHandler(h.destroy)
 		err = f(c)
 		if err != nil {
