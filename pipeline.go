@@ -92,9 +92,18 @@ type (
 	}
 )
 
-func CreatePipeline(ctx context.Context, pl *Pipeline) error {
+func (m *Pipeline) Validate() error {
 	validator := validator.New()
-	err := validator.Struct(pl)
+	err := validator.Struct(m)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+
+func CreatePipeline(ctx context.Context, pl *Pipeline) error {
+	err := pl.Validate()
 	if err != nil {
 		return err
 	}
