@@ -198,6 +198,11 @@ func (pl *Pipeline) destroy(ctx context.Context) error {
 }
 
 func (pl *Pipeline) update(ctx context.Context) error {
+	err := pl.Validate()
+	if err != nil {
+		return err
+	}
+
 	key, err := datastore.DecodeKey(pl.ID)
 	if err != nil {
 		return err
