@@ -7,22 +7,30 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 type Project struct {
-	ID   string `datastore:"-"`
-	Name string
-	CreatedAt         time.Time
-	UpdatedAt         time.Time
+	ID        string    `json:"id"   datastore:"-"`
+	Name      string    `json:"name" validate:"required"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 var ErrNoSuchProject = errors.New("No such data in Projects")
 
 func CreateProject(ctx context.Context, proj *Project) (error) {
-	key := datastore.NewIncompleteKey(ctx, "Projects", nil)
 	t := time.Now()
 	proj.CreatedAt = t
 	proj.UpdatedAt = t
+
+	validator := validator.New()
+	err := validator.Struct(proj)
+	if err != nil {
+		return err
+	}
+
+	key := datastore.NewIncompleteKey(ctx, "Projects", nil)
 	res, err := datastore.Put(ctx, key, &proj)
 	if err != nil {
 		log.Errorf(ctx, "@CreateProject %v project: %v\n", err, &proj)
@@ -79,12 +87,19 @@ func (m *Project) Key() (*datastore.Key, error) {
 }
 
 func (m *Project) update(ctx context.Context) error {
+	t := time.Now()
+	m.UpdatedAt = t
+
+	validator := validator.New()
+	err := validator.Struct(m)
+	if err != nil {
+		return err
+	}
+
 	key, err := m.Key()
 	if err != nil {
 		return err
 	}
-	t := time.Now()
-	m.UpdatedAt = t
 	_, err = datastore.Put(ctx, key, m)
 	if err != nil {
 		return err
