@@ -1,5 +1,5 @@
-hash: bcbbd48c1640b8e472871dbd4358c6b0ffb24d1d992adff34940b45c7c231c94
-updated: 2017-01-27T15:33:58.330917496+09:00
+hash: f4564675aa756f7657319f5beb0298ade0b6b25b76e2a4d05e40e7defa680065
+updated: 2017-05-29T19:31:32.965307068+09:00
 imports:
 - name: cloud.google.com/go
   version: 81b7822b1e798e8f17bf64b59512a5be4097e966
@@ -20,6 +20,8 @@ imports:
   - proto
 - name: github.com/googleapis/gax-go
   version: da06d194a00e19ce00d9011a13931c3f6f6887c7
+- name: github.com/gorilla/sessions
+  version: ca9ada44574153444b00d3fd9c8559e4cc95f896
 - name: github.com/labstack/echo
   version: 49321f5829268d3ffc25cd59e0c874f8bb6ad35f
   subpackages:
@@ -106,7 +108,7 @@ imports:
   - tap
   - transport
 - name: gopkg.in/go-playground/validator.v9
-  version: 077c3830f3971d4a44a94c2249b67ce8c53198fc
+  version: 6d8c18553ea1ac493d049edd6f102f52e618f085
 testImports:
 - name: github.com/davecgh/go-spew
   version: 04cdfd42973bb9c8589fd6a731800cf222fde1a9
@@ -117,6 +119,6 @@ testImports:
   subpackages:
   - difflib
 - name: github.com/stretchr/testify
-  version: 2402e8e7a02fc811447d11f881aa9746cdc57983
+  version: 4d4bfba8f1d1027c4fdbe371823030df51419987
   subpackages:
   - assert
