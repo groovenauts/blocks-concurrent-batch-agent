@@ -16,10 +16,10 @@ import (
 	"google.golang.org/appengine/log"
 )
 
-type adminHandler struct{}
+type AdminAuthHandler struct{}
 
 func init() {
-	h := &adminHandler{}
+	h := &AdminAuthHandler{}
 
 	t := &Template{
 		templates: template.Must(template.ParseGlob("admin/*.html")),
@@ -46,11 +46,11 @@ type Flash struct {
 	Notice string
 }
 
-func (h *adminHandler) setFlash(c echo.Context, name, value string) {
+func (h *AdminAuthHandler) setFlash(c echo.Context, name, value string) {
 	h.setFlashWithExpire(c, name, value, time.Now().Add(10*time.Minute))
 }
 
-func (h *adminHandler) setFlashWithExpire(c echo.Context, name, value string, expire time.Time) {
+func (h *AdminAuthHandler) setFlashWithExpire(c echo.Context, name, value string, expire time.Time) {
 	cookie := new(http.Cookie)
 	cookie.Path = "/admin/"
 	cookie.Name = name
@@ -59,7 +59,7 @@ func (h *adminHandler) setFlashWithExpire(c echo.Context, name, value string, ex
 	c.SetCookie(cookie)
 }
 
-func (h *adminHandler) loadFlash(c echo.Context) *Flash {
+func (h *AdminAuthHandler) loadFlash(c echo.Context) *Flash {
 	f := Flash{}
 	cookie, err := c.Cookie("alert")
 	if err == nil {
@@ -72,7 +72,7 @@ func (h *adminHandler) loadFlash(c echo.Context) *Flash {
 	return &f
 }
 
-func (h *adminHandler) clearFlash(c echo.Context) {
+func (h *AdminAuthHandler) clearFlash(c echo.Context) {
 	_, err := c.Cookie("alert")
 	if err == nil {
 		h.setFlashWithExpire(c, "alert", "", time.Now().AddDate(0, 0, 1))
@@ -83,7 +83,7 @@ func (h *adminHandler) clearFlash(c echo.Context) {
 	}
 }
 
-func (h *adminHandler) withFlash(impl func(c echo.Context) error) func(c echo.Context) error {
+func (h *AdminAuthHandler) withFlash(impl func(c echo.Context) error) func(c echo.Context) error {
 	return withAEContext(func(c echo.Context) error {
 		f := h.loadFlash(c)
 		c.Set("flash", f)
@@ -99,7 +99,7 @@ type IndexRes struct {
 	Auths []*Auth
 }
 
-func (h *adminHandler) index(c echo.Context) error {
+func (h *AdminAuthHandler) index(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	auths, err := GetAllAuth(ctx)
 	if err != nil {
@@ -121,7 +121,7 @@ type CreateRes struct {
 	Hostname string
 }
 
-func (h *adminHandler) create(c echo.Context) error {
+func (h *AdminAuthHandler) create(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	auth, err := CreateAuth(ctx)
 	if err != nil {
@@ -140,7 +140,7 @@ func (h *adminHandler) create(c echo.Context) error {
 	return c.Render(http.StatusOK, "create", &r)
 }
 
-func (h *adminHandler) getHostname(c echo.Context) (string, error) {
+func (h *AdminAuthHandler) getHostname(c echo.Context) (string, error) {
 	r := os.ExpandEnv("BATCH_AGENT_HOSTNAME")
 	if r != "" {
 		return r, nil
@@ -154,7 +154,7 @@ func (h *adminHandler) getHostname(c echo.Context) (string, error) {
 	return hostname, err
 }
 
-func (h *adminHandler) AuthHandler(f func(c echo.Context, ctx context.Context, auth *Auth) error) func(c echo.Context) error {
+func (h *AdminAuthHandler) AuthHandler(f func(c echo.Context, ctx context.Context, auth *Auth) error) func(c echo.Context) error {
 	return h.withFlash(func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		auth, err := FindAuth(ctx, c.Param("id"))
@@ -171,7 +171,7 @@ func (h *adminHandler) AuthHandler(f func(c echo.Context, ctx context.Context, a
 }
 
 // PUT http://localhost:8080/admin/auths/:id
-func (h *adminHandler) disable(c echo.Context, ctx context.Context, auth *Auth) error {
+func (h *AdminAuthHandler) disable(c echo.Context, ctx context.Context, auth *Auth) error {
 	auth.Disabled = true
 	err := auth.update(ctx)
 	if err != nil {
@@ -184,7 +184,7 @@ func (h *adminHandler) disable(c echo.Context, ctx context.Context, auth *Auth) 
 }
 
 // DELETE http://localhost:8080/admin/auths/:id
-func (h *adminHandler) destroy(c echo.Context, ctx context.Context, auth *Auth) error {
+func (h *AdminAuthHandler) destroy(c echo.Context, ctx context.Context, auth *Auth) error {
 	err := auth.destroy(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to destroy Auth: %v because of %v\n", auth, err)
