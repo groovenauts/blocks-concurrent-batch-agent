@@ -19,13 +19,21 @@ type Project struct {
 
 var ErrNoSuchProject = errors.New("No such data in Projects")
 
+func (m *Project) Validate() error {
+	validator := validator.New()
+	err := validator.Struct(m)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func CreateProject(ctx context.Context, proj *Project) (error) {
 	t := time.Now()
 	proj.CreatedAt = t
 	proj.UpdatedAt = t
 
-	validator := validator.New()
-	err := validator.Struct(proj)
+	err := proj.Validate()
 	if err != nil {
 		return err
 	}
@@ -90,8 +98,7 @@ func (m *Project) update(ctx context.Context) error {
 	t := time.Now()
 	m.UpdatedAt = t
 
-	validator := validator.New()
-	err := validator.Struct(m)
+	err := m.Validate()
 	if err != nil {
 		return err
 	}
