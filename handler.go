@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"regexp"
 
+	"github.com/groovenauts/blocks-concurrent-batch-agent/models"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 
@@ -64,7 +65,7 @@ func (h *handler) withAuth(impl func(c echo.Context) error) func(c echo.Context)
 		if token == "" {
 			return c.JSON(http.StatusUnauthorized, map[string]string{"message": "Unauthorized"})
 		}
-		_, err := FindAuthWithToken(ctx, token)
+		_, err := models.FindAuthWithToken(ctx, token)
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, map[string]string{"message": "Invalid token"})
 		}
@@ -73,13 +74,13 @@ func (h *handler) withAuth(impl func(c echo.Context) error) func(c echo.Context)
 }
 
 func (h *handler) withPipeline(wrapper func(func(echo.Context) error) func(echo.Context) error,
-	impl func(c echo.Context, pl *Pipeline) error) func(c echo.Context) error {
+	impl func(c echo.Context, pl *models.Pipeline) error) func(c echo.Context) error {
 	return wrapper(func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		id := c.Param("id")
-		pl, err := FindPipeline(ctx, id)
+		pl, err := models.FindPipeline(ctx, id)
 		switch {
-		case err == ErrNoSuchPipeline:
+		case err == models.ErrNoSuchPipeline:
 			return c.JSON(http.StatusNotFound, map[string]string{"message": "Not found for " + id})
 		case err != nil:
 			log.Errorf(ctx, "@withPipeline %v id: %v\n", err, id)
@@ -91,7 +92,7 @@ func (h *handler) withPipeline(wrapper func(func(echo.Context) error) func(echo.
 
 // curl -v -X PUT http://localhost:8080/pipelines/1/close
 func (h *handler) callPipelineTask(action string) func(c echo.Context) error {
-	return h.withPipeline(h.withAuth, func(c echo.Context, pl *Pipeline) error {
+	return h.withPipeline(h.withAuth, func(c echo.Context, pl *models.Pipeline) error {
 		id := c.Param("id")
 		ctx := c.Get("aecontext").(context.Context)
 		req := c.Request()
@@ -115,7 +116,7 @@ func (h *handler) pipelineTask(action string) func(c echo.Context) error {
 	default:
 		wrapper = h.withAuth
 	}
-	return h.withPipeline(wrapper, func(c echo.Context, pl *Pipeline) error {
+	return h.withPipeline(wrapper, func(c echo.Context, pl *models.Pipeline) error {
 		ctx := c.Get("aecontext").(context.Context)
 		err := pl.process(ctx, action)
 		if err != nil {
@@ -129,13 +130,13 @@ func (h *handler) pipelineTask(action string) func(c echo.Context) error {
 func (h *handler) create(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	req := c.Request()
-	pl := &Pipeline{}
+	pl := &models.Pipeline{}
 	if err := c.Bind(pl); err != nil {
 		log.Errorf(ctx, "err: %v\n", err)
 		log.Errorf(ctx, "req: %v\n", req)
 		return err
 	}
-	err := CreatePipeline(ctx, pl)
+	err := models.CreatePipeline(ctx, pl)
 	if err != nil {
 		log.Errorf(ctx, "Failed to create pipeline: %v\n%v\n", pl, err)
 		return err
@@ -154,7 +155,7 @@ func (h *handler) create(c echo.Context) error {
 // curl -v http://localhost:8080/pipelines
 func (h *handler) index(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
-	pipelines, err := GetAllPipelines(ctx)
+	pipelines, err := models.GetAllPipelines(ctx)
 	if err != nil {
 		return err
 	}
@@ -164,7 +165,7 @@ func (h *handler) index(c echo.Context) error {
 // curl -v http://localhost:8080/pipelines/subscriptions
 func (h *handler) subscriptions(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
-	subscriptions, err := GetActiveSubscriptions(ctx)
+	subscriptions, err := models.GetActiveSubscriptions(ctx)
 	if err != nil {
 		return err
 	}
@@ -172,16 +173,16 @@ func (h *handler) subscriptions(c echo.Context) error {
 }
 
 // curl -v http://localhost:8080/pipelines/1
-func (h *handler) show(c echo.Context, pl *Pipeline) error {
+func (h *handler) show(c echo.Context, pl *models.Pipeline) error {
 	return c.JSON(http.StatusOK, pl)
 }
 
 // curl -v -X DELETE http://localhost:8080/pipelines/1
-func (h *handler) destroy(c echo.Context, pl *Pipeline) error {
+func (h *handler) destroy(c echo.Context, pl *models.Pipeline) error {
 	ctx := c.Get("aecontext").(context.Context)
 	if err := pl.destroy(ctx); err != nil {
 		switch err.(type) {
-		case *InvalidOperation:
+		case *models.InvalidOperation:
 			res := map[string]interface{}{"message": err.Error()}
 			c.JSON(http.StatusNotAcceptable, res)
 		default:
@@ -195,10 +196,10 @@ func (h *handler) destroy(c echo.Context, pl *Pipeline) error {
 // curl -v -X PUT http://localhost:8080/pipelines/refresh
 func (h *handler) refresh(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
-	statuses := map[string]Status{"deploying": deploying, "closing": closing}
+	statuses := map[string]models.Status{"deploying": deploying, "closing": closing}
 	res := map[string][]string{}
 	for name, st := range statuses {
-		ids, err := GetPipelineIDsByStatus(ctx, st)
+		ids, err := models.GetPipelineIDsByStatus(ctx, st)
 		if err != nil {
 			return err
 		}
