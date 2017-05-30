@@ -16,3 +16,7 @@ ifneq ($(UNFORMATTED),)
 else
 	@echo "gofmt -l *.go OK"
 endif
+
+test:
+	goapp test github.com/groovenauts/blocks-concurrent-batch-agent/models
+	goapp test
