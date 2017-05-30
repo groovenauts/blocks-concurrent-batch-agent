@@ -2,13 +2,10 @@ package models
 
 import (
 	"fmt"
-	"math"
 	"testing"
-	"time"
 
 	"github.com/groovenauts/blocks-concurrent-batch-agent/test_utils"
 	"github.com/stretchr/testify/assert"
-	"golang.org/x/net/context"
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/aetest"
 	"google.golang.org/appengine/datastore"
@@ -96,8 +93,8 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	ExpectToHaveProps(t, pl3)
 
 	// Update status
-	pl.Status = building
-	err = pl.update(ctx)
+	pl.Status = Building
+	err = pl.Update(ctx)
 	assert.NoError(t, err)
 
 	// GetAllPipeline
@@ -109,15 +106,15 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	ExpectToHaveProps(t, pls[0])
 
 	// Update status
-	pl.Status = opened
-	err = pl.update(ctx)
+	pl.Status = Opened
+	err = pl.Update(ctx)
 	assert.NoError(t, err)
 
 	// GetPipelineIDsByStatus
 	statuses := []Status{
-		initialized, broken, building, deploying,
-		// opened,
-		closing, closed,
+		Initialized, Broken, Building, Deploying,
+		// Opened,
+		Closing, Closed,
 	}
 	for _, st := range statuses {
 		test_utils.RetryWith(10, func() func() {
@@ -135,7 +132,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 		})
 	}
 
-	keys, err := GetPipelineIDsByStatus(ctx, opened)
+	keys, err := GetPipelineIDsByStatus(ctx, Opened)
 	assert.NoError(t, err)
 	if len(keys) != 1 {
 		t.Fatalf("len(keys) for opened expects %v but was %v\n", 1, len(keys))
@@ -146,42 +143,42 @@ func TestWatcherCalcDifferences(t *testing.T) {
 
 	// destroy
 	indestructible_statuses := []Status{
-		initialized, broken, building, deploying, opened, closing,
-		//closed,
+		Initialized, Broken, Building, Deploying, Opened, Closing,
+		//Closed,
 	}
 	for _, st := range indestructible_statuses {
 		pl.Status = st
-		err = pl.destroy(ctx)
+		err = pl.Destroy(ctx)
 		if err == nil {
 			t.Fatalf("Pipeline can't be destroyed with status %v\n", st)
 		}
 	}
-	pl.Status = closed
-	err = pl.destroy(ctx)
+	pl.Status = Closed
+	err = pl.Destroy(ctx)
 	assert.NoError(t, err)
 }
 
 func TestStatusTypeAndValue(t *testing.T) {
 	ft := "%T"
 	fv := "%#v"
-	st := "pipeline.Status"
-	assert.Equal(t, st, fmt.Sprintf(ft, initialized))
-	assert.Equal(t, st, fmt.Sprintf(ft, broken))
-	assert.Equal(t, st, fmt.Sprintf(ft, building))
-	assert.Equal(t, st, fmt.Sprintf(ft, deploying))
-	assert.Equal(t, st, fmt.Sprintf(ft, opened))
-	assert.Equal(t, st, fmt.Sprintf(ft, closing))
-	assert.Equal(t, st, fmt.Sprintf(ft, closing_error))
-	assert.Equal(t, st, fmt.Sprintf(ft, closed))
+	st := "models.Status"
+	assert.Equal(t, st, fmt.Sprintf(ft, Initialized))
+	assert.Equal(t, st, fmt.Sprintf(ft, Broken))
+	assert.Equal(t, st, fmt.Sprintf(ft, Building))
+	assert.Equal(t, st, fmt.Sprintf(ft, Deploying))
+	assert.Equal(t, st, fmt.Sprintf(ft, Opened))
+	assert.Equal(t, st, fmt.Sprintf(ft, Closing))
+	assert.Equal(t, st, fmt.Sprintf(ft, Closing_error))
+	assert.Equal(t, st, fmt.Sprintf(ft, Closed))
 
-	assert.Equal(t, "0", fmt.Sprintf(fv, initialized))
-	assert.Equal(t, "1", fmt.Sprintf(fv, broken))
-	assert.Equal(t, "2", fmt.Sprintf(fv, building))
-	assert.Equal(t, "3", fmt.Sprintf(fv, deploying))
-	assert.Equal(t, "4", fmt.Sprintf(fv, opened))
-	assert.Equal(t, "5", fmt.Sprintf(fv, closing))
-	assert.Equal(t, "6", fmt.Sprintf(fv, closing_error))
-	assert.Equal(t, "7", fmt.Sprintf(fv, closed))
+	assert.Equal(t, "0", fmt.Sprintf(fv, Initialized))
+	assert.Equal(t, "1", fmt.Sprintf(fv, Broken))
+	assert.Equal(t, "2", fmt.Sprintf(fv, Building))
+	assert.Equal(t, "3", fmt.Sprintf(fv, Deploying))
+	assert.Equal(t, "4", fmt.Sprintf(fv, Opened))
+	assert.Equal(t, "5", fmt.Sprintf(fv, Closing))
+	assert.Equal(t, "6", fmt.Sprintf(fv, Closing_error))
+	assert.Equal(t, "7", fmt.Sprintf(fv, Closed))
 }
 
 func TestGetActiveSubscriptions(t *testing.T) {
@@ -224,7 +221,7 @@ func TestGetActiveSubscriptions(t *testing.T) {
 	assert.Equal(t, 1, len(res))
 
 	subscription := res[0]
-	assert.Equal(t, pipelines[opened].ID, subscription.PipelineID)
+	assert.Equal(t, pipelines[Opened].ID, subscription.PipelineID)
 	assert.Equal(t, "pipeline-opened", subscription.Pipeline)
 	assert.Equal(t, "projects/test-project-x/subscriptions/pipeline-opened-progress-subscription", subscription.Name)
 }

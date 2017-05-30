@@ -85,17 +85,17 @@ func TestRefresherProcessForDeploying(t *testing.T) {
 
 	expections := []Expection{
 		Expection{
-			status:   deploying,
+			status:   Deploying,
 			deployer: &TestDeployerRunning{},
 			errors:   nil,
 		},
 		Expection{
-			status:   opened,
+			status:   Opened,
 			deployer: &TestDeployerOK{},
 			errors:   nil,
 		},
 		Expection{
-			status:   broken,
+			status:   Broken,
 			deployer: &TestDeployerError{},
 			errors: []DeploymentError{
 				DeploymentError{
@@ -121,7 +121,7 @@ func TestRefresherProcessForDeploying(t *testing.T) {
 			ContainerName:  "groovenauts/batch_type_iot_example:0.3.1",
 			Command:        "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
 			DeploymentName: "pipeline01",
-			Status:         deploying,
+			Status:         Deploying,
 		}
 		err = CreatePipeline(ctx, &pl)
 
@@ -149,17 +149,17 @@ func TestRefresherProcessForClosing(t *testing.T) {
 
 	expections := []Expection{
 		Expection{
-			status:   closing,
+			status:   Closing,
 			deployer: &TestDeployerRunning{},
 			errors:   nil,
 		},
 		Expection{
-			status:   closed,
+			status:   Closed,
 			deployer: &TestDeployerOK{},
 			errors:   nil,
 		},
 		Expection{
-			status:   closing_error,
+			status:   Closing_error,
 			deployer: &TestDeployerError{},
 			errors: []DeploymentError{
 				DeploymentError{
@@ -185,7 +185,7 @@ func TestRefresherProcessForClosing(t *testing.T) {
 			ContainerName:  "groovenauts/batch_type_iot_example:0.3.1",
 			Command:        "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
 			DeploymentName: "pipeline01",
-			Status:         closing,
+			Status:         Closing,
 		}
 		err = CreatePipeline(ctx, &pl)
 
