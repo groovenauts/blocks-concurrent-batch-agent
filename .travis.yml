@@ -16,8 +16,6 @@ before_install:
 install:
   ## Install dependencies
   - glide install
-before_script:
-  - make check
 script:
-  - goapp test
+  - make test
 
