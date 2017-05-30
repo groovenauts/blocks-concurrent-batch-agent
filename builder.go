@@ -183,14 +183,24 @@ func (b *Builder) buildScopes() map[string]interface{} {
 }
 
 func (b *Builder) buildBootDisk(disk *PipelineVmDisk) map[string]interface{} {
+	initParams := map[string]interface{}{
+		"sourceImage": disk.SourceImage,
+	}
+	if disk.DiskName != "" {
+		initParams["diskName"] = disk.DiskName
+	}
+	if disk.DiskSizeGb > 0 {
+		initParams["diskSizeGb"] = disk.DiskSizeGb
+	}
+	if disk.DiskType != "" {
+		initParams["diskType"] = disk.DiskType
+	}
 	return map[string]interface{}{
 		"deviceName": "boot",
 		"type":       "PERSISTENT",
 		"boot":       true,
 		"autoDelete": true,
-		"initializeParams": map[string]interface{}{
-			"sourceImage": disk.SourceImage,
-		},
+		"initializeParams": initParams,
 	}
 }
 

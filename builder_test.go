@@ -190,3 +190,32 @@ func TestBuildStartupScript(t *testing.T) {
 	//fmt.Println(expected)
 	assert.Equal(t, expected, ss)
 }
+
+
+func TestBuildBootDisk(t *testing.T) {
+	b := &Builder{}
+	d1 := PipelineVmDisk{
+		SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+	}
+	r1 := b.buildBootDisk(&d1)
+	assert.IsType(t, r1["initializeParams"], map[string]interface{}{})
+	p1 := r1["initializeParams"].(map[string]interface{})
+	assert.Contains(t, p1, "sourceImage")
+	assert.NotContains(t, p1, "diskName")
+	assert.NotContains(t, p1, "diskSizeGb")
+	assert.NotContains(t, p1, "diskType")
+
+	d2 := PipelineVmDisk{
+		DiskName: "test-bootdisk1",
+		DiskSizeGb: 50,
+		SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+		DiskType: "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
+	}
+	r2 := b.buildBootDisk(&d2)
+	assert.IsType(t, r2["initializeParams"], map[string]interface{}{})
+	p2 := r2["initializeParams"].(map[string]interface{})
+	assert.Contains(t, p2, "sourceImage")
+	assert.Contains(t, p2, "diskName")
+	assert.Contains(t, p2, "diskSizeGb")
+	assert.Contains(t, p2, "diskType")
+}
