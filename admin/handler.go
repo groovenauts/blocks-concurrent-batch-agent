@@ -27,7 +27,7 @@ func Setup(echo *echo.Echo) {
 
 	h := &adminHandler{}
 	t := &Template{
-		templates: template.Must(template.ParseGlob("admin/views/*.html")),
+		templates: template.Must(template.ParseGlob("views/*.html")),
 	}
 	e.Renderer = t
 
