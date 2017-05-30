@@ -1,4 +1,4 @@
-package pipeline
+package models
 
 import (
 	"golang.org/x/net/context"
