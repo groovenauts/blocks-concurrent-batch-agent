@@ -32,7 +32,9 @@ func TestGenerateContent(t *testing.T) {
 		Name:          "pipeline01",
 		ProjectID:     "dummy-proj-999",
 		Zone:          "us-central1-f",
-		SourceImage:   "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+		BootDisk: PipelineVmDisk{
+			SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+		},
 		MachineType:   "f1-micro",
 		TargetSize:    2,
 		ContainerSize: 2,
@@ -80,7 +82,9 @@ func TestBuildDeployment(t *testing.T) {
 		Name:          "pipeline01",
 		ProjectID:     "dummy-proj-999",
 		Zone:          "us-central1-f",
-		SourceImage:   "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+		BootDisk: PipelineVmDisk{
+			SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+		},
 		MachineType:   "f1-micro",
 		TargetSize:    2,
 		ContainerSize: 2,
@@ -127,7 +131,9 @@ func TestBuildStartupScript(t *testing.T) {
 		Name:          "pipeline01",
 		ProjectID:     "dummy-proj-999",
 		Zone:          "us-central1-f",
-		SourceImage:   "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+		BootDisk: PipelineVmDisk{
+			SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+		},
 		MachineType:   "f1-micro",
 		TargetSize:    2,
 		ContainerSize: 2,
@@ -149,12 +155,12 @@ func TestBuildStartupScript(t *testing.T) {
 	assert.Equal(t, expected, ss)
 
 	// Use cos-cloud project's image
-	pl.SourceImage = "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-stable-56-9000-84-2"
+	pl.BootDisk.SourceImage = "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-stable-56-9000-84-2"
 	ss = b.buildStartupScript(&pl)
 	assert.Equal(t, expected, ss)
 
 	// Use cos-cloud project's image and private image in asia.gcr.io
-	pl.SourceImage = "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-stable-56-9000-84-2"
+	pl.BootDisk.SourceImage = "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-stable-56-9000-84-2"
 	pl.ContainerName = "asia.gcr.io/example/test_worker:0.0.1"
 	ss = b.buildStartupScript(&pl)
 	expected =
@@ -176,7 +182,7 @@ func TestBuildStartupScript(t *testing.T) {
 	assert.Equal(t, expected, ss)
 
 	// Use cos-cloud project's image and private image in gcr.io
-	pl.SourceImage = "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-stable-56-9000-84-2"
+	pl.BootDisk.SourceImage = "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-stable-56-9000-84-2"
 	pl.ContainerName = "gcr.io/example/test_worker:0.0.1" // NOT from asia.gcr.io
 	ss = b.buildStartupScript(&pl)
 	re := regexp.MustCompile(`asia.gcr.io`)
