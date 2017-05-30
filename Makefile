@@ -17,6 +17,6 @@ else
 	@echo "gofmt -l *.go OK"
 endif
 
-test:
+test: check
 	goapp test github.com/groovenauts/blocks-concurrent-batch-agent/models
 	goapp test
