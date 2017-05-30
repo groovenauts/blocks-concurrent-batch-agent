@@ -71,7 +71,7 @@ type (
 	}
 
 	PipelineVmDisk struct {
-		DiskName    string `json:"disk_name,omitempty"`
+		// DiskName    string `json:"disk_name,omitempty"` // Don't support diskName to keep simple naming rule
 		DiskSizeGb  int    `json:"disk_size_gb,omitempty"`
 		DiskType    string `json:"disk_type,omitempty"`
 		SourceImage string `json:"source_image" validate:"required"`

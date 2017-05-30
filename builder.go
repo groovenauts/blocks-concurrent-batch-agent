@@ -186,9 +186,6 @@ func (b *Builder) buildBootDisk(disk *PipelineVmDisk) map[string]interface{} {
 	initParams := map[string]interface{}{
 		"sourceImage": disk.SourceImage,
 	}
-	if disk.DiskName != "" {
-		initParams["diskName"] = disk.DiskName
-	}
 	if disk.DiskSizeGb > 0 {
 		initParams["diskSizeGb"] = disk.DiskSizeGb
 	}
