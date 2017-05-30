@@ -14,62 +14,62 @@ import (
 )
 
 type (
-	AuthProps struct {
+	Auth struct {
+		ID                string `datastore:"-"`
+		Token             string `datastore:"-"`
 		Password          string `datastore:"-"`
 		EncryptedPassword string
 		Disabled          bool
 		CreatedAt         time.Time
 		UpdatedAt         time.Time
 	}
-
-	Auth struct {
-		ID    string
-		Token string
-		Props AuthProps
-	}
 )
 
 var ErrNoSuchAuth = errors.New("No such data in Auths")
 
 func CreateAuth(ctx context.Context) (*Auth, error) {
-	mp := AuthProps{}
-	mp.generatePassword()
+	m := Auth{}
+	m.generatePassword()
 	key := datastore.NewIncompleteKey(ctx, "Auths", nil)
 	// Password is a string encoded by base64
-	enc_pw, err := bcrypt.GenerateFromPassword([]byte(mp.Password), 10)
+	enc_pw, err := bcrypt.GenerateFromPassword([]byte(m.Password), 10)
 	if err != nil {
 		log.Errorf(ctx, "@CreateAuth %v\n", err)
 		return nil, err
 	}
-	mp.EncryptedPassword = string(enc_pw) // EncryptedPassword is binary string
+	m.EncryptedPassword = string(enc_pw) // EncryptedPassword is binary string
 	t := time.Now()
-	mp.CreatedAt = t
-	mp.UpdatedAt = t
-	res, err := datastore.Put(ctx, key, &mp)
+	m.CreatedAt = t
+	m.UpdatedAt = t
+	res, err := datastore.Put(ctx, key, &m)
 	if err != nil {
-		log.Errorf(ctx, "@CreateAuth %v mp: %v\n", err, &mp)
+		log.Errorf(ctx, "@CreateAuth %v mp: %v\n", err, &m)
 		return nil, err
 	}
+	// log.Debugf(ctx, "CreateAuth res: %v\n", res)
 	id := res.Encode()
-	return &Auth{ID: id, Token: id + ":" + mp.Password, Props: mp}, nil
+	m.ID = id
+	m.Token = id + ":" + m.Password
+	// log.Debugf(ctx, "CreateAuth result: %v\n", m)
+	return &m, nil
 }
 
 func FindAuth(ctx context.Context, id string) (*Auth, error) {
-	log.Debugf(ctx, "@FindAuth id: %v\n", id)
+	// log.Debugf(ctx, "@FindAuth id: %q\n", id)
 	key, err := datastore.DecodeKey(id)
 	if err != nil {
-		log.Errorf(ctx, "@FindAuth %v id: %v\n", err, id)
+		log.Errorf(ctx, "@FindAuth %v id: %q\n", err, id)
 		return nil, err
 	}
-	log.Debugf(ctx, "@FindAuth key: %v\n", key)
+	// log.Debugf(ctx, "@FindAuth key: %q\n", key)
 	ctx = context.WithValue(ctx, "Auth.key", key)
 	m := &Auth{ID: id}
-	err = datastore.Get(ctx, key, &m.Props)
+	err = datastore.Get(ctx, key, m)
 	switch {
 	case err == datastore.ErrNoSuchEntity:
 		return nil, ErrNoSuchAuth
 	case err != nil:
-		log.Errorf(ctx, "@FindAuth %v id: %v\n", err, id)
+		log.Errorf(ctx, "@FindAuth %v id: %q\n", err, id)
 		return nil, err
 	}
 	return m, nil
@@ -89,11 +89,11 @@ func FindAuthWithToken(ctx context.Context, token string) (*Auth, error) {
 		log.Errorf(ctx, "@FindAuthWithToken Auth not found %v id: %v\n", err, id)
 		return nil, err
 	}
-	if auth.Props.Disabled {
+	if auth.Disabled {
 		log.Errorf(ctx, "@FindAuthWithToken Auth is disabled. id: %v\n", id)
 		return nil, err
 	}
-	enc_pw := auth.Props.EncryptedPassword // EncryptedPassword is binary string
+	enc_pw := auth.EncryptedPassword // EncryptedPassword is binary string
 	if err = bcrypt.CompareHashAndPassword([]byte(enc_pw), []byte(pw)); err != nil {
 		log.Errorf(ctx, "@FindAuthWithToken Auth is disabled. id: %v\n", id)
 		return nil, err
@@ -107,7 +107,7 @@ func GetAllAuth(ctx context.Context) ([]*Auth, error) {
 	var res = []*Auth{}
 	for {
 		m := Auth{}
-		key, err := iter.Next(&m.Props)
+		key, err := iter.Next(&m)
 		if err == datastore.Done {
 			break
 		}
@@ -137,16 +137,16 @@ func (m *Auth) update(ctx context.Context) error {
 		return err
 	}
 	t := time.Now()
-	m.Props.UpdatedAt = t
-	_, err = datastore.Put(ctx, key, &m.Props)
+	m.UpdatedAt = t
+	_, err = datastore.Put(ctx, key, m)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (mp *AuthProps) generatePassword() {
+func (m *Auth) generatePassword() {
 	b := make([]byte, 12)
 	rand.Read(b)
-	mp.Password = base64.StdEncoding.EncodeToString(b)
+	m.Password = base64.StdEncoding.EncodeToString(b)
 }

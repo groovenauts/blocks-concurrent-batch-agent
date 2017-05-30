@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/labstack/echo"
@@ -100,13 +101,11 @@ type IndexRes struct {
 
 func (h *adminHandler) index(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
-	log.Debugf(ctx, "index\n")
 	auths, err := GetAllAuth(ctx)
 	if err != nil {
 		log.Errorf(ctx, "indexPage error: %v\n", err)
 		return err
 	}
-	log.Debugf(ctx, "indexPage auths: %v\n", auths)
 	r := IndexRes{
 		Auths: auths,
 	}
@@ -124,16 +123,13 @@ type CreateRes struct {
 
 func (h *adminHandler) create(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
-	log.Debugf(ctx, "create\n")
 	auth, err := CreateAuth(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Error on create auth: %v\n", err)
 		return err
 	}
-	log.Debugf(ctx, "create auth: %v\n", auth)
-	hostname, err := appengine.ModuleHostname(ctx, "", "", "")
+	hostname, err := h.getHostname(c)
 	if err != nil {
-		log.Errorf(ctx, "Failed to get ModuleHostname: %v\n", err)
 		return err
 	}
 	r := CreateRes{
@@ -142,6 +138,20 @@ func (h *adminHandler) create(c echo.Context) error {
 	}
 	r.Flash = c.Get("flash").(*Flash)
 	return c.Render(http.StatusOK, "create", &r)
+}
+
+func (h *adminHandler) getHostname(c echo.Context) (string, error) {
+	r := os.ExpandEnv("BATCH_AGENT_HOSTNAME")
+	if r != "" {
+		return r, nil
+	}
+	ctx := c.Get("aecontext").(context.Context)
+	hostname, err := appengine.ModuleHostname(ctx, "", "", "")
+	if err != nil {
+		log.Errorf(ctx, "Failed to get ModuleHostname: %v\n", err)
+		return "", err
+	}
+	return hostname, err
 }
 
 func (h *adminHandler) AuthHandler(f func(c echo.Context, ctx context.Context, auth *Auth) error) func(c echo.Context) error {
@@ -162,9 +172,10 @@ func (h *adminHandler) AuthHandler(f func(c echo.Context, ctx context.Context, a
 
 // PUT http://localhost:8080/admin/auths/:id
 func (h *adminHandler) disable(c echo.Context, ctx context.Context, auth *Auth) error {
-	auth.Props.Disabled = true
+	auth.Disabled = true
 	err := auth.update(ctx)
 	if err != nil {
+		log.Errorf(ctx, "Failed to update Auth: %v because of %v\n", auth, err)
 		h.setFlash(c, "alert", fmt.Sprintf("Failed to update Auth. id: %v error: %v", auth.ID, err))
 		return c.Redirect(http.StatusFound, "/admin/auths")
 	}
@@ -176,6 +187,7 @@ func (h *adminHandler) disable(c echo.Context, ctx context.Context, auth *Auth) 
 func (h *adminHandler) destroy(c echo.Context, ctx context.Context, auth *Auth) error {
 	err := auth.destroy(ctx)
 	if err != nil {
+		log.Errorf(ctx, "Failed to destroy Auth: %v because of %v\n", auth, err)
 		h.setFlash(c, "alert", fmt.Sprintf("Failed to destroy Auth. id: %v error: %v", auth.ID, err))
 		return c.Redirect(http.StatusFound, "/admin/auths")
 	}

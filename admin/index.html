@@ -21,9 +21,9 @@
   {{range .Auths}}
   <tr>
     <td>{{.ID}} </td>
-    <td>{{.Props.Disabled}}</td>
-    <td>{{.Props.CreatedAt}} </td>
-    <td>{{.Props.UpdatedAt}} </td>
+    <td>{{.Disabled}}</td>
+    <td>{{.CreatedAt}} </td>
+    <td>{{.UpdatedAt}} </td>
     <td>
       <form action="/admin/auths/{{.ID}}/disable" method="POST">
         <input type="submit" value="Disable"/>
