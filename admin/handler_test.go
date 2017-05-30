@@ -18,6 +18,8 @@ import (
 )
 
 func TestAdminHandler(t *testing.T) {
+	Setup(echo.New())
+
 	os.Setenv("BATCH_AGENT_HOSTNAME", "test.local")
 
 	opt := &aetest.Options{StronglyConsistentDatastore: true}
