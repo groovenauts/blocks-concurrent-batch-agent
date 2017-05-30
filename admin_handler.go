@@ -6,8 +6,8 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"time"
 
+	"github.com/gorilla/sessions"
 	"github.com/labstack/echo"
 
 	"golang.org/x/net/context"
@@ -16,10 +16,14 @@ import (
 	"google.golang.org/appengine/log"
 )
 
-type adminHandler struct{}
+type adminHandler struct{
+	store sessions.Store
+}
 
 func init() {
-	h := &adminHandler{}
+	h := &adminHandler{
+		store: sessions.NewCookieStore([]byte("something-very-secret")),
+	}
 
 	t := &Template{
 		templates: template.Must(template.ParseGlob("admin/*.html")),
@@ -46,48 +50,39 @@ type Flash struct {
 	Notices []interface{}
 }
 
-func (h *adminHandler) setFlash(c echo.Context, name, value string) {
-	h.setFlashWithExpire(c, name, value, time.Now().Add(10*time.Minute))
+func (h *adminHandler) session(c echo.Context) (*sessions.Session, error) {
+	session, err := h.store.Get(c.Request(), "admin-session")
+	return session, err
 }
 
-func (h *adminHandler) setFlashWithExpire(c echo.Context, name, value string, expire time.Time) {
-	cookie := new(http.Cookie)
-	cookie.Path = "/admin/"
-	cookie.Name = name
-	cookie.Value = value
-	cookie.Expires = expire
-	c.SetCookie(cookie)
+func (h *adminHandler) setFlash(c echo.Context, name, value string) error {
+	session, err := h.session(c)
+	if err != nil {
+		return err
+	}
+	session.AddFlash(name, value)
+	return nil
 }
 
-func (h *adminHandler) loadFlash(c echo.Context) *Flash {
-	f := Flash{}
-	cookie, err := c.Cookie("alert")
-	if err == nil {
-		f.Alerts = []interface{}{cookie.Value}
+func (h *adminHandler) loadFlash(c echo.Context) (*Flash, error) {
+	session, err := h.session(c)
+	if err != nil {
+		return nil, err
 	}
-	cookie, err = c.Cookie("notice")
-	if err == nil {
-		f.Notices = []interface{}{cookie.Value}
+	f := Flash{
+		Alerts: session.Flashes("alert"),
+		Notices: session.Flashes("notice"),
 	}
-	return &f
-}
-
-func (h *adminHandler) clearFlash(c echo.Context) {
-	_, err := c.Cookie("alert")
-	if err == nil {
-		h.setFlashWithExpire(c, "alert", "", time.Now().AddDate(0, 0, 1))
-	}
-	_, err = c.Cookie("notice")
-	if err == nil {
-		h.setFlashWithExpire(c, "notice", "", time.Now().AddDate(0, 0, 1))
-	}
+	return &f, nil
 }
 
 func (h *adminHandler) withFlash(impl func(c echo.Context) error) func(c echo.Context) error {
 	return withAEContext(func(c echo.Context) error {
-		f := h.loadFlash(c)
+		f, err := h.loadFlash(c)
+		if err != nil {
+			return err
+		}
 		c.Set("flash", f)
-		h.clearFlash(c)
 		return impl(c)
 	})
 }
@@ -159,11 +154,17 @@ func (h *adminHandler) AuthHandler(f func(c echo.Context, ctx context.Context, a
 		ctx := c.Get("aecontext").(context.Context)
 		auth, err := FindAuth(ctx, c.Param("id"))
 		if err == ErrNoSuchAuth {
-			h.setFlash(c, "alert", fmt.Sprintf("Auth not found for id: %v", c.Param("id")))
+			e2 := h.setFlash(c, "alert", fmt.Sprintf("Auth not found for id: %v", c.Param("id")))
+			if e2 != nil {
+				return e2
+			}
 			return c.Redirect(http.StatusFound, "/admin/auths")
 		}
 		if err != nil {
-			h.setFlash(c, "alert", fmt.Sprintf("Failed to find Auth for id: %v error: %v", c.Param("id"), err))
+			e2 := h.setFlash(c, "alert", fmt.Sprintf("Failed to find Auth for id: %v error: %v", c.Param("id"), err))
+			if e2 != nil {
+				return e2
+			}
 			return c.Redirect(http.StatusFound, "/admin/auths")
 		}
 		return f(c, ctx, auth)
