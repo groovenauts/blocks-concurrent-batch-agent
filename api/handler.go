@@ -18,11 +18,15 @@ import (
 
 type handler struct{}
 
+var e *echo.Echo
+
 const (
 	AUTH_HEADER = "Authorization"
 )
 
-func init() {
+func Setup(echo *echo.Echo) {
+	e = echo
+
 	h := &handler{}
 
 	g := e.Group("/pipelines")
