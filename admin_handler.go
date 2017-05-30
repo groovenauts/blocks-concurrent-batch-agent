@@ -42,8 +42,8 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 }
 
 type Flash struct {
-	Alert  string
-	Notice string
+	Alerts  []interface{}
+	Notices []interface{}
 }
 
 func (h *adminHandler) setFlash(c echo.Context, name, value string) {
@@ -63,11 +63,11 @@ func (h *adminHandler) loadFlash(c echo.Context) *Flash {
 	f := Flash{}
 	cookie, err := c.Cookie("alert")
 	if err == nil {
-		f.Alert = cookie.Value
+		f.Alerts = []interface{}{cookie.Value}
 	}
 	cookie, err = c.Cookie("notice")
 	if err == nil {
-		f.Notice = cookie.Value
+		f.Notices = []interface{}{cookie.Value}
 	}
 	return &f
 }

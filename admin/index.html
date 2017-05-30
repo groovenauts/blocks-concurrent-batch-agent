@@ -1,11 +1,15 @@
 {{define "index"}}
 
-{{if .Flash.Alert}}
-<p>ALERT: {{.Flash.Alert}}</p>
+{{if .Flash.Alerts}}
+{{range .Flash.Alerts}}
+<p>ALERT: {{.}}</p>
+{{end}}
 {{end}}
 
-{{if .Flash.Notice}}
-<p>Notice: {{.Flash.Notice}}</p>
+{{if .Flash.Notices}}
+{{range .Flash.Notices}}
+<p>Notice: {{.}}</p>
+{{end}}
 {{end}}
 
 <table>
