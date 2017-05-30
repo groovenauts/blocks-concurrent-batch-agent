@@ -16,13 +16,13 @@ import (
 	"google.golang.org/appengine/log"
 )
 
+var	store = sessions.NewCookieStore([]byte("something-very-secret"))
+
 type adminHandler struct{
-	store sessions.Store
 }
 
 func init() {
 	h := &adminHandler{
-		store: sessions.NewCookieStore([]byte("something-very-secret")),
 	}
 
 	t := &Template{
@@ -47,12 +47,35 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 
 func (h *adminHandler) withFlash(impl func(c echo.Context, flash *Flash) error) func(c echo.Context) error {
 	return withAEContext(func(c echo.Context) error {
-		f := &Flash{store: h.store}
-		err := f.load(c)
+		session, err := store.Get(c.Request(), "admin-session")
+		if err != nil {
+			ctx := c.Get("aecontext").(context.Context)
+			log.Errorf(ctx, "Failed to get session: %v\n", err)
+			return err
+		}
+
+		session.Options = &sessions.Options{
+			Path:     "/",
+			MaxAge:   86400 * 7,
+			// HttpOnly: true,
+		}
+		session.Values["foo"] = "bar"
+
+		ctx := c.Get("aecontext").(context.Context)
+		log.Debugf(ctx, "Flash#set session: %v\n", session)
+
+		f := &Flash{session: session}
+		err = f.load(c)
 		if err != nil {
 			return err
 		}
-		return impl(c, f)
+		err = impl(c, f)
+		e2 := session.Save(c.Request(), c.Response().Writer)
+		if e2 != nil {
+			ctx := c.Get("aecontext").(context.Context)
+			log.Errorf(ctx, "Failed to save data to session: %v\n", e2)
+		}
+		return err
 	})
 }
 
@@ -125,6 +148,7 @@ func (h *adminHandler) AuthHandler(f func(c echo.Context, flash *Flash, ctx cont
 		if err == ErrNoSuchAuth {
 			e2 := flash.set(c, "alert", fmt.Sprintf("Auth not found for id: %v", c.Param("id")))
 			if e2 != nil {
+				log.Errorf(ctx, "Error to set flash message: %q\n", e2)
 				return e2
 			}
 			return c.Redirect(http.StatusFound, "/admin/auths")
@@ -132,6 +156,7 @@ func (h *adminHandler) AuthHandler(f func(c echo.Context, flash *Flash, ctx cont
 		if err != nil {
 			e2 := flash.set(c, "alert", fmt.Sprintf("Failed to find Auth for id: %v error: %v", c.Param("id"), err))
 			if e2 != nil {
+				log.Errorf(ctx, "Error to set flash message: %q\n", e2)
 				return e2
 			}
 			return c.Redirect(http.StatusFound, "/admin/auths")
