@@ -24,7 +24,7 @@ func init() {
 	h := &adminHandler{}
 
 	t := &Template{
-		templates: template.Must(template.ParseGlob("admin/*.html")),
+		templates: template.Must(template.ParseGlob("admin/views/*.html")),
 	}
 	e.Renderer = t
 
