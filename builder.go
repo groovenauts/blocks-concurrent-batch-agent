@@ -134,7 +134,7 @@ func (b *Builder) GenerateDeploymentResources(pl *Pipeline) *Resources {
 						b.buildScopes(),
 					},
 					"disks": []interface{}{
-						b.buildBootDisk(pl),
+						b.buildBootDisk(&pl.BootDisk),
 					},
 				},
 			},
@@ -182,14 +182,14 @@ func (b *Builder) buildScopes() map[string]interface{} {
 	}
 }
 
-func (b *Builder) buildBootDisk(pl *Pipeline) map[string]interface{} {
+func (b *Builder) buildBootDisk(disk *PipelineVmDisk) map[string]interface{} {
 	return map[string]interface{}{
 		"deviceName": "boot",
 		"type":       "PERSISTENT",
 		"boot":       true,
 		"autoDelete": true,
 		"initializeParams": map[string]interface{}{
-			"sourceImage": pl.BootDisk.SourceImage,
+			"sourceImage": disk.SourceImage,
 		},
 	}
 }
