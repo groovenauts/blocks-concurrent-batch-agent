@@ -15,25 +15,25 @@ import (
 type Status int
 
 const (
-	initialized Status = iota
-	broken
-	building
-	deploying
-	opened
-	closing
-	closing_error
-	closed
+	Initialized Status = iota
+	Broken
+	Building
+	Deploying
+	Opened
+	Closing
+	Closing_error
+	Closed
 )
 
 var StatusStrings = map[Status]string{
-	initialized:   "initialized",
-	broken:        "broken",
-	building:      "building",
-	deploying:     "deploying",
-	opened:        "opened",
-	closing:       "closing",
-	closing_error: "closing_error",
-	closed:        "closed",
+	Initialized:   "initialized",
+	Broken:        "broken",
+	Building:      "building",
+	Deploying:     "deploying",
+	Opened:        "opened",
+	Closing:       "closing",
+	Closing_error: "closing_error",
+	Closed:        "closed",
 }
 
 func (st Status) String() string {
@@ -179,8 +179,8 @@ func GetPipelineIDsByQuery(ctx context.Context, q *datastore.Query) ([]string, e
 	return res, nil
 }
 
-func (pl *Pipeline) destroy(ctx context.Context) error {
-	if pl.Status != closed {
+func (pl *Pipeline) Destroy(ctx context.Context) error {
+	if pl.Status != Closed {
 		return &InvalidOperation{
 			Msg: fmt.Sprintf("Can't destroy pipeline which is %v. Close before delete.", pl.Status),
 		}
@@ -207,7 +207,7 @@ func (pl *Pipeline) update(ctx context.Context) error {
 	return nil
 }
 
-func (pl *Pipeline) process(ctx context.Context, action string) error {
+func (pl *Pipeline) Process(ctx context.Context, action string) error {
 	processor, err := processorFactory.Create(ctx, action)
 	if err != nil {
 		return err
@@ -223,7 +223,7 @@ type Subscription struct {
 
 func GetActiveSubscriptions(ctx context.Context) ([]*Subscription, error) {
 	r := []*Subscription{}
-	pipelines, err := GetPipelinesByStatus(ctx, opened)
+	pipelines, err := GetPipelinesByStatus(ctx, Opened)
 	if err != nil {
 		return nil, err
 	}

@@ -118,7 +118,7 @@ func (h *handler) pipelineTask(action string) func(c echo.Context) error {
 	}
 	return h.withPipeline(wrapper, func(c echo.Context, pl *models.Pipeline) error {
 		ctx := c.Get("aecontext").(context.Context)
-		err := pl.process(ctx, action)
+		err := pl.Process(ctx, action)
 		if err != nil {
 			return err
 		}
@@ -180,7 +180,7 @@ func (h *handler) show(c echo.Context, pl *models.Pipeline) error {
 // curl -v -X DELETE http://localhost:8080/pipelines/1
 func (h *handler) destroy(c echo.Context, pl *models.Pipeline) error {
 	ctx := c.Get("aecontext").(context.Context)
-	if err := pl.destroy(ctx); err != nil {
+	if err := pl.Destroy(ctx); err != nil {
 		switch err.(type) {
 		case *models.InvalidOperation:
 			res := map[string]interface{}{"message": err.Error()}
@@ -196,7 +196,7 @@ func (h *handler) destroy(c echo.Context, pl *models.Pipeline) error {
 // curl -v -X PUT http://localhost:8080/pipelines/refresh
 func (h *handler) refresh(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
-	statuses := map[string]models.Status{"deploying": deploying, "closing": closing}
+	statuses := map[string]models.Status{"deploying": models.Deploying, "closing": models.Closing}
 	res := map[string][]string{}
 	for name, st := range statuses {
 		ids, err := models.GetPipelineIDsByStatus(ctx, st)

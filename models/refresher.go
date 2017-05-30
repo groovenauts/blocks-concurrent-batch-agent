@@ -13,24 +13,24 @@ type Refresher struct {
 func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 	log.Debugf(ctx, "Refreshing pipeline %v\n", pl)
 	switch pl.Status {
-	case deploying:
+	case Deploying:
 		return b.UpdatePipelineWithStatus(ctx, pl, "deploying", pl.DeployingOperationName,
 			func(errors *[]DeploymentError) {
 				pl.DeployingErrors = *errors
-				pl.Status = broken
+				pl.Status = Broken
 			},
 			func() {
-				pl.Status = opened
+				pl.Status = Opened
 			},
 		)
-	case closing:
+	case Closing:
 		return b.UpdatePipelineWithStatus(ctx, pl, "closing", pl.ClosingOperationName,
 			func(errors *[]DeploymentError) {
 				pl.ClosingErrors = *errors
-				pl.Status = closing_error
+				pl.Status = Closing_error
 			},
 			func() {
-				pl.Status = closed
+				pl.Status = Closed
 			},
 		)
 	default:

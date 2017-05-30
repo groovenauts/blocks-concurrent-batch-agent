@@ -19,7 +19,7 @@ func (b *Closer) Process(ctx context.Context, pl *Pipeline) error {
 		return err
 	}
 
-	pl.Status = closing
+	pl.Status = Closing
 	pl.ClosingOperationName = ope.Name
 	err = pl.update(ctx)
 	if err != nil {
