@@ -18,5 +18,5 @@ else
 endif
 
 test: check
-	goapp test github.com/groovenauts/blocks-concurrent-batch-agent/models
+	goapp test github.com/groovenauts/blocks-concurrent-batch-agent/models github.com/groovenauts/blocks-concurrent-batch-agent/admin
 	goapp test
