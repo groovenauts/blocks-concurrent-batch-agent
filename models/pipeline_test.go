@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/groovenauts/blocks-concurrent-batch-agent/test_utils"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine"
@@ -15,33 +16,6 @@ import (
 	"gopkg.in/go-playground/validator.v9"
 )
 
-func ClearDatastore(t *testing.T, ctx context.Context, kind string) {
-	q := datastore.NewQuery(kind).KeysOnly()
-	keys, err := q.GetAll(ctx, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err = datastore.DeleteMulti(ctx, keys); err != nil {
-		t.Fatal(err)
-	}
-}
-
-func ExpectChange(t *testing.T, ctx context.Context, kind string, diff int, f func()) {
-	q0 := datastore.NewQuery(kind)
-	c0, err := q0.Count(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	f()
-	q1 := datastore.NewQuery(kind)
-	c1, err := q1.Count(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if c1-c0 != diff {
-		t.Fatalf("Expect diff is %v, but it changed from %v to %v in %v", diff, c0, c1, kind)
-	}
-}
 
 const (
 	proj = "test-project-x"
@@ -50,23 +24,6 @@ const (
 func ExpectToHaveProps(t *testing.T, pl *Pipeline) {
 	if pl.ProjectID != proj {
 		t.Fatalf("ProjectId is expected %v but it was %v", proj, pl.ProjectID)
-	}
-}
-
-// retry for datastore's eventual consistency
-func retryWith(max int, impl func() func()) {
-	for i := 0; i < max+1; i++ {
-		f := impl()
-		if f == nil {
-			return
-		}
-		if i == max {
-			f()
-		} else {
-			// Exponential backoff
-			d := time.Duration(math.Pow(2.0, float64(i)) * 5.0)
-			time.Sleep(d * time.Millisecond)
-		}
 	}
 }
 
@@ -163,7 +120,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 		closing, closed,
 	}
 	for _, st := range statuses {
-		retryWith(10, func() func() {
+		test_utils.RetryWith(10, func() func() {
 			keys, err := GetPipelineIDsByStatus(ctx, st)
 			assert.NoError(t, err)
 			if len(keys) == 0 {
