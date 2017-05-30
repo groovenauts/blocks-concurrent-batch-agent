@@ -31,7 +31,9 @@ func TestAdminHandler(t *testing.T) {
 	}
 
 	// e := echo.New()
-	h := &adminHandler{}
+	h := &adminHandler{
+		store: &TestSessionStore{},
+	}
 
 	req, err := inst.NewRequest(echo.GET, "/admin/auths", nil)
 	assert.NoError(t, err)
