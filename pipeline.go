@@ -70,12 +70,19 @@ type (
 		Message string `json:"message,omitempty"`
 	}
 
+	PipelineVmDisk struct {
+		DiskName    string `json:"disk_name,omitempty"`
+		DiskSizeGb  int    `json:"disk_size_gb,omitempty"`
+		DiskType    string `json:"disk_type,omitempty"`
+		SourceImage string `json:"source_image" validate:"required"`
+	}
+
 	Pipeline struct {
 		ID                     string            `json:"id"             datastore:"-"`
 		Name                   string            `json:"name"           validate:"required"`
 		ProjectID              string            `json:"project_id"     validate:"required"`
 		Zone                   string            `json:"zone"           validate:"required"`
-		SourceImage            string            `json:"source_image"   validate:"required"`
+		BootDisk               PipelineVmDisk    `json:"boot_disk"`
 		MachineType            string            `json:"machine_type"   validate:"required"`
 		Preemptible            bool              `json:"preemptible,omitempty"`
 		TargetSize             int               `json:"target_size"    validate:"required"`

@@ -189,7 +189,7 @@ func (b *Builder) buildBootDisk(pl *Pipeline) map[string]interface{} {
 		"boot":       true,
 		"autoDelete": true,
 		"initializeParams": map[string]interface{}{
-			"sourceImage": pl.SourceImage,
+			"sourceImage": pl.BootDisk.SourceImage,
 		},
 	}
 }
@@ -207,7 +207,7 @@ var (
 func (b *Builder) buildStartupScript(pl *Pipeline) string {
 	r := StartupScriptHeader + "\n"
 	usingGcr :=
-		CosCloudProjectRegexp.MatchString(pl.SourceImage) &&
+		CosCloudProjectRegexp.MatchString(pl.BootDisk.SourceImage) &&
 			GcrContainerImageRegexp.MatchString(pl.ContainerName)
 	docker := "docker"
 	if usingGcr {
