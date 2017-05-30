@@ -20,9 +20,12 @@ import (
 
 type adminHandler struct{}
 
-func init() {
-	h := &adminHandler{}
+var e *echo.Echo
 
+func Setup(echo *echo.Echo) {
+	e = echo
+
+	h := &adminHandler{}
 	t := &Template{
 		templates: template.Must(template.ParseGlob("admin/views/*.html")),
 	}
