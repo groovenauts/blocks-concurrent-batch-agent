@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/groovenauts/blocks-concurrent-batch-agent/models"
+	"github.com/groovenauts/blocks-concurrent-batch-agent/gae_support"
 	"github.com/labstack/echo"
 
 	"golang.org/x/net/context"
@@ -85,7 +86,7 @@ func (h *adminHandler) clearFlash(c echo.Context) {
 }
 
 func (h *adminHandler) withFlash(impl func(c echo.Context) error) func(c echo.Context) error {
-	return withAEContext(func(c echo.Context) error {
+	return gae_support.With(func(c echo.Context) error {
 		f := h.loadFlash(c)
 		c.Set("flash", f)
 		h.clearFlash(c)

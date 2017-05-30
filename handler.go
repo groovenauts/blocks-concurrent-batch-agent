@@ -5,25 +5,16 @@ import (
 	"net/http"
 	"regexp"
 
+	"github.com/groovenauts/blocks-concurrent-batch-agent/gae_support"
 	"github.com/groovenauts/blocks-concurrent-batch-agent/models"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 
 	"golang.org/x/net/context"
 
-	"google.golang.org/appengine"
 	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/taskqueue"
 )
-
-func withAEContext(impl func(c echo.Context) error) func(c echo.Context) error {
-	return func(c echo.Context) error {
-		req := c.Request()
-		ctx := appengine.NewContext(req)
-		c.Set("aecontext", ctx)
-		return impl(c)
-	}
-}
 
 type handler struct{}
 
@@ -48,12 +39,12 @@ func init() {
 	g.PUT("/:id/close", h.callPipelineTask("close"))
 	g.POST("/:id/close_task", h.pipelineTask("close"))
 
-	g.GET("/refresh", withAEContext(h.refresh)) // Don't use withAuth because this is called from cron
+	g.GET("/refresh", gae_support.With(h.refresh)) // Don't use withAuth because this is called from cron
 	g.POST("/:id/refresh_task", h.pipelineTask("refresh"))
 }
 
 func (h *handler) withAuth(impl func(c echo.Context) error) func(c echo.Context) error {
-	return withAEContext(func(c echo.Context) error {
+	return gae_support.With(func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		req := c.Request()
 		raw := req.Header.Get(AUTH_HEADER)
@@ -112,7 +103,7 @@ func (h *handler) pipelineTask(action string) func(c echo.Context) error {
 	var wrapper func(impl func(c echo.Context) error) func(c echo.Context) error
 	switch action {
 	case "refresh":
-		wrapper = withAEContext
+		wrapper = gae_support.With
 	default:
 		wrapper = h.withAuth
 	}
