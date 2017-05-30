@@ -18,7 +18,7 @@ import (
 )
 
 func TestAdminHandler(t *testing.T) {
-	Setup(echo.New())
+	Setup(echo.New(), "views")
 
 	os.Setenv("BATCH_AGENT_HOSTNAME", "test.local")
 

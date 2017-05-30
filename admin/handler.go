@@ -22,12 +22,12 @@ type adminHandler struct{}
 
 var e *echo.Echo
 
-func Setup(echo *echo.Echo) {
+func Setup(echo *echo.Echo, dir string) {
 	e = echo
 
 	h := &adminHandler{}
 	t := &Template{
-		templates: template.Must(template.ParseGlob("views/*.html")),
+		templates: template.Must(template.ParseGlob(dir + "/*.html")),
 	}
 	e.Renderer = t
 
