@@ -193,15 +193,13 @@ func (b *Builder) buildBootDisk(disk *PipelineVmDisk) map[string]interface{} {
 		initParams["diskType"] = disk.DiskType
 	}
 	return map[string]interface{}{
-		"deviceName": "boot",
-		"type":       "PERSISTENT",
-		"boot":       true,
-		"autoDelete": true,
+		"deviceName":       "boot",
+		"type":             "PERSISTENT",
+		"boot":             true,
+		"autoDelete":       true,
 		"initializeParams": initParams,
 	}
 }
-
-
 
 const GcrHostPatternBase = `\A[^/]*gcr.io`
 

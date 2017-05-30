@@ -29,9 +29,9 @@ func TestGenerateContent(t *testing.T) {
 	}
 
 	pl := Pipeline{
-		Name:          "pipeline01",
-		ProjectID:     "dummy-proj-999",
-		Zone:          "us-central1-f",
+		Name:      "pipeline01",
+		ProjectID: "dummy-proj-999",
+		Zone:      "us-central1-f",
 		BootDisk: PipelineVmDisk{
 			SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
 		},
@@ -79,9 +79,9 @@ func TestBuildDeployment(t *testing.T) {
 	err = json.Unmarshal([]byte(expected_data), &expected)
 	assert.NoError(t, err)
 	pl := Pipeline{
-		Name:          "pipeline01",
-		ProjectID:     "dummy-proj-999",
-		Zone:          "us-central1-f",
+		Name:      "pipeline01",
+		ProjectID: "dummy-proj-999",
+		Zone:      "us-central1-f",
 		BootDisk: PipelineVmDisk{
 			SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
 		},
@@ -128,9 +128,9 @@ func TestBuildDeployment(t *testing.T) {
 func TestBuildStartupScript(t *testing.T) {
 	b := &Builder{}
 	pl := Pipeline{
-		Name:          "pipeline01",
-		ProjectID:     "dummy-proj-999",
-		Zone:          "us-central1-f",
+		Name:      "pipeline01",
+		ProjectID: "dummy-proj-999",
+		Zone:      "us-central1-f",
 		BootDisk: PipelineVmDisk{
 			SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
 		},
@@ -191,7 +191,6 @@ func TestBuildStartupScript(t *testing.T) {
 	assert.Equal(t, expected, ss)
 }
 
-
 func TestBuildBootDisk(t *testing.T) {
 	b := &Builder{}
 	d1 := PipelineVmDisk{
@@ -205,9 +204,9 @@ func TestBuildBootDisk(t *testing.T) {
 	assert.NotContains(t, p1, "diskType")
 
 	d2 := PipelineVmDisk{
-		DiskSizeGb: 50,
+		DiskSizeGb:  50,
 		SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
-		DiskType: "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
+		DiskType:    "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
 	}
 	r2 := b.buildBootDisk(&d2)
 	assert.IsType(t, r2["initializeParams"], map[string]interface{}{})
