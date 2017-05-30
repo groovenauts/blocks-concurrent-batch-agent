@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/groovenauts/blocks-concurrent-batch-agent/gae_support"
 	"github.com/groovenauts/blocks-concurrent-batch-agent/models"
 	"github.com/groovenauts/blocks-concurrent-batch-agent/test_utils"
 	"github.com/labstack/echo"
@@ -22,6 +23,8 @@ const (
 )
 
 func TestActions(t *testing.T) {
+	e = echo.New()
+
 	opt := &aetest.Options{StronglyConsistentDatastore: true}
 	inst, err := aetest.NewInstance(opt)
 	assert.NoError(t, err)
@@ -172,7 +175,7 @@ func TestActions(t *testing.T) {
 		err = pl.Update(ctx)
 		assert.NoError(t, err)
 
-		f = withAEContext(h.refresh)
+		f = gae_support.With(h.refresh)
 
 		test_utils.RetryWith(10, func() func() {
 			req, err = inst.NewRequest(echo.GET, "/pipelines/refresh", nil)
