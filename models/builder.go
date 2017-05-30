@@ -16,7 +16,7 @@ type Builder struct {
 
 func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
 	pl.Status = Building
-	err := pl.update(ctx)
+	err := pl.Update(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to update Pipeline status to 'building': %v\npl: %v\n", err, pl)
 		return err
@@ -38,7 +38,7 @@ func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
 	pl.Status = Deploying
 	pl.DeploymentName = deployment.Name
 	pl.DeployingOperationName = ope.Name
-	err = pl.update(ctx)
+	err = pl.Update(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to update Pipeline deployment name to %v: %v\npl: %v\n", ope.Name, err, pl)
 		return err

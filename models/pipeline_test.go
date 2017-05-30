@@ -32,7 +32,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	assert.NoError(t, err)
 	defer done()
 
-	ClearDatastore(t, ctx, "Pipelines")
+	test_utils.ClearDatastore(t, ctx, "Pipelines")
 
 	detectErrorFor := func(errors validator.ValidationErrors, field string) validator.FieldError {
 		for _, err := range errors {

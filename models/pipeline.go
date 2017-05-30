@@ -195,7 +195,7 @@ func (pl *Pipeline) Destroy(ctx context.Context) error {
 	return nil
 }
 
-func (pl *Pipeline) update(ctx context.Context) error {
+func (pl *Pipeline) Update(ctx context.Context) error {
 	key, err := datastore.DecodeKey(pl.ID)
 	if err != nil {
 		return err

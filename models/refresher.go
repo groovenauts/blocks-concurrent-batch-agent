@@ -57,7 +57,7 @@ func (b *Refresher) UpdatePipelineWithStatus(ctx context.Context, pl *Pipeline, 
 			log.Infof(ctx, "%v completed successfully project: %v deployment: %v\n", status, proj, pl.DeploymentName)
 			succHandler()
 		}
-		err = pl.update(ctx)
+		err = pl.Update(ctx)
 		if err != nil {
 			log.Errorf(ctx, "Failed to update Pipeline Status to %v: %v\npl: %v\n", pl.Status, err, pl)
 			return err
