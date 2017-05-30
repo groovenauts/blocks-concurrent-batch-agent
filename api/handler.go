@@ -1,4 +1,4 @@
-package pipeline
+package api
 
 import (
 	"fmt"
