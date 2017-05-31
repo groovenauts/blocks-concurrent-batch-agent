@@ -1,4 +1,4 @@
-export GOPATH := $(PWD):$(PWD)/vendor
+export GOPATH := $(GOPATH):$(PWD):$(PWD)/vendor
 VERSION = $(shell cat ./VERSION)
 
 all: check
