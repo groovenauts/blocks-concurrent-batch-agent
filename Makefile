@@ -43,6 +43,8 @@ check:
 	goimports -l src/test_utils/*.go
 	goimports -l app/concurrent-batch-agent/*.go
 
+	git diff --exit-code
+
 test: check
 	goapp test	./src/models \
 							./src/api \
