@@ -111,8 +111,6 @@ func (b *Builder) GenerateDeploymentResources(pl *Pipeline) *Resources {
 		)
 	}
 
-	startup_script := b.buildStartupScript(pl)
-
 	t = append(t,
 		Resource{
 			Type: "compute.v1.instanceTemplate",
@@ -123,44 +121,20 @@ func (b *Builder) GenerateDeploymentResources(pl *Pipeline) *Resources {
 					"machineType": pl.MachineType,
 					"metadata": map[string]interface{}{
 						"items": []interface{}{
-							map[string]interface{}{
-								"key":   "startup-script",
-								"value": startup_script,
-							},
+							b.buildStartupScriptMetadataItem(pl),
 						},
 					},
 					"networkInterfaces": []interface{}{
-						map[string]interface{}{
-							"network": "https://www.googleapis.com/compute/v1/projects/" + pl.ProjectID + "/global/networks/default",
-							"accessConfigs": []interface{}{
-								map[string]interface{}{
-									"name": "External-IP",
-									"type": "ONE_TO_ONE_NAT",
-								},
-							},
-						},
+						b.buildDefaultNetwork(pl),
 					},
 					"scheduling": map[string]interface{}{
 						"preemptible": pl.Preemptible,
 					},
 					"serviceAccounts": []interface{}{
-						map[string]interface{}{
-							"scopes": []interface{}{
-								"https://www.googleapis.com/auth/devstorage.full_control",
-								"https://www.googleapis.com/auth/pubsub",
-							},
-						},
+						b.buildScopes(),
 					},
 					"disks": []interface{}{
-						map[string]interface{}{
-							"deviceName": "boot",
-							"type":       "PERSISTENT",
-							"boot":       true,
-							"autoDelete": true,
-							"initializeParams": map[string]interface{}{
-								"sourceImage": pl.SourceImage,
-							},
-						},
+						b.buildBootDisk(&pl.BootDisk),
 					},
 				},
 			},
@@ -179,6 +153,54 @@ func (b *Builder) GenerateDeploymentResources(pl *Pipeline) *Resources {
 	return &Resources{Resources: t}
 }
 
+func (b *Builder) buildStartupScriptMetadataItem(pl *Pipeline) map[string]interface{} {
+	startup_script := b.buildStartupScript(pl)
+	return map[string]interface{}{
+		"key":   "startup-script",
+		"value": startup_script,
+	}
+}
+
+func (b *Builder) buildDefaultNetwork(pl *Pipeline) map[string]interface{} {
+	return map[string]interface{}{
+		"network": "https://www.googleapis.com/compute/v1/projects/" + pl.ProjectID + "/global/networks/default",
+		"accessConfigs": []interface{}{
+			map[string]interface{}{
+				"name": "External-IP",
+				"type": "ONE_TO_ONE_NAT",
+			},
+		},
+	}
+}
+
+func (b *Builder) buildScopes() map[string]interface{} {
+	return map[string]interface{}{
+		"scopes": []interface{}{
+			"https://www.googleapis.com/auth/devstorage.full_control",
+			"https://www.googleapis.com/auth/pubsub",
+		},
+	}
+}
+
+func (b *Builder) buildBootDisk(disk *PipelineVmDisk) map[string]interface{} {
+	initParams := map[string]interface{}{
+		"sourceImage": disk.SourceImage,
+	}
+	if disk.DiskSizeGb > 0 {
+		initParams["diskSizeGb"] = disk.DiskSizeGb
+	}
+	if disk.DiskType != "" {
+		initParams["diskType"] = disk.DiskType
+	}
+	return map[string]interface{}{
+		"deviceName":       "boot",
+		"type":             "PERSISTENT",
+		"boot":             true,
+		"autoDelete":       true,
+		"initializeParams": initParams,
+	}
+}
+
 const GcrHostPatternBase = `\A[^/]*gcr.io`
 
 var (
@@ -190,7 +212,7 @@ var (
 func (b *Builder) buildStartupScript(pl *Pipeline) string {
 	r := StartupScriptHeader + "\n"
 	usingGcr :=
-		CosCloudProjectRegexp.MatchString(pl.SourceImage) &&
+		CosCloudProjectRegexp.MatchString(pl.BootDisk.SourceImage) &&
 			GcrContainerImageRegexp.MatchString(pl.ContainerName)
 	docker := "docker"
 	if usingGcr {

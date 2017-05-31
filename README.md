@@ -55,7 +55,11 @@ Make `pipeline.json` like this:
   "name":"pipeline01",
   "project_id":"proj-123",
   "zone":"us-central1-f",
-  "source_image":"https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+  "boot_disk": {
+    "source_image":"https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+    "disk_type": "pd-ssd",
+    "disk_size_gb": 30
+  },
   "machine_type":"f1-micro",
   "preemptible": true,
   "target_size":1,

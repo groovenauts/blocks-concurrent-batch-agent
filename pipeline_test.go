@@ -110,10 +110,12 @@ func TestWatcherCalcDifferences(t *testing.T) {
 
 	// CreatePipeline valid
 	pl := Pipeline{
-		Name:          "pipeline01",
-		ProjectID:     proj,
-		Zone:          "us-central1-f",
-		SourceImage:   "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+		Name:      "pipeline01",
+		ProjectID: proj,
+		Zone:      "us-central1-f",
+		BootDisk: PipelineVmDisk{
+			SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+		},
 		MachineType:   "f1-micro",
 		TargetSize:    2,
 		ContainerSize: 2,
@@ -243,10 +245,12 @@ func TestGetActiveSubscriptions(t *testing.T) {
 
 	for st, name := range StatusStrings {
 		pl := &Pipeline{
-			Name:          "pipeline-" + name,
-			ProjectID:     proj,
-			Zone:          "us-central1-f",
-			SourceImage:   "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+			Name:      "pipeline-" + name,
+			ProjectID: proj,
+			Zone:      "us-central1-f",
+			BootDisk: PipelineVmDisk{
+				SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+			},
 			MachineType:   "f1-micro",
 			TargetSize:    2,
 			ContainerSize: 2,
