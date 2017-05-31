@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/groovenauts/blocks-concurrent-batch-agent/gae_support"
-	"github.com/groovenauts/blocks-concurrent-batch-agent/models"
-	"github.com/groovenauts/blocks-concurrent-batch-agent/test_utils"
+	"gae_support"
+	"models"
+	"test_utils"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/appengine"

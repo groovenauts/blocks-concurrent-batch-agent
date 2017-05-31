@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/groovenauts/blocks-concurrent-batch-agent/gae_support"
-	"github.com/groovenauts/blocks-concurrent-batch-agent/models"
+	"gae_support"
+	"models"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 

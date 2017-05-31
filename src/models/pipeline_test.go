@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/groovenauts/blocks-concurrent-batch-agent/test_utils"
+	"test_utils"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/aetest"
@@ -12,7 +12,6 @@ import (
 	"google.golang.org/appengine/log"
 	"gopkg.in/go-playground/validator.v9"
 )
-
 
 const (
 	proj = "test-project-x"

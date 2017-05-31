@@ -8,8 +8,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/groovenauts/blocks-concurrent-batch-agent/models"
-	"github.com/groovenauts/blocks-concurrent-batch-agent/gae_support"
+	"gae_support"
+	"models"
 	"github.com/labstack/echo"
 
 	"golang.org/x/net/context"

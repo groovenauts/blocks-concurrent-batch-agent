@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/groovenauts/blocks-concurrent-batch-agent/api"
+	"api"
 )
 
 func init() {
