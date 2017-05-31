@@ -5,5 +5,5 @@ import (
 )
 
 func init() {
-	admin.Setup(e, "../../src/admin/views")
+	admin.Setup(e, "admin/views")
 }

@@ -19,7 +19,7 @@ import (
 )
 
 func TestAdminHandler(t *testing.T) {
-	Setup(echo.New(), "views")
+	Setup(echo.New(), "../../app/concurrent-batch-agent/admin/views")
 
 	os.Setenv("BATCH_AGENT_HOSTNAME", "test.local")
 
