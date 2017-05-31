@@ -1,4 +1,4 @@
-package pipeline
+package main
 
 import (
 	"github.com/groovenauts/blocks-concurrent-batch-agent/admin"
