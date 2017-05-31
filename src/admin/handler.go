@@ -10,10 +10,9 @@ import (
 
 	"gae_support"
 	"models"
+
 	"github.com/labstack/echo"
-
 	"golang.org/x/net/context"
-
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/log"
 )

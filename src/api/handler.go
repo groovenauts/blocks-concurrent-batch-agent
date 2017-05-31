@@ -7,11 +7,10 @@ import (
 
 	"gae_support"
 	"models"
+
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-
 	"golang.org/x/net/context"
-
 	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/taskqueue"
 )
