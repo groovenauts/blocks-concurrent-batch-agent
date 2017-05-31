@@ -6,10 +6,14 @@ all: check
 checksetup:
 	go get golang.org/x/tools/cmd/goimports
 
-glide_install:
+glide_rename:
 	cd vendor && mv src/ vendor/
+
+glide_install:
 	cd vendor && glide install
 	cd vendor && mv vendor/ src/
+
+glide_reinstall: glide_rename glide_install
 
 glide_update:
 	cd vendor && rm -r -f src/
