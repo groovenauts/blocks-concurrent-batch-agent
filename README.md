@@ -36,7 +36,7 @@ go tool cover -html=coverage.out
 ## Run server locally
 
 ```
-$ dev_appserver.py ./app.yaml
+$ make run
 ```
 
 ### Get Token on browser
@@ -82,8 +82,7 @@ $ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X 
 ## Deploy to appengine
 
 ```
-$ export PROJECT=<YOUR_GCP_PROJECT>
-$ appcfg.py -A ${PROJECT} -V $(cat VERSION) update .
+$ PROJECT=<YOUR_GCP_PROJECT> make deploy
 ```
 
 If you want to set it active, run the following command
