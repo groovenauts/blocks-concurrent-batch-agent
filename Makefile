@@ -1,5 +1,5 @@
-UNFORMATTED=$(shell gofmt -l *.go)
 export GOPATH := $(PWD):$(PWD)/vendor
+VERSION = $(shell cat ./VERSION)
 
 all: check
 
@@ -46,3 +46,9 @@ test: check
 
 run:
 	dev_appserver.py ./app/concurrent-batch-agent/app.yaml
+
+show_version:
+	@echo ${VERSION}
+
+deploy:
+	appcfg.py -A $${PROJECT} -V ${VERSION} update ./app/concurrent-batch-agent
