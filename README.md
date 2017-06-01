@@ -18,7 +18,7 @@ increases or descreases, `blocks-concurrent-batch-agent` detects it and scale yo
 1. [Install the App Engine SDK for Go](https://cloud.google.com/appengine/docs/go/download?hl=ja)
 1. `git clone git@github.com:groovenauts/blocks-concurrent-batch-agent.git`
 1. [Install glide](https://github.com/Masterminds/glide#install)
-1. `glide install`
+1. `make glide_install`
 
 ## Run test
 
