@@ -1,4 +1,4 @@
-package pipeline
+package models
 
 import (
 	"golang.org/x/net/context"
@@ -19,9 +19,9 @@ func (b *Closer) Process(ctx context.Context, pl *Pipeline) error {
 		return err
 	}
 
-	pl.Status = closing
+	pl.Status = Closing
 	pl.ClosingOperationName = ope.Name
-	err = pl.update(ctx)
+	err = pl.Update(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to update Pipeline status to 'closing': %v\npl: %v\n", err, pl)
 		return err

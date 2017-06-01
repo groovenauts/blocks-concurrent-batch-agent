@@ -1,4 +1,4 @@
-package pipeline
+package models
 
 import (
 	"encoding/base64"
@@ -120,7 +120,7 @@ func GetAllAuth(ctx context.Context) ([]*Auth, error) {
 	return res, nil
 }
 
-func (m *Auth) destroy(ctx context.Context) error {
+func (m *Auth) Destroy(ctx context.Context) error {
 	key, err := datastore.DecodeKey(m.ID)
 	if err != nil {
 		return err
@@ -131,7 +131,7 @@ func (m *Auth) destroy(ctx context.Context) error {
 	return nil
 }
 
-func (m *Auth) update(ctx context.Context) error {
+func (m *Auth) Update(ctx context.Context) error {
 	key, err := datastore.DecodeKey(m.ID)
 	if err != nil {
 		return err

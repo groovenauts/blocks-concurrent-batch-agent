@@ -1,6 +1,6 @@
 // +build appengine
 
-package pipeline
+package main
 
 import (
 	"net/http"

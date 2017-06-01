@@ -18,7 +18,7 @@ increases or descreases, `blocks-concurrent-batch-agent` detects it and scale yo
 1. [Install the App Engine SDK for Go](https://cloud.google.com/appengine/docs/go/download?hl=ja)
 1. `git clone git@github.com:groovenauts/blocks-concurrent-batch-agent.git`
 1. [Install glide](https://github.com/Masterminds/glide#install)
-1. `glide install`
+1. `make glide_install`
 
 ## Run test
 
@@ -36,7 +36,7 @@ go tool cover -html=coverage.out
 ## Run server locally
 
 ```
-$ dev_appserver.py ./app.yaml
+$ make run
 ```
 
 ### Get Token on browser
@@ -82,8 +82,7 @@ $ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X 
 ## Deploy to appengine
 
 ```
-$ export PROJECT=<YOUR_GCP_PROJECT>
-$ appcfg.py -A ${PROJECT} -V $(cat VERSION) update .
+$ PROJECT=<YOUR_GCP_PROJECT> make deploy
 ```
 
 If you want to set it active, run the following command

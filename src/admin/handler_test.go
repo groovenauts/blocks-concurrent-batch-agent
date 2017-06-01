@@ -1,4 +1,4 @@
-package pipeline
+package admin
 
 import (
 	"net/http"
@@ -6,6 +6,9 @@ import (
 	"os"
 	"strings"
 	"testing"
+
+	"models"
+	"test_utils"
 
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
@@ -16,6 +19,8 @@ import (
 )
 
 func TestAdminHandler(t *testing.T) {
+	Setup(echo.New(), "../../app/concurrent-batch-agent/admin/views")
+
 	os.Setenv("BATCH_AGENT_HOSTNAME", "test.local")
 
 	opt := &aetest.Options{StronglyConsistentDatastore: true}
@@ -40,7 +45,7 @@ func TestAdminHandler(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.SetPath("/admin/auths")
 
-	ClearDatastore(t, ctx, "Auths")
+	test_utils.ClearDatastore(t, ctx, "Auths")
 	aetest.Login(user, req)
 	log.Debugf(ctx, "user: %v\n", user)
 
@@ -58,7 +63,7 @@ func TestAdminHandler(t *testing.T) {
 	c = e.NewContext(req, rec)
 	c.SetPath("/admin/auths")
 
-	ExpectChange(t, ctx, "Auths", 1, func() {
+	test_utils.ExpectChange(t, ctx, "Auths", 1, func() {
 		f = h.withFlash(h.create)
 		err = f(c)
 		if err != nil {
@@ -83,7 +88,7 @@ func TestAdminHandler(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
 
-	auths, err := GetAllAuth(ctx)
+	auths, err := models.GetAllAuth(ctx)
 	assert.NoError(t, err)
 	auth := auths[0]
 	assert.NotEmpty(t, auth.ID)
@@ -107,7 +112,7 @@ func TestAdminHandler(t *testing.T) {
 	assert.Equal(t, http.StatusFound, rec.Code)
 
 	log.Debugf(ctx, "auth: %q %v\n", auth.ID, auth)
-	updated, err := FindAuth(ctx, auth.ID)
+	updated, err := models.FindAuth(ctx, auth.ID)
 	assert.NoError(t, err)
 	assert.True(t, updated.Disabled)
 
@@ -121,7 +126,7 @@ func TestAdminHandler(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues(auth.ID)
 
-	ExpectChange(t, ctx, "Auths", -1, func() {
+	test_utils.ExpectChange(t, ctx, "Auths", -1, func() {
 		f = h.AuthHandler(h.destroy)
 		err = f(c)
 		if err != nil {

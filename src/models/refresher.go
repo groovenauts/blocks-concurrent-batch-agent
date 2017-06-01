@@ -1,4 +1,4 @@
-package pipeline
+package models
 
 import (
 	"golang.org/x/net/context"
@@ -13,24 +13,24 @@ type Refresher struct {
 func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 	log.Debugf(ctx, "Refreshing pipeline %v\n", pl)
 	switch pl.Status {
-	case deploying:
+	case Deploying:
 		return b.UpdatePipelineWithStatus(ctx, pl, "deploying", pl.DeployingOperationName,
 			func(errors *[]DeploymentError) {
 				pl.DeployingErrors = *errors
-				pl.Status = broken
+				pl.Status = Broken
 			},
 			func() {
-				pl.Status = opened
+				pl.Status = Opened
 			},
 		)
-	case closing:
+	case Closing:
 		return b.UpdatePipelineWithStatus(ctx, pl, "closing", pl.ClosingOperationName,
 			func(errors *[]DeploymentError) {
 				pl.ClosingErrors = *errors
-				pl.Status = closing_error
+				pl.Status = Closing_error
 			},
 			func() {
-				pl.Status = closed
+				pl.Status = Closed
 			},
 		)
 	default:
@@ -57,7 +57,7 @@ func (b *Refresher) UpdatePipelineWithStatus(ctx context.Context, pl *Pipeline, 
 			log.Infof(ctx, "%v completed successfully project: %v deployment: %v\n", status, proj, pl.DeploymentName)
 			succHandler()
 		}
-		err = pl.update(ctx)
+		err = pl.Update(ctx)
 		if err != nil {
 			log.Errorf(ctx, "Failed to update Pipeline Status to %v: %v\npl: %v\n", pl.Status, err, pl)
 			return err

@@ -1,4 +1,4 @@
-package pipeline
+package admin
 
 import (
 	"fmt"
@@ -8,21 +8,25 @@ import (
 	"os"
 	"time"
 
+	"gae_support"
+	"models"
+
 	"github.com/labstack/echo"
-
 	"golang.org/x/net/context"
-
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/log"
 )
 
 type adminHandler struct{}
 
-func init() {
-	h := &adminHandler{}
+var e *echo.Echo
 
+func Setup(echo *echo.Echo, dir string) {
+	e = echo
+
+	h := &adminHandler{}
 	t := &Template{
-		templates: template.Must(template.ParseGlob("admin/*.html")),
+		templates: template.Must(template.ParseGlob(dir + "/*.html")),
 	}
 	e.Renderer = t
 
@@ -84,7 +88,7 @@ func (h *adminHandler) clearFlash(c echo.Context) {
 }
 
 func (h *adminHandler) withFlash(impl func(c echo.Context) error) func(c echo.Context) error {
-	return withAEContext(func(c echo.Context) error {
+	return gae_support.With(func(c echo.Context) error {
 		f := h.loadFlash(c)
 		c.Set("flash", f)
 		h.clearFlash(c)
@@ -96,12 +100,12 @@ func (h *adminHandler) withFlash(impl func(c echo.Context) error) func(c echo.Co
 
 type IndexRes struct {
 	Flash *Flash
-	Auths []*Auth
+	Auths []*models.Auth
 }
 
 func (h *adminHandler) index(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
-	auths, err := GetAllAuth(ctx)
+	auths, err := models.GetAllAuth(ctx)
 	if err != nil {
 		log.Errorf(ctx, "indexPage error: %v\n", err)
 		return err
@@ -117,13 +121,13 @@ func (h *adminHandler) index(c echo.Context) error {
 
 type CreateRes struct {
 	Flash    *Flash
-	Auth     *Auth
+	Auth     *models.Auth
 	Hostname string
 }
 
 func (h *adminHandler) create(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
-	auth, err := CreateAuth(ctx)
+	auth, err := models.CreateAuth(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Error on create auth: %v\n", err)
 		return err
@@ -154,11 +158,11 @@ func (h *adminHandler) getHostname(c echo.Context) (string, error) {
 	return hostname, err
 }
 
-func (h *adminHandler) AuthHandler(f func(c echo.Context, ctx context.Context, auth *Auth) error) func(c echo.Context) error {
+func (h *adminHandler) AuthHandler(f func(c echo.Context, ctx context.Context, auth *models.Auth) error) func(c echo.Context) error {
 	return h.withFlash(func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
-		auth, err := FindAuth(ctx, c.Param("id"))
-		if err == ErrNoSuchAuth {
+		auth, err := models.FindAuth(ctx, c.Param("id"))
+		if err == models.ErrNoSuchAuth {
 			h.setFlash(c, "alert", fmt.Sprintf("Auth not found for id: %v", c.Param("id")))
 			return c.Redirect(http.StatusFound, "/admin/auths")
 		}
@@ -171,9 +175,9 @@ func (h *adminHandler) AuthHandler(f func(c echo.Context, ctx context.Context, a
 }
 
 // PUT http://localhost:8080/admin/auths/:id
-func (h *adminHandler) disable(c echo.Context, ctx context.Context, auth *Auth) error {
+func (h *adminHandler) disable(c echo.Context, ctx context.Context, auth *models.Auth) error {
 	auth.Disabled = true
-	err := auth.update(ctx)
+	err := auth.Update(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to update Auth: %v because of %v\n", auth, err)
 		h.setFlash(c, "alert", fmt.Sprintf("Failed to update Auth. id: %v error: %v", auth.ID, err))
@@ -184,8 +188,8 @@ func (h *adminHandler) disable(c echo.Context, ctx context.Context, auth *Auth) 
 }
 
 // DELETE http://localhost:8080/admin/auths/:id
-func (h *adminHandler) destroy(c echo.Context, ctx context.Context, auth *Auth) error {
-	err := auth.destroy(ctx)
+func (h *adminHandler) destroy(c echo.Context, ctx context.Context, auth *models.Auth) error {
+	err := auth.Destroy(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to destroy Auth: %v because of %v\n", auth, err)
 		h.setFlash(c, "alert", fmt.Sprintf("Failed to destroy Auth. id: %v error: %v", auth.ID, err))

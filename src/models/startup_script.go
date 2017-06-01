@@ -1,4 +1,4 @@
-package pipeline
+package models
 
 const StartupScriptHeader = `
 function with_backoff {

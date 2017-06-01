@@ -1,4 +1,4 @@
-package pipeline
+package api
 
 import (
 	"encoding/json"
@@ -6,6 +6,10 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"gae_support"
+	"models"
+	"test_utils"
 
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
@@ -20,6 +24,8 @@ const (
 )
 
 func TestActions(t *testing.T) {
+	Setup(echo.New())
+
 	opt := &aetest.Options{StronglyConsistentDatastore: true}
 	inst, err := aetest.NewInstance(opt)
 	assert.NoError(t, err)
@@ -61,7 +67,7 @@ func TestActions(t *testing.T) {
 	req, err := inst.NewRequest(echo.GET, "/pipelines", nil)
 	assert.NoError(t, err)
 	ctx := appengine.NewContext(req)
-	auth, err := CreateAuth(ctx)
+	auth, err := models.CreateAuth(ctx)
 	assert.NoError(t, err)
 	token := "Bearer " + auth.Token
 
@@ -95,7 +101,7 @@ func TestActions(t *testing.T) {
 
 	s := rec.Body.String()
 
-	pl := Pipeline{}
+	pl := models.Pipeline{}
 	if assert.NoError(t, json.Unmarshal([]byte(s), &pl)) {
 		assert.Equal(t, test_proj1, pl.ProjectID)
 		assert.NotNil(t, pl.ID)
@@ -118,19 +124,26 @@ func TestActions(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		s := rec.Body.String()
-		pl2 := Pipeline{}
+		pl2 := models.Pipeline{}
 		if assert.NoError(t, json.Unmarshal([]byte(s), &pl2)) {
 			assert.Equal(t, test_proj1, pl2.ProjectID)
 		}
 	}
 
 	type expection struct {
-		status Status
+		status models.Status
 		result map[string][]string
 	}
 
 	expections := []expection{}
-	for _, st := range []Status{initialized, broken, building, opened, closing_error, closed} {
+	for _, st := range []models.Status{
+		models.Initialized,
+		models.Broken,
+		models.Building,
+		models.Opened,
+		models.Closing_error,
+		models.Closed,
+	} {
 		expections = append(expections, expection{
 			status: st,
 			result: map[string][]string{
@@ -141,14 +154,14 @@ func TestActions(t *testing.T) {
 	}
 
 	expections = append(expections, expection{
-		status: deploying,
+		status: models.Deploying,
 		result: map[string][]string{
 			"deploying": []string{pl.ID},
 			"closing":   []string{},
 		},
 	})
 	expections = append(expections, expection{
-		status: closing,
+		status: models.Closing,
 		result: map[string][]string{
 			"deploying": []string{},
 			"closing":   []string{pl.ID},
@@ -160,12 +173,12 @@ func TestActions(t *testing.T) {
 		pl.Status = expection.status
 		// https://github.com/golang/appengine/blob/master/aetest/instance.go#L32-L46
 		ctx = appengine.NewContext(req)
-		err = pl.update(ctx)
+		err = pl.Update(ctx)
 		assert.NoError(t, err)
 
-		f = withAEContext(h.refresh)
+		f = gae_support.With(h.refresh)
 
-		retryWith(10, func() func() {
+		test_utils.RetryWith(10, func() func() {
 			req, err = inst.NewRequest(echo.GET, "/pipelines/refresh", nil)
 			assert.NoError(t, err)
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -210,7 +223,7 @@ func TestActions(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		s := rec.Body.String()
-		pls := []Pipeline{}
+		pls := []models.Pipeline{}
 		if assert.NoError(t, json.Unmarshal([]byte(s), &pls)) {
 			assert.Equal(t, 1, len(pls))
 		}
@@ -220,8 +233,8 @@ func TestActions(t *testing.T) {
 	ctx = appengine.NewContext(req)
 
 	// Make pipeline opened
-	pl.Status = opened
-	err = pl.update(ctx)
+	pl.Status = models.Opened
+	err = pl.Update(ctx)
 	assert.NoError(t, err)
 
 	// /pipelines/subscriptions
@@ -239,7 +252,7 @@ func TestActions(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		s := rec.Body.String()
-		subscriptions := []Subscription{}
+		subscriptions := []models.Subscription{}
 		if assert.NoError(t, json.Unmarshal([]byte(s), &subscriptions)) {
 			if assert.Equal(t, 1, len(subscriptions)) {
 				sub := subscriptions[0]
@@ -271,8 +284,8 @@ func TestActions(t *testing.T) {
 	}
 
 	// Make pipeline deletable
-	pl.Status = closed
-	err = pl.update(ctx)
+	pl.Status = models.Closed
+	err = pl.Update(ctx)
 	assert.NoError(t, err)
 
 	// Test for destroy
@@ -292,7 +305,7 @@ func TestActions(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		s := rec.Body.String()
-		pl2 := Pipeline{}
+		pl2 := models.Pipeline{}
 		if assert.NoError(t, json.Unmarshal([]byte(s), &pl2)) {
 			assert.Equal(t, test_proj1, pl2.ProjectID)
 		}

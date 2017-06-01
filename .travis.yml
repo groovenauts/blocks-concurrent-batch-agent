@@ -15,9 +15,6 @@ before_install:
   - curl https://glide.sh/get | sh
 install:
   ## Install dependencies
-  - glide install
-before_script:
-  - make check
+  - make glide_install
 script:
-  - goapp test
-
+  - make test
