@@ -146,9 +146,8 @@ func setupTestBuildStartupScript() (*Builder, *Pipeline) {
 func TestBuildStartupScript1(t *testing.T) {
 	b, pl := setupTestBuildStartupScript()
 	ss := b.buildStartupScript(pl)
-	expected :=
-		StartupScriptHeader + "\n" +
-			"TIMEOUT=600 with_backoff docker pull groovenauts/batch_type_iot_example:0.3.1\n" +
+	startupScriptBody :=
+		"TIMEOUT=600 with_backoff docker pull groovenauts/batch_type_iot_example:0.3.1\n" +
 			"for i in {1..2}; do docker run -d" +
 			" -e PROJECT=" + pl.ProjectID +
 			" -e PIPELINE=" + pl.Name +
@@ -157,12 +156,16 @@ func TestBuildStartupScript1(t *testing.T) {
 			" " + pl.ContainerName +
 			" " + pl.Command +
 			" ; done"
-	assert.Equal(t, expected, ss)
+	assert.Equal(t, StartupScriptHeader+"\n"+startupScriptBody, ss)
 
 	// Use cos-cloud project's image
 	pl.BootDisk.SourceImage = "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-stable-56-9000-84-2"
 	ss = b.buildStartupScript(pl)
-	assert.Equal(t, expected, ss)
+	assert.Equal(t, StartupScriptHeader+"\n"+startupScriptBody, ss)
+
+	// Use stackdriver-agent
+	pl.StackdriverAgent = true
+	assert.Equal(t, StartupScriptHeader+"\n"+StackdriverAgentCommand+"\n"+startupScriptBody, b.buildStartupScript(pl))
 }
 
 func TestBuildStartupScript2(t *testing.T) {
