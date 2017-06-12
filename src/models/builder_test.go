@@ -125,8 +125,8 @@ func TestBuildDeployment(t *testing.T) {
 	assert.Equal(t, &expected, &actual)
 }
 
-func TestBuildStartupScript(t *testing.T) {
-	b := &Builder{}
+func setupTestBuildStartupScript() (*Builder, *Pipeline) {
+	b := Builder{}
 	pl := Pipeline{
 		Name:      "pipeline01",
 		ProjectID: "dummy-proj-999",
@@ -140,7 +140,12 @@ func TestBuildStartupScript(t *testing.T) {
 		ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
 		Command:       "",
 	}
-	ss := b.buildStartupScript(&pl)
+	return &b, &pl
+}
+
+func TestBuildStartupScript1(t *testing.T) {
+	b, pl := setupTestBuildStartupScript()
+	ss := b.buildStartupScript(pl)
 	expected :=
 		StartupScriptHeader + "\n" +
 			"TIMEOUT=600 with_backoff docker pull groovenauts/batch_type_iot_example:0.3.1\n" +
@@ -156,14 +161,17 @@ func TestBuildStartupScript(t *testing.T) {
 
 	// Use cos-cloud project's image
 	pl.BootDisk.SourceImage = "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-stable-56-9000-84-2"
-	ss = b.buildStartupScript(&pl)
+	ss = b.buildStartupScript(pl)
 	assert.Equal(t, expected, ss)
+}
 
+func TestBuildStartupScript2(t *testing.T) {
+	b, pl := setupTestBuildStartupScript()
 	// Use cos-cloud project's image and private image in asia.gcr.io
 	pl.BootDisk.SourceImage = "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-stable-56-9000-84-2"
 	pl.ContainerName = "asia.gcr.io/example/test_worker:0.0.1"
-	ss = b.buildStartupScript(&pl)
-	expected =
+	ss := b.buildStartupScript(pl)
+	expected :=
 		StartupScriptHeader + "\n" +
 			"METADATA=http://metadata.google.internal/computeMetadata/v1\n" +
 			"SVC_ACCT=$METADATA/instance/service-accounts/default\n" +
@@ -184,7 +192,7 @@ func TestBuildStartupScript(t *testing.T) {
 	// Use cos-cloud project's image and private image in gcr.io
 	pl.BootDisk.SourceImage = "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-stable-56-9000-84-2"
 	pl.ContainerName = "gcr.io/example/test_worker:0.0.1" // NOT from asia.gcr.io
-	ss = b.buildStartupScript(&pl)
+	ss = b.buildStartupScript(pl)
 	re := regexp.MustCompile(`asia.gcr.io`)
 	expected = re.ReplaceAllString(expected, "gcr.io")
 	//fmt.Println(expected)
