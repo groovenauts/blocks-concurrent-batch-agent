@@ -85,6 +85,7 @@ type (
 		BootDisk               PipelineVmDisk    `json:"boot_disk"`
 		MachineType            string            `json:"machine_type"   validate:"required"`
 		Preemptible            bool              `json:"preemptible,omitempty"`
+		StackdriverAgent       bool              `json:"stackdriver_agent,omitempty"`
 		TargetSize             int               `json:"target_size"    validate:"required"`
 		ContainerSize          int               `json:"container_size" validate:"required"`
 		ContainerName          string            `json:"container_name" validate:"required"`
