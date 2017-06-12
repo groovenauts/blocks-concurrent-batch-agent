@@ -209,7 +209,7 @@ var (
 	GcrImageHostRegexp      = regexp.MustCompile(GcrHostPatternBase)
 )
 
-const StackdriverAgentCommand = "docker run -e MONITOR_HOST=true -v /proc:/mnt/proc:ro --privileged wikiwi/stackdriver-agent"
+const StackdriverAgentCommand = "docker run -d -e MONITOR_HOST=true -v /proc:/mnt/proc:ro --privileged wikiwi/stackdriver-agent"
 
 func (b *Builder) buildStartupScript(pl *Pipeline) string {
 	r := StartupScriptHeader + "\n"
