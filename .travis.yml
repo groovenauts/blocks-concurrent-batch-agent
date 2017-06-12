@@ -17,4 +17,4 @@ install:
   ## Install dependencies
   - make glide_install
 script:
-  - make test
+  - make ci
