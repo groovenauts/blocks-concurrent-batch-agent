@@ -178,6 +178,8 @@ func (b *Builder) buildScopes() map[string]interface{} {
 		"scopes": []interface{}{
 			"https://www.googleapis.com/auth/devstorage.full_control",
 			"https://www.googleapis.com/auth/pubsub",
+			"https://www.googleapis.com/auth/logging.write",
+			"https://www.googleapis.com/auth/monitoring.write",
 		},
 	}
 }
