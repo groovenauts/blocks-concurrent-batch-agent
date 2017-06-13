@@ -45,10 +45,12 @@ check:
 
 	git diff --exit-code
 
-test: check
+test:
 	goapp test	./src/models \
 							./src/api \
 							./src/admin
+
+ci: check test
 
 run:
 	dev_appserver.py ./app/concurrent-batch-agent/app.yaml

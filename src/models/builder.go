@@ -209,6 +209,8 @@ var (
 	GcrImageHostRegexp      = regexp.MustCompile(GcrHostPatternBase)
 )
 
+const StackdriverAgentCommand = "docker run -d -e MONITOR_HOST=true -v /proc:/mnt/proc:ro --privileged wikiwi/stackdriver-agent"
+
 func (b *Builder) buildStartupScript(pl *Pipeline) string {
 	r := StartupScriptHeader + "\n"
 	usingGcr :=
@@ -226,6 +228,11 @@ func (b *Builder) buildStartupScript(pl *Pipeline) string {
 			"ACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'\"' -f 4)\n" +
 			"TIMEOUT=60 with_backoff " + docker + " login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://" + host + "\n"
 	}
+
+	if pl.StackdriverAgent {
+		r = r + StackdriverAgentCommand + "\n"
+	}
+
 	r = r +
 		"TIMEOUT=600 with_backoff " + docker + " pull " + pl.ContainerName + "\n" +
 		fmt.Sprintf("for i in {1..%v}; do", pl.ContainerSize) +

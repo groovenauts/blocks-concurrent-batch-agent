@@ -62,6 +62,7 @@ Make `pipeline.json` like this:
   },
   "machine_type":"f1-micro",
   "preemptible": true,
+  "stackdriver_agent": true,
   "target_size":1,
   "container_size":1,
   "container_name":"groovenauts/concurrent_batch_basic_example:0.4.0-alpha2",
