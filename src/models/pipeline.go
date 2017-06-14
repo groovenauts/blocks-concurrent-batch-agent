@@ -95,7 +95,6 @@ type (
 	}
 )
 
-
 func (pl *Pipeline) Destroy(ctx context.Context) error {
 	if pl.Status != Closed {
 		return &InvalidOperation{
