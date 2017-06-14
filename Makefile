@@ -45,6 +45,11 @@ check:
 
 	git diff --exit-code
 
+build:
+	goapp build	./src/models \
+							./src/api \
+							./src/admin
+
 test:
 	goapp test	./src/models \
 							./src/api \
