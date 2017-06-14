@@ -97,9 +97,14 @@ type (
 	}
 )
 
-func (m *Pipeline) Create(ctx context.Context) error {
+func (m *Pipeline) Validate() error {
 	validator := validator.New()
 	err := validator.Struct(m)
+	return err
+}
+
+func (m *Pipeline) Create(ctx context.Context) error {
+	err := m.Validate()
 	if err != nil {
 		return err
 	}
@@ -130,6 +135,11 @@ func (pl *Pipeline) Destroy(ctx context.Context) error {
 }
 
 func (pl *Pipeline) Update(ctx context.Context) error {
+	err := pl.Validate()
+	if err != nil {
+		return err
+	}
+
 	key, err := datastore.DecodeKey(pl.ID)
 	if err != nil {
 		return err
