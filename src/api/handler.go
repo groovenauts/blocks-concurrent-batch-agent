@@ -59,7 +59,7 @@ func (h *handler) withAuth(impl func(c echo.Context) error) func(c echo.Context)
 		if token == "" {
 			return c.JSON(http.StatusUnauthorized, map[string]string{"message": "Unauthorized"})
 		}
-		_, err := models.FindAuthWithToken(ctx, token)
+		_, err := models.GlobalAuthAccessor.FindWithToken(ctx, token)
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, map[string]string{"message": "Invalid token"})
 		}
