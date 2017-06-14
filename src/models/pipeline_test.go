@@ -41,7 +41,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	}
 
 	// CreatePipeline invalid
-	err = CreatePipeline(ctx, &Pipeline{})
+	err = GlobalPipelineAccessor.Create(ctx, &Pipeline{})
 	assert.Error(t, err)
 	errors := err.(validator.ValidationErrors)
 
@@ -76,7 +76,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 		ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
 		Command:       "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
 	}
-	err = CreatePipeline(ctx, &pl)
+	err = GlobalPipelineAccessor.Create(ctx, &pl)
 	assert.NoError(t, err)
 	log.Debugf(ctx, "pl %v\n", pl)
 	key, err := datastore.DecodeKey(pl.ID)
@@ -88,7 +88,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	ExpectToHaveProps(t, pl2)
 
 	// FindPipeline
-	pl3, err := FindPipeline(ctx, pl.ID)
+	pl3, err := GlobalPipelineAccessor.Find(ctx, pl.ID)
 	assert.NoError(t, err)
 	ExpectToHaveProps(t, pl3)
 
@@ -98,7 +98,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	assert.NoError(t, err)
 
 	// GetAllPipeline
-	pls, err := GetAllPipelines(ctx)
+	pls, err := GlobalPipelineAccessor.GetAll(ctx)
 	assert.NoError(t, err)
 	if len(pls) != 1 {
 		t.Fatalf("len(pls) expects %v but was %v\n", 1, len(pls))
@@ -118,7 +118,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	}
 	for _, st := range statuses {
 		test_utils.RetryWith(10, func() func() {
-			keys, err := GetPipelineIDsByStatus(ctx, st)
+			keys, err := GlobalPipelineAccessor.GetIDsByStatus(ctx, st)
 			assert.NoError(t, err)
 			if len(keys) == 0 {
 				// OK
@@ -132,7 +132,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 		})
 	}
 
-	keys, err := GetPipelineIDsByStatus(ctx, Opened)
+	keys, err := GlobalPipelineAccessor.GetIDsByStatus(ctx, Opened)
 	assert.NoError(t, err)
 	if len(keys) != 1 {
 		t.Fatalf("len(keys) for opened expects %v but was %v\n", 1, len(keys))
@@ -212,11 +212,11 @@ func TestGetActiveSubscriptions(t *testing.T) {
 			Command:       "",
 			Status:        st,
 		}
-		assert.NoError(t, CreatePipeline(ctx, pl))
+		assert.NoError(t, GlobalPipelineAccessor.Create(ctx, pl))
 		pipelines[st] = pl
 	}
 
-	res, err := GetActiveSubscriptions(ctx)
+	res, err := GlobalPipelineAccessor.GetActiveSubscriptions(ctx)
 	assert.NoError(t, err)
 	assert.Equal(t, 1, len(res))
 

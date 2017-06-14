@@ -123,12 +123,12 @@ func TestRefresherProcessForDeploying(t *testing.T) {
 			DeploymentName: "pipeline01",
 			Status:         Deploying,
 		}
-		err = CreatePipeline(ctx, &pl)
+		err = GlobalPipelineAccessor.Create(ctx, &pl)
 
 		r := &Refresher{deployer: expection.deployer}
 		err = r.Process(ctx, &pl)
 		assert.NoError(t, err)
-		pl2, err := FindPipeline(ctx, pl.ID)
+		pl2, err := GlobalPipelineAccessor.Find(ctx, pl.ID)
 		assert.NoError(t, err)
 		assert.Equal(t, expection.status, pl2.Status)
 		assert.Equal(t, expection.errors, pl2.DeployingErrors)
@@ -187,12 +187,12 @@ func TestRefresherProcessForClosing(t *testing.T) {
 			DeploymentName: "pipeline01",
 			Status:         Closing,
 		}
-		err = CreatePipeline(ctx, &pl)
+		err = GlobalPipelineAccessor.Create(ctx, &pl)
 
 		r := &Refresher{deployer: expection.deployer}
 		err = r.Process(ctx, &pl)
 		assert.NoError(t, err)
-		pl2, err := FindPipeline(ctx, pl.ID)
+		pl2, err := GlobalPipelineAccessor.Find(ctx, pl.ID)
 		assert.NoError(t, err)
 		assert.Equal(t, expection.status, pl2.Status)
 		assert.Equal(t, expection.errors, pl2.ClosingErrors)
