@@ -130,7 +130,7 @@ func (h *handler) create(c echo.Context) error {
 		log.Errorf(ctx, "req: %v\n", req)
 		return err
 	}
-	err := models.GlobalPipelineAccessor.Create(ctx, pl)
+	err := pl.Create(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to create pipeline: %v\n%v\n", pl, err)
 		return err

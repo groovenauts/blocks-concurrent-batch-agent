@@ -7,7 +7,6 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
-	"gopkg.in/go-playground/validator.v9"
 )
 
 type PipelineAccessor struct {
@@ -16,22 +15,6 @@ type PipelineAccessor struct {
 var GlobalPipelineAccessor = &PipelineAccessor{}
 
 var ErrNoSuchPipeline = errors.New("No such data in Pipelines")
-
-func (pa *PipelineAccessor) Create(ctx context.Context, pl *Pipeline) error {
-	validator := validator.New()
-	err := validator.Struct(pl)
-	if err != nil {
-		return err
-	}
-
-	key := datastore.NewIncompleteKey(ctx, "Pipelines", nil)
-	res, err := datastore.Put(ctx, key, pl)
-	if err != nil {
-		return err
-	}
-	pl.ID = res.Encode()
-	return nil
-}
 
 func (pa *PipelineAccessor) Find(ctx context.Context, id string) (*Pipeline, error) {
 	key, err := datastore.DecodeKey(id)

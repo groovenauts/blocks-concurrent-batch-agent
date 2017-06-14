@@ -6,6 +6,8 @@ import (
 
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
+
+	"gopkg.in/go-playground/validator.v9"
 )
 
 // Status constants
@@ -94,6 +96,22 @@ type (
 		ClosingErrors          []DeploymentError `json:"closing_errors"`
 	}
 )
+
+func (m *Pipeline) Create(ctx context.Context) error {
+	validator := validator.New()
+	err := validator.Struct(m)
+	if err != nil {
+		return err
+	}
+
+	key := datastore.NewIncompleteKey(ctx, "Pipelines", nil)
+	res, err := datastore.Put(ctx, key, m)
+	if err != nil {
+		return err
+	}
+	m.ID = res.Encode()
+	return nil
+}
 
 func (pl *Pipeline) Destroy(ctx context.Context) error {
 	if pl.Status != Closed {

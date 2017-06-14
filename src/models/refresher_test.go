@@ -123,7 +123,7 @@ func TestRefresherProcessForDeploying(t *testing.T) {
 			DeploymentName: "pipeline01",
 			Status:         Deploying,
 		}
-		err = GlobalPipelineAccessor.Create(ctx, &pl)
+		err = pl.Create(ctx)
 
 		r := &Refresher{deployer: expection.deployer}
 		err = r.Process(ctx, &pl)
@@ -187,7 +187,7 @@ func TestRefresherProcessForClosing(t *testing.T) {
 			DeploymentName: "pipeline01",
 			Status:         Closing,
 		}
-		err = GlobalPipelineAccessor.Create(ctx, &pl)
+		err = pl.Create(ctx)
 
 		r := &Refresher{deployer: expection.deployer}
 		err = r.Process(ctx, &pl)
