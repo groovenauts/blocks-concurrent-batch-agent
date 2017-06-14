@@ -11,9 +11,14 @@ import (
 	"google.golang.org/appengine/log"
 )
 
+type AuthAccessor struct {
+}
+
+var GlobalAuthAccessor = &AuthAccessor{}
+
 var ErrNoSuchAuth = errors.New("No such data in Auths")
 
-func CreateAuth(ctx context.Context) (*Auth, error) {
+func (aa *AuthAccessor) Create(ctx context.Context) (*Auth, error) {
 	m := Auth{}
 	m.generatePassword()
 	key := datastore.NewIncompleteKey(ctx, "Auths", nil)
@@ -40,7 +45,7 @@ func CreateAuth(ctx context.Context) (*Auth, error) {
 	return &m, nil
 }
 
-func FindAuth(ctx context.Context, id string) (*Auth, error) {
+func (aa *AuthAccessor) Find(ctx context.Context, id string) (*Auth, error) {
 	// log.Debugf(ctx, "@FindAuth id: %q\n", id)
 	key, err := datastore.DecodeKey(id)
 	if err != nil {
@@ -61,7 +66,7 @@ func FindAuth(ctx context.Context, id string) (*Auth, error) {
 	return m, nil
 }
 
-func FindAuthWithToken(ctx context.Context, token string) (*Auth, error) {
+func (aa *AuthAccessor) FindWithToken(ctx context.Context, token string) (*Auth, error) {
 	parts := strings.SplitN(token, ":", 2)
 	if len(parts) != 2 {
 		err := errors.New("Invalid token: " + token)
@@ -70,7 +75,7 @@ func FindAuthWithToken(ctx context.Context, token string) (*Auth, error) {
 	}
 	id := parts[0]
 	pw := parts[1]
-	auth, err := FindAuth(ctx, id)
+	auth, err := aa.Find(ctx, id)
 	if err != nil {
 		log.Errorf(ctx, "@FindAuthWithToken Auth not found %v id: %v\n", err, id)
 		return nil, err
@@ -87,7 +92,7 @@ func FindAuthWithToken(ctx context.Context, token string) (*Auth, error) {
 	return auth, nil
 }
 
-func GetAllAuth(ctx context.Context) ([]*Auth, error) {
+func (aa *AuthAccessor) GetAll(ctx context.Context) ([]*Auth, error) {
 	q := datastore.NewQuery("Auths")
 	iter := q.Run(ctx)
 	var res = []*Auth{}
