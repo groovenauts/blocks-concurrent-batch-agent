@@ -118,13 +118,13 @@ func (m *Pipeline) Create(ctx context.Context) error {
 	return nil
 }
 
-func (pl *Pipeline) Destroy(ctx context.Context) error {
-	if pl.Status != Closed {
+func (m *Pipeline) Destroy(ctx context.Context) error {
+	if m.Status != Closed {
 		return &InvalidOperation{
-			Msg: fmt.Sprintf("Can't destroy pipeline which is %v. Close before delete.", pl.Status),
+			Msg: fmt.Sprintf("Can't destroy pipeline which is %v. Close before delete.", m.Status),
 		}
 	}
-	key, err := datastore.DecodeKey(pl.ID)
+	key, err := datastore.DecodeKey(m.ID)
 	if err != nil {
 		return err
 	}
@@ -134,27 +134,27 @@ func (pl *Pipeline) Destroy(ctx context.Context) error {
 	return nil
 }
 
-func (pl *Pipeline) Update(ctx context.Context) error {
-	err := pl.Validate()
+func (m *Pipeline) Update(ctx context.Context) error {
+	err := m.Validate()
 	if err != nil {
 		return err
 	}
 
-	key, err := datastore.DecodeKey(pl.ID)
+	key, err := datastore.DecodeKey(m.ID)
 	if err != nil {
 		return err
 	}
-	_, err = datastore.Put(ctx, key, pl)
+	_, err = datastore.Put(ctx, key, m)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (pl *Pipeline) Process(ctx context.Context, action string) error {
+func (m *Pipeline) Process(ctx context.Context, action string) error {
 	processor, err := processorFactory.Create(ctx, action)
 	if err != nil {
 		return err
 	}
-	return processor.Process(ctx, pl)
+	return processor.Process(ctx, m)
 }
