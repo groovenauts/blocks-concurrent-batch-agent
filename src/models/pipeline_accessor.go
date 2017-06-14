@@ -9,7 +9,12 @@ import (
 	"gopkg.in/go-playground/validator.v9"
 )
 
-func CreatePipeline(ctx context.Context, pl *Pipeline) error {
+type PipelineAccessor struct {
+}
+
+var GlobalPipelineAccessor = &PipelineAccessor{}
+
+func (pa *PipelineAccessor) Create(ctx context.Context, pl *Pipeline) error {
 	validator := validator.New()
 	err := validator.Struct(pl)
 	if err != nil {
@@ -25,7 +30,7 @@ func CreatePipeline(ctx context.Context, pl *Pipeline) error {
 	return nil
 }
 
-func FindPipeline(ctx context.Context, id string) (*Pipeline, error) {
+func (pa *PipelineAccessor) Find(ctx context.Context, id string) (*Pipeline, error) {
 	key, err := datastore.DecodeKey(id)
 	if err != nil {
 		log.Errorf(ctx, "Failed to decode id(%v) to key because of %v \n", id, err)
@@ -44,17 +49,17 @@ func FindPipeline(ctx context.Context, id string) (*Pipeline, error) {
 	return pl, nil
 }
 
-func GetAllPipelines(ctx context.Context) ([]*Pipeline, error) {
+func (pa *PipelineAccessor) GetAll(ctx context.Context) ([]*Pipeline, error) {
 	q := datastore.NewQuery("Pipelines")
-	return GetPipelinesByQuery(ctx, q)
+	return pa.GetByQuery(ctx, q)
 }
 
-func GetPipelinesByStatus(ctx context.Context, st Status) ([]*Pipeline, error) {
+func (pa *PipelineAccessor) GetByStatus(ctx context.Context, st Status) ([]*Pipeline, error) {
 	q := datastore.NewQuery("Pipelines").Filter("Status =", st)
-	return GetPipelinesByQuery(ctx, q)
+	return pa.GetByQuery(ctx, q)
 }
 
-func GetPipelinesByQuery(ctx context.Context, q *datastore.Query) ([]*Pipeline, error) {
+func (pa *PipelineAccessor) GetByQuery(ctx context.Context, q *datastore.Query) ([]*Pipeline, error) {
 	iter := q.Run(ctx)
 	var res = []*Pipeline{}
 	for {
@@ -72,12 +77,12 @@ func GetPipelinesByQuery(ctx context.Context, q *datastore.Query) ([]*Pipeline, 
 	return res, nil
 }
 
-func GetPipelineIDsByStatus(ctx context.Context, st Status) ([]string, error) {
+func (pa *PipelineAccessor) GetIDsByStatus(ctx context.Context, st Status) ([]string, error) {
 	q := datastore.NewQuery("Pipelines").Filter("Status =", st)
-	return GetPipelineIDsByQuery(ctx, q)
+	return pa.GetIDsByQuery(ctx, q)
 }
 
-func GetPipelineIDsByQuery(ctx context.Context, q *datastore.Query) ([]string, error) {
+func (pa *PipelineAccessor) GetIDsByQuery(ctx context.Context, q *datastore.Query) ([]string, error) {
 	keys, err := q.KeysOnly().GetAll(ctx, nil)
 	if err != nil {
 		return nil, err
@@ -95,9 +100,9 @@ type Subscription struct {
 	Name       string `json:"subscription"`
 }
 
-func GetActiveSubscriptions(ctx context.Context) ([]*Subscription, error) {
+func (pa *PipelineAccessor) GetActiveSubscriptions(ctx context.Context) ([]*Subscription, error) {
 	r := []*Subscription{}
-	pipelines, err := GetPipelinesByStatus(ctx, Opened)
+	pipelines, err := pa.GetByStatus(ctx, Opened)
 	if err != nil {
 		return nil, err
 	}
