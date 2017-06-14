@@ -67,7 +67,8 @@ func TestActions(t *testing.T) {
 	req, err := inst.NewRequest(echo.GET, "/pipelines", nil)
 	assert.NoError(t, err)
 	ctx := appengine.NewContext(req)
-	auth, err := models.GlobalAuthAccessor.Create(ctx)
+	auth := &models.Auth{}
+	err = auth.Create(ctx)
 	assert.NoError(t, err)
 	token := "Bearer " + auth.Token
 

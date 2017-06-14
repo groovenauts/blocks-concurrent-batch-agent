@@ -3,7 +3,6 @@ package models
 import (
 	"errors"
 	"strings"
-	"time"
 
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/net/context"
@@ -17,33 +16,6 @@ type AuthAccessor struct {
 var GlobalAuthAccessor = &AuthAccessor{}
 
 var ErrNoSuchAuth = errors.New("No such data in Auths")
-
-func (aa *AuthAccessor) Create(ctx context.Context) (*Auth, error) {
-	m := Auth{}
-	m.generatePassword()
-	key := datastore.NewIncompleteKey(ctx, "Auths", nil)
-	// Password is a string encoded by base64
-	enc_pw, err := bcrypt.GenerateFromPassword([]byte(m.Password), 10)
-	if err != nil {
-		log.Errorf(ctx, "@CreateAuth %v\n", err)
-		return nil, err
-	}
-	m.EncryptedPassword = string(enc_pw) // EncryptedPassword is binary string
-	t := time.Now()
-	m.CreatedAt = t
-	m.UpdatedAt = t
-	res, err := datastore.Put(ctx, key, &m)
-	if err != nil {
-		log.Errorf(ctx, "@CreateAuth %v mp: %v\n", err, &m)
-		return nil, err
-	}
-	// log.Debugf(ctx, "CreateAuth res: %v\n", res)
-	id := res.Encode()
-	m.ID = id
-	m.Token = id + ":" + m.Password
-	// log.Debugf(ctx, "CreateAuth result: %v\n", m)
-	return &m, nil
-}
 
 func (aa *AuthAccessor) Find(ctx context.Context, id string) (*Auth, error) {
 	// log.Debugf(ctx, "@FindAuth id: %q\n", id)
