@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 
 	"golang.org/x/net/context"
@@ -13,6 +14,8 @@ type PipelineAccessor struct {
 }
 
 var GlobalPipelineAccessor = &PipelineAccessor{}
+
+var ErrNoSuchPipeline = errors.New("No such data in Pipelines")
 
 func (pa *PipelineAccessor) Create(ctx context.Context, pl *Pipeline) error {
 	validator := validator.New()

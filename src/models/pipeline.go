@@ -1,7 +1,6 @@
 package models
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 
@@ -51,8 +50,6 @@ func (e *InvalidOperation) Error() string {
 }
 
 var processorFactory ProcessorFactory = &DefaultProcessorFactory{}
-
-var ErrNoSuchPipeline = errors.New("No such data in Pipelines")
 
 type (
 	// See https://godoc.org/google.golang.org/api/deploymentmanager/v2#OperationErrorErrors
