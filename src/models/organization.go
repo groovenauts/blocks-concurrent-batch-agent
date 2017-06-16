@@ -11,7 +11,7 @@ import (
 type (
 	Organization struct {
 		ID        string `datastore:"-"`
-		Name			string `validate:"required"`
+		Name      string `validate:"required"`
 		Memo      string
 		CreatedAt time.Time
 		UpdatedAt time.Time

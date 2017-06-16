@@ -39,7 +39,7 @@ func TestOrganizationCRUD(t *testing.T) {
 
 	org := &Organization{}
 	err = org.Validate()
-	
+
 	assert.Error(t, err)
 	errors := err.(validator.ValidationErrors)
 
@@ -91,4 +91,3 @@ func TestOrganizationCRUD(t *testing.T) {
 	err = org1.Destroy(ctx)
 	assert.NoError(t, err)
 }
-
