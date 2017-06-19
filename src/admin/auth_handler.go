@@ -13,10 +13,9 @@ import (
 	"google.golang.org/appengine/log"
 )
 
-type AuthHandler struct{
+type AuthHandler struct {
 	Views Views
 }
-
 
 // GET http://localhost:8080/admin/auths
 

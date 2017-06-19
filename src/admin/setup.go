@@ -8,7 +8,7 @@ import (
 
 var e *echo.Echo
 
-func Setup(echo *echo.Echo, dir string) *AuthHandler{
+func Setup(echo *echo.Echo, dir string) *AuthHandler {
 	e = echo
 
 	auth := &AuthHandler{
