@@ -13,7 +13,9 @@ import (
 	"google.golang.org/appengine/log"
 )
 
-type AuthHandler struct{}
+type AuthHandler struct{
+	Views Views
+}
 
 
 // GET http://localhost:8080/admin/auths
@@ -34,7 +36,7 @@ func (h *AuthHandler) index(c echo.Context) error {
 		Auths: auths,
 	}
 	r.Flash = c.Get("flash").(*Flash)
-	return c.Render(http.StatusOK, "index", &r)
+	return h.Views.Render(c, http.StatusOK, "index", &r)
 }
 
 // POST http://localhost:8080/admin/auths
@@ -62,7 +64,7 @@ func (h *AuthHandler) create(c echo.Context) error {
 		Hostname: hostname,
 	}
 	r.Flash = c.Get("flash").(*Flash)
-	return c.Render(http.StatusOK, "create", &r)
+	return h.Views.Render(c, http.StatusOK, "create", &r)
 }
 
 func (h *AuthHandler) getHostname(c echo.Context) (string, error) {
