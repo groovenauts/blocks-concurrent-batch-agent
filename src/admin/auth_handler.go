@@ -4,9 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"time"
 
-	"gae_support"
 	"models"
 
 	"github.com/labstack/echo"
@@ -17,51 +15,6 @@ import (
 
 type AuthHandler struct{}
 
-func (h *AuthHandler) setFlash(c echo.Context, name, value string) {
-	h.setFlashWithExpire(c, name, value, time.Now().Add(10*time.Minute))
-}
-
-func (h *AuthHandler) setFlashWithExpire(c echo.Context, name, value string, expire time.Time) {
-	cookie := new(http.Cookie)
-	cookie.Path = "/admin/"
-	cookie.Name = name
-	cookie.Value = value
-	cookie.Expires = expire
-	c.SetCookie(cookie)
-}
-
-func (h *AuthHandler) loadFlash(c echo.Context) *Flash {
-	f := Flash{}
-	cookie, err := c.Cookie("alert")
-	if err == nil {
-		f.Alert = cookie.Value
-	}
-	cookie, err = c.Cookie("notice")
-	if err == nil {
-		f.Notice = cookie.Value
-	}
-	return &f
-}
-
-func (h *AuthHandler) clearFlash(c echo.Context) {
-	_, err := c.Cookie("alert")
-	if err == nil {
-		h.setFlashWithExpire(c, "alert", "", time.Now().AddDate(0, 0, 1))
-	}
-	_, err = c.Cookie("notice")
-	if err == nil {
-		h.setFlashWithExpire(c, "notice", "", time.Now().AddDate(0, 0, 1))
-	}
-}
-
-func (h *AuthHandler) withFlash(impl func(c echo.Context) error) func(c echo.Context) error {
-	return gae_support.With(func(c echo.Context) error {
-		f := h.loadFlash(c)
-		c.Set("flash", f)
-		h.clearFlash(c)
-		return impl(c)
-	})
-}
 
 // GET http://localhost:8080/admin/auths
 
@@ -127,15 +80,15 @@ func (h *AuthHandler) getHostname(c echo.Context) (string, error) {
 }
 
 func (h *AuthHandler) AuthHandler(f func(c echo.Context, ctx context.Context, auth *models.Auth) error) func(c echo.Context) error {
-	return h.withFlash(func(c echo.Context) error {
+	return withFlash(func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		auth, err := models.GlobalAuthAccessor.Find(ctx, c.Param("id"))
 		if err == models.ErrNoSuchAuth {
-			h.setFlash(c, "alert", fmt.Sprintf("Auth not found for id: %v", c.Param("id")))
+			setFlash(c, "alert", fmt.Sprintf("Auth not found for id: %v", c.Param("id")))
 			return c.Redirect(http.StatusFound, "/admin/auths")
 		}
 		if err != nil {
-			h.setFlash(c, "alert", fmt.Sprintf("Failed to find Auth for id: %v error: %v", c.Param("id"), err))
+			setFlash(c, "alert", fmt.Sprintf("Failed to find Auth for id: %v error: %v", c.Param("id"), err))
 			return c.Redirect(http.StatusFound, "/admin/auths")
 		}
 		return f(c, ctx, auth)
@@ -148,10 +101,10 @@ func (h *AuthHandler) disable(c echo.Context, ctx context.Context, auth *models.
 	err := auth.Update(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to update Auth: %v because of %v\n", auth, err)
-		h.setFlash(c, "alert", fmt.Sprintf("Failed to update Auth. id: %v error: %v", auth.ID, err))
+		setFlash(c, "alert", fmt.Sprintf("Failed to update Auth. id: %v error: %v", auth.ID, err))
 		return c.Redirect(http.StatusFound, "/admin/auths")
 	}
-	h.setFlash(c, "notice", fmt.Sprintf("Disabled the Auth successfully. id: %v", auth.ID))
+	setFlash(c, "notice", fmt.Sprintf("Disabled the Auth successfully. id: %v", auth.ID))
 	return c.Redirect(http.StatusFound, "/admin/auths")
 }
 
@@ -160,9 +113,9 @@ func (h *AuthHandler) destroy(c echo.Context, ctx context.Context, auth *models.
 	err := auth.Destroy(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to destroy Auth: %v because of %v\n", auth, err)
-		h.setFlash(c, "alert", fmt.Sprintf("Failed to destroy Auth. id: %v error: %v", auth.ID, err))
+		setFlash(c, "alert", fmt.Sprintf("Failed to destroy Auth. id: %v error: %v", auth.ID, err))
 		return c.Redirect(http.StatusFound, "/admin/auths")
 	}
-	h.setFlash(c, "notice", fmt.Sprintf("The Auth is deleted successfully. id: %v", auth.ID))
+	setFlash(c, "notice", fmt.Sprintf("The Auth is deleted successfully. id: %v", auth.ID))
 	return c.Redirect(http.StatusFound, "/admin/auths")
 }

@@ -19,8 +19,8 @@ func Setup(echo *echo.Echo, dir string) {
 	e.Renderer = t
 
 	g := e.Group("/admin/auths")
-	g.GET("", h.withFlash(h.index))
-	g.POST("", h.withFlash(h.create))
+	g.GET("", withFlash(h.index))
+	g.POST("", withFlash(h.create))
 	g.POST("/:id/disable", h.AuthHandler(h.disable))
 	g.POST("/:id/delete", h.AuthHandler(h.destroy))
 }
@@ -31,9 +31,4 @@ type Template struct {
 
 func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
 	return t.templates.ExecuteTemplate(w, name, data)
-}
-
-type Flash struct {
-	Alert  string
-	Notice string
 }

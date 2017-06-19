@@ -49,7 +49,7 @@ func TestAdminHandler(t *testing.T) {
 	aetest.Login(user, req)
 	log.Debugf(ctx, "user: %v\n", user)
 
-	f := h.withFlash(h.index)
+	f := withFlash(h.index)
 	err = f(c)
 	if err != nil {
 		log.Errorf(ctx, "%v Error: %v\n", c.Path(), err)
@@ -64,7 +64,7 @@ func TestAdminHandler(t *testing.T) {
 	c.SetPath("/admin/auths")
 
 	test_utils.ExpectChange(t, ctx, "Auths", 1, func() {
-		f = h.withFlash(h.create)
+		f = withFlash(h.create)
 		err = f(c)
 		if err != nil {
 			log.Errorf(ctx, "%v Error: %v\n", c.Path(), err)
@@ -80,7 +80,7 @@ func TestAdminHandler(t *testing.T) {
 	c = e.NewContext(req, rec)
 	c.SetPath("/admin/auths")
 
-	f = h.withFlash(h.index)
+	f = withFlash(h.index)
 	err = f(c)
 	if err != nil {
 		log.Errorf(ctx, "%v Error: %v\n", c.Path(), err)
