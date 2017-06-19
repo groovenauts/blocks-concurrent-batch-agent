@@ -59,7 +59,7 @@ func (h *handler) withAuth(impl func(c echo.Context) error) func(c echo.Context)
 		if token == "" {
 			return c.JSON(http.StatusUnauthorized, map[string]string{"message": "Unauthorized"})
 		}
-		_, err := models.FindAuthWithToken(ctx, token)
+		_, err := models.GlobalAuthAccessor.FindWithToken(ctx, token)
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, map[string]string{"message": "Invalid token"})
 		}
@@ -72,7 +72,7 @@ func (h *handler) withPipeline(wrapper func(func(echo.Context) error) func(echo.
 	return wrapper(func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		id := c.Param("id")
-		pl, err := models.FindPipeline(ctx, id)
+		pl, err := models.GlobalPipelineAccessor.Find(ctx, id)
 		switch {
 		case err == models.ErrNoSuchPipeline:
 			return c.JSON(http.StatusNotFound, map[string]string{"message": "Not found for " + id})
@@ -130,7 +130,7 @@ func (h *handler) create(c echo.Context) error {
 		log.Errorf(ctx, "req: %v\n", req)
 		return err
 	}
-	err := models.CreatePipeline(ctx, pl)
+	err := models.GlobalPipelineAccessor.Create(ctx, pl)
 	if err != nil {
 		log.Errorf(ctx, "Failed to create pipeline: %v\n%v\n", pl, err)
 		return err
@@ -149,7 +149,7 @@ func (h *handler) create(c echo.Context) error {
 // curl -v http://localhost:8080/pipelines
 func (h *handler) index(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
-	pipelines, err := models.GetAllPipelines(ctx)
+	pipelines, err := models.GlobalPipelineAccessor.GetAll(ctx)
 	if err != nil {
 		return err
 	}
@@ -159,7 +159,7 @@ func (h *handler) index(c echo.Context) error {
 // curl -v http://localhost:8080/pipelines/subscriptions
 func (h *handler) subscriptions(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
-	subscriptions, err := models.GetActiveSubscriptions(ctx)
+	subscriptions, err := models.GlobalPipelineAccessor.GetActiveSubscriptions(ctx)
 	if err != nil {
 		return err
 	}
@@ -193,7 +193,7 @@ func (h *handler) refresh(c echo.Context) error {
 	statuses := map[string]models.Status{"deploying": models.Deploying, "closing": models.Closing}
 	res := map[string][]string{}
 	for name, st := range statuses {
-		ids, err := models.GetPipelineIDsByStatus(ctx, st)
+		ids, err := models.GlobalPipelineAccessor.GetIDsByStatus(ctx, st)
 		if err != nil {
 			return err
 		}

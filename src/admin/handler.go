@@ -105,7 +105,7 @@ type IndexRes struct {
 
 func (h *adminHandler) index(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
-	auths, err := models.GetAllAuth(ctx)
+	auths, err := models.GlobalAuthAccessor.GetAll(ctx)
 	if err != nil {
 		log.Errorf(ctx, "indexPage error: %v\n", err)
 		return err
@@ -127,7 +127,7 @@ type CreateRes struct {
 
 func (h *adminHandler) create(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
-	auth, err := models.CreateAuth(ctx)
+	auth, err := models.GlobalAuthAccessor.Create(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Error on create auth: %v\n", err)
 		return err
@@ -161,7 +161,7 @@ func (h *adminHandler) getHostname(c echo.Context) (string, error) {
 func (h *adminHandler) AuthHandler(f func(c echo.Context, ctx context.Context, auth *models.Auth) error) func(c echo.Context) error {
 	return h.withFlash(func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
-		auth, err := models.FindAuth(ctx, c.Param("id"))
+		auth, err := models.GlobalAuthAccessor.Find(ctx, c.Param("id"))
 		if err == models.ErrNoSuchAuth {
 			h.setFlash(c, "alert", fmt.Sprintf("Auth not found for id: %v", c.Param("id")))
 			return c.Redirect(http.StatusFound, "/admin/auths")

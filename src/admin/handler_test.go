@@ -88,7 +88,7 @@ func TestAdminHandler(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
 
-	auths, err := models.GetAllAuth(ctx)
+	auths, err := models.GlobalAuthAccessor.GetAll(ctx)
 	assert.NoError(t, err)
 	auth := auths[0]
 	assert.NotEmpty(t, auth.ID)
@@ -112,7 +112,7 @@ func TestAdminHandler(t *testing.T) {
 	assert.Equal(t, http.StatusFound, rec.Code)
 
 	log.Debugf(ctx, "auth: %q %v\n", auth.ID, auth)
-	updated, err := models.FindAuth(ctx, auth.ID)
+	updated, err := models.GlobalAuthAccessor.Find(ctx, auth.ID)
 	assert.NoError(t, err)
 	assert.True(t, updated.Disabled)
 
