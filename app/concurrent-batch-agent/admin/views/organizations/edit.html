@@ -1,0 +1,41 @@
+{{define "edit"}}
+
+{{if .Flash.Alert}}
+<p>ALERT: {{.Flash.Alert}}</p>
+{{end}}
+
+{{if .Flash.Notice}}
+<p>Notice: {{.Flash.Notice}}</p>
+{{end}}
+
+<div>
+
+  <form action="/admin/orgs/{{ .Organization.ID}}/update" method="POST">
+    <div>
+      <label>
+        Name
+        <input type="text" name="name" value="{{.Organization.Name}}"/>
+      </label>
+    </div>
+
+    <div>
+      <label>
+        Memo
+        <textarea name="memo">{{.Organization.Memo}}</textarea>
+      </label>
+    </div>
+
+    <div>Created at: {{.Organization.CreatedAt}}</div>
+    <div>Updated at: {{.Organization.UpdatedAt}}</div>
+
+    <div>
+      <input type="submit" value="Update"/>
+    </div>
+  </form>
+</div>
+
+<div>
+  <a href="/admin/orgs">Back</a>
+  <a href="/admin/orgs/{{.Organization.ID}}">Show</a>
+</div>
+{{end}}

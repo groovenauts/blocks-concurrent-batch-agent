@@ -1,0 +1,26 @@
+{{define "show"}}
+
+{{if .Flash.Alert}}
+<p>ALERT: {{.Flash.Alert}}</p>
+{{end}}
+
+{{if .Flash.Notice}}
+<p>Notice: {{.Flash.Notice}}</p>
+{{end}}
+
+<div>
+
+  <div>Name: {{.Organization.Name}}</div>
+  <div>
+    <p>Memo</p>
+    <pre>{{.Organization.Memo}}</pre>
+  </div>
+  <div>Created at: {{.Organization.CreatedAt}}</div>
+  <div>Updated at: {{.Organization.UpdatedAt}}</div>
+</div>
+
+<div>
+  <a href="/admin/orgs">Back</a>
+  <a href="/admin/orgs/{{.Organization.ID}}/edit">Edit</a>
+</div>
+{{end}}
