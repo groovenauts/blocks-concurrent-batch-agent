@@ -22,8 +22,9 @@ func (aa *OrganizationAccessor) Find(ctx context.Context, id string) (*Organizat
 		return nil, err
 	}
 	ctx = context.WithValue(ctx, "Organization.key", key)
-	m := &Organization{ID: id}
+	m := &Organization{}
 	err = datastore.Get(ctx, key, m)
+	m.ID = id
 	switch {
 	case err == datastore.ErrNoSuchEntity:
 		return nil, ErrNoSuchOrganization
