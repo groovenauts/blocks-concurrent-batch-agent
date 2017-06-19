@@ -36,7 +36,7 @@ func TestAdminHandler(t *testing.T) {
 	}
 
 	// e := echo.New()
-	h := &adminHandler{}
+	h := &AuthHandler{}
 
 	req, err := inst.NewRequest(echo.GET, "/admin/auths", nil)
 	assert.NoError(t, err)

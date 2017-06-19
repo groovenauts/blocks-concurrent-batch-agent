@@ -17,14 +17,14 @@ import (
 	"google.golang.org/appengine/log"
 )
 
-type adminHandler struct{}
+type AuthHandler struct{}
 
 var e *echo.Echo
 
 func Setup(echo *echo.Echo, dir string) {
 	e = echo
 
-	h := &adminHandler{}
+	h := &AuthHandler{}
 	t := &Template{
 		templates: template.Must(template.ParseGlob(dir + "/*.html")),
 	}
@@ -50,11 +50,11 @@ type Flash struct {
 	Notice string
 }
 
-func (h *adminHandler) setFlash(c echo.Context, name, value string) {
+func (h *AuthHandler) setFlash(c echo.Context, name, value string) {
 	h.setFlashWithExpire(c, name, value, time.Now().Add(10*time.Minute))
 }
 
-func (h *adminHandler) setFlashWithExpire(c echo.Context, name, value string, expire time.Time) {
+func (h *AuthHandler) setFlashWithExpire(c echo.Context, name, value string, expire time.Time) {
 	cookie := new(http.Cookie)
 	cookie.Path = "/admin/"
 	cookie.Name = name
@@ -63,7 +63,7 @@ func (h *adminHandler) setFlashWithExpire(c echo.Context, name, value string, ex
 	c.SetCookie(cookie)
 }
 
-func (h *adminHandler) loadFlash(c echo.Context) *Flash {
+func (h *AuthHandler) loadFlash(c echo.Context) *Flash {
 	f := Flash{}
 	cookie, err := c.Cookie("alert")
 	if err == nil {
@@ -76,7 +76,7 @@ func (h *adminHandler) loadFlash(c echo.Context) *Flash {
 	return &f
 }
 
-func (h *adminHandler) clearFlash(c echo.Context) {
+func (h *AuthHandler) clearFlash(c echo.Context) {
 	_, err := c.Cookie("alert")
 	if err == nil {
 		h.setFlashWithExpire(c, "alert", "", time.Now().AddDate(0, 0, 1))
@@ -87,7 +87,7 @@ func (h *adminHandler) clearFlash(c echo.Context) {
 	}
 }
 
-func (h *adminHandler) withFlash(impl func(c echo.Context) error) func(c echo.Context) error {
+func (h *AuthHandler) withFlash(impl func(c echo.Context) error) func(c echo.Context) error {
 	return gae_support.With(func(c echo.Context) error {
 		f := h.loadFlash(c)
 		c.Set("flash", f)
@@ -103,7 +103,7 @@ type IndexRes struct {
 	Auths []*models.Auth
 }
 
-func (h *adminHandler) index(c echo.Context) error {
+func (h *AuthHandler) index(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	auths, err := models.GlobalAuthAccessor.GetAll(ctx)
 	if err != nil {
@@ -125,7 +125,7 @@ type CreateRes struct {
 	Hostname string
 }
 
-func (h *adminHandler) create(c echo.Context) error {
+func (h *AuthHandler) create(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	auth := &models.Auth{}
 	err := auth.Create(ctx)
@@ -145,7 +145,7 @@ func (h *adminHandler) create(c echo.Context) error {
 	return c.Render(http.StatusOK, "create", &r)
 }
 
-func (h *adminHandler) getHostname(c echo.Context) (string, error) {
+func (h *AuthHandler) getHostname(c echo.Context) (string, error) {
 	r := os.ExpandEnv("BATCH_AGENT_HOSTNAME")
 	if r != "" {
 		return r, nil
@@ -159,7 +159,7 @@ func (h *adminHandler) getHostname(c echo.Context) (string, error) {
 	return hostname, err
 }
 
-func (h *adminHandler) AuthHandler(f func(c echo.Context, ctx context.Context, auth *models.Auth) error) func(c echo.Context) error {
+func (h *AuthHandler) AuthHandler(f func(c echo.Context, ctx context.Context, auth *models.Auth) error) func(c echo.Context) error {
 	return h.withFlash(func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		auth, err := models.GlobalAuthAccessor.Find(ctx, c.Param("id"))
@@ -176,7 +176,7 @@ func (h *adminHandler) AuthHandler(f func(c echo.Context, ctx context.Context, a
 }
 
 // PUT http://localhost:8080/admin/auths/:id
-func (h *adminHandler) disable(c echo.Context, ctx context.Context, auth *models.Auth) error {
+func (h *AuthHandler) disable(c echo.Context, ctx context.Context, auth *models.Auth) error {
 	auth.Disabled = true
 	err := auth.Update(ctx)
 	if err != nil {
@@ -189,7 +189,7 @@ func (h *adminHandler) disable(c echo.Context, ctx context.Context, auth *models
 }
 
 // DELETE http://localhost:8080/admin/auths/:id
-func (h *adminHandler) destroy(c echo.Context, ctx context.Context, auth *models.Auth) error {
+func (h *AuthHandler) destroy(c echo.Context, ctx context.Context, auth *models.Auth) error {
 	err := auth.Destroy(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to destroy Auth: %v because of %v\n", auth, err)
