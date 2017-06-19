@@ -12,17 +12,17 @@ var e *echo.Echo
 func Setup(echo *echo.Echo, dir string) {
 	e = echo
 
-	h := &AuthHandler{}
+	auth := &AuthHandler{}
 	t := &Template{
 		templates: template.Must(template.ParseGlob(dir + "/*.html")),
 	}
 	e.Renderer = t
 
 	g := e.Group("/admin/auths")
-	g.GET("", withFlash(h.index))
-	g.POST("", withFlash(h.create))
-	g.POST("/:id/disable", h.AuthHandler(h.disable))
-	g.POST("/:id/delete", h.AuthHandler(h.destroy))
+	g.GET("", withFlash(auth.index))
+	g.POST("", withFlash(auth.create))
+	g.POST("/:id/disable", auth.AuthHandler(auth.disable))
+	g.POST("/:id/delete", auth.AuthHandler(auth.destroy))
 }
 
 type Template struct {
