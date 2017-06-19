@@ -19,7 +19,7 @@ import (
 )
 
 func TestAdminHandler(t *testing.T) {
-	Setup(echo.New(), "../../app/concurrent-batch-agent/admin/views")
+	h := Setup(echo.New(), "../../app/concurrent-batch-agent/admin/views")
 
 	os.Setenv("BATCH_AGENT_HOSTNAME", "test.local")
 
@@ -34,9 +34,6 @@ func TestAdminHandler(t *testing.T) {
 		Admin:      true,
 		ID:         "1",
 	}
-
-	// e := echo.New()
-	h := &AuthHandler{}
 
 	req, err := inst.NewRequest(echo.GET, "/admin/auths", nil)
 	assert.NoError(t, err)
