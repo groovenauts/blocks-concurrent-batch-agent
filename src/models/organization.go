@@ -10,11 +10,11 @@ import (
 
 type (
 	Organization struct {
-		ID        string `datastore:"-"`
-		Name      string `validate:"required"`
-		Memo      string
-		CreatedAt time.Time
-		UpdatedAt time.Time
+		ID        string `json:"id", datastore:"-"`
+		Name      string `json:"name", validate:"required"`
+		Memo      string `json:"memo"`
+		CreatedAt time.Time `json:"created_at"`
+		UpdatedAt time.Time `json:"updated_at"`
 	}
 )
 
