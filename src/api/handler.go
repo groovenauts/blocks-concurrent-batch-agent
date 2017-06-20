@@ -57,7 +57,7 @@ func (h *handler) buildActions() {
 		"destroy":       gae_support.With(h.withAuth(h.Identified(h.destroy))),
 		"create":        gae_support.With(h.withAuth(h.create)),
 		"build_task":    gae_support.With(h.withAuth(h.pipelineTask("build"))),
-		"close":         h.callPipelineTask("close"),
+		"close":         gae_support.With(h.withAuth(h.Identified(h.callPipelineTask("close")))),
 		"close_task":    gae_support.With(h.withAuth(h.pipelineTask("close"))),
 		"refresh":       gae_support.With(h.refresh), // Don't use withAuth because this is called from cron
 		"refresh_task":  gae_support.With(h.pipelineTask("refresh")),
@@ -102,8 +102,8 @@ func (h *handler) Identified(impl func(c echo.Context, pl *models.Pipeline) erro
 }
 
 // curl -v -X PUT http://localhost:8080/pipelines/1/close
-func (h *handler) callPipelineTask(action string) func(c echo.Context) error {
-	return gae_support.With(h.withAuth(h.Identified(func(c echo.Context, pl *models.Pipeline) error {
+func (h *handler) callPipelineTask(action string) func(c echo.Context, pl *models.Pipeline) error {
+	return func(c echo.Context, pl *models.Pipeline) error {
 		id := c.Param("id")
 		ctx := c.Get("aecontext").(context.Context)
 		req := c.Request()
@@ -113,7 +113,7 @@ func (h *handler) callPipelineTask(action string) func(c echo.Context) error {
 			return err
 		}
 		return c.JSON(http.StatusCreated, pl)
-	})))
+	}
 }
 
 // curl -v -X POST http://localhost:8080/pipelines/1/build_task
