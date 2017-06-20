@@ -46,7 +46,7 @@ func (h *OrganizationsHandler) New(c echo.Context) error {
 	org := &models.Organization{}
 	r := &ResOrgsNew{
 		Organization: org,
-		Flash: c.Get("flash").(*Flash),
+		Flash:        c.Get("flash").(*Flash),
 	}
 	return h.Views.Render(c, http.StatusOK, "new", r)
 }
@@ -55,9 +55,9 @@ func (h *OrganizationsHandler) New(c echo.Context) error {
 func (h *OrganizationsHandler) Create(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	org := &models.Organization{}
-  if err := c.Bind(org); err != nil {
-    return err
-  }
+	if err := c.Bind(org); err != nil {
+		return err
+	}
 
 	err := org.Create(ctx)
 	if err != nil {
@@ -99,7 +99,7 @@ type ResOrgsShow struct {
 func (h *OrganizationsHandler) Show(c echo.Context, org *models.Organization) error {
 	r := &ResOrgsShow{
 		Organization: org,
-		Flash: c.Get("flash").(*Flash),
+		Flash:        c.Get("flash").(*Flash),
 	}
 	return h.Views.Render(c, http.StatusOK, "show", r)
 }
@@ -113,7 +113,7 @@ type ResOrgsEdit struct {
 func (h *OrganizationsHandler) Edit(c echo.Context, org *models.Organization) error {
 	r := &ResOrgsEdit{
 		Organization: org,
-		Flash: c.Get("flash").(*Flash),
+		Flash:        c.Get("flash").(*Flash),
 	}
 	return h.Views.Render(c, http.StatusOK, "edit", r)
 }
@@ -121,9 +121,9 @@ func (h *OrganizationsHandler) Edit(c echo.Context, org *models.Organization) er
 // POST http://localhost:8080/admin/orgs/:id/update
 func (h *OrganizationsHandler) Update(c echo.Context, org *models.Organization) error {
 	ctx := c.Get("aecontext").(context.Context)
-  if err := c.Bind(org); err != nil {
-    return err
-  }
+	if err := c.Bind(org); err != nil {
+		return err
+	}
 	err := org.Update(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to update Organization: %v because of %v\n", org, err)
@@ -136,7 +136,7 @@ func (h *OrganizationsHandler) Update(c echo.Context, org *models.Organization) 
 		return h.Views.Render(c, http.StatusOK, "edit", r)
 	}
 	setFlash(c, "notice", fmt.Sprintf("Organization %q is updated successfully.", org.Name))
-	return c.Redirect(http.StatusFound, "/admin/orgs/" + org.ID)
+	return c.Redirect(http.StatusFound, "/admin/orgs/"+org.ID)
 }
 
 // DELETE http://localhost:8080/admin/orgs/:id

@@ -39,7 +39,7 @@ func Setup(echo *echo.Echo, dir string) map[string]interface{} {
 	g.POST("/:id/delete", auth.AuthHandler(auth.destroy))
 
 	return map[string]interface{}{
-		"orgs": orgs,
+		"orgs":  orgs,
 		"auths": auth,
 	}
 }

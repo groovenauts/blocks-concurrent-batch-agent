@@ -10,9 +10,9 @@ import (
 
 type (
 	Organization struct {
-		ID        string `json:"id", datastore:"-"`
-		Name      string `json:"name" form:"name" validate:"required"`
-		Memo      string `json:"memo" form:"memo"`
+		ID        string    `json:"id", datastore:"-"`
+		Name      string    `json:"name" form:"name" validate:"required"`
+		Memo      string    `json:"memo" form:"memo"`
 		CreatedAt time.Time `json:"created_at"`
 		UpdatedAt time.Time `json:"updated_at"`
 	}
