@@ -68,11 +68,10 @@ func TestActions(t *testing.T) {
 	assert.NoError(t, err)
 	ctx := appengine.NewContext(req)
 
-
 	test_utils.ClearDatastore(t, ctx, "Organizations")
 	org := &models.Organization{Name: "ORG1"}
 	org.Create(ctx)
-	
+
 	auth := &models.Auth{Organization: org}
 	err = auth.Create(ctx)
 	assert.NoError(t, err)

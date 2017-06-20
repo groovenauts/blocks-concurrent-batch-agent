@@ -14,10 +14,10 @@ import (
 
 type (
 	Auth struct {
-		ID                string `datastore:"-"`
+		ID                string        `datastore:"-"`
 		Organization      *Organization `datastore:"-" validate:"required"`
-		Token             string `datastore:"-"`
-		Password          string `datastore:"-"`
+		Token             string        `datastore:"-"`
+		Password          string        `datastore:"-"`
 		EncryptedPassword string
 		Disabled          bool
 		CreatedAt         time.Time

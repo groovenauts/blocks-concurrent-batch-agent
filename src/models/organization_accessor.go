@@ -1,8 +1,8 @@
 package models
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 	// "runtime/debug"
 
 	"golang.org/x/net/context"

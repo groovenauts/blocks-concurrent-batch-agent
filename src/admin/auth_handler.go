@@ -37,9 +37,9 @@ func (h *AuthHandler) WithOrg(f func(c echo.Context, ctx context.Context, org *m
 // GET http://localhost:8080/admin/orgs/:org_id/auths
 
 type IndexRes struct {
-	Flash *Flash
+	Flash        *Flash
 	Organization *models.Organization
-	Auths []*models.Auth
+	Auths        []*models.Auth
 }
 
 func (h *AuthHandler) index(c echo.Context, ctx context.Context, org *models.Organization) error {
@@ -50,8 +50,8 @@ func (h *AuthHandler) index(c echo.Context, ctx context.Context, org *models.Org
 	}
 	r := IndexRes{
 		Organization: org,
-		Auths: auths,
-		Flash: c.Get("flash").(*Flash),
+		Auths:        auths,
+		Flash:        c.Get("flash").(*Flash),
 	}
 	return h.Views.Render(c, http.StatusOK, "index", &r)
 }
@@ -59,10 +59,10 @@ func (h *AuthHandler) index(c echo.Context, ctx context.Context, org *models.Org
 // POST http://localhost:8080/admin/orgs/:org_id/auths
 
 type CreateRes struct {
-	Flash    *Flash
+	Flash        *Flash
 	Organization *models.Organization
-	Auth     *models.Auth
-	Hostname string
+	Auth         *models.Auth
+	Hostname     string
 }
 
 func (h *AuthHandler) create(c echo.Context, ctx context.Context, org *models.Organization) error {
@@ -78,9 +78,9 @@ func (h *AuthHandler) create(c echo.Context, ctx context.Context, org *models.Or
 	}
 	r := CreateRes{
 		Organization: org,
-		Auth:     auth,
-		Hostname: hostname,
-		Flash: c.Get("flash").(*Flash),
+		Auth:         auth,
+		Hostname:     hostname,
+		Flash:        c.Get("flash").(*Flash),
 	}
 	return h.Views.Render(c, http.StatusOK, "create", &r)
 }
@@ -111,11 +111,11 @@ func (h *AuthHandler) Identified(f func(c echo.Context, ctx context.Context, org
 		auth.Organization = org
 		if err == models.ErrNoSuchAuth {
 			setFlash(c, "alert", fmt.Sprintf("Auth not found for id: %v", id))
-			return c.Redirect(http.StatusFound, "/admin/orgs/" + org.ID + "/auths")
+			return c.Redirect(http.StatusFound, "/admin/orgs/"+org.ID+"/auths")
 		}
 		if err != nil {
 			setFlash(c, "alert", fmt.Sprintf("Failed to find Auth for id: %v error: %v", id, err))
-			return c.Redirect(http.StatusFound, "/admin/orgs/" + org.ID + "/auths")
+			return c.Redirect(http.StatusFound, "/admin/orgs/"+org.ID+"/auths")
 		}
 		return f(c, ctx, org, auth)
 	})
@@ -128,10 +128,10 @@ func (h *AuthHandler) disable(c echo.Context, ctx context.Context, org *models.O
 	if err != nil {
 		log.Errorf(ctx, "Failed to update Auth: %v because of %v\n", auth, err)
 		setFlash(c, "alert", fmt.Sprintf("Failed to update Auth. id: %v error: %v", auth.ID, err))
-		return c.Redirect(http.StatusFound, "/admin/orgs/" + org.ID + "/auths")
+		return c.Redirect(http.StatusFound, "/admin/orgs/"+org.ID+"/auths")
 	}
 	setFlash(c, "notice", fmt.Sprintf("Disabled the Auth successfully. id: %v", auth.ID))
-	return c.Redirect(http.StatusFound, "/admin/orgs/" + org.ID + "/auths")
+	return c.Redirect(http.StatusFound, "/admin/orgs/"+org.ID+"/auths")
 }
 
 // DELETE http://localhost:8080/admin/orgs/:org_id/auths/:id
@@ -140,8 +140,8 @@ func (h *AuthHandler) destroy(c echo.Context, ctx context.Context, org *models.O
 	if err != nil {
 		log.Errorf(ctx, "Failed to destroy Auth: %v because of %v\n", auth, err)
 		setFlash(c, "alert", fmt.Sprintf("Failed to destroy Auth. id: %v error: %v", auth.ID, err))
-		return c.Redirect(http.StatusFound, "/admin/orgs/" + org.ID + "/auths")
+		return c.Redirect(http.StatusFound, "/admin/orgs/"+org.ID+"/auths")
 	}
 	setFlash(c, "notice", fmt.Sprintf("The Auth is deleted successfully. id: %v", auth.ID))
-	return c.Redirect(http.StatusFound, "/admin/orgs/" + org.ID + "/auths")
+	return c.Redirect(http.StatusFound, "/admin/orgs/"+org.ID+"/auths")
 }

@@ -19,7 +19,6 @@ func (e *InvalidParent) Error() string {
 	return fmt.Sprintf("Invalid parent from ID: %q", e.ID)
 }
 
-
 type AuthAccessor struct {
 	Parent *Organization
 }
