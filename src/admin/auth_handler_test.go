@@ -19,7 +19,9 @@ import (
 )
 
 func TestAdminHandler(t *testing.T) {
-	h := Setup(echo.New(), "../../app/concurrent-batch-agent/admin/views")
+	handlers := Setup(echo.New(), "../../app/concurrent-batch-agent/admin/views")
+	h, ok := handlers["auths"].(*AuthHandler)
+	assert.True(t, ok)
 
 	os.Setenv("BATCH_AGENT_HOSTNAME", "test.local")
 
