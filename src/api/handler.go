@@ -51,21 +51,21 @@ func Setup(echo *echo.Echo) {
 
 func (h *handler) buildActions() {
 	h.Actions = map[string](func(c echo.Context) error){
-		"index":         h.withAuth(h.index),
-		"subscriptions": h.withAuth(h.subscriptions),
-		"show":          h.withAuth(h.Identified(h.show)),
-		"destroy":       h.withAuth(h.Identified(h.destroy)),
-		"create":        h.withAuth(h.create),
-		"build_task":    h.withAuth(h.pipelineTask("build")),
+		"index":         gae_support.With(h.withAuth(h.index)),
+		"subscriptions": gae_support.With(h.withAuth(h.subscriptions)),
+		"show":          gae_support.With(h.withAuth(h.Identified(h.show))),
+		"destroy":       gae_support.With(h.withAuth(h.Identified(h.destroy))),
+		"create":        gae_support.With(h.withAuth(h.create)),
+		"build_task":    gae_support.With(h.withAuth(h.pipelineTask("build"))),
 		"close":         h.callPipelineTask("close"),
-		"close_task":    h.withAuth(h.pipelineTask("close")),
+		"close_task":    gae_support.With(h.withAuth(h.pipelineTask("close"))),
 		"refresh":       gae_support.With(h.refresh), // Don't use withAuth because this is called from cron
 		"refresh_task":  gae_support.With(h.pipelineTask("refresh")),
 	}
 }
 
 func (h *handler) withAuth(impl func(c echo.Context) error) func(c echo.Context) error {
-	return gae_support.With(func(c echo.Context) error {
+	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		req := c.Request()
 		raw := req.Header.Get(AUTH_HEADER)
@@ -82,7 +82,7 @@ func (h *handler) withAuth(impl func(c echo.Context) error) func(c echo.Context)
 			return c.JSON(http.StatusUnauthorized, map[string]string{"message": "Invalid token"})
 		}
 		return impl(c)
-	})
+	}
 }
 
 func (h *handler) Identified(impl func(c echo.Context, pl *models.Pipeline) error) func(c echo.Context) error {
@@ -103,7 +103,7 @@ func (h *handler) Identified(impl func(c echo.Context, pl *models.Pipeline) erro
 
 // curl -v -X PUT http://localhost:8080/pipelines/1/close
 func (h *handler) callPipelineTask(action string) func(c echo.Context) error {
-	return h.withAuth(h.Identified(func(c echo.Context, pl *models.Pipeline) error {
+	return gae_support.With(h.withAuth(h.Identified(func(c echo.Context, pl *models.Pipeline) error {
 		id := c.Param("id")
 		ctx := c.Get("aecontext").(context.Context)
 		req := c.Request()
@@ -113,7 +113,7 @@ func (h *handler) callPipelineTask(action string) func(c echo.Context) error {
 			return err
 		}
 		return c.JSON(http.StatusCreated, pl)
-	}))
+	})))
 }
 
 // curl -v -X POST http://localhost:8080/pipelines/1/build_task
