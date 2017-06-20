@@ -38,6 +38,7 @@ func (h *AuthHandler) WithOrg(f func(c echo.Context, ctx context.Context, org *m
 
 type IndexRes struct {
 	Flash *Flash
+	Organization *models.Organization
 	Auths []*models.Auth
 }
 
@@ -49,9 +50,10 @@ func (h *AuthHandler) index(c echo.Context, ctx context.Context, org *models.Org
 		return err
 	}
 	r := IndexRes{
+		Organization: org,
 		Auths: auths,
+		Flash: c.Get("flash").(*Flash),
 	}
-	r.Flash = c.Get("flash").(*Flash)
 	return h.Views.Render(c, http.StatusOK, "index", &r)
 }
 
@@ -59,6 +61,7 @@ func (h *AuthHandler) index(c echo.Context, ctx context.Context, org *models.Org
 
 type CreateRes struct {
 	Flash    *Flash
+	Organization *models.Organization
 	Auth     *models.Auth
 	Hostname string
 }
@@ -75,10 +78,11 @@ func (h *AuthHandler) create(c echo.Context, ctx context.Context, org *models.Or
 		return err
 	}
 	r := CreateRes{
+		Organization: org,
 		Auth:     auth,
 		Hostname: hostname,
+		Flash: c.Get("flash").(*Flash),
 	}
-	r.Flash = c.Get("flash").(*Flash)
 	return h.Views.Render(c, http.StatusOK, "create", &r)
 }
 

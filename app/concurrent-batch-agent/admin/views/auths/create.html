@@ -19,5 +19,7 @@ Authorization: Bearer {{.Auth.Token}}
 curl -H "Authorization: Bearer {{.Auth.Token}}" http://{{.Hostname}}/pipelines
 </code></pre>
 
-<a href="/admin/auths">Back to list</a>
+<div>
+  <a href="/admin/orgs/{{.Organization.ID}}/auths">Back to list</a>
+</div>
 {{end}}
