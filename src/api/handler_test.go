@@ -120,7 +120,7 @@ func TestActions(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues(pl.ID)
 
-	f = h.withPipeline(h.withAuth, h.show)
+	f = h.Identified(h.withAuth, h.show)
 	if assert.NoError(t, f(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
@@ -275,7 +275,7 @@ func TestActions(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues(pl.ID)
 
-	f = h.withPipeline(h.withAuth, h.destroy)
+	f = h.Identified(h.withAuth, h.destroy)
 	if assert.NoError(t, f(c)) {
 		assert.Equal(t, http.StatusNotAcceptable, rec.Code) // http.StatusUnprocessableEntity
 		s := rec.Body.String()
@@ -301,7 +301,7 @@ func TestActions(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues(pl.ID)
 
-	f = h.withPipeline(h.withAuth, h.destroy)
+	f = h.Identified(h.withAuth, h.destroy)
 	if assert.NoError(t, f(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
@@ -324,7 +324,7 @@ func TestActions(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues(pl.ID)
 
-	f = h.withPipeline(h.withAuth, h.show)
+	f = h.Identified(h.withAuth, h.show)
 	if assert.NoError(t, f(c)) {
 		assert.Equal(t, http.StatusNotFound, rec.Code)
 	}
