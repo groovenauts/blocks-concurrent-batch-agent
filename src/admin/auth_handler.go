@@ -43,8 +43,7 @@ type IndexRes struct {
 }
 
 func (h *AuthHandler) index(c echo.Context, ctx context.Context, org *models.Organization) error {
-	// TODO Use org.ID to get auths
-	auths, err := models.GlobalAuthAccessor.GetAll(ctx)
+	auths, err := org.AuthAccessor().GetAll(ctx)
 	if err != nil {
 		log.Errorf(ctx, "indexPage error: %v\n", err)
 		return err
@@ -102,15 +101,20 @@ func (h *AuthHandler) getHostname(c echo.Context) (string, error) {
 
 func (h *AuthHandler) Identified(f func(c echo.Context, ctx context.Context, org *models.Organization, auth *models.Auth) error) func(c echo.Context) error {
 	return h.WithOrg(func(c echo.Context, ctx context.Context, org *models.Organization) error {
-		// TODO Use org.ID to get auth
-		auth, err := models.GlobalAuthAccessor.Find(ctx, c.Param("id"))
+		id := c.Param("id")
+		auth, err := org.AuthAccessor().Find(ctx, id)
+		if err != nil {
+			log.Errorf(ctx, "Failed to get Auth by %v: %v\n", id, err)
+			return err
+		}
+
 		auth.Organization = org
 		if err == models.ErrNoSuchAuth {
-			setFlash(c, "alert", fmt.Sprintf("Auth not found for id: %v", c.Param("id")))
+			setFlash(c, "alert", fmt.Sprintf("Auth not found for id: %v", id))
 			return c.Redirect(http.StatusFound, "/admin/orgs/" + org.ID + "/auths")
 		}
 		if err != nil {
-			setFlash(c, "alert", fmt.Sprintf("Failed to find Auth for id: %v error: %v", c.Param("id"), err))
+			setFlash(c, "alert", fmt.Sprintf("Failed to find Auth for id: %v error: %v", id, err))
 			return c.Redirect(http.StatusFound, "/admin/orgs/" + org.ID + "/auths")
 		}
 		return f(c, ctx, org, auth)
