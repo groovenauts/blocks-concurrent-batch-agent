@@ -39,7 +39,13 @@
   {{end}}
 </table>
 
-<form action="/admin/auths" method="POST">
+<form action="/admin/orgs/{{$orgID}}/auths" method="POST">
   <input type="submit" value="Create New Token"/>
 </form>
+
+<div>
+  <a href="/admin/orgs/{{.Organization.ID}}">Back to Organization {{.Organization.Name}}</a>
+</div>
+
+
 {{end}}
