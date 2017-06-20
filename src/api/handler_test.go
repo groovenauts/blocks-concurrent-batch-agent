@@ -67,7 +67,13 @@ func TestActions(t *testing.T) {
 	req, err := inst.NewRequest(echo.GET, "/pipelines", nil)
 	assert.NoError(t, err)
 	ctx := appengine.NewContext(req)
-	auth := &models.Auth{}
+
+
+	test_utils.ClearDatastore(t, ctx, "Organizations")
+	org := &models.Organization{Name: "ORG1"}
+	org.Create(ctx)
+	
+	auth := &models.Auth{Organization: org}
 	err = auth.Create(ctx)
 	assert.NoError(t, err)
 	token := "Bearer " + auth.Token
