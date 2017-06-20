@@ -49,7 +49,7 @@ $ make run
 6. Click [Show] of your organization
 7. Click [Auth List]
 8. Click [Create new token]
-9. Copy the token shown
+9. Copy the organization ID and the token
 
 ### Call API with curl
 
@@ -76,13 +76,14 @@ Make `pipeline.json` like this:
 ```
 
 ```
+$ ORG_ID="[the organization ID you got before]"
 $ TOKEN="[the token you got before]"
-$ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X POST http://localhost:8080/pipelines --data @pipeline.json
-$ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://localhost:8080/pipelines
+$ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X POST http://localhost:8080/orgs/$ORG_ID/pipelines --data @pipeline.json
+$ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://localhost:8080/orgs/$ORG_ID/pipelines
 ```
 
 ```
-$ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X DELETE http://localhost:8080/pipelines/$ID
+$ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X DELETE http://localhost:8080/orgs/$ORG_ID/pipelines/$ID
 ```
 
 ## Deploy to appengine
@@ -113,9 +114,10 @@ $ gcloud --project ${PROJECT} app services set-traffic concurrent-batch-agent --
 ### New Pipeline data
 
 ```
+$ ORG_ID="[the organization ID you got before]"
 $ export TOKEN="[the token you got before]"
 $ export AEHOST="[the host name you deployed]"
-$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X POST http://$AEHOST/pipelines --data @pipeline.json
+$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X POST http://$AEHOST/orgs/$ORG_ID/pipelines --data @pipeline.json
 ```
 
 #### Temporary work around
@@ -128,12 +130,12 @@ $ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' 
 
 ### Show all Pipeline data
 
-$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://$AEHOST/pipelines
+$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://$AEHOST/orgs/$ORG_ID/pipelines
 
 ### Close and Delete data
 
 ```
 $ export ID="[id of the result]"
-$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X PUT http://$AEHOST/pipelines/$ID/close --data ""
-$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X DELETE http://$AEHOST/pipelines/$ID
+$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X PUT http://$AEHOST/orgs/$ORG_ID/pipelines/$ID/close --data ""
+$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X DELETE http://$AEHOST/orgs/$ORG_ID/pipelines/$ID
 ```
