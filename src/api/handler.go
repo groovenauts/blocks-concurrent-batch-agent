@@ -33,8 +33,8 @@ func Setup(echo *echo.Echo) {
 
 	g.GET("", h.withAuth(h.index))
 	g.GET("/subscriptions", h.withAuth(h.subscriptions))
-	g.GET("/:id", h.Identified(h.withAuth, h.show))
-	g.DELETE("/:id", h.Identified(h.withAuth, h.destroy))
+	g.GET("/:id", h.withAuth(h.Identified(h.show)))
+	g.DELETE("/:id", h.withAuth(h.Identified(h.destroy)))
 
 	g.POST("", h.withAuth(h.create))
 	g.POST("/:id/build_task", h.pipelineTask(h.withAuth, "build"))
@@ -67,9 +67,8 @@ func (h *handler) withAuth(impl func(c echo.Context) error) func(c echo.Context)
 	})
 }
 
-func (h *handler) Identified(wrapper func(func(echo.Context) error) func(echo.Context) error,
-	impl func(c echo.Context, pl *models.Pipeline) error) func(c echo.Context) error {
-	return wrapper(func(c echo.Context) error {
+func (h *handler) Identified(impl func(c echo.Context, pl *models.Pipeline) error) func(c echo.Context) error {
+	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		id := c.Param("id")
 		pl, err := models.GlobalPipelineAccessor.Find(ctx, id)
@@ -81,12 +80,12 @@ func (h *handler) Identified(wrapper func(func(echo.Context) error) func(echo.Co
 			return err
 		}
 		return impl(c, pl)
-	})
+	}
 }
 
 // curl -v -X PUT http://localhost:8080/pipelines/1/close
 func (h *handler) callPipelineTask(action string) func(c echo.Context) error {
-	return h.Identified(h.withAuth, func(c echo.Context, pl *models.Pipeline) error {
+	return h.withAuth(h.Identified(func(c echo.Context, pl *models.Pipeline) error {
 		id := c.Param("id")
 		ctx := c.Get("aecontext").(context.Context)
 		req := c.Request()
@@ -96,21 +95,21 @@ func (h *handler) callPipelineTask(action string) func(c echo.Context) error {
 			return err
 		}
 		return c.JSON(http.StatusCreated, pl)
-	})
+	}))
 }
 
 // curl -v -X POST http://localhost:8080/pipelines/1/build_task
 // curl -v -X	POST http://localhost:8080/pipelines/1/close_task
 // curl -v -X	POST http://localhost:8080/pipelines/1/refresh_task
 func (h *handler) pipelineTask(wrapper func(impl func(c echo.Context) error) func(c echo.Context) error, action string) func(c echo.Context) error {
-	return h.Identified(wrapper, func(c echo.Context, pl *models.Pipeline) error {
+	return wrapper(h.Identified(func(c echo.Context, pl *models.Pipeline) error {
 		ctx := c.Get("aecontext").(context.Context)
 		err := pl.Process(ctx, action)
 		if err != nil {
 			return err
 		}
 		return c.JSON(http.StatusOK, pl)
-	})
+	}))
 }
 
 // curl -v -X POST http://localhost:8080/pipelines --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
