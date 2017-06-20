@@ -102,7 +102,7 @@ func TestAdminHandler(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues(auth.ID)
 
-	f = h.AuthHandler(h.disable)
+	f = h.Identified(h.disable)
 	err = f(c)
 	if err != nil {
 		log.Errorf(ctx, "%v Error: %v\n", c.Path(), err)
@@ -126,7 +126,7 @@ func TestAdminHandler(t *testing.T) {
 	c.SetParamValues(auth.ID)
 
 	test_utils.ExpectChange(t, ctx, "Auths", -1, func() {
-		f = h.AuthHandler(h.destroy)
+		f = h.Identified(h.destroy)
 		err = f(c)
 		if err != nil {
 			log.Errorf(ctx, "%v Error: %v\n", c.Path(), err)
