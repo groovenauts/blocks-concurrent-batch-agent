@@ -15,7 +15,9 @@ import (
 	"google.golang.org/appengine/taskqueue"
 )
 
-type handler struct{}
+type handler struct{
+	Actions map[string](func(c echo.Context) error)
+}
 
 var e *echo.Echo
 
@@ -27,23 +29,39 @@ func Setup(echo *echo.Echo) {
 	e = echo
 
 	h := &handler{}
+	h.buildActions()
 
 	g := e.Group("/pipelines")
 	g.Use(middleware.CORS())
 
-	g.GET("", h.withAuth(h.index))
-	g.GET("/subscriptions", h.withAuth(h.subscriptions))
-	g.GET("/:id", h.withAuth(h.Identified(h.show)))
-	g.DELETE("/:id", h.withAuth(h.Identified(h.destroy)))
+	g.GET("", h.Actions["index"])
+	g.GET("/subscriptions", h.Actions["subscriptions"])
+	g.GET("/:id", h.Actions["show"])
+	g.DELETE("/:id", h.Actions["destroy"])
 
-	g.POST("", h.withAuth(h.create))
-	g.POST("/:id/build_task", h.withAuth(h.pipelineTask("build")))
+	g.POST("", h.Actions["create"])
+	g.POST("/:id/build_task", h.Actions["build"])
 
-	g.PUT("/:id/close", h.callPipelineTask("close"))
-	g.POST("/:id/close_task", h.withAuth(h.pipelineTask("close")))
+	g.PUT("/:id/close", h.Actions["close"])
+	g.POST("/:id/close_task", h.Actions["close_task"])
 
-	g.GET("/refresh", gae_support.With(h.refresh)) // Don't use withAuth because this is called from cron
-	g.POST("/:id/refresh_task", gae_support.With(h.pipelineTask("refresh")))
+	g.GET("/refresh", h.Actions["refresh"])
+	g.POST("/:id/refresh_task", h.Actions["refresh_task"])
+}
+
+func (h *handler) buildActions() {
+	h.Actions = map[string](func(c echo.Context) error){
+		"index": h.withAuth(h.index),
+		"subscriptions": h.withAuth(h.subscriptions),
+		"show" : h.withAuth(h.Identified(h.show)),
+		"destroy": h.withAuth(h.Identified(h.destroy)),
+		"create": h.withAuth(h.create),
+		"build_task": h.withAuth(h.pipelineTask("build")),
+		"close": h.callPipelineTask("close"),
+		"close_task": h.withAuth(h.pipelineTask("close")),
+		"refresh": gae_support.With(h.refresh), // Don't use withAuth because this is called from cron
+		"refresh_task": gae_support.With(h.pipelineTask("refresh")),
+	}
 }
 
 func (h *handler) withAuth(impl func(c echo.Context) error) func(c echo.Context) error {
