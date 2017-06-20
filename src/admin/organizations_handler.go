@@ -59,7 +59,8 @@ func (h *OrganizationsHandler) Create(c echo.Context) error {
     return err
   }
 
-	if err := org.Create(ctx); err != nil {
+	err := org.Create(ctx)
+	if err != nil {
 		log.Errorf(ctx, "Failed to create Organization: %v because of %v\n", org, err)
 		r := &ResOrgsNew{
 			Organization: org,
