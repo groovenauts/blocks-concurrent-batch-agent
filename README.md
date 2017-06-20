@@ -42,9 +42,14 @@ $ make run
 ### Get Token on browser
 
 1. Open http://localhost:8080/_ah/login and login
-2. Open http://localhost:8080/admin/auths
-3. Click [Create new token]
-4. Copy the token shown
+2. Open http://localhost:8080/admin/orgs
+3. Click [New Organization]
+4. Enter your organization Name and click [Create]
+5. Reload the page unless your organization appears
+6. Click [Show] of your organization
+7. Click [Auth List]
+8. Click [Create new token]
+9. Copy the token shown
 
 ### Call API with curl
 
@@ -94,12 +99,18 @@ $ gcloud --project ${PROJECT} app services set-traffic concurrent-batch-agent --
 
 ### Get Token on browser
 
-2. Open http://<hostname>/admin/auths
-3. Click [Create new token]
-4. Copy the token shown
+`$AEHOST` means `the host name you deployed`
+
+1. Open http://$AEHOST/admin/orgs
+2. Click [New Organization]
+3. Enter your organization Name and click [Create]
+4. Reload the page unless your organization appears
+5. Click [Show] of your organization
+6. Click [Auth List]
+7. Click [Create new token]
+8. Copy the token shown
 
 ### New Pipeline data
-
 
 ```
 $ export TOKEN="[the token you got before]"
