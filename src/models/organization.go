@@ -75,3 +75,7 @@ func (m *Organization) Update(ctx context.Context) error {
 func (m *Organization) AuthAccessor() *AuthAccessor {
 	return &AuthAccessor{Parent: m}
 }
+
+func (m *Organization) PipelineAccessor() *PipelineAccessor {
+	return &PipelineAccessor{Parent: m}
+}

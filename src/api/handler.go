@@ -109,8 +109,16 @@ func (h *handler) Identified(impl func(c echo.Context, pl *models.Pipeline) erro
 	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		id := c.Param("id")
-		// TODO use Organization#PipelineAccessor if organization given
-		pl, err := models.GlobalPipelineAccessor.Find(ctx, id)
+
+		var accessor *models.PipelineAccessor
+		org := c.Get("organization").(*models.Organization)
+		if org == nil {
+			accessor = models.GlobalPipelineAccessor
+		} else {
+			accessor = org.PipelineAccessor()
+		}
+
+		pl, err := accessor.Find(ctx, id)
 		switch {
 		case err == models.ErrNoSuchPipeline:
 			return c.JSON(http.StatusNotFound, map[string]string{"message": "Not found for " + id})
@@ -182,7 +190,8 @@ func (h *handler) create(c echo.Context) error {
 // curl -v http://localhost:8080/pipelines
 func (h *handler) index(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
-	pipelines, err := models.GlobalPipelineAccessor.GetAll(ctx)
+	org := c.Get("organization").(*models.Organization)
+	pipelines, err := org.PipelineAccessor().GetAll(ctx)
 	if err != nil {
 		return err
 	}
@@ -192,7 +201,8 @@ func (h *handler) index(c echo.Context) error {
 // curl -v http://localhost:8080/pipelines/subscriptions
 func (h *handler) subscriptions(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
-	subscriptions, err := models.GlobalPipelineAccessor.GetActiveSubscriptions(ctx)
+	org := c.Get("organization").(*models.Organization)
+	subscriptions, err := org.PipelineAccessor().GetActiveSubscriptions(ctx)
 	if err != nil {
 		return err
 	}
