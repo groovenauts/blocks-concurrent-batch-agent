@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 
 	"golang.org/x/crypto/bcrypt"
@@ -10,14 +9,6 @@ import (
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 )
-
-type InvalidParent struct {
-	ID string
-}
-
-func (e *InvalidParent) Error() string {
-	return fmt.Sprintf("Invalid parent from ID: %q", e.ID)
-}
 
 type AuthAccessor struct {
 	Parent *Organization
