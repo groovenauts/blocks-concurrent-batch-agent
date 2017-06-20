@@ -31,7 +31,7 @@ func Setup(echo *echo.Echo) {
 	h := &handler{}
 	h.buildActions()
 
-	g := e.Group("/pipelines")
+	g := e.Group("/orgs/:org_id/pipelines")
 	g.Use(middleware.CORS())
 
 	g.GET("", h.Actions["index"])
@@ -45,22 +45,41 @@ func Setup(echo *echo.Echo) {
 	g.PUT("/:id/close", h.Actions["close"])
 	g.POST("/:id/close_task", h.Actions["close_task"])
 
+	g = e.Group("/pipelines")
+	g.Use(middleware.CORS())
 	g.GET("/refresh", h.Actions["refresh"])
 	g.POST("/:id/refresh_task", h.Actions["refresh_task"])
 }
 
 func (h *handler) buildActions() {
 	h.Actions = map[string](func(c echo.Context) error){
-		"index":         gae_support.With(h.withAuth(h.index)),
-		"subscriptions": gae_support.With(h.withAuth(h.subscriptions)),
-		"show":          gae_support.With(h.withAuth(h.Identified(h.show))),
-		"destroy":       gae_support.With(h.withAuth(h.Identified(h.destroy))),
-		"create":        gae_support.With(h.withAuth(h.create)),
-		"build_task":    gae_support.With(h.withAuth(h.Identified(h.pipelineTask("build")))),
-		"close":         gae_support.With(h.withAuth(h.Identified(h.callPipelineTask("close")))),
-		"close_task":    gae_support.With(h.withAuth(h.Identified(h.pipelineTask("close")))),
+		"index":         gae_support.With(h.withOrg(h.withAuth(h.index))),
+		"subscriptions": gae_support.With(h.withOrg(h.withAuth(h.subscriptions))),
+		"show":          gae_support.With(h.withOrg(h.withAuth(h.Identified(h.show)))),
+		"destroy":       gae_support.With(h.withOrg(h.withAuth(h.Identified(h.destroy)))),
+		"create":        gae_support.With(h.withOrg(h.withAuth(h.create))),
+		"build_task":    gae_support.With(h.withOrg(h.withAuth(h.Identified(h.pipelineTask("build"))))),
+		"close":         gae_support.With(h.withOrg(h.withAuth(h.Identified(h.callPipelineTask("close"))))),
+		"close_task":    gae_support.With(h.withOrg(h.withAuth(h.Identified(h.pipelineTask("close"))))),
 		"refresh":       gae_support.With(h.refresh), // Don't use withAuth because this is called from cron
 		"refresh_task":  gae_support.With(h.Identified(h.pipelineTask("refresh"))),
+	}
+}
+
+func (h *handler) withOrg(f func(c echo.Context) error) func(echo.Context) error {
+	return func(c echo.Context) error {
+		ctx := c.Get("aecontext").(context.Context)
+		org_id := c.Param("org_id")
+		org, err := models.GlobalOrganizationAccessor.Find(ctx, org_id)
+		if err == models.ErrNoSuchOrganization {
+			return c.JSON(http.StatusNotFound, map[string]string{"message": "No Organization found for " + org_id})
+		}
+		if err != nil {
+			log.Errorf(ctx, "Failed to find Organization id: %v because of %v\n", org_id, err)
+			return err
+		}
+		c.Set("organization", org)
+		return f(c)
 	}
 }
 
@@ -77,7 +96,8 @@ func (h *handler) withAuth(impl func(c echo.Context) error) func(c echo.Context)
 		if token == "" {
 			return c.JSON(http.StatusUnauthorized, map[string]string{"message": "Unauthorized"})
 		}
-		_, err := models.GlobalAuthAccessor.FindWithToken(ctx, token)
+		org := c.Get("organization").(*models.Organization)
+		_, err := org.AuthAccessor().FindWithToken(ctx, token)
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, map[string]string{"message": "Invalid token"})
 		}
@@ -89,6 +109,7 @@ func (h *handler) Identified(impl func(c echo.Context, pl *models.Pipeline) erro
 	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		id := c.Param("id")
+		// TODO use Organization#PipelineAccessor if organization given
 		pl, err := models.GlobalPipelineAccessor.Find(ctx, id)
 		switch {
 		case err == models.ErrNoSuchPipeline:
@@ -140,6 +161,8 @@ func (h *handler) create(c echo.Context) error {
 		log.Errorf(ctx, "req: %v\n", req)
 		return err
 	}
+	org := c.Get("organization").(*models.Organization)
+	pl.Organization = org
 	err := pl.Create(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to create pipeline: %v\n%v\n", pl, err)
