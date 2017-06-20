@@ -63,8 +63,15 @@ func TestWatcherCalcDifferences(t *testing.T) {
 		}
 	}
 
+	org1 := &Organization{
+		Name: "org01",
+	}
+	err = org1.Create(ctx)
+	assert.NoError(t, err)
+
 	// CreatePipeline valid
 	pl := &Pipeline{
+		Organization: org1,
 		Name:      "pipeline01",
 		ProjectID: proj,
 		Zone:      "us-central1-f",
@@ -197,8 +204,15 @@ func TestGetActiveSubscriptions(t *testing.T) {
 
 	pipelines := map[Status]*Pipeline{}
 
+	org1 := &Organization{
+		Name: "org01",
+	}
+	err = org1.Create(ctx)
+	assert.NoError(t, err)
+
 	for st, name := range StatusStrings {
 		pl := &Pipeline{
+			Organization: org1,
 			Name:      "pipeline-" + name,
 			ProjectID: proj,
 			Zone:      "us-central1-f",
