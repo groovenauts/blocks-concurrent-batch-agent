@@ -107,8 +107,15 @@ func TestRefresherProcessForDeploying(t *testing.T) {
 		},
 	}
 
+	org1 := &Organization{
+		Name: "org01",
+	}
+	err = org1.Create(ctx)
+	assert.NoError(t, err)
+
 	for _, expection := range expections {
 		pl := Pipeline{
+			Organization: org1,
 			Name:      "pipeline01",
 			ProjectID: proj,
 			Zone:      "us-central1-f",
@@ -171,8 +178,15 @@ func TestRefresherProcessForClosing(t *testing.T) {
 		},
 	}
 
+	org1 := &Organization{
+		Name: "org01",
+	}
+	err = org1.Create(ctx)
+	assert.NoError(t, err)
+
 	for _, expection := range expections {
 		pl := Pipeline{
+			Organization: org1,
 			Name:      "pipeline01",
 			ProjectID: proj,
 			Zone:      "us-central1-f",

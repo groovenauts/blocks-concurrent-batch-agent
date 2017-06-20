@@ -76,6 +76,7 @@ type (
 
 	Pipeline struct {
 		ID                     string            `json:"id"             datastore:"-"`
+		Organization           *Organization     `json:"-"              validate:"required" datastore:"-"`
 		Name                   string            `json:"name"           validate:"required"`
 		ProjectID              string            `json:"project_id"     validate:"required"`
 		Zone                   string            `json:"zone"           validate:"required"`
@@ -109,7 +110,12 @@ func (m *Pipeline) Create(ctx context.Context) error {
 		return err
 	}
 
-	key := datastore.NewIncompleteKey(ctx, "Pipelines", nil)
+	parentKey, err := datastore.DecodeKey(m.Organization.ID)
+	if err != nil {
+		return err
+	}
+
+	key := datastore.NewIncompleteKey(ctx, "Pipelines", parentKey)
 	res, err := datastore.Put(ctx, key, m)
 	if err != nil {
 		return err
