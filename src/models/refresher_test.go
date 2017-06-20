@@ -116,9 +116,9 @@ func TestRefresherProcessForDeploying(t *testing.T) {
 	for _, expection := range expections {
 		pl := Pipeline{
 			Organization: org1,
-			Name:      "pipeline01",
-			ProjectID: proj,
-			Zone:      "us-central1-f",
+			Name:         "pipeline01",
+			ProjectID:    proj,
+			Zone:         "us-central1-f",
 			BootDisk: PipelineVmDisk{
 				SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
 			},
@@ -187,9 +187,9 @@ func TestRefresherProcessForClosing(t *testing.T) {
 	for _, expection := range expections {
 		pl := Pipeline{
 			Organization: org1,
-			Name:      "pipeline01",
-			ProjectID: proj,
-			Zone:      "us-central1-f",
+			Name:         "pipeline01",
+			ProjectID:    proj,
+			Zone:         "us-central1-f",
 			BootDisk: PipelineVmDisk{
 				SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
 			},

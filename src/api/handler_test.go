@@ -42,7 +42,7 @@ func TestActions(t *testing.T) {
 	org.Create(ctx)
 
 	invalid_get_test := func(setup func(req *http.Request)) {
-		req, err := inst.NewRequest(echo.GET, "/orgs" + org.ID + "/pipelines", nil)
+		req, err := inst.NewRequest(echo.GET, "/orgs"+org.ID+"/pipelines", nil)
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		setup(req)
 		assert.NoError(t, err)
@@ -73,7 +73,7 @@ func TestActions(t *testing.T) {
 		})
 	}
 
-	req, err = inst.NewRequest(echo.GET, "/orgs" + org.ID + "/pipelines", nil)
+	req, err = inst.NewRequest(echo.GET, "/orgs"+org.ID+"/pipelines", nil)
 	assert.NoError(t, err)
 	ctx = appengine.NewContext(req)
 
@@ -98,7 +98,7 @@ func TestActions(t *testing.T) {
 		`,"command":"bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}"` +
 		`,"dryrun":true` +
 		`}`
-	req, err = inst.NewRequest(echo.POST, "/orgs" + org.ID + "/pipelines", strings.NewReader(json1))
+	req, err = inst.NewRequest(echo.POST, "/orgs"+org.ID+"/pipelines", strings.NewReader(json1))
 	assert.NoError(t, err)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	req.Header.Set(auth_header, token)
@@ -219,7 +219,7 @@ func TestActions(t *testing.T) {
 	}
 
 	// Test for index
-	req, err = inst.NewRequest(echo.GET, "/orgs" + org.ID + "/pipelines", nil)
+	req, err = inst.NewRequest(echo.GET, "/orgs"+org.ID+"/pipelines", nil)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	req.Header.Set(auth_header, token)
 	assert.NoError(t, err)
@@ -249,7 +249,7 @@ func TestActions(t *testing.T) {
 	assert.NoError(t, err)
 
 	// /pipelines/orgs/:org_id/subscriptions
-	req, err = inst.NewRequest(echo.GET, "/orgs" + org.ID + "/pipelines/subscriptions", nil)
+	req, err = inst.NewRequest(echo.GET, "/orgs"+org.ID+"/pipelines/subscriptions", nil)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	req.Header.Set(auth_header, token)
 	assert.NoError(t, err)
