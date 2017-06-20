@@ -132,7 +132,7 @@ func (h *handler) Identified(impl func(c echo.Context) error) func(c echo.Contex
 	}
 }
 
-// curl -v -X PUT http://localhost:8080/pipelines/1/close
+// curl -v -X PUT http://localhost:8080/orgs/2pipelines/1/close
 func (h *handler) callPipelineTask(action string) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
@@ -148,8 +148,8 @@ func (h *handler) callPipelineTask(action string) func(c echo.Context) error {
 	}
 }
 
-// curl -v -X POST http://localhost:8080/pipelines/1/build_task
-// curl -v -X	POST http://localhost:8080/pipelines/1/close_task
+// curl -v -X POST http://localhost:8080/orgs/2/pipelines/1/build_task
+// curl -v -X	POST http://localhost:8080/orgs/2/pipelines/1/close_task
 // curl -v -X	POST http://localhost:8080/pipelines/1/refresh_task
 func (h *handler) pipelineTask(action string) func(c echo.Context) error {
 	return func(c echo.Context) error {
@@ -163,7 +163,7 @@ func (h *handler) pipelineTask(action string) func(c echo.Context) error {
 	}
 }
 
-// curl -v -X POST http://localhost:8080/pipelines --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
+// curl -v -X POST http://localhost:8080/orgs/2/pipelines --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
 func (h *handler) create(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	req := c.Request()
@@ -191,7 +191,7 @@ func (h *handler) create(c echo.Context) error {
 	return c.JSON(http.StatusCreated, pl)
 }
 
-// curl -v http://localhost:8080/pipelines
+// curl -v http://localhost:8080/orgs/2/pipelines
 func (h *handler) index(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	org := c.Get("organization").(*models.Organization)
@@ -202,7 +202,7 @@ func (h *handler) index(c echo.Context) error {
 	return c.JSON(http.StatusOK, pipelines)
 }
 
-// curl -v http://localhost:8080/pipelines/subscriptions
+// curl -v http://localhost:8080/orgs/2/pipelines/subscriptions
 func (h *handler) subscriptions(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	org := c.Get("organization").(*models.Organization)
@@ -213,13 +213,13 @@ func (h *handler) subscriptions(c echo.Context) error {
 	return c.JSON(http.StatusOK, subscriptions)
 }
 
-// curl -v http://localhost:8080/pipelines/1
+// curl -v http://localhost:8080/orgs/2/pipelines/1
 func (h *handler) show(c echo.Context) error {
 	pl := c.Get("pipeline").(*models.Pipeline)
 	return c.JSON(http.StatusOK, pl)
 }
 
-// curl -v -X DELETE http://localhost:8080/pipelines/1
+// curl -v -X DELETE http://localhost:8080/orgs/2/pipelines/1
 func (h *handler) destroy(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)

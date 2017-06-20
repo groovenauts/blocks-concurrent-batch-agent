@@ -248,7 +248,7 @@ func TestActions(t *testing.T) {
 	err = pl.Update(ctx)
 	assert.NoError(t, err)
 
-	// /pipelines/subscriptions
+	// /pipelines/orgs/:org_id/subscriptions
 	req, err = inst.NewRequest(echo.GET, "/orgs" + org.ID + "/pipelines/subscriptions", nil)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	req.Header.Set(auth_header, token)
