@@ -33,8 +33,8 @@ func Setup(echo *echo.Echo) {
 
 	g.GET("", h.withAuth(h.index))
 	g.GET("/subscriptions", h.withAuth(h.subscriptions))
-	g.GET("/:id", h.withPipeline(h.withAuth, h.show))
-	g.DELETE("/:id", h.withPipeline(h.withAuth, h.destroy))
+	g.GET("/:id", h.Identified(h.withAuth, h.show))
+	g.DELETE("/:id", h.Identified(h.withAuth, h.destroy))
 
 	g.POST("", h.withAuth(h.create))
 	g.POST("/:id/build_task", h.pipelineTask("build"))
@@ -67,7 +67,7 @@ func (h *handler) withAuth(impl func(c echo.Context) error) func(c echo.Context)
 	})
 }
 
-func (h *handler) withPipeline(wrapper func(func(echo.Context) error) func(echo.Context) error,
+func (h *handler) Identified(wrapper func(func(echo.Context) error) func(echo.Context) error,
 	impl func(c echo.Context, pl *models.Pipeline) error) func(c echo.Context) error {
 	return wrapper(func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
@@ -77,7 +77,7 @@ func (h *handler) withPipeline(wrapper func(func(echo.Context) error) func(echo.
 		case err == models.ErrNoSuchPipeline:
 			return c.JSON(http.StatusNotFound, map[string]string{"message": "Not found for " + id})
 		case err != nil:
-			log.Errorf(ctx, "@withPipeline %v id: %v\n", err, id)
+			log.Errorf(ctx, "@Identified %v id: %v\n", err, id)
 			return err
 		}
 		return impl(c, pl)
@@ -86,7 +86,7 @@ func (h *handler) withPipeline(wrapper func(func(echo.Context) error) func(echo.
 
 // curl -v -X PUT http://localhost:8080/pipelines/1/close
 func (h *handler) callPipelineTask(action string) func(c echo.Context) error {
-	return h.withPipeline(h.withAuth, func(c echo.Context, pl *models.Pipeline) error {
+	return h.Identified(h.withAuth, func(c echo.Context, pl *models.Pipeline) error {
 		id := c.Param("id")
 		ctx := c.Get("aecontext").(context.Context)
 		req := c.Request()
@@ -110,7 +110,7 @@ func (h *handler) pipelineTask(action string) func(c echo.Context) error {
 	default:
 		wrapper = h.withAuth
 	}
-	return h.withPipeline(wrapper, func(c echo.Context, pl *models.Pipeline) error {
+	return h.Identified(wrapper, func(c echo.Context, pl *models.Pipeline) error {
 		ctx := c.Get("aecontext").(context.Context)
 		err := pl.Process(ctx, action)
 		if err != nil {
