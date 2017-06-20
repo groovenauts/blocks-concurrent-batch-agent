@@ -37,13 +37,13 @@ func Setup(echo *echo.Echo) {
 	g.DELETE("/:id", h.withAuth(h.Identified(h.destroy)))
 
 	g.POST("", h.withAuth(h.create))
-	g.POST("/:id/build_task", h.pipelineTask(h.withAuth, "build"))
+	g.POST("/:id/build_task", h.withAuth(h.pipelineTask("build")))
 
 	g.PUT("/:id/close", h.callPipelineTask("close"))
-	g.POST("/:id/close_task", h.pipelineTask(h.withAuth, "close"))
+	g.POST("/:id/close_task", h.withAuth(h.pipelineTask("close")))
 
 	g.GET("/refresh", gae_support.With(h.refresh)) // Don't use withAuth because this is called from cron
-	g.POST("/:id/refresh_task", h.pipelineTask(gae_support.With, "refresh"))
+	g.POST("/:id/refresh_task", gae_support.With(h.pipelineTask("refresh")))
 }
 
 func (h *handler) withAuth(impl func(c echo.Context) error) func(c echo.Context) error {
@@ -101,15 +101,15 @@ func (h *handler) callPipelineTask(action string) func(c echo.Context) error {
 // curl -v -X POST http://localhost:8080/pipelines/1/build_task
 // curl -v -X	POST http://localhost:8080/pipelines/1/close_task
 // curl -v -X	POST http://localhost:8080/pipelines/1/refresh_task
-func (h *handler) pipelineTask(wrapper func(impl func(c echo.Context) error) func(c echo.Context) error, action string) func(c echo.Context) error {
-	return wrapper(h.Identified(func(c echo.Context, pl *models.Pipeline) error {
+func (h *handler) pipelineTask(action string) func(c echo.Context) error {
+	return h.Identified(func(c echo.Context, pl *models.Pipeline) error {
 		ctx := c.Get("aecontext").(context.Context)
 		err := pl.Process(ctx, action)
 		if err != nil {
 			return err
 		}
 		return c.JSON(http.StatusOK, pl)
-	}))
+	})
 }
 
 // curl -v -X POST http://localhost:8080/pipelines --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
