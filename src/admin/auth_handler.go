@@ -80,7 +80,7 @@ func (h *AuthHandler) getHostname(c echo.Context) (string, error) {
 	return hostname, err
 }
 
-func (h *AuthHandler) AuthHandler(f func(c echo.Context, ctx context.Context, auth *models.Auth) error) func(c echo.Context) error {
+func (h *AuthHandler) Identified(f func(c echo.Context, ctx context.Context, auth *models.Auth) error) func(c echo.Context) error {
 	return withFlash(func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		auth, err := models.GlobalAuthAccessor.Find(ctx, c.Param("id"))

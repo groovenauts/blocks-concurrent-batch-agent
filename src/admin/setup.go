@@ -35,8 +35,8 @@ func Setup(echo *echo.Echo, dir string) map[string]interface{} {
 	g := e.Group("/admin/auths")
 	g.GET("", withFlash(auth.index))
 	g.POST("", withFlash(auth.create))
-	g.POST("/:id/disable", auth.AuthHandler(auth.disable))
-	g.POST("/:id/delete", auth.AuthHandler(auth.destroy))
+	g.POST("/:id/disable", auth.Identified(auth.disable))
+	g.POST("/:id/delete", auth.Identified(auth.destroy))
 
 	return map[string]interface{}{
 		"orgs":  orgs,
