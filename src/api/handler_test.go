@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"gae_support"
 	"models"
 	"test_utils"
 
@@ -32,6 +31,7 @@ func TestActions(t *testing.T) {
 	defer inst.Close()
 
 	h := &handler{}
+	h.buildActions()
 
 	invalid_get_test := func(setup func(req *http.Request)) {
 		req, err := inst.NewRequest(echo.GET, "/pipelines", nil)
@@ -43,8 +43,7 @@ func TestActions(t *testing.T) {
 		c := e.NewContext(req, rec)
 		c.SetPath("/pipelines")
 
-		f := h.withAuth(h.index)
-		if assert.NoError(t, f(c)) {
+		if assert.NoError(t, h.Actions["index"](c)) {
 			assert.Equal(t, http.StatusUnauthorized, rec.Code)
 		}
 	}
@@ -96,8 +95,7 @@ func TestActions(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.SetPath("/pipelines")
 
-	f := h.withAuth(h.create)
-	assert.NoError(t, f(c))
+	assert.NoError(t, h.Actions["create"](c))
 	assert.Equal(t, http.StatusCreated, rec.Code)
 
 	s := rec.Body.String()
@@ -120,8 +118,7 @@ func TestActions(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues(pl.ID)
 
-	f = h.withAuth(h.Identified(h.show))
-	if assert.NoError(t, f(c)) {
+	if assert.NoError(t, h.Actions["show"](c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		s := rec.Body.String()
@@ -177,8 +174,6 @@ func TestActions(t *testing.T) {
 		err = pl.Update(ctx)
 		assert.NoError(t, err)
 
-		f = gae_support.With(h.refresh)
-
 		test_utils.RetryWith(10, func() func() {
 			req, err = inst.NewRequest(echo.GET, "/pipelines/refresh", nil)
 			assert.NoError(t, err)
@@ -189,7 +184,7 @@ func TestActions(t *testing.T) {
 			c = e.NewContext(req, rec)
 			c.SetPath("/pipelines/refresh")
 
-			err := f(c)
+			err := h.Actions["refresh"](c)
 			if err != nil {
 				return func() { assert.NoError(t, err) }
 			}
@@ -219,8 +214,7 @@ func TestActions(t *testing.T) {
 	c = e.NewContext(req, rec)
 	c.SetPath("/pipelines")
 
-	f = h.withAuth(h.index)
-	if assert.NoError(t, f(c)) {
+	if assert.NoError(t, h.Actions["index"](c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		s := rec.Body.String()
@@ -248,8 +242,7 @@ func TestActions(t *testing.T) {
 	c = e.NewContext(req, rec)
 	c.SetPath("/pipelines/subscriptions")
 
-	f = h.withAuth(h.subscriptions)
-	if assert.NoError(t, f(c)) {
+	if assert.NoError(t, h.Actions["subscriptions"](c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		s := rec.Body.String()
@@ -275,8 +268,7 @@ func TestActions(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues(pl.ID)
 
-	f = h.withAuth(h.Identified(h.destroy))
-	if assert.NoError(t, f(c)) {
+	if assert.NoError(t, h.Actions["destroy"](c)) {
 		assert.Equal(t, http.StatusNotAcceptable, rec.Code) // http.StatusUnprocessableEntity
 		s := rec.Body.String()
 		assert.Regexp(t, "(?i)can't destroy", s)
@@ -301,8 +293,7 @@ func TestActions(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues(pl.ID)
 
-	f = h.withAuth(h.Identified(h.destroy))
-	if assert.NoError(t, f(c)) {
+	if assert.NoError(t, h.Actions["destroy"](c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		s := rec.Body.String()
@@ -324,8 +315,7 @@ func TestActions(t *testing.T) {
 	c.SetParamNames("id")
 	c.SetParamValues(pl.ID)
 
-	f = h.withAuth(h.Identified(h.show))
-	if assert.NoError(t, f(c)) {
+	if assert.NoError(t, h.Actions["show"](c)) {
 		assert.Equal(t, http.StatusNotFound, rec.Code)
 	}
 }
