@@ -10,6 +10,7 @@ import (
 )
 
 type PipelineAccessor struct {
+	Parent *Organization
 }
 
 var GlobalPipelineAccessor = &PipelineAccessor{}
@@ -21,6 +22,15 @@ func (pa *PipelineAccessor) Find(ctx context.Context, id string) (*Pipeline, err
 	if err != nil {
 		log.Errorf(ctx, "Failed to decode id(%v) to key because of %v \n", id, err)
 		return nil, err
+	}
+	if pa.Parent != nil {
+		parentKey, err := datastore.DecodeKey(pa.Parent.ID)
+		if err != nil {
+			return nil, err
+		}
+		if !parentKey.Equal(key.Parent()) {
+			return nil, &InvalidParent{id}
+		}
 	}
 	ctx = context.WithValue(ctx, "Pipeline.key", key)
 	pl := &Pipeline{ID: id}
@@ -35,6 +45,17 @@ func (pa *PipelineAccessor) Find(ctx context.Context, id string) (*Pipeline, err
 	return pl, nil
 }
 
+func (pa *PipelineAccessor) considerParent(q *datastore.Query) (*datastore.Query, error) {
+	if pa.Parent == nil {
+		return q, nil
+	}
+	key, err := datastore.DecodeKey(pa.Parent.ID)
+	if err != nil {
+		return nil, err
+	}
+	return q.Ancestor(key), nil
+}
+
 func (pa *PipelineAccessor) GetAll(ctx context.Context) ([]*Pipeline, error) {
 	q := datastore.NewQuery("Pipelines")
 	return pa.GetByQuery(ctx, q)
@@ -46,6 +67,10 @@ func (pa *PipelineAccessor) GetByStatus(ctx context.Context, st Status) ([]*Pipe
 }
 
 func (pa *PipelineAccessor) GetByQuery(ctx context.Context, q *datastore.Query) ([]*Pipeline, error) {
+	q, err := pa.considerParent(q)
+	if err != nil {
+		return nil, err
+	}
 	iter := q.Run(ctx)
 	var res = []*Pipeline{}
 	for {
@@ -65,10 +90,18 @@ func (pa *PipelineAccessor) GetByQuery(ctx context.Context, q *datastore.Query) 
 
 func (pa *PipelineAccessor) GetIDsByStatus(ctx context.Context, st Status) ([]string, error) {
 	q := datastore.NewQuery("Pipelines").Filter("Status =", st)
+	q, err := pa.considerParent(q)
+	if err != nil {
+		return nil, err
+	}
 	return pa.GetIDsByQuery(ctx, q)
 }
 
 func (pa *PipelineAccessor) GetIDsByQuery(ctx context.Context, q *datastore.Query) ([]string, error) {
+	q, err := pa.considerParent(q)
+	if err != nil {
+		return nil, err
+	}
 	keys, err := q.KeysOnly().GetAll(ctx, nil)
 	if err != nil {
 		return nil, err
