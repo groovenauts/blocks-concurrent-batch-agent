@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	"golang.org/x/crypto/bcrypt"
@@ -10,7 +11,17 @@ import (
 	"google.golang.org/appengine/log"
 )
 
+type InvalidParent struct {
+	ID string
+}
+
+func (e *InvalidParent) Error() string {
+	return fmt.Sprintf("Invalid parent from ID: %q", e.ID)
+}
+
+
 type AuthAccessor struct {
+	Parent *Organization
 }
 
 var GlobalAuthAccessor = &AuthAccessor{}
@@ -23,6 +34,15 @@ func (aa *AuthAccessor) Find(ctx context.Context, id string) (*Auth, error) {
 	if err != nil {
 		log.Errorf(ctx, "@FindAuth %v id: %q\n", err, id)
 		return nil, err
+	}
+	if aa.Parent != nil {
+		parentKey, err := datastore.DecodeKey(aa.Parent.ID)
+		if err != nil {
+			return nil, err
+		}
+		if !parentKey.Equal(key.Parent()) {
+			return nil, &InvalidParent{id}
+		}
 	}
 	// log.Debugf(ctx, "@FindAuth key: %q\n", key)
 	ctx = context.WithValue(ctx, "Auth.key", key)
@@ -66,6 +86,13 @@ func (aa *AuthAccessor) FindWithToken(ctx context.Context, token string) (*Auth,
 
 func (aa *AuthAccessor) GetAll(ctx context.Context) ([]*Auth, error) {
 	q := datastore.NewQuery("Auths")
+	if aa.Parent != nil {
+		key, err := datastore.DecodeKey(aa.Parent.ID)
+		if err != nil {
+			return nil, err
+		}
+		q = q.Ancestor(key)
+	}
 	iter := q.Run(ctx)
 	var res = []*Auth{}
 	for {
