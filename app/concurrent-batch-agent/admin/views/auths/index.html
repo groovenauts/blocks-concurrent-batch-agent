@@ -8,6 +8,8 @@
 <p>Notice: {{.Flash.Notice}}</p>
 {{end}}
 
+{{ $orgID := .Organization.ID }}
+
 <table>
   <thead>
     <th>ID</th>
@@ -25,12 +27,12 @@
     <td>{{.CreatedAt}} </td>
     <td>{{.UpdatedAt}} </td>
     <td>
-      <form action="/admin/auths/{{.ID}}/disable" method="POST">
+      <form action="/admin/org/{{$orgID}}/auths/{{.ID}}/disable" method="POST">
         <input type="submit" value="Disable"/>
       </form>
     </td>
     <td>
-      <form action="/admin/auths/{{.ID}}/delete" method="POST">
+      <form action="/admin/org/{{$orgID}}/auths/{{.ID}}/delete" method="POST">
         <input type="submit" value="Delete"/>
       </form>
     </td>
