@@ -36,9 +36,13 @@ func (m *Auth) Create(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-
 	m.generatePassword()
-	key := datastore.NewIncompleteKey(ctx, "Auths", nil)
+
+	orgKey, err := datastore.DecodeKey(m.Organization.ID)
+	if err != nil {
+		return err
+	}
+	key := datastore.NewIncompleteKey(ctx, "Auths", orgKey)
 	// Password is a string encoded by base64
 	enc_pw, err := bcrypt.GenerateFromPassword([]byte(m.Password), 10)
 	if err != nil {
