@@ -38,17 +38,21 @@ func (aa *OrganizationAccessor) Find(ctx context.Context, id string) (*Organizat
 		log.Errorf(ctx, "OrganizationAccessor#Find %v id: %q\n", err, id)
 		return nil, err
 	}
+	return aa.FindByKey(ctx, key)
+}
+
+func (aa *OrganizationAccessor) FindByKey(ctx context.Context, key *datastore.Key) (*Organization, error) {
 	ctx = context.WithValue(ctx, "Organization.key", key)
 	m := &Organization{}
-	err = datastore.Get(ctx, key, m)
-	m.ID = id
+	err := datastore.Get(ctx, key, m)
 	switch {
 	case err == datastore.ErrNoSuchEntity:
 		return nil, ErrNoSuchOrganization
 	case err != nil:
-		log.Errorf(ctx, "OrganizationAccessor#Find %v id: %q\n", err, id)
+		log.Errorf(ctx, "OrganizationAccessor#Find %v id: %q\n", err, key.Encode())
 		return nil, err
 	}
+	m.ID = key.Encode()
 	return m, nil
 }
 
