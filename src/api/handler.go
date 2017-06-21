@@ -237,17 +237,17 @@ func (h *handler) refresh(c echo.Context) error {
 			return err
 		}
 		for _, org := range orgs {
-    ids, err := org.PipelineAccessor().GetIDsByStatus(ctx, st)
-		if err != nil {
-			return err
-		}
-		for _, id := range ids {
-			t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/refresh_task", id), map[string][]string{})
-			if _, err := taskqueue.Add(ctx, t, ""); err != nil {
+			ids, err := org.PipelineAccessor().GetIDsByStatus(ctx, st)
+			if err != nil {
 				return err
 			}
-		}
-		res[org.Name + "-" + name] = ids
+			for _, id := range ids {
+				t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/refresh_task", id), map[string][]string{})
+				if _, err := taskqueue.Add(ctx, t, ""); err != nil {
+					return err
+				}
+			}
+			res[org.Name + "-" + name] = ids
 		}
 	}
 	return c.JSON(http.StatusOK, res)
