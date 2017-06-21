@@ -59,7 +59,7 @@ func (h *handler) buildActions() {
 		"subscriptions": gae_support.With(h.withOrg(h.withAuth(h.subscriptions))),
 		"show":          gae_support.With(h.withOrg(h.withAuth(h.Identified(h.show)))),
 		"destroy":       gae_support.With(h.withOrg(h.withAuth(h.Identified(h.destroy)))),
-		"close":         gae_support.With(h.withOrg(h.withAuth(h.Identified(h.callPipelineTask("close"))))),
+		"close":         gae_support.With(h.withOrg(h.withAuth(h.Identified(h.close)))),
 		"refresh":       gae_support.With(h.refresh), // Don't use withAuth because this is called from cron
 		"refresh_task":  gae_support.With(h.Identified(h.pipelineTask("refresh"))),
 		// "build_task": gae_support.With(h.withOrg(h.withAuth(h.Identified(h.pipelineTask("build"))))),
@@ -132,20 +132,18 @@ func (h *handler) Identified(impl func(c echo.Context) error) func(c echo.Contex
 	}
 }
 
-// curl -v -X PUT http://localhost:8080/orgs/2pipelines/1/close
-func (h *handler) callPipelineTask(action string) func(c echo.Context) error {
-	return func(c echo.Context) error {
-		ctx := c.Get("aecontext").(context.Context)
-		pl := c.Get("pipeline").(*models.Pipeline)
-		id := c.Param("id")
-		req := c.Request()
-		t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/%s_task", id, action), map[string][]string{})
-		t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
-		if _, err := taskqueue.Add(ctx, t, ""); err != nil {
-			return err
-		}
-		return c.JSON(http.StatusCreated, pl)
+// curl -v -X PUT http://localhost:8080/orgs/2/pipelines/1/close
+func (h *handler) close(c echo.Context, pl *models.Pipeline) error {
+	ctx := c.Get("aecontext").(context.Context)
+	pl := c.Get("pipeline").(*models.Pipeline)
+	id := c.Param("id")
+	req := c.Request()
+	t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/close_task", id), map[string][]string{})
+	t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
+	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
+		return err
 	}
+	return c.JSON(http.StatusCreated, pl)
 }
 
 // curl -v -X POST http://localhost:8080/orgs/2/pipelines/1/build_task
