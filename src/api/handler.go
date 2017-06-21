@@ -15,7 +15,7 @@ import (
 	"google.golang.org/appengine/taskqueue"
 )
 
-type handler struct{
+type handler struct {
 	Actions map[string](func(c echo.Context) error)
 }
 
@@ -51,16 +51,16 @@ func Setup(echo *echo.Echo) {
 
 func (h *handler) buildActions() {
 	h.Actions = map[string](func(c echo.Context) error){
-		"index": h.withAuth(h.index),
+		"index":         h.withAuth(h.index),
 		"subscriptions": h.withAuth(h.subscriptions),
-		"show" : h.withAuth(h.Identified(h.show)),
-		"destroy": h.withAuth(h.Identified(h.destroy)),
-		"create": h.withAuth(h.create),
-		"build_task": h.withAuth(h.pipelineTask("build")),
-		"close": h.callPipelineTask("close"),
-		"close_task": h.withAuth(h.pipelineTask("close")),
-		"refresh": gae_support.With(h.refresh), // Don't use withAuth because this is called from cron
-		"refresh_task": gae_support.With(h.pipelineTask("refresh")),
+		"show":          h.withAuth(h.Identified(h.show)),
+		"destroy":       h.withAuth(h.Identified(h.destroy)),
+		"create":        h.withAuth(h.create),
+		"build_task":    h.withAuth(h.pipelineTask("build")),
+		"close":         h.callPipelineTask("close"),
+		"close_task":    h.withAuth(h.pipelineTask("close")),
+		"refresh":       gae_support.With(h.refresh), // Don't use withAuth because this is called from cron
+		"refresh_task":  gae_support.With(h.pipelineTask("refresh")),
 	}
 }
 
