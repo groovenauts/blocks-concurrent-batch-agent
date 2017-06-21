@@ -9,7 +9,6 @@ import (
 	"models"
 
 	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/taskqueue"
@@ -32,7 +31,6 @@ func Setup(echo *echo.Echo) {
 	h.buildActions()
 
 	g := e.Group("/orgs/:org_id/pipelines")
-	g.Use(middleware.CORS())
 
 	g.GET("", h.Actions["index"])
 	g.GET("/subscriptions", h.Actions["subscriptions"])
@@ -46,7 +44,6 @@ func Setup(echo *echo.Echo) {
 	g.POST("/:id/close_task", h.Actions["close_task"])
 
 	g = e.Group("/pipelines")
-	g.Use(middleware.CORS())
 	g.GET("/refresh", h.Actions["refresh"])
 	g.POST("/:id/refresh_task", h.Actions["refresh_task"])
 }
