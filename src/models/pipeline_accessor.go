@@ -32,9 +32,13 @@ func (pa *PipelineAccessor) Find(ctx context.Context, id string) (*Pipeline, err
 			return nil, &InvalidParent{id}
 		}
 	}
+	return pa.FindByKey(ctx, key)
+}
+
+func (pa *PipelineAccessor) FindByKey(ctx context.Context, key *datastore.Key) (*Pipeline, error) {
 	ctx = context.WithValue(ctx, "Pipeline.key", key)
-	pl := &Pipeline{ID: id}
-	err = datastore.Get(ctx, key, pl)
+	pl := &Pipeline{}
+	err := datastore.Get(ctx, key, pl)
 	switch {
 	case err == datastore.ErrNoSuchEntity:
 		return nil, ErrNoSuchPipeline
@@ -42,6 +46,7 @@ func (pa *PipelineAccessor) Find(ctx context.Context, id string) (*Pipeline, err
 		log.Errorf(ctx, "Failed to Get pipeline key(%v) to key because of %v \n", key, err)
 		return nil, err
 	}
+	pl.ID = key.Encode()
 	return pl, nil
 }
 
