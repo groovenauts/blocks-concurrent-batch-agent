@@ -10,7 +10,7 @@ import (
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/aetest"
 	"google.golang.org/appengine/datastore"
-	"google.golang.org/appengine/log"
+	// "google.golang.org/appengine/log"
 	"gopkg.in/go-playground/validator.v9"
 )
 
@@ -41,7 +41,8 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	}
 
 	// CreatePipeline invalid
-	err = GlobalPipelineAccessor.Create(ctx, &Pipeline{})
+	empty_pl := &Pipeline{}
+	err = empty_pl.Create(ctx)
 	assert.Error(t, err)
 	errors := err.(validator.ValidationErrors)
 
@@ -63,7 +64,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	}
 
 	// CreatePipeline valid
-	pl := Pipeline{
+	pl := &Pipeline{
 		Name:      "pipeline01",
 		ProjectID: proj,
 		Zone:      "us-central1-f",
@@ -76,9 +77,8 @@ func TestWatcherCalcDifferences(t *testing.T) {
 		ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
 		Command:       "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
 	}
-	err = GlobalPipelineAccessor.Create(ctx, &pl)
+	err = pl.Create(ctx)
 	assert.NoError(t, err)
-	log.Debugf(ctx, "pl %v\n", pl)
 	key, err := datastore.DecodeKey(pl.ID)
 	assert.NoError(t, err)
 
@@ -212,7 +212,7 @@ func TestGetActiveSubscriptions(t *testing.T) {
 			Command:       "",
 			Status:        st,
 		}
-		assert.NoError(t, GlobalPipelineAccessor.Create(ctx, pl))
+		assert.NoError(t, pl.Create(ctx))
 		pipelines[st] = pl
 	}
 

@@ -127,7 +127,8 @@ type CreateRes struct {
 
 func (h *adminHandler) create(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
-	auth, err := models.GlobalAuthAccessor.Create(ctx)
+	auth := &models.Auth{}
+	err := auth.Create(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Error on create auth: %v\n", err)
 		return err
