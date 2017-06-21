@@ -17,6 +17,10 @@ import:
   subpackages:
   - compute/metadata
   - internal
+- package: github.com/go-playground/universal-translator
+- package: github.com/go-playground/locales
+  subpackages:
+  - currency
 testImport:
 - package: github.com/stretchr/testify
   subpackages:
