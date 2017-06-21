@@ -151,7 +151,7 @@ func (h *handler) close(c echo.Context) error {
 	org := c.Get("organization").(*models.Organization)
 	pl := c.Get("pipeline").(*models.Pipeline)
 	req := c.Request()
-	t := taskqueue.NewPOSTTask(fmt.Sprintf("/orgs/%s/pipelines/%s/close_task", org.ID, id), map[string][]string{})
+	t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/close_task", org.ID, id), map[string][]string{})
 	t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
 	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 		return err
@@ -193,7 +193,7 @@ func (h *handler) create(c echo.Context) error {
 	}
 	log.Debugf(ctx, "Created pipeline: %v\n", pl)
 	if !pl.Dryrun {
-		t := taskqueue.NewPOSTTask(fmt.Sprintf("/orgs/%s/pipelines/%s/build_task", org.ID, pl.ID), map[string][]string{})
+		t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/build_task", org.ID, pl.ID), map[string][]string{})
 		t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
 		if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 			return err
