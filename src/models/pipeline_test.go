@@ -63,11 +63,18 @@ func TestWatcherCalcDifferences(t *testing.T) {
 		}
 	}
 
+	org1 := &Organization{
+		Name: "org01",
+	}
+	err = org1.Create(ctx)
+	assert.NoError(t, err)
+
 	// CreatePipeline valid
 	pl := &Pipeline{
-		Name:      "pipeline01",
-		ProjectID: proj,
-		Zone:      "us-central1-f",
+		Organization: org1,
+		Name:         "pipeline01",
+		ProjectID:    proj,
+		Zone:         "us-central1-f",
 		BootDisk: PipelineVmDisk{
 			SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
 		},
@@ -197,11 +204,18 @@ func TestGetActiveSubscriptions(t *testing.T) {
 
 	pipelines := map[Status]*Pipeline{}
 
+	org1 := &Organization{
+		Name: "org01",
+	}
+	err = org1.Create(ctx)
+	assert.NoError(t, err)
+
 	for st, name := range StatusStrings {
 		pl := &Pipeline{
-			Name:      "pipeline-" + name,
-			ProjectID: proj,
-			Zone:      "us-central1-f",
+			Organization: org1,
+			Name:         "pipeline-" + name,
+			ProjectID:    proj,
+			Zone:         "us-central1-f",
 			BootDisk: PipelineVmDisk{
 				SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
 			},

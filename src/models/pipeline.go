@@ -6,6 +6,7 @@ import (
 
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
+	"google.golang.org/appengine/log"
 
 	"gopkg.in/go-playground/validator.v9"
 )
@@ -76,6 +77,7 @@ type (
 
 	Pipeline struct {
 		ID                     string            `json:"id"             datastore:"-"`
+		Organization           *Organization     `json:"-"              validate:"required" datastore:"-"`
 		Name                   string            `json:"name"           validate:"required"`
 		ProjectID              string            `json:"project_id"     validate:"required"`
 		Zone                   string            `json:"zone"           validate:"required"`
@@ -109,7 +111,12 @@ func (m *Pipeline) Create(ctx context.Context) error {
 		return err
 	}
 
-	key := datastore.NewIncompleteKey(ctx, "Pipelines", nil)
+	parentKey, err := datastore.DecodeKey(m.Organization.ID)
+	if err != nil {
+		return err
+	}
+
+	key := datastore.NewIncompleteKey(ctx, "Pipelines", parentKey)
 	res, err := datastore.Put(ctx, key, m)
 	if err != nil {
 		return err
@@ -157,4 +164,23 @@ func (m *Pipeline) Process(ctx context.Context, action string) error {
 		return err
 	}
 	return processor.Process(ctx, m)
+}
+
+func (m *Pipeline) LoadOrganization(ctx context.Context) error {
+	key, err := datastore.DecodeKey(m.ID)
+	if err != nil {
+		log.Errorf(ctx, "Failed to decode Key of pipeline %v because of %v\n", m.ID, err)
+		return err
+	}
+	orgKey := key.Parent()
+	if orgKey == nil {
+		log.Errorf(ctx, "Pipline key has no parent. ID: %v\n", m.ID)
+		panic("Invalid pipeline key")
+	}
+	org, err := GlobalOrganizationAccessor.FindByKey(ctx, orgKey)
+	if err != nil {
+		return err
+	}
+	m.Organization = org
+	return nil
 }

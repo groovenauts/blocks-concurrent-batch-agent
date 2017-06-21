@@ -63,5 +63,8 @@ run:
 show_version:
 	@echo ${VERSION}
 
-deploy:
+deploy: build
 	appcfg.py -A $${PROJECT} -V ${VERSION} update ./app/concurrent-batch-agent
+
+update-traffic:
+	gcloud --project ${PROJECT} app services set-traffic concurrent-batch-agent --splits=${VERSION}=1 -q

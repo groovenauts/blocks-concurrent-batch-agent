@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"gae_support"
 	"models"
 	"test_utils"
 
@@ -32,19 +31,29 @@ func TestActions(t *testing.T) {
 	defer inst.Close()
 
 	h := &handler{}
+	h.buildActions()
+
+	req, err := inst.NewRequest(echo.GET, "/orgs", nil)
+	assert.NoError(t, err)
+	ctx := appengine.NewContext(req)
+
+	test_utils.ClearDatastore(t, ctx, "Organizations")
+	org := &models.Organization{Name: "ORG1"}
+	org.Create(ctx)
 
 	invalid_get_test := func(setup func(req *http.Request)) {
-		req, err := inst.NewRequest(echo.GET, "/pipelines", nil)
+		req, err := inst.NewRequest(echo.GET, "/orgs"+org.ID+"/pipelines", nil)
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		setup(req)
 		assert.NoError(t, err)
 
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-		c.SetPath("/pipelines")
+		c.SetPath("/orgs" + org.ID + "/pipelines")
+		c.SetParamNames("org_id")
+		c.SetParamValues(org.ID)
 
-		f := h.withAuth(h.index)
-		if assert.NoError(t, f(c)) {
+		if assert.NoError(t, h.Actions["index"](c)) {
 			assert.Equal(t, http.StatusUnauthorized, rec.Code)
 		}
 	}
@@ -64,10 +73,11 @@ func TestActions(t *testing.T) {
 		})
 	}
 
-	req, err := inst.NewRequest(echo.GET, "/pipelines", nil)
+	req, err = inst.NewRequest(echo.GET, "/orgs"+org.ID+"/pipelines", nil)
 	assert.NoError(t, err)
-	ctx := appengine.NewContext(req)
-	auth := &models.Auth{}
+	ctx = appengine.NewContext(req)
+
+	auth := &models.Auth{Organization: org}
 	err = auth.Create(ctx)
 	assert.NoError(t, err)
 	token := "Bearer " + auth.Token
@@ -88,28 +98,30 @@ func TestActions(t *testing.T) {
 		`,"command":"bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}"` +
 		`,"dryrun":true` +
 		`}`
-	req, err = inst.NewRequest(echo.POST, "/pipelines", strings.NewReader(json1))
+	req, err = inst.NewRequest(echo.POST, "/orgs"+org.ID+"/pipelines", strings.NewReader(json1))
 	assert.NoError(t, err)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	req.Header.Set(auth_header, token)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetPath("/pipelines")
+	c.SetPath("/orgs" + org.ID + "/pipelines")
+	c.SetParamNames("org_id")
+	c.SetParamValues(org.ID)
 
-	f := h.withAuth(h.create)
-	assert.NoError(t, f(c))
+	assert.NoError(t, h.Actions["create"](c))
 	assert.Equal(t, http.StatusCreated, rec.Code)
 
 	s := rec.Body.String()
 
 	pl := models.Pipeline{}
+	pl.Organization = org
 	if assert.NoError(t, json.Unmarshal([]byte(s), &pl)) {
 		assert.Equal(t, test_proj1, pl.ProjectID)
 		assert.NotNil(t, pl.ID)
 	}
 
 	// Test for show
-	path := "/pipelines/" + pl.ID
+	path := "/orgs" + org.ID + "/pipelines/" + pl.ID
 	req, err = inst.NewRequest(echo.GET, path, nil)
 	req.Header.Set(auth_header, token)
 	assert.NoError(t, err)
@@ -117,11 +129,10 @@ func TestActions(t *testing.T) {
 	rec = httptest.NewRecorder()
 	c = e.NewContext(req, rec)
 	c.SetPath(path)
-	c.SetParamNames("id")
-	c.SetParamValues(pl.ID)
+	c.SetParamNames("org_id", "id")
+	c.SetParamValues(org.ID, pl.ID)
 
-	f = h.withPipeline(h.withAuth, h.show)
-	if assert.NoError(t, f(c)) {
+	if assert.NoError(t, h.Actions["show"](c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		s := rec.Body.String()
@@ -148,8 +159,8 @@ func TestActions(t *testing.T) {
 		expections = append(expections, expection{
 			status: st,
 			result: map[string][]string{
-				"deploying": []string{},
-				"closing":   []string{},
+				"ORG1-deploying": []string{},
+				"ORG1-closing":   []string{},
 			},
 		})
 	}
@@ -157,15 +168,15 @@ func TestActions(t *testing.T) {
 	expections = append(expections, expection{
 		status: models.Deploying,
 		result: map[string][]string{
-			"deploying": []string{pl.ID},
-			"closing":   []string{},
+			"ORG1-deploying": []string{pl.ID},
+			"ORG1-closing":   []string{},
 		},
 	})
 	expections = append(expections, expection{
 		status: models.Closing,
 		result: map[string][]string{
-			"deploying": []string{},
-			"closing":   []string{pl.ID},
+			"ORG1-deploying": []string{},
+			"ORG1-closing":   []string{pl.ID},
 		},
 	})
 
@@ -177,8 +188,6 @@ func TestActions(t *testing.T) {
 		err = pl.Update(ctx)
 		assert.NoError(t, err)
 
-		f = gae_support.With(h.refresh)
-
 		test_utils.RetryWith(10, func() func() {
 			req, err = inst.NewRequest(echo.GET, "/pipelines/refresh", nil)
 			assert.NoError(t, err)
@@ -189,7 +198,7 @@ func TestActions(t *testing.T) {
 			c = e.NewContext(req, rec)
 			c.SetPath("/pipelines/refresh")
 
-			err := f(c)
+			err := h.Actions["refresh"](c)
 			if err != nil {
 				return func() { assert.NoError(t, err) }
 			}
@@ -210,17 +219,18 @@ func TestActions(t *testing.T) {
 	}
 
 	// Test for index
-	req, err = inst.NewRequest(echo.GET, "/pipelines", nil)
+	req, err = inst.NewRequest(echo.GET, "/orgs"+org.ID+"/pipelines", nil)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	req.Header.Set(auth_header, token)
 	assert.NoError(t, err)
 
 	rec = httptest.NewRecorder()
 	c = e.NewContext(req, rec)
-	c.SetPath("/pipelines")
+	c.SetPath("/orgs" + org.ID + "/pipelines")
+	c.SetParamNames("org_id")
+	c.SetParamValues(org.ID)
 
-	f = h.withAuth(h.index)
-	if assert.NoError(t, f(c)) {
+	if assert.NoError(t, h.Actions["index"](c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		s := rec.Body.String()
@@ -238,18 +248,19 @@ func TestActions(t *testing.T) {
 	err = pl.Update(ctx)
 	assert.NoError(t, err)
 
-	// /pipelines/subscriptions
-	req, err = inst.NewRequest(echo.GET, "/pipelines/subscriptions", nil)
+	// /pipelines/orgs/:org_id/subscriptions
+	req, err = inst.NewRequest(echo.GET, "/orgs"+org.ID+"/pipelines/subscriptions", nil)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	req.Header.Set(auth_header, token)
 	assert.NoError(t, err)
 
 	rec = httptest.NewRecorder()
 	c = e.NewContext(req, rec)
-	c.SetPath("/pipelines/subscriptions")
+	c.SetPath("/orgs" + org.ID + "/pipelines/subscriptions")
+	c.SetParamNames("org_id")
+	c.SetParamValues(org.ID)
 
-	f = h.withAuth(h.subscriptions)
-	if assert.NoError(t, f(c)) {
+	if assert.NoError(t, h.Actions["subscriptions"](c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		s := rec.Body.String()
@@ -272,11 +283,10 @@ func TestActions(t *testing.T) {
 	rec = httptest.NewRecorder()
 	c = e.NewContext(req, rec)
 	c.SetPath(path)
-	c.SetParamNames("id")
-	c.SetParamValues(pl.ID)
+	c.SetParamNames("org_id", "id")
+	c.SetParamValues(org.ID, pl.ID)
 
-	f = h.withPipeline(h.withAuth, h.destroy)
-	if assert.NoError(t, f(c)) {
+	if assert.NoError(t, h.Actions["destroy"](c)) {
 		assert.Equal(t, http.StatusNotAcceptable, rec.Code) // http.StatusUnprocessableEntity
 		s := rec.Body.String()
 		assert.Regexp(t, "(?i)can't destroy", s)
@@ -298,11 +308,10 @@ func TestActions(t *testing.T) {
 	rec = httptest.NewRecorder()
 	c = e.NewContext(req, rec)
 	c.SetPath(path)
-	c.SetParamNames("id")
-	c.SetParamValues(pl.ID)
+	c.SetParamNames("org_id", "id")
+	c.SetParamValues(org.ID, pl.ID)
 
-	f = h.withPipeline(h.withAuth, h.destroy)
-	if assert.NoError(t, f(c)) {
+	if assert.NoError(t, h.Actions["destroy"](c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		s := rec.Body.String()
@@ -313,7 +322,7 @@ func TestActions(t *testing.T) {
 	}
 
 	// 2nd Test for show
-	path = "/pipelines/" + pl.ID
+	path = "/orgs" + org.ID + "/pipelines/" + pl.ID
 	req, err = inst.NewRequest(echo.GET, path, nil)
 	req.Header.Set(auth_header, token)
 	assert.NoError(t, err)
@@ -321,11 +330,10 @@ func TestActions(t *testing.T) {
 	rec = httptest.NewRecorder()
 	c = e.NewContext(req, rec)
 	c.SetPath(path)
-	c.SetParamNames("id")
-	c.SetParamValues(pl.ID)
+	c.SetParamNames("org_id", "id")
+	c.SetParamValues(org.ID, pl.ID)
 
-	f = h.withPipeline(h.withAuth, h.show)
-	if assert.NoError(t, f(c)) {
+	if assert.NoError(t, h.Actions["show"](c)) {
 		assert.Equal(t, http.StatusNotFound, rec.Code)
 	}
 }
