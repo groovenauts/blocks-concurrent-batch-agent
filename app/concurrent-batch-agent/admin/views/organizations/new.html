@@ -1,0 +1,37 @@
+{{define "new"}}
+
+{{if .Flash.Alert}}
+<p>ALERT: {{.Flash.Alert}}</p>
+{{end}}
+
+{{if .Flash.Notice}}
+<p>Notice: {{.Flash.Notice}}</p>
+{{end}}
+
+<div>
+
+  <form action="/admin/orgs" method="POST">
+    <div>
+      <label>
+        Name
+        <input type="text" name="name" value="{{ .Organization.Name }}"/>
+      </label>
+    </div>
+
+    <div>
+      <label>
+        Memo
+        <textarea name="memo">{{ .Organization.Memo }}</textarea>
+      </label>
+    </div>
+    <div>
+      <input type="submit" value="Create"/>
+    </div>
+  </form>
+
+</div>
+
+<div>
+  <a href="/admin/orgs">Back</a>
+</div>
+{{end}}

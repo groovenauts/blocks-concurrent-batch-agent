@@ -8,8 +8,23 @@ import (
 
 var e *echo.Echo
 
-func Setup(echo *echo.Echo, dir string) *AuthHandler {
+func Setup(echo *echo.Echo, dir string) map[string]interface{} {
 	e = echo
+
+	orgs := &OrganizationsHandler{
+		Views: &HandlerViews{
+			templates: template.Must(template.ParseGlob(dir + "/organizations/*.html")),
+		},
+	}
+
+	gorgs := e.Group("/admin/orgs")
+	gorgs.GET("", withFlash(orgs.Index))
+	gorgs.GET("/new", withFlash(orgs.New))
+	gorgs.POST("", withFlash(orgs.Create))
+	gorgs.GET("/:id", orgs.Identified(orgs.Show))
+	gorgs.GET("/:id/edit", orgs.Identified(orgs.Edit))
+	gorgs.POST("/:id/update", orgs.Identified(orgs.Update))
+	gorgs.POST("/:id/delete", orgs.Identified(orgs.Destroy))
 
 	auth := &AuthHandler{
 		Views: &HandlerViews{
@@ -23,5 +38,8 @@ func Setup(echo *echo.Echo, dir string) *AuthHandler {
 	g.POST("/:id/disable", auth.AuthHandler(auth.disable))
 	g.POST("/:id/delete", auth.AuthHandler(auth.destroy))
 
-	return auth
+	return map[string]interface{}{
+		"orgs":  orgs,
+		"auths": auth,
+	}
 }
