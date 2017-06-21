@@ -63,7 +63,7 @@ run:
 show_version:
 	@echo ${VERSION}
 
-deploy:
+deploy: build
 	appcfg.py -A $${PROJECT} -V ${VERSION} update ./app/concurrent-batch-agent
 
 update-traffic:
