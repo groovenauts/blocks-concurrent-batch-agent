@@ -1,5 +1,5 @@
-hash: af81affda632a2b51420d32c2ead19234746ed0acf7db3fa9adb31157156a8e7
-updated: 2017-06-21T13:25:50.477460423+09:00
+hash: f7e3c415019c2a173e0b02a1519fd23f0e4160e7ff54bda50497b58e4e9484c0
+updated: 2017-06-21T19:08:20.590914403+09:00
 imports:
 - name: cloud.google.com/go
   version: 81b7822b1e798e8f17bf64b59512a5be4097e966
@@ -13,7 +13,7 @@ imports:
 - name: github.com/go-playground/universal-translator
   version: 8bf00f2bdf7faea5c3583d41f57bf1eb15b743d7
 - name: github.com/labstack/echo
-  version: 49321f5829268d3ffc25cd59e0c874f8bb6ad35f
+  version: 7676f85ef9d4a50797e17b30c4b0b1cb3c7c532a
   subpackages:
   - middleware
 - name: golang.org/x/net
