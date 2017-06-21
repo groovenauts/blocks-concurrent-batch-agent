@@ -134,8 +134,9 @@ func (h *handler) Identified(impl func(c echo.Context, pl *models.Pipeline) erro
 func (h *handler) close(c echo.Context, pl *models.Pipeline) error {
 	id := c.Param("id")
 	ctx := c.Get("aecontext").(context.Context)
+	org := c.Get("organization").(*models.Organization)
 	req := c.Request()
-	t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/close_task", id), map[string][]string{})
+	t := taskqueue.NewPOSTTask(fmt.Sprintf("/orgs/%s/pipelines/%s/close_task", org.ID, id), map[string][]string{})
 	t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
 	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 		return err
