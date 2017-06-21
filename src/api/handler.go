@@ -109,11 +109,19 @@ func (h *handler) Identified(impl func(c echo.Context) error) func(c echo.Contex
 		id := c.Param("id")
 
 		var accessor *models.PipelineAccessor
-		org := c.Get("organization").(*models.Organization)
-		if org == nil {
+		obj := c.Get("organization")
+
+		if obj == nil {
 			accessor = models.GlobalPipelineAccessor
 		} else {
-			accessor = org.PipelineAccessor()
+			org, ok := c.Get("organization").(*models.Organization)
+			if ok {
+				accessor = org.PipelineAccessor()
+			} else {
+				msg := fmt.Sprintf("invalid organization: %v", obj)
+				log.Errorf(ctx, "Identified %s\n", msg)
+				panic(msg)
+			}
 		}
 
 		pl, err := accessor.Find(ctx, id)
