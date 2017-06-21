@@ -14,9 +14,7 @@ import (
 	"google.golang.org/appengine/taskqueue"
 )
 
-type handler struct {
-	Actions map[string](func(c echo.Context) error)
-}
+type handler struct {}
 
 var e *echo.Echo
 
@@ -28,31 +26,31 @@ func Setup(echo *echo.Echo) {
 	e = echo
 
 	h := &handler{}
-	h.buildActions()
+	actions := h.buildActions()
 
 	g := e.Group("/orgs/:org_id/pipelines")
-	g.GET("", h.Actions["index"])
-	g.POST("", h.Actions["create"])
-	g.GET("/subscriptions", h.Actions["subscriptions"])
+	g.GET("", actions["index"])
+	g.POST("", actions["create"])
+	g.GET("/subscriptions", actions["subscriptions"])
 
 	g = e.Group("/pipelines")
-	g.GET("/:id", h.Actions["show"])
-	g.POST("/:id/build_task", h.Actions["build"])
-	g.PUT("/:id/close", h.Actions["close"])
-	g.POST("/:id/close_task", h.Actions["close_task"])
-	g.DELETE("/:id", h.Actions["destroy"])
+	g.GET("/:id", actions["show"])
+	g.POST("/:id/build_task", actions["build"])
+	g.PUT("/:id/close", actions["close"])
+	g.POST("/:id/close_task", actions["close_task"])
+	g.DELETE("/:id", actions["destroy"])
 
-	g.GET("/refresh", h.Actions["refresh"])
-	g.POST("/:id/refresh_task", h.Actions["refresh_task"])
+	g.GET("/refresh", actions["refresh"])
+	g.POST("/:id/refresh_task", actions["refresh_task"])
 }
 
-func (h *handler) buildActions() {
-	h.Actions = map[string](func(c echo.Context) error){
+func (h *handler) buildActions() map[string](func(c echo.Context) error) {
+	return map[string](func(c echo.Context) error){
 		"index":         gae_support.With(h.withOrg(h.withAuth(h.index))),
 		"create":        gae_support.With(h.withOrg(h.withAuth(h.create))),
 		"subscriptions": gae_support.With(h.withOrg(h.withAuth(h.subscriptions))),
 		"show":          gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.show)))),
-		"build_task":		 gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.pipelineTask("build"))))),
+		"build_task":		 gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.buildTask)))),
 		"close":				 gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.close)))),
 		"close_task":		 gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.pipelineTask("close"))))),
 		"destroy":			 gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.destroy)))),
@@ -114,24 +112,7 @@ func (h *handler) Identified(impl func(c echo.Context) error) func(c echo.Contex
 	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		id := c.Param("id")
-
-		var accessor *models.PipelineAccessor
-		obj := c.Get("organization")
-
-		if obj == nil {
-			accessor = models.GlobalPipelineAccessor
-		} else {
-			org, ok := c.Get("organization").(*models.Organization)
-			if ok {
-				accessor = org.PipelineAccessor()
-			} else {
-				msg := fmt.Sprintf("invalid organization: %v", obj)
-				log.Errorf(ctx, "Identified %s\n", msg)
-				panic(msg)
-			}
-		}
-
-		pl, err := accessor.Find(ctx, id)
+		pl, err := models.GlobalPipelineAccessor.Find(ctx, id)
 		switch {
 		case err == models.ErrNoSuchPipeline:
 			return c.JSON(http.StatusNotFound, map[string]string{"message": "Not found for " + id})
@@ -159,6 +140,17 @@ func (h *handler) close(c echo.Context) error {
 }
 
 // curl -v -X POST http://localhost:8080/pipelines/1/build_task
+func (h *handler) buildTask(c echo.Context) error {
+	ctx := c.Get("aecontext").(context.Context)
+	pl := c.Get("pipeline").(*models.Pipeline)
+	log.Debugf(ctx, "buildTask for %v\n", pl)
+	err := pl.Process(ctx, "build")
+	if err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, pl)
+}
+
 // curl -v -X	POST http://localhost:8080/pipelines/1/close_task
 // curl -v -X	POST http://localhost:8080/pipelines/1/refresh_task
 func (h *handler) pipelineTask(action string) func(c echo.Context) error {
@@ -193,7 +185,7 @@ func (h *handler) create(c echo.Context) error {
 	}
 	log.Debugf(ctx, "Created pipeline: %v\n", pl)
 	if !pl.Dryrun {
-		t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/build_task", pl.ID), map[string][]string{})
+		t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/build_task", pl.ID), map[string][]string{"dummy": []string{"data"} })
 		t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
 		if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 			return err
