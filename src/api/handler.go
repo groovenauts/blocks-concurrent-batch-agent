@@ -165,6 +165,7 @@ func (h *handler) pipelineTask(action string) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		pl := c.Get("pipeline").(*models.Pipeline)
+		log.Debugf(ctx, "pipelineTask(%v) for %v\n", action, pl)
 		err := pl.Process(ctx, action)
 		if err != nil {
 			return err
