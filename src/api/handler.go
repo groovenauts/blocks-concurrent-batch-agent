@@ -232,7 +232,9 @@ func (h *handler) refresh(c echo.Context) error {
 	statuses := map[string]models.Status{"deploying": models.Deploying, "closing": models.Closing}
 	res := map[string][]string{}
 	for name, st := range statuses {
-		ids, err := models.GlobalPipelineAccessor.GetIDsByStatus(ctx, st)
+		orgs := models.GlobalOrganizationAccessor.All()
+		for _, org := range orgs {
+		ids, err := org.PipelineAccessor.GetIDsByStatus(ctx, st)
 		if err != nil {
 			return err
 		}
@@ -241,6 +243,7 @@ func (h *handler) refresh(c echo.Context) error {
 			if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 				return err
 			}
+		}
 		}
 		res[name] = ids
 	}
