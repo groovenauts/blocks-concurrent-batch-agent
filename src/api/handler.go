@@ -238,9 +238,12 @@ func (h *handler) refresh(c echo.Context) error {
 	statuses := map[string]models.Status{"deploying": models.Deploying, "closing": models.Closing}
 	res := map[string][]string{}
 	for name, st := range statuses {
-		orgs := models.GlobalOrganizationAccessor.All()
+		orgs, err := models.GlobalOrganizationAccessor.All(ctx)
+		if err != nil {
+			return err
+		}
 		for _, org := range orgs {
-		ids, err := org.PipelineAccessor.GetIDsByStatus(ctx, st)
+    ids, err := org.PipelineAccessor().GetIDsByStatus(ctx, st)
 		if err != nil {
 			return err
 		}
@@ -250,8 +253,8 @@ func (h *handler) refresh(c echo.Context) error {
 				return err
 			}
 		}
+		res[org.Name + "-" + name] = ids
 		}
-		res[name] = ids
 	}
 	return c.JSON(http.StatusOK, res)
 }
