@@ -159,8 +159,8 @@ func TestActions(t *testing.T) {
 		expections = append(expections, expection{
 			status: st,
 			result: map[string][]string{
-				"deploying": []string{},
-				"closing":   []string{},
+				"ORG1-deploying": []string{},
+				"ORG1-closing":   []string{},
 			},
 		})
 	}
@@ -168,15 +168,15 @@ func TestActions(t *testing.T) {
 	expections = append(expections, expection{
 		status: models.Deploying,
 		result: map[string][]string{
-			"deploying": []string{pl.ID},
-			"closing":   []string{},
+			"ORG1-deploying": []string{pl.ID},
+			"ORG1-closing":   []string{},
 		},
 	})
 	expections = append(expections, expection{
 		status: models.Closing,
 		result: map[string][]string{
-			"deploying": []string{},
-			"closing":   []string{pl.ID},
+			"ORG1-deploying": []string{},
+			"ORG1-closing":   []string{pl.ID},
 		},
 	})
 
