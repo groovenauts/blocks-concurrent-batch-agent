@@ -135,10 +135,11 @@ func (h *handler) Identified(impl func(c echo.Context) error) func(c echo.Contex
 // curl -v -X PUT http://localhost:8080/orgs/2/pipelines/1/close
 func (h *handler) close(c echo.Context, pl *models.Pipeline) error {
 	ctx := c.Get("aecontext").(context.Context)
+	org := c.Get("organization").(*models.Organization)
 	pl := c.Get("pipeline").(*models.Pipeline)
 	id := c.Param("id")
 	req := c.Request()
-	t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/close_task", id), map[string][]string{})
+	t := taskqueue.NewPOSTTask(fmt.Sprintf("/orgs/%s/pipelines/%s/close_task", org.ID, id), map[string][]string{})
 	t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
 	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 		return err
