@@ -31,20 +31,19 @@ func Setup(echo *echo.Echo) {
 	h.buildActions()
 
 	g := e.Group("/orgs/:org_id/pipelines")
-
 	g.GET("", h.Actions["index"])
 	g.POST("", h.Actions["create"])
 	g.GET("/subscriptions", h.Actions["subscriptions"])
 
+	g = e.Group("/pipelines")
 	g.GET("/:id", h.Actions["show"])
 	// g.POST("/:id/build_task", h.Actions["build"])
-	g.POST("/:id/build_task", gae_support.With(h.withOrg(h.withAuth(h.Identified(h.pipelineTask("build"))))))
+	g.POST("/:id/build_task", gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.Identified(h.pipelineTask("build")))))))
 	g.PUT("/:id/close", h.Actions["close"])
 	// g.POST("/:id/close_task", h.Actions["close_task"])
-	g.POST("/:id/close_task", gae_support.With(h.withOrg(h.withAuth(h.Identified(h.pipelineTask("close"))))))
+	g.POST("/:id/close_task", gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.Identified(h.pipelineTask("close")))))))
 	g.DELETE("/:id", h.Actions["destroy"])
 
-	g = e.Group("/pipelines")
 	g.GET("/refresh", h.Actions["refresh"])
 	g.POST("/:id/refresh_task", h.Actions["refresh_task"])
 }
@@ -54,13 +53,13 @@ func (h *handler) buildActions() {
 		"index":         gae_support.With(h.withOrg(h.withAuth(h.index))),
 		"create":        gae_support.With(h.withOrg(h.withAuth(h.create))),
 		"subscriptions": gae_support.With(h.withOrg(h.withAuth(h.subscriptions))),
-		"show":          gae_support.With(h.withOrg(h.withAuth(h.Identified(h.show)))),
-		"close":         gae_support.With(h.withOrg(h.withAuth(h.Identified(h.close)))),
-		"destroy":       gae_support.With(h.withOrg(h.withAuth(h.Identified(h.destroy)))),
+		"show":          gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.Identified(h.show))))),
+		"close":         gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.Identified(h.close))))),
+		"destroy":       gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.Identified(h.destroy))))),
 		"refresh":       gae_support.With(h.refresh), // Don't use withAuth because this is called from cron
 		"refresh_task":  gae_support.With(h.Identified(h.pipelineTask("refresh"))),
-		// "build_task": gae_support.With(h.withOrg(h.withAuth(h.Identified(h.pipelineTask("build"))))),
-		// "close_task": gae_support.With(h.withOrg(h.withAuth(h.Identified(h.pipelineTask("close"))))),
+		// "build_task": gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.Identified(h.pipelineTask("build")))))),
+		// "close_task": gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.Identified(h.pipelineTask("close")))))),
 	}
 }
 
@@ -103,6 +102,16 @@ func (h *handler) withAuth(impl func(c echo.Context) error) func(c echo.Context)
 	}
 }
 
+func (h *handler) PlToOrg(impl func(c echo.Context) error) func(c echo.Context) error {
+	return func(c echo.Context) error {
+		ctx := c.Get("aecontext").(context.Context)
+		pl := c.Get("pipeline").(*models.Pipeline)
+		pl.LoadOrganization(ctx)
+		c.Set("organization", pl.Organization)
+		return impl(c)
+	}
+}
+
 func (h *handler) Identified(impl func(c echo.Context) error) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
@@ -137,8 +146,8 @@ func (h *handler) Identified(impl func(c echo.Context) error) func(c echo.Contex
 	}
 }
 
-// curl -v -X PUT http://localhost:8080/orgs/2/pipelines/1/close
-func (h *handler) close(c echo.Context, pl *models.Pipeline) error {
+// curl -v -X PUT http://localhost:8080/pipelines/1/close
+func (h *handler) close(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	org := c.Get("organization").(*models.Organization)
 	pl := c.Get("pipeline").(*models.Pipeline)
@@ -152,8 +161,8 @@ func (h *handler) close(c echo.Context, pl *models.Pipeline) error {
 	return c.JSON(http.StatusCreated, pl)
 }
 
-// curl -v -X POST http://localhost:8080/orgs/2/pipelines/1/build_task
-// curl -v -X	POST http://localhost:8080/orgs/2/pipelines/1/close_task
+// curl -v -X POST http://localhost:8080/pipelines/1/build_task
+// curl -v -X	POST http://localhost:8080/pipelines/1/close_task
 // curl -v -X	POST http://localhost:8080/pipelines/1/refresh_task
 func (h *handler) pipelineTask(action string) func(c echo.Context) error {
 	return func(c echo.Context) error {
@@ -217,13 +226,13 @@ func (h *handler) subscriptions(c echo.Context) error {
 	return c.JSON(http.StatusOK, subscriptions)
 }
 
-// curl -v http://localhost:8080/orgs/2/pipelines/1
+// curl -v http://localhost:8080/pipelines/1
 func (h *handler) show(c echo.Context) error {
 	pl := c.Get("pipeline").(*models.Pipeline)
 	return c.JSON(http.StatusOK, pl)
 }
 
-// curl -v -X DELETE http://localhost:8080/orgs/2/pipelines/1
+// curl -v -X DELETE http://localhost:8080/pipelines/1
 func (h *handler) destroy(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
