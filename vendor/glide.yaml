@@ -13,6 +13,10 @@ import:
   - taskqueue
 - package: gopkg.in/go-playground/validator.v9
   version: ~9.3.2
+- package: cloud.google.com/go
+  subpackages:
+  - compute/metadata
+  - internal
 testImport:
 - package: github.com/stretchr/testify
   subpackages:
