@@ -149,7 +149,6 @@ func (h *handler) Identified(impl func(c echo.Context) error) func(c echo.Contex
 // curl -v -X PUT http://localhost:8080/pipelines/1/close
 func (h *handler) close(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
-	org := c.Get("organization").(*models.Organization)
 	pl := c.Get("pipeline").(*models.Pipeline)
 	id := c.Param("id")
 	req := c.Request()
