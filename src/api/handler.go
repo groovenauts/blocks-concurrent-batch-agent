@@ -100,7 +100,7 @@ func (h *handler) withAuth(impl func(c echo.Context) error) func(c echo.Context)
 	}
 }
 
-func (h *handler) Identified(impl func(c echo.Context, pl *models.Pipeline) error) func(c echo.Context) error {
+func (h *handler) Identified(impl func(c echo.Context) error) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		id := c.Param("id")
@@ -129,15 +129,17 @@ func (h *handler) Identified(impl func(c echo.Context, pl *models.Pipeline) erro
 			log.Errorf(ctx, "@Identified %v id: %v\n", err, id)
 			return err
 		}
-		return impl(c, pl)
+		c.Set("pipeline", pl)
+		return impl(c)
 	}
 }
 
 // curl -v -X PUT http://localhost:8080/orgs/2/pipelines/1/close
-func (h *handler) close(c echo.Context, pl *models.Pipeline) error {
+func (h *handler) close(c echo.Context) error {
 	id := c.Param("id")
 	ctx := c.Get("aecontext").(context.Context)
 	org := c.Get("organization").(*models.Organization)
+	pl := c.Get("pipeline").(*models.Pipeline)
 	req := c.Request()
 	t := taskqueue.NewPOSTTask(fmt.Sprintf("/orgs/%s/pipelines/%s/close_task", org.ID, id), map[string][]string{})
 	t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
@@ -150,9 +152,10 @@ func (h *handler) close(c echo.Context, pl *models.Pipeline) error {
 // curl -v -X POST http://localhost:8080/orgs/2/pipelines/1/build_task
 // curl -v -X	POST http://localhost:8080/orgs/2/pipelines/1/close_task
 // curl -v -X	POST http://localhost:8080/pipelines/1/refresh_task
-func (h *handler) pipelineTask(action string) func(c echo.Context, pl *models.Pipeline) error {
-	return func(c echo.Context, pl *models.Pipeline) error {
+func (h *handler) pipelineTask(action string) func(c echo.Context) error {
+	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
+		pl := c.Get("pipeline").(*models.Pipeline)
 		err := pl.Process(ctx, action)
 		if err != nil {
 			return err
@@ -212,13 +215,15 @@ func (h *handler) subscriptions(c echo.Context) error {
 }
 
 // curl -v http://localhost:8080/orgs/2/pipelines/1
-func (h *handler) show(c echo.Context, pl *models.Pipeline) error {
+func (h *handler) show(c echo.Context) error {
+	pl := c.Get("pipeline").(*models.Pipeline)
 	return c.JSON(http.StatusOK, pl)
 }
 
 // curl -v -X DELETE http://localhost:8080/orgs/2/pipelines/1
-func (h *handler) destroy(c echo.Context, pl *models.Pipeline) error {
+func (h *handler) destroy(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
+	pl := c.Get("pipeline").(*models.Pipeline)
 	if err := pl.Destroy(ctx); err != nil {
 		switch err.(type) {
 		case *models.InvalidOperation:
