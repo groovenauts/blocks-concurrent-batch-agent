@@ -148,7 +148,6 @@ func (h *handler) Identified(impl func(c echo.Context) error) func(c echo.Contex
 func (h *handler) close(c echo.Context) error {
 	id := c.Param("id")
 	ctx := c.Get("aecontext").(context.Context)
-	org := c.Get("organization").(*models.Organization)
 	pl := c.Get("pipeline").(*models.Pipeline)
 	req := c.Request()
 	t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/close_task", id), map[string][]string{})
