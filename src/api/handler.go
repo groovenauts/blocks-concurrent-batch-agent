@@ -59,7 +59,7 @@ func (h *handler) buildActions() {
 		"destroy":       gae_support.With(h.withOrg(h.withAuth(h.Identified(h.destroy)))),
 		"create":        gae_support.With(h.withOrg(h.withAuth(h.create))),
 		"build_task":    gae_support.With(h.withOrg(h.withAuth(h.Identified(h.pipelineTask("build"))))),
-		"close":         gae_support.With(h.withOrg(h.withAuth(h.Identified(h.callPipelineTask("close"))))),
+		"close":         gae_support.With(h.withOrg(h.withAuth(h.Identified(h.close)))),
 		"close_task":    gae_support.With(h.withOrg(h.withAuth(h.Identified(h.pipelineTask("close"))))),
 		"refresh":       gae_support.With(h.refresh), // Don't use withAuth because this is called from cron
 		"refresh_task":  gae_support.With(h.Identified(h.pipelineTask("refresh"))),
@@ -131,18 +131,16 @@ func (h *handler) Identified(impl func(c echo.Context, pl *models.Pipeline) erro
 }
 
 // curl -v -X PUT http://localhost:8080/orgs/2/pipelines/1/close
-func (h *handler) callPipelineTask(action string) func(c echo.Context, pl *models.Pipeline) error {
-	return func(c echo.Context, pl *models.Pipeline) error {
-		id := c.Param("id")
-		ctx := c.Get("aecontext").(context.Context)
-		req := c.Request()
-		t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/%s_task", id, action), map[string][]string{})
-		t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
-		if _, err := taskqueue.Add(ctx, t, ""); err != nil {
-			return err
-		}
-		return c.JSON(http.StatusCreated, pl)
+func (h *handler) close(c echo.Context, pl *models.Pipeline) error {
+	id := c.Param("id")
+	ctx := c.Get("aecontext").(context.Context)
+	req := c.Request()
+	t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/close_task", id), map[string][]string{})
+	t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
+	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
+		return err
 	}
+	return c.JSON(http.StatusCreated, pl)
 }
 
 // curl -v -X POST http://localhost:8080/orgs/2/pipelines/1/build_task
