@@ -37,12 +37,12 @@ func Setup(echo *echo.Echo) {
 	g.GET("/subscriptions", h.Actions["subscriptions"])
 
 	g.GET("/:id", h.Actions["show"])
-	g.DELETE("/:id", h.Actions["destroy"])
 	// g.POST("/:id/build_task", h.Actions["build"])
 	g.POST("/:id/build_task", gae_support.With(h.withOrg(h.withAuth(h.Identified(h.pipelineTask("build"))))))
 	g.PUT("/:id/close", h.Actions["close"])
 	// g.POST("/:id/close_task", h.Actions["close_task"])
 	g.POST("/:id/close_task", gae_support.With(h.withOrg(h.withAuth(h.Identified(h.pipelineTask("close"))))))
+	g.DELETE("/:id", h.Actions["destroy"])
 
 	g = e.Group("/pipelines")
 	g.GET("/refresh", h.Actions["refresh"])
@@ -55,8 +55,8 @@ func (h *handler) buildActions() {
 		"create":        gae_support.With(h.withOrg(h.withAuth(h.create))),
 		"subscriptions": gae_support.With(h.withOrg(h.withAuth(h.subscriptions))),
 		"show":          gae_support.With(h.withOrg(h.withAuth(h.Identified(h.show)))),
-		"destroy":       gae_support.With(h.withOrg(h.withAuth(h.Identified(h.destroy)))),
 		"close":         gae_support.With(h.withOrg(h.withAuth(h.Identified(h.close)))),
+		"destroy":       gae_support.With(h.withOrg(h.withAuth(h.Identified(h.destroy)))),
 		"refresh":       gae_support.With(h.refresh), // Don't use withAuth because this is called from cron
 		"refresh_task":  gae_support.With(h.Identified(h.pipelineTask("refresh"))),
 		// "build_task": gae_support.With(h.withOrg(h.withAuth(h.Identified(h.pipelineTask("build"))))),
