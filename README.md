@@ -61,7 +61,7 @@ Make `pipeline.json` like this:
   "project_id":"proj-123",
   "zone":"us-central1-f",
   "boot_disk": {
-    "source_image":"https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+    "source_image":"https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable",
     "disk_type": "pd-ssd",
     "disk_size_gb": 30
   },
