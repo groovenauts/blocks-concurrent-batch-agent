@@ -15,7 +15,9 @@ import (
 	"google.golang.org/appengine/taskqueue"
 )
 
-type handler struct{}
+type handler struct {
+	Actions map[string](func(c echo.Context) error)
+}
 
 var e *echo.Echo
 
@@ -27,27 +29,46 @@ func Setup(echo *echo.Echo) {
 	e = echo
 
 	h := &handler{}
+	h.buildActions()
 
 	g := e.Group("/pipelines")
 	g.Use(middleware.CORS())
 
-	g.GET("", h.withAuth(h.index))
-	g.GET("/subscriptions", h.withAuth(h.subscriptions))
-	g.GET("/:id", h.withPipeline(h.withAuth, h.show))
-	g.DELETE("/:id", h.withPipeline(h.withAuth, h.destroy))
+	g.GET("", h.Actions["index"])
+	g.POST("", h.Actions["create"])
+	g.GET("/subscriptions", h.Actions["subscriptions"])
 
-	g.POST("", h.withAuth(h.create))
-	g.POST("/:id/build_task", h.pipelineTask("build"))
+	g.GET("/:id", h.Actions["show"])
+	g.DELETE("/:id", h.Actions["destroy"])
+	// g.POST("/:id/build_task", h.Actions["build"])
+	g.POST("/:id/build_task", gae_support.With(h.withAuth(h.Identified(h.pipelineTask("build")))))
+	g.PUT("/:id/close", h.Actions["close"])
+	// g.POST("/:id/close_task", h.Actions["close_task"])
+	g.POST("/:id/close_task", gae_support.With(h.withAuth(h.Identified(h.pipelineTask("close")))))
 
-	g.PUT("/:id/close", h.callPipelineTask("close"))
-	g.POST("/:id/close_task", h.pipelineTask("close"))
+	g.GET("/refresh", h.Actions["refresh"])
+	g.POST("/:id/refresh_task", h.Actions["refresh_task"])
+}
 
-	g.GET("/refresh", gae_support.With(h.refresh)) // Don't use withAuth because this is called from cron
-	g.POST("/:id/refresh_task", h.pipelineTask("refresh"))
+func (h *handler) buildActions() {
+	h.Actions = map[string](func(c echo.Context) error){
+		"index":         gae_support.With(h.withAuth(h.index)),
+		"create":        gae_support.With(h.withAuth(h.create)),
+		"subscriptions": gae_support.With(h.withAuth(h.subscriptions)),
+
+		"show":    gae_support.With(h.withAuth(h.Identified(h.show))),
+		"destroy": gae_support.With(h.withAuth(h.Identified(h.destroy))),
+		// "build_task":    gae_support.With(h.withAuth(h.Identified(h.pipelineTask("build")))),
+		"close": gae_support.With(h.withAuth(h.Identified(h.callPipelineTask("close")))),
+		// "close_task":    gae_support.With(h.withAuth(h.Identified(h.pipelineTask("close")))),
+
+		"refresh":      gae_support.With(h.refresh), // Don't use withAuth because this is called from cron
+		"refresh_task": gae_support.With(h.Identified(h.pipelineTask("refresh"))),
+	}
 }
 
 func (h *handler) withAuth(impl func(c echo.Context) error) func(c echo.Context) error {
-	return gae_support.With(func(c echo.Context) error {
+	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		req := c.Request()
 		raw := req.Header.Get(AUTH_HEADER)
@@ -64,12 +85,11 @@ func (h *handler) withAuth(impl func(c echo.Context) error) func(c echo.Context)
 			return c.JSON(http.StatusUnauthorized, map[string]string{"message": "Invalid token"})
 		}
 		return impl(c)
-	})
+	}
 }
 
-func (h *handler) withPipeline(wrapper func(func(echo.Context) error) func(echo.Context) error,
-	impl func(c echo.Context, pl *models.Pipeline) error) func(c echo.Context) error {
-	return wrapper(func(c echo.Context) error {
+func (h *handler) Identified(impl func(c echo.Context) error) func(c echo.Context) error {
+	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		id := c.Param("id")
 		pl, err := models.GlobalPipelineAccessor.Find(ctx, id)
@@ -77,18 +97,20 @@ func (h *handler) withPipeline(wrapper func(func(echo.Context) error) func(echo.
 		case err == models.ErrNoSuchPipeline:
 			return c.JSON(http.StatusNotFound, map[string]string{"message": "Not found for " + id})
 		case err != nil:
-			log.Errorf(ctx, "@withPipeline %v id: %v\n", err, id)
+			log.Errorf(ctx, "@Identified %v id: %v\n", err, id)
 			return err
 		}
-		return impl(c, pl)
-	})
+		c.Set("pipeline", pl)
+		return impl(c)
+	}
 }
 
 // curl -v -X PUT http://localhost:8080/pipelines/1/close
 func (h *handler) callPipelineTask(action string) func(c echo.Context) error {
-	return h.withPipeline(h.withAuth, func(c echo.Context, pl *models.Pipeline) error {
-		id := c.Param("id")
+	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
+		pl := c.Get("pipeline").(*models.Pipeline)
+		id := c.Param("id")
 		req := c.Request()
 		t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/%s_task", id, action), map[string][]string{})
 		t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
@@ -96,28 +118,22 @@ func (h *handler) callPipelineTask(action string) func(c echo.Context) error {
 			return err
 		}
 		return c.JSON(http.StatusCreated, pl)
-	})
+	}
 }
 
 // curl -v -X POST http://localhost:8080/pipelines/1/build_task
 // curl -v -X	POST http://localhost:8080/pipelines/1/close_task
 // curl -v -X	POST http://localhost:8080/pipelines/1/refresh_task
 func (h *handler) pipelineTask(action string) func(c echo.Context) error {
-	var wrapper func(impl func(c echo.Context) error) func(c echo.Context) error
-	switch action {
-	case "refresh":
-		wrapper = gae_support.With
-	default:
-		wrapper = h.withAuth
-	}
-	return h.withPipeline(wrapper, func(c echo.Context, pl *models.Pipeline) error {
+	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
+		pl := c.Get("pipeline").(*models.Pipeline)
 		err := pl.Process(ctx, action)
 		if err != nil {
 			return err
 		}
 		return c.JSON(http.StatusOK, pl)
-	})
+	}
 }
 
 // curl -v -X POST http://localhost:8080/pipelines --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
@@ -167,13 +183,15 @@ func (h *handler) subscriptions(c echo.Context) error {
 }
 
 // curl -v http://localhost:8080/pipelines/1
-func (h *handler) show(c echo.Context, pl *models.Pipeline) error {
+func (h *handler) show(c echo.Context) error {
+	pl := c.Get("pipeline").(*models.Pipeline)
 	return c.JSON(http.StatusOK, pl)
 }
 
 // curl -v -X DELETE http://localhost:8080/pipelines/1
-func (h *handler) destroy(c echo.Context, pl *models.Pipeline) error {
+func (h *handler) destroy(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
+	pl := c.Get("pipeline").(*models.Pipeline)
 	if err := pl.Destroy(ctx); err != nil {
 		switch err.(type) {
 		case *models.InvalidOperation:
