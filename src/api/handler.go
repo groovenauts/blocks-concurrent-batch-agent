@@ -56,8 +56,8 @@ func (h *handler) buildActions() {
 		"create":        gae_support.With(h.withAuth(h.create)),
 		"subscriptions": gae_support.With(h.withAuth(h.subscriptions)),
 
-		"show":          gae_support.With(h.withAuth(h.Identified(h.show))),
-		"destroy":       gae_support.With(h.withAuth(h.Identified(h.destroy))),
+		"show":    gae_support.With(h.withAuth(h.Identified(h.show))),
+		"destroy": gae_support.With(h.withAuth(h.Identified(h.destroy))),
 		// "build_task":    gae_support.With(h.withAuth(h.Identified(h.pipelineTask("build")))),
 		"close": gae_support.With(h.withAuth(h.Identified(h.callPipelineTask("close")))),
 		// "close_task":    gae_support.With(h.withAuth(h.Identified(h.pipelineTask("close")))),
