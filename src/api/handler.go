@@ -59,10 +59,10 @@ func (h *handler) buildActions() {
 		"destroy":       gae_support.With(h.withAuth(h.Identified(h.destroy))),
 		"create":        gae_support.With(h.withAuth(h.create)),
 		// "build_task":    gae_support.With(h.withAuth(h.Identified(h.pipelineTask("build")))),
-		"close":         gae_support.With(h.withAuth(h.Identified(h.callPipelineTask("close")))),
+		"close": gae_support.With(h.withAuth(h.Identified(h.callPipelineTask("close")))),
 		// "close_task":    gae_support.With(h.withAuth(h.Identified(h.pipelineTask("close")))),
-		"refresh":       gae_support.With(h.refresh), // Don't use withAuth because this is called from cron
-		"refresh_task":  gae_support.With(h.Identified(h.pipelineTask("refresh"))),
+		"refresh":      gae_support.With(h.refresh), // Don't use withAuth because this is called from cron
+		"refresh_task": gae_support.With(h.Identified(h.pipelineTask("refresh"))),
 	}
 }
 
