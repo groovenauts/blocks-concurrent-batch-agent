@@ -15,8 +15,14 @@ type Builder struct {
 }
 
 func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
+	err := pl.LoadOrganization(ctx)
+	if err != nil {
+		log.Errorf(ctx, "Failed to load Organization for Pipeline: %v\npl: %v\n", err, pl)
+		return err
+	}
+
 	pl.Status = Building
-	err := pl.Update(ctx)
+	err = pl.Update(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to update Pipeline status to 'building': %v\npl: %v\n", err, pl)
 		return err
