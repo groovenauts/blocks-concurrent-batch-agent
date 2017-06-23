@@ -269,7 +269,7 @@ func (h *handler) refresh(c echo.Context) error {
 					return err
 				}
 			}
-			res[org.Name + "-" + name] = ids
+			res[org.Name+"-"+name] = ids
 		}
 	}
 	return c.JSON(http.StatusOK, res)
