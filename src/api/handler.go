@@ -35,14 +35,13 @@ func Setup(echo *echo.Echo) {
 	g.Use(middleware.CORS())
 
 	g.GET("", h.Actions["index"])
+	g.POST("", h.Actions["create"])
 	g.GET("/subscriptions", h.Actions["subscriptions"])
+
 	g.GET("/:id", h.Actions["show"])
 	g.DELETE("/:id", h.Actions["destroy"])
-
-	g.POST("", h.Actions["create"])
 	// g.POST("/:id/build_task", h.Actions["build"])
 	g.POST("/:id/build_task", gae_support.With(h.withAuth(h.Identified(h.pipelineTask("build")))))
-
 	g.PUT("/:id/close", h.Actions["close"])
 	// g.POST("/:id/close_task", h.Actions["close_task"])
 	g.POST("/:id/close_task", gae_support.With(h.withAuth(h.Identified(h.pipelineTask("close")))))
@@ -54,13 +53,15 @@ func Setup(echo *echo.Echo) {
 func (h *handler) buildActions() {
 	h.Actions = map[string](func(c echo.Context) error){
 		"index":         gae_support.With(h.withAuth(h.index)),
+		"create":        gae_support.With(h.withAuth(h.create)),
 		"subscriptions": gae_support.With(h.withAuth(h.subscriptions)),
+
 		"show":          gae_support.With(h.withAuth(h.Identified(h.show))),
 		"destroy":       gae_support.With(h.withAuth(h.Identified(h.destroy))),
-		"create":        gae_support.With(h.withAuth(h.create)),
 		// "build_task":    gae_support.With(h.withAuth(h.Identified(h.pipelineTask("build")))),
 		"close": gae_support.With(h.withAuth(h.Identified(h.callPipelineTask("close")))),
 		// "close_task":    gae_support.With(h.withAuth(h.Identified(h.pipelineTask("close")))),
+
 		"refresh":      gae_support.With(h.refresh), // Don't use withAuth because this is called from cron
 		"refresh_task": gae_support.With(h.Identified(h.pipelineTask("refresh"))),
 	}
