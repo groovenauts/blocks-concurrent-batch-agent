@@ -44,7 +44,7 @@ func Setup(echo *echo.Echo) {
 	g.POST("/:id/build_task", gae_support.With(h.withOrg(h.withAuth(h.Identified(h.pipelineTask("build"))))))
 	g.PUT("/:id/close", h.Actions["close"])
 	// g.POST("/:id/close_task", h.Actions["close_task"])
-  g.POST("/:id/close_task", gae_support.With(h.withOrg(h.withAuth(h.Identified(h.pipelineTask("close"))))))
+	g.POST("/:id/close_task", gae_support.With(h.withOrg(h.withAuth(h.Identified(h.pipelineTask("close"))))))
 
 	g = e.Group("/pipelines")
 	g.Use(middleware.CORS())
