@@ -22,13 +22,13 @@ func (h *PipelineHandler) buildActions() {
 		"index":         gae_support.With(h.withOrg(withAuth(h.index))),
 		"create":        gae_support.With(h.withOrg(withAuth(h.create))),
 		"subscriptions": gae_support.With(h.withOrg(withAuth(h.subscriptions))),
-		"show":          gae_support.With(h.Identified(h.PlToOrg(withAuth(h.show)))),
-		"close":         gae_support.With(h.Identified(h.PlToOrg(withAuth(h.close)))),
-		"destroy":       gae_support.With(h.Identified(h.PlToOrg(withAuth(h.destroy)))),
+		"show":          gae_support.With(h.idToPl(h.PlToOrg(withAuth(h.show)))),
+		"close":         gae_support.With(h.idToPl(h.PlToOrg(withAuth(h.close)))),
+		"destroy":       gae_support.With(h.idToPl(h.PlToOrg(withAuth(h.destroy)))),
 		"refresh":       gae_support.With(h.refresh), // Don't use withAuth because this is called from cron
-		"refresh_task":  gae_support.With(h.Identified(h.pipelineTask("refresh"))),
-		// "build_task": gae_support.With(h.Identified(h.PlToOrg(withAuth(h.pipelineTask("build"))))),
-		// "close_task": gae_support.With(h.Identified(h.PlToOrg(withAuth(h.pipelineTask("close"))))),
+		"refresh_task":  gae_support.With(h.idToPl(h.pipelineTask("refresh"))),
+		// "build_task": gae_support.With(h.idToPl(h.PlToOrg(withAuth(h.pipelineTask("build"))))),
+		// "close_task": gae_support.With(h.idToPl(h.PlToOrg(withAuth(h.pipelineTask("close"))))),
 	}
 }
 
@@ -59,7 +59,7 @@ func (h *PipelineHandler) PlToOrg(impl func(c echo.Context) error) func(c echo.C
 	}
 }
 
-func (h *PipelineHandler) Identified(impl func(c echo.Context) error) func(c echo.Context) error {
+func (h *PipelineHandler) idToPl(impl func(c echo.Context) error) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		id := c.Param("id")
@@ -75,7 +75,7 @@ func (h *PipelineHandler) Identified(impl func(c echo.Context) error) func(c ech
 				accessor = org.PipelineAccessor()
 			} else {
 				msg := fmt.Sprintf("invalid organization: %v", obj)
-				log.Errorf(ctx, "Identified %s\n", msg)
+				log.Errorf(ctx, "idToPl %s\n", msg)
 				panic(msg)
 			}
 		}
@@ -85,7 +85,7 @@ func (h *PipelineHandler) Identified(impl func(c echo.Context) error) func(c ech
 		case err == models.ErrNoSuchPipeline:
 			return c.JSON(http.StatusNotFound, map[string]string{"message": "Not found for " + id})
 		case err != nil:
-			log.Errorf(ctx, "@Identified %v id: %v\n", err, id)
+			log.Errorf(ctx, "@idToPl %v id: %v\n", err, id)
 			return err
 		}
 		c.Set("pipeline", pl)
