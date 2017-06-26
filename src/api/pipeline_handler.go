@@ -3,7 +3,6 @@ package api
 import (
 	"fmt"
 	"net/http"
-	"regexp"
 
 	"gae_support"
 	"models"
@@ -17,10 +16,6 @@ import (
 type PipelineHandler struct {
 	Actions map[string](func(c echo.Context) error)
 }
-
-const (
-	AUTH_HEADER = "Authorization"
-)
 
 func (h *PipelineHandler) buildActions() {
 	h.Actions = map[string](func(c echo.Context) error){
@@ -51,28 +46,6 @@ func (h *PipelineHandler) withOrg(f func(c echo.Context) error) func(echo.Contex
 		}
 		c.Set("organization", org)
 		return f(c)
-	}
-}
-
-func (h *PipelineHandler) withAuth(impl func(c echo.Context) error) func(c echo.Context) error {
-	return func(c echo.Context) error {
-		ctx := c.Get("aecontext").(context.Context)
-		req := c.Request()
-		raw := req.Header.Get(AUTH_HEADER)
-		if raw == "" {
-			return c.JSON(http.StatusUnauthorized, map[string]string{"message": "Unauthorized"})
-		}
-		re := regexp.MustCompile(`\ABearer\s+`)
-		token := re.ReplaceAllString(raw, "")
-		if token == "" {
-			return c.JSON(http.StatusUnauthorized, map[string]string{"message": "Unauthorized"})
-		}
-		org := c.Get("organization").(*models.Organization)
-		_, err := org.AuthAccessor().FindWithToken(ctx, token)
-		if err != nil {
-			return c.JSON(http.StatusUnauthorized, map[string]string{"message": "Invalid token"})
-		}
-		return impl(c)
 	}
 }
 
