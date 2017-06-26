@@ -22,13 +22,13 @@ func (h *PipelineHandler) buildActions() {
 		"index":         gae_support.With(orgBy("org_id", withAuth(h.index))),
 		"create":				 gae_support.With(orgBy("org_id", withAuth(h.create))),
 		"subscriptions": gae_support.With(orgBy("org_id", withAuth(h.subscriptions))),
-		"show":					 gae_support.With(idToPl(PlToOrg(withAuth(h.show)))),
-		"close":				 gae_support.With(idToPl(PlToOrg(withAuth(h.close)))),
-		"destroy":			 gae_support.With(idToPl(PlToOrg(withAuth(h.destroy)))),
+		"show":					 gae_support.With(plBy("id", PlToOrg(withAuth(h.show)))),
+		"close":				 gae_support.With(plBy("id", PlToOrg(withAuth(h.close)))),
+		"destroy":			 gae_support.With(plBy("id", PlToOrg(withAuth(h.destroy)))),
 		"refresh":       gae_support.With(h.refresh), // Don't use withAuth because this is called from cron
-		"refresh_task":  gae_support.With(idToPl(h.pipelineTask("refresh"))),
-		// "build_task": gae_support.With(idToPl(PlToOrg(withAuth(h.pipelineTask("build"))))),
-		// "close_task": gae_support.With(idToPl(PlToOrg(withAuth(h.pipelineTask("close"))))),
+		"refresh_task":  gae_support.With(plBy("id", h.pipelineTask("refresh"))),
+		// "build_task": gae_support.With(plBy("id", PlToOrg(withAuth(h.pipelineTask("build"))))),
+		// "close_task": gae_support.With(plBy("id", PlToOrg(withAuth(h.pipelineTask("close"))))),
 	}
 }
 

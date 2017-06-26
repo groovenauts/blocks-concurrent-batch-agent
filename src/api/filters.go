@@ -38,10 +38,10 @@ func PlToOrg(impl func(c echo.Context) error) func(c echo.Context) error {
 	}
 }
 
-func idToPl(impl func(c echo.Context) error) func(c echo.Context) error {
+func plBy(key string, impl func(c echo.Context) error) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
-		id := c.Param("id")
+		id := c.Param(key)
 
 		var accessor *models.PipelineAccessor
 		obj := c.Get("organization")
@@ -54,7 +54,7 @@ func idToPl(impl func(c echo.Context) error) func(c echo.Context) error {
 				accessor = org.PipelineAccessor()
 			} else {
 				msg := fmt.Sprintf("invalid organization: %v", obj)
-				log.Errorf(ctx, "idToPl %s\n", msg)
+				log.Errorf(ctx, "plBy %s\n", msg)
 				panic(msg)
 			}
 		}
@@ -64,7 +64,7 @@ func idToPl(impl func(c echo.Context) error) func(c echo.Context) error {
 		case err == models.ErrNoSuchPipeline:
 			return c.JSON(http.StatusNotFound, map[string]string{"message": "Not found for " + id})
 		case err != nil:
-			log.Errorf(ctx, "@idToPl %v id: %v\n", err, id)
+			log.Errorf(ctx, "plBy %v id: %v\n", err, id)
 			return err
 		}
 		c.Set("pipeline", pl)
