@@ -8,7 +8,7 @@ import (
 
 var e *echo.Echo
 
-func Setup(echo *echo.Echo, dir string) map[string]interface{} {
+func SetupRoutes(echo *echo.Echo, dir string) map[string]interface{} {
 	e = echo
 
 	orgs := &OrganizationsHandler{

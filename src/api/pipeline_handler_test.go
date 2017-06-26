@@ -23,7 +23,7 @@ const (
 )
 
 func TestActions(t *testing.T) {
-	handlers := Setup(echo.New())
+	handlers := SetupRoutes(echo.New())
 
 	opt := &aetest.Options{StronglyConsistentDatastore: true}
 	inst, err := aetest.NewInstance(opt)

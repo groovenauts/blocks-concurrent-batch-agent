@@ -8,7 +8,7 @@ import (
 
 var e *echo.Echo
 
-func Setup(echo *echo.Echo) map[string]interface{} {
+func SetupRoutes(echo *echo.Echo) map[string]interface{} {
 	e = echo
 
 	h := &PipelineHandler{}

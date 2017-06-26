@@ -19,7 +19,7 @@ import (
 )
 
 func TestOrganizationsHandler(t *testing.T) {
-	handlers := Setup(echo.New(), "../../app/concurrent-batch-agent/admin/views")
+	handlers := SetupRoutes(echo.New(), "../../app/concurrent-batch-agent/admin/views")
 	h, ok := handlers["orgs"].(*OrganizationsHandler)
 	assert.True(t, ok)
 
