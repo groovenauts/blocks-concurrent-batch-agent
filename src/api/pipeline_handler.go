@@ -24,7 +24,7 @@ const (
 	AUTH_HEADER = "Authorization"
 )
 
-func Setup(echo *echo.Echo) {
+func Setup(echo *echo.Echo) map[string]interface{} {
 	e = echo
 
 	h := &PipelineHandler{}
@@ -46,6 +46,10 @@ func Setup(echo *echo.Echo) {
 
 	g.GET("/refresh", h.Actions["refresh"])
 	g.POST("/:id/refresh_task", h.Actions["refresh_task"])
+
+	return map[string]interface{}{
+		"pipelines": h,
+	}
 }
 
 func (h *PipelineHandler) buildActions() {

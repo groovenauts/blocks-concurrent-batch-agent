@@ -23,14 +23,15 @@ const (
 )
 
 func TestActions(t *testing.T) {
-	Setup(echo.New())
+	handlers := Setup(echo.New())
 
 	opt := &aetest.Options{StronglyConsistentDatastore: true}
 	inst, err := aetest.NewInstance(opt)
 	assert.NoError(t, err)
 	defer inst.Close()
 
-	h := &PipelineHandler{}
+	h, ok := handlers["pipelines"].(*PipelineHandler)
+	assert.True(t, ok)
 	h.buildActions()
 
 	req, err := inst.NewRequest(echo.GET, "/orgs", nil)
