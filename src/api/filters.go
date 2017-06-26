@@ -11,7 +11,7 @@ import (
 	"google.golang.org/appengine/log"
 )
 
-func (h *PipelineHandler) withOrg(f func(c echo.Context) error) func(echo.Context) error {
+func withOrg(f func(c echo.Context) error) func(echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		org_id := c.Param("org_id")
@@ -28,7 +28,7 @@ func (h *PipelineHandler) withOrg(f func(c echo.Context) error) func(echo.Contex
 	}
 }
 
-func (h *PipelineHandler) PlToOrg(impl func(c echo.Context) error) func(c echo.Context) error {
+func PlToOrg(impl func(c echo.Context) error) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		pl := c.Get("pipeline").(*models.Pipeline)
@@ -38,7 +38,7 @@ func (h *PipelineHandler) PlToOrg(impl func(c echo.Context) error) func(c echo.C
 	}
 }
 
-func (h *PipelineHandler) idToPl(impl func(c echo.Context) error) func(c echo.Context) error {
+func idToPl(impl func(c echo.Context) error) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		id := c.Param("id")

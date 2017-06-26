@@ -19,16 +19,16 @@ type PipelineHandler struct {
 
 func (h *PipelineHandler) buildActions() {
 	h.Actions = map[string](func(c echo.Context) error){
-		"index":         gae_support.With(h.withOrg(withAuth(h.index))),
-		"create":        gae_support.With(h.withOrg(withAuth(h.create))),
-		"subscriptions": gae_support.With(h.withOrg(withAuth(h.subscriptions))),
-		"show":          gae_support.With(h.idToPl(h.PlToOrg(withAuth(h.show)))),
-		"close":         gae_support.With(h.idToPl(h.PlToOrg(withAuth(h.close)))),
-		"destroy":       gae_support.With(h.idToPl(h.PlToOrg(withAuth(h.destroy)))),
+		"index":         gae_support.With(withOrg(withAuth(h.index))),
+		"create":				 gae_support.With(withOrg(withAuth(h.create))),
+		"subscriptions": gae_support.With(withOrg(withAuth(h.subscriptions))),
+		"show":					 gae_support.With(idToPl(PlToOrg(withAuth(h.show)))),
+		"close":				 gae_support.With(idToPl(PlToOrg(withAuth(h.close)))),
+		"destroy":			 gae_support.With(idToPl(PlToOrg(withAuth(h.destroy)))),
 		"refresh":       gae_support.With(h.refresh), // Don't use withAuth because this is called from cron
-		"refresh_task":  gae_support.With(h.idToPl(h.pipelineTask("refresh"))),
-		// "build_task": gae_support.With(h.idToPl(h.PlToOrg(withAuth(h.pipelineTask("build"))))),
-		// "close_task": gae_support.With(h.idToPl(h.PlToOrg(withAuth(h.pipelineTask("close"))))),
+		"refresh_task":  gae_support.With(idToPl(h.pipelineTask("refresh"))),
+		// "build_task": gae_support.With(idToPl(PlToOrg(withAuth(h.pipelineTask("build"))))),
+		// "close_task": gae_support.With(idToPl(PlToOrg(withAuth(h.pipelineTask("close"))))),
 	}
 }
 
