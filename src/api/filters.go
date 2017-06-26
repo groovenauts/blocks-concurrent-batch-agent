@@ -11,10 +11,10 @@ import (
 	"google.golang.org/appengine/log"
 )
 
-func withOrg(f func(c echo.Context) error) func(echo.Context) error {
+func orgBy(key string, f func(c echo.Context) error) func(echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
-		org_id := c.Param("org_id")
+		org_id := c.Param(key)
 		org, err := models.GlobalOrganizationAccessor.Find(ctx, org_id)
 		if err == models.ErrNoSuchOrganization {
 			return c.JSON(http.StatusNotFound, map[string]string{"message": "No Organization found for " + org_id})

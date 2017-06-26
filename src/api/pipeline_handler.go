@@ -19,9 +19,9 @@ type PipelineHandler struct {
 
 func (h *PipelineHandler) buildActions() {
 	h.Actions = map[string](func(c echo.Context) error){
-		"index":         gae_support.With(withOrg(withAuth(h.index))),
-		"create":				 gae_support.With(withOrg(withAuth(h.create))),
-		"subscriptions": gae_support.With(withOrg(withAuth(h.subscriptions))),
+		"index":         gae_support.With(orgBy("org_id", withAuth(h.index))),
+		"create":				 gae_support.With(orgBy("org_id", withAuth(h.create))),
+		"subscriptions": gae_support.With(orgBy("org_id", withAuth(h.subscriptions))),
 		"show":					 gae_support.With(idToPl(PlToOrg(withAuth(h.show)))),
 		"close":				 gae_support.With(idToPl(PlToOrg(withAuth(h.close)))),
 		"destroy":			 gae_support.With(idToPl(PlToOrg(withAuth(h.destroy)))),
