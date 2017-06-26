@@ -14,7 +14,7 @@ const (
 	AUTH_HEADER = "Authorization"
 )
 
-func (h *PipelineHandler) withAuth(impl func(c echo.Context) error) func(c echo.Context) error {
+func withAuth(impl func(c echo.Context) error) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		req := c.Request()

@@ -19,16 +19,16 @@ type PipelineHandler struct {
 
 func (h *PipelineHandler) buildActions() {
 	h.Actions = map[string](func(c echo.Context) error){
-		"index":         gae_support.With(h.withOrg(h.withAuth(h.index))),
-		"create":        gae_support.With(h.withOrg(h.withAuth(h.create))),
-		"subscriptions": gae_support.With(h.withOrg(h.withAuth(h.subscriptions))),
-		"show":          gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.Identified(h.show))))),
-		"close":         gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.Identified(h.close))))),
-		"destroy":       gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.Identified(h.destroy))))),
+		"index":         gae_support.With(h.withOrg(withAuth(h.index))),
+		"create":        gae_support.With(h.withOrg(withAuth(h.create))),
+		"subscriptions": gae_support.With(h.withOrg(withAuth(h.subscriptions))),
+		"show":          gae_support.With(h.Identified(h.PlToOrg(withAuth(h.Identified(h.show))))),
+		"close":         gae_support.With(h.Identified(h.PlToOrg(withAuth(h.Identified(h.close))))),
+		"destroy":       gae_support.With(h.Identified(h.PlToOrg(withAuth(h.Identified(h.destroy))))),
 		"refresh":       gae_support.With(h.refresh), // Don't use withAuth because this is called from cron
 		"refresh_task":  gae_support.With(h.Identified(h.pipelineTask("refresh"))),
-		// "build_task": gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.Identified(h.pipelineTask("build")))))),
-		// "close_task": gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.Identified(h.pipelineTask("close")))))),
+		// "build_task": gae_support.With(h.Identified(h.PlToOrg(withAuth(h.Identified(h.pipelineTask("build")))))),
+		// "close_task": gae_support.With(h.Identified(h.PlToOrg(withAuth(h.Identified(h.pipelineTask("close")))))),
 	}
 }
 
