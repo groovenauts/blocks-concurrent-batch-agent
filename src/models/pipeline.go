@@ -184,3 +184,7 @@ func (m *Pipeline) LoadOrganization(ctx context.Context) error {
 	m.Organization = org
 	return nil
 }
+
+func (m *Pipeline) JobAccessor() *PipelineJobAccessor {
+	return &PipelineJobAccessor{Parent: m}
+}
