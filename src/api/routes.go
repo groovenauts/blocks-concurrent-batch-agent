@@ -31,7 +31,18 @@ func SetupRoutes(echo *echo.Echo) map[string]interface{} {
 	g.GET("/refresh", h.Actions["refresh"])
 	g.POST("/:id/refresh_task", h.Actions["refresh_task"])
 
+	pjh := &PipelineJobHandler{}
+	pjActions := pjh.buildActions()
+
+	g = e.Group("/pipelines/:pipeline_id/jobs")
+	g.GET("", pjActions["index"])
+	g.POST("", pjActions["create"])
+
+	g = e.Group("/jobs")
+	g.GET("/:id", pjActions["show"])
+
 	return map[string]interface{}{
 		"pipelines": h,
+		"pipeline_jobs": pjh,
 	}
 }
