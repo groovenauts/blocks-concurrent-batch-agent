@@ -30,7 +30,7 @@ func TestActions(t *testing.T) {
 	assert.NoError(t, err)
 	defer inst.Close()
 
-	h := &handler{}
+	h := &PipelineHandler{}
 	h.buildActions()
 
 	req, err := inst.NewRequest(echo.GET, "/orgs", nil)
