@@ -40,6 +40,7 @@ func SetupRoutes(echo *echo.Echo) map[string]interface{} {
 
 	g = e.Group("/jobs")
 	g.GET("/:id", pjActions["show"])
+	g.POST("/:id/publish", pjActions["publish"])
 
 	return map[string]interface{}{
 		"pipelines": h,

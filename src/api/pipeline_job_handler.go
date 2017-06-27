@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"time"
 
 	"gae_support"
 	"models"
@@ -18,6 +19,7 @@ func (h *PipelineJobHandler) buildActions() map[string](func(c echo.Context) err
 		"index":  gae_support.With(plBy("pipeline_id", PlToOrg(withAuth(h.index)))),
 		"create": gae_support.With(plBy("pipeline_id", PlToOrg(withAuth(h.create)))),
 		"show":		gae_support.With(pjBy("id", PjToPl(PlToOrg(withAuth(h.show))))),
+		"publish": gae_support.With(pjBy("id", PjToPl(PlToOrg(withAuth(h.WaitAndPublish))))),
 	}
 }
 
@@ -56,5 +58,21 @@ func (h *PipelineJobHandler) index(c echo.Context) error {
 // curl -v http://localhost:8080/pipelines/1
 func (h *PipelineJobHandler) show(c echo.Context) error {
 	pj := c.Get("pipeline_job").(*models.PipelineJob)
+	return c.JSON(http.StatusOK, pj)
+}
+
+// curl -v http://localhost:8080/pipelines/1
+func (h *PipelineJobHandler) WaitAndPublish(c echo.Context) error {
+	ctx := c.Get("aecontext").(context.Context)
+	pl := c.Get("pipeline").(*models.Pipeline)
+	err := pl.WaitUntil(ctx, models.Opened, 10 * time.Second, 5 * time.Minute)
+	if err != nil {
+		return err
+	}
+	pj := c.Get("pipeline_job").(*models.PipelineJob)
+	err = pj.PublishAndUpdate(ctx)
+	if err != nil {
+		return err
+	}
 	return c.JSON(http.StatusOK, pj)
 }
