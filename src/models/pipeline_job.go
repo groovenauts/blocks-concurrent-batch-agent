@@ -9,7 +9,6 @@ import (
 	pubsub "google.golang.org/api/pubsub/v1"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
-	"google.golang.org/appengine/urlfetch"
 
 	"gopkg.in/go-playground/validator.v9"
 )
@@ -141,15 +140,6 @@ func (m *PipelineJob) JobMessage() (*pubsub.PubsubMessage, error) {
 }
 
 func (m *PipelineJob) Publish(ctx context.Context) (string, error) {
-	// https://cloud.google.com/appengine/docs/standard/go/issue-requests
-	client := urlfetch.Client(ctx)
-
-	service, err := pubsub.New(client)
-	if err != nil {
-		log.Criticalf(ctx, "Failed to create pubsub.Service: %v\n", err)
-		return "", err
-	}
-
 	msg, err := m.JobMessage()
 	if err != nil {
 		return "", err
@@ -159,14 +149,12 @@ func (m *PipelineJob) Publish(ctx context.Context) (string, error) {
 		Messages: []*pubsub.PubsubMessage{msg},
 	}
 
-	call := service.Projects.Topics.Publish(m.Pipeline.JobTopicFqn(), req)
-	res, err := call.Do()
+	msgId, err := GlobalPublisher.Publish(ctx, m.Pipeline.JobTopicFqn(), req)
 	if err != nil {
-		log.Errorf(ctx, "Publish error: %v\n", err)
 		return "", err
 	}
 
-	return res.MessageIds[0], nil
+	return msgId, nil
 }
 
 func (m *PipelineJob) PublishAndUpdate(ctx context.Context) error {
