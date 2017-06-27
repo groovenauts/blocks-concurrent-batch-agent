@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/labstack/echo"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/log"
+	"google.golang.org/appengine/taskqueue"
 )
 
 type PipelineJobHandler struct {}
@@ -35,12 +37,20 @@ func (h *PipelineJobHandler) create(c echo.Context) error {
 	}
 	pl := c.Get("pipeline").(*models.Pipeline)
 	pj.Pipeline = pl
-	err := pj.Create(ctx)
+	err := pj.CreateAndPublishIfPossible(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to create pipelineJob: %v\n%v\n", pj, err)
 		return err
 	}
 	log.Debugf(ctx, "Created pipelineJob: %v\n", pl)
+
+	if pj.Status == models.Waiting {
+		t := taskqueue.NewPOSTTask(fmt.Sprintf("/jobs/%s/publish", pj.ID), map[string][]string{})
+		t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
+		if _, err := taskqueue.Add(ctx, t, ""); err != nil {
+			return err
+		}
+	}
 	return c.JSON(http.StatusCreated, pj)
 }
 
@@ -70,6 +80,11 @@ func (h *PipelineJobHandler) WaitAndPublish(c echo.Context) error {
 		return err
 	}
 	pj := c.Get("pipeline_job").(*models.PipelineJob)
+	pj.Status = models.Publishing
+	err = pj.Update(ctx)
+	if err != nil {
+		return err
+	}
 	err = pj.PublishAndUpdate(ctx)
 	if err != nil {
 		return err

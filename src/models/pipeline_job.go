@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 
 	"golang.org/x/net/context"
 	pubsub "google.golang.org/api/pubsub/v1"
@@ -165,12 +166,6 @@ func (m *PipelineJob) Publish(ctx context.Context) (string, error) {
 }
 
 func (m *PipelineJob) PublishAndUpdate(ctx context.Context) error {
-	m.Status = Publishing
-	err := m.Update(ctx)
-	if err != nil {
-		return err
-	}
-
 	msgId, err := m.Publish(ctx)
 	if err != nil {
 		m.Status = PublishError
@@ -184,6 +179,35 @@ func (m *PipelineJob) PublishAndUpdate(ctx context.Context) error {
 	m.MessageID = msgId
 	m.Status = Published
 	err = m.Update(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PipelineJob) CreateAndPublishIfPossible(ctx context.Context) error {
+	pl := m.Pipeline
+	switch pl.Status {
+	case Initialized:
+		m.Status = Waiting
+	case Opened:
+		m.Status = Publishing
+	default:
+		msg := fmt.Sprintf("Can't create and publish a job to a pipeline which is %v", pl.Status)
+		return &InvalidOperation{Msg: msg}
+	}
+
+	err := m.Create(ctx)
+	if err != nil {
+		return err
+	}
+
+	if m.Pipeline.Status == Initialized {
+		return nil
+	}
+
+	err = m.PublishAndUpdate(ctx)
 	if err != nil {
 		return err
 	}
