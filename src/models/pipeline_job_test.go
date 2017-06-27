@@ -1,16 +1,34 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 
 	"test_utils"
 
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/net/context"
+	pubsub "google.golang.org/api/pubsub/v1"
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/aetest"
 	// "google.golang.org/appengine/log"
 )
+
+type PublishInvocation struct {
+	Topic string
+	Req *pubsub.PublishRequest
+}
+
+type DummyPublisher struct {
+	Invocations []*PublishInvocation
+}
+
+func (p *DummyPublisher) Publish(ctx context.Context, topic string, req *pubsub.PublishRequest) (string, error) {
+	p.Invocations = append(p.Invocations, &PublishInvocation{Topic: topic, Req: req})
+	return fmt.Sprintf("DummyMsgId-%v", len(p.Invocations)), nil
+}
+
 
 func TestPipelineJobCRUD(t *testing.T) {
 	opt := &aetest.Options{StronglyConsistentDatastore: true}
@@ -95,5 +113,84 @@ func TestPipelineJobCRUD(t *testing.T) {
 		}
 		err = pj.Validate()
 		assert.Error(t, err)
+	}
+
+	originalPublisher := GlobalPublisher
+	dummyPublisher := &DummyPublisher{
+		Invocations: []*PublishInvocation{},
+	}
+	GlobalPublisher = dummyPublisher
+
+	defer func(){
+		GlobalPublisher = originalPublisher
+	}()
+
+	// CreateAndPublishIfPossible
+	attrs := map[string]string{
+		"download_files": "gcs://bucket1/path/to/file1",
+	}
+	attrs_json, err := json.Marshal(attrs)
+	assert.NoError(t, err)
+
+	// Don't publish Job Message soon when the pipeline isn't Opened
+	for _, st := range []Status{Initialized, Building, Deploying} {
+		pipeline1.Status = st
+		err = pipeline1.Update(ctx)
+		assert.NoError(t, err)
+
+		pj := &PipelineJob{
+			Pipeline: pipeline1,
+			IdByClient: fmt.Sprintf("%s-job-waiting-%v", pipeline1.Name, st),
+			Message: PipelineJobMessage{
+				AttributesJson: string(attrs_json),
+			},
+		}
+		err := pj.CreateAndPublishIfPossible(ctx)
+		assert.NoError(t, err)
+		assert.NotEmpty(t, pj.ID)
+
+		assert.Equal(t, Waiting, pj.Status)
+		assert.Equal(t, 0, len(dummyPublisher.Invocations))
+	}
+
+	// Publish Job Message soon when the pipeline is Opened
+	for _, st := range []Status{Opened} {
+		pipeline1.Status = st
+		err = pipeline1.Update(ctx)
+		assert.NoError(t, err)
+
+		pj := &PipelineJob{
+			Pipeline: pipeline1,
+			IdByClient: fmt.Sprintf("%s-job-publishing-%v", pipeline1.Name, st),
+			Message: PipelineJobMessage{
+				AttributesJson: string(attrs_json),
+			},
+		}
+		err := pj.CreateAndPublishIfPossible(ctx)
+		assert.NoError(t, err)
+		assert.NotEmpty(t, pj.ID)
+
+		assert.Equal(t, Published, pj.Status)
+		assert.Equal(t, 1, len(dummyPublisher.Invocations))
+		dummyPublisher.Invocations = []*PublishInvocation{}
+	}
+
+	// Raise error when create PipelineJob
+	for _, st := range []Status{Broken, Closing, Closing_error, Closed} {
+		pipeline1.Status = st
+		err = pipeline1.Update(ctx)
+		assert.NoError(t, err)
+
+		pj := &PipelineJob{
+			Pipeline: pipeline1,
+			IdByClient: fmt.Sprintf("%s-job-waiting-%v", pipeline1.Name, st),
+			Message: PipelineJobMessage{
+				AttributesJson: string(attrs_json),
+			},
+		}
+		err := pj.CreateAndPublishIfPossible(ctx)
+		assert.Error(t, err)
+		assert.Empty(t, pj.ID)
+		assert.Equal(t, 0, len(dummyPublisher.Invocations))
 	}
 }

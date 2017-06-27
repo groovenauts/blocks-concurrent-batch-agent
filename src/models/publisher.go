@@ -33,4 +33,4 @@ func (p *PubsubPublisher) Publish(ctx context.Context, topic string, req *pubsub
 	return res.MessageIds[0], nil
 }
 
-var GlobalPublisher = &PubsubPublisher{}
+var GlobalPublisher Publisher = &PubsubPublisher{}

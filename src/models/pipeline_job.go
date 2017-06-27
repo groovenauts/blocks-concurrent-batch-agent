@@ -181,7 +181,7 @@ func (m *PipelineJob) PublishAndUpdate(ctx context.Context) error {
 func (m *PipelineJob) CreateAndPublishIfPossible(ctx context.Context) error {
 	pl := m.Pipeline
 	switch pl.Status {
-	case Initialized:
+	case Initialized, Building, Deploying:
 		m.Status = Waiting
 	case Opened:
 		m.Status = Publishing
@@ -195,7 +195,7 @@ func (m *PipelineJob) CreateAndPublishIfPossible(ctx context.Context) error {
 		return err
 	}
 
-	if m.Pipeline.Status == Initialized {
+	if m.Status != Publishing {
 		return nil
 	}
 
