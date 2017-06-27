@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
@@ -187,4 +188,25 @@ func (m *Pipeline) LoadOrganization(ctx context.Context) error {
 
 func (m *Pipeline) JobAccessor() *PipelineJobAccessor {
 	return &PipelineJobAccessor{Parent: m}
+}
+
+func (m *Pipeline) Reload() error {
+	err := GlobalPipelineAccessor.LoadByID(m)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *Pipeline) WaitUntil(ctx context.Context, st Status, interval, timeout time.Duration) error {
+	t0 := time.Now()
+	deadline := t0.Add(timeout)
+	for deadline.After(time.Now()) {
+		m.Reload(ctx)
+		if m.Status == st {
+			return nil
+		}
+		time.Sleep(interval)
+	}
+	return ErrTimeout
 }
