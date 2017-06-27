@@ -11,7 +11,7 @@ type Publisher interface {
 	Publish(ctx context.Context, topic string, req *pubsub.PublishRequest) (string, error)
 }
 
-type PubsubPublisher struct {}
+type PubsubPublisher struct{}
 
 func (p *PubsubPublisher) Publish(ctx context.Context, topic string, req *pubsub.PublishRequest) (string, error) {
 	// https://cloud.google.com/appengine/docs/standard/go/issue-requests

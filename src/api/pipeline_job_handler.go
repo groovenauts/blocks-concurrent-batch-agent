@@ -14,13 +14,13 @@ import (
 	"google.golang.org/appengine/taskqueue"
 )
 
-type PipelineJobHandler struct {}
+type PipelineJobHandler struct{}
 
 func (h *PipelineJobHandler) buildActions() map[string](func(c echo.Context) error) {
 	return map[string](func(c echo.Context) error){
-		"index":  gae_support.With(plBy("pipeline_id", PlToOrg(withAuth(h.index)))),
-		"create": gae_support.With(plBy("pipeline_id", PlToOrg(withAuth(h.create)))),
-		"show":		gae_support.With(pjBy("id", PjToPl(PlToOrg(withAuth(h.show))))),
+		"index":   gae_support.With(plBy("pipeline_id", PlToOrg(withAuth(h.index)))),
+		"create":  gae_support.With(plBy("pipeline_id", PlToOrg(withAuth(h.create)))),
+		"show":    gae_support.With(pjBy("id", PjToPl(PlToOrg(withAuth(h.show))))),
 		"publish": gae_support.With(pjBy("id", PjToPl(PlToOrg(withAuth(h.WaitAndPublish))))),
 	}
 }
@@ -75,7 +75,7 @@ func (h *PipelineJobHandler) show(c echo.Context) error {
 func (h *PipelineJobHandler) WaitAndPublish(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
-	err := pl.WaitUntil(ctx, models.Opened, 10 * time.Second, 5 * time.Minute)
+	err := pl.WaitUntil(ctx, models.Opened, 10*time.Second, 5*time.Minute)
 	if err != nil {
 		return err
 	}

@@ -19,7 +19,7 @@ var ErrNoSuchPipeline = errors.New("No such data in Pipelines")
 
 func (pa *PipelineAccessor) Find(ctx context.Context, id string) (*Pipeline, error) {
 	pl := &Pipeline{ID: id}
-	err :=  pa.LoadByID(ctx, pl)
+	err := pa.LoadByID(ctx, pl)
 	if err != nil {
 		return nil, err
 	}

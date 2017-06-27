@@ -43,7 +43,7 @@ func SetupRoutes(echo *echo.Echo) map[string]interface{} {
 	g.POST("/:id/publish", pjActions["publish"])
 
 	return map[string]interface{}{
-		"pipelines": h,
+		"pipelines":     h,
 		"pipeline_jobs": pjh,
 	}
 }

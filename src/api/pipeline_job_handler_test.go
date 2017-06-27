@@ -45,16 +45,16 @@ func TestPipelineJobHandlerActions(t *testing.T) {
 	pipelines := map[string]*models.Pipeline{}
 	pipelineNames := []string{"pipeline1", "pipeline2"}
 	for _, pipelineName := range pipelineNames {
-		pipeline:= &models.Pipeline{
+		pipeline := &models.Pipeline{
 			Organization: org1,
-			Name: pipelineName,
-			ProjectID: "dummy-proj-111",
-			Zone: "asia-northeast1-a",
+			Name:         pipelineName,
+			ProjectID:    "dummy-proj-111",
+			Zone:         "asia-northeast1-a",
 			BootDisk: models.PipelineVmDisk{
 				SourceImage: "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable",
 			},
-			MachineType: "f1-micro",
-			TargetSize: 1,
+			MachineType:   "f1-micro",
+			TargetSize:    1,
 			ContainerSize: 1,
 			ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
 		}
@@ -64,9 +64,9 @@ func TestPipelineJobHandlerActions(t *testing.T) {
 
 		for i := 1; i < 3; i++ {
 			job := &models.PipelineJob{
-				Pipeline: pipeline,
+				Pipeline:   pipeline,
 				IdByClient: fmt.Sprintf("%v-job-%v", pipelineName, i),
-				Status: models.Published,
+				Status:     models.Published,
 				Message: models.PipelineJobMessage{
 					AttributesJson: fmt.Sprintf(`{"foo":"%v"}`, i),
 				},
@@ -80,7 +80,7 @@ func TestPipelineJobHandlerActions(t *testing.T) {
 
 	// Not authenticated
 	invalid_get_test := func(setup func(req *http.Request)) {
-		req, err := inst.NewRequest(echo.GET, "/pipelines/" + pl1.ID + "/jobs", nil)
+		req, err := inst.NewRequest(echo.GET, "/pipelines/"+pl1.ID+"/jobs", nil)
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		assert.NoError(t, err)
 		setup(req)
@@ -112,7 +112,7 @@ func TestPipelineJobHandlerActions(t *testing.T) {
 	}
 
 	// Authenticated
-	req, err = inst.NewRequest(echo.GET, "/pipelines/" + pl1.ID + "/jobs", nil)
+	req, err = inst.NewRequest(echo.GET, "/pipelines/"+pl1.ID+"/jobs", nil)
 	assert.NoError(t, err)
 	ctx = appengine.NewContext(req)
 

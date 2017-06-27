@@ -26,17 +26,17 @@ const (
 
 type (
 	PipelineJobMessage struct {
-		AttributesJson string    `json:"attributes_json" datastore:"attributes_json" validate:"jsonstr2str"`
-		Data           string    `json:"data" datastore:"data"`
+		AttributesJson string `json:"attributes_json" datastore:"attributes_json" validate:"jsonstr2str"`
+		Data           string `json:"data" datastore:"data"`
 	}
 
 	PipelineJob struct {
-		ID         string        `json:"id"  datastore:"-"`
-		Pipeline   *Pipeline     `json:"-"   validate:"required" datastore:"-"`
-		IdByClient string        `json:"id_by_client" validate:"required" datastore:"id_by_client"`
-		Status     JobStatus     `json:"status"       datastore:"status" `
+		ID         string             `json:"id"  datastore:"-"`
+		Pipeline   *Pipeline          `json:"-"   validate:"required" datastore:"-"`
+		IdByClient string             `json:"id_by_client" validate:"required" datastore:"id_by_client"`
+		Status     JobStatus          `json:"status"       datastore:"status" `
 		Message    PipelineJobMessage `json:"message" datastore:"message"`
-		MessageID  string        `json:"message_id"   datastore:"message_id"`
+		MessageID  string             `json:"message_id"   datastore:"message_id"`
 	}
 )
 

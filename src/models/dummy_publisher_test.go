@@ -9,7 +9,7 @@ import (
 
 type PublishInvocation struct {
 	Topic string
-	Req *pubsub.PublishRequest
+	Req   *pubsub.PublishRequest
 }
 
 type DummyPublisher struct {

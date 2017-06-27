@@ -38,16 +38,16 @@ func TestPipelineJobCRUD(t *testing.T) {
 	pipelines := map[string]*Pipeline{}
 	pipelineNames := []string{"pipeline1", "pipeline2"}
 	for _, pipelineName := range pipelineNames {
-		pipeline:= &Pipeline{
+		pipeline := &Pipeline{
 			Organization: org1,
-			Name: pipelineName,
-			ProjectID: "dummy-proj-111",
-			Zone: "asia-northeast1-a",
+			Name:         pipelineName,
+			ProjectID:    "dummy-proj-111",
+			Zone:         "asia-northeast1-a",
 			BootDisk: PipelineVmDisk{
 				SourceImage: "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable",
 			},
-			MachineType: "f1-micro",
-			TargetSize: 1,
+			MachineType:   "f1-micro",
+			TargetSize:    1,
 			ContainerSize: 1,
 			ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
 		}
@@ -57,9 +57,9 @@ func TestPipelineJobCRUD(t *testing.T) {
 
 		for i := 1; i < 3; i++ {
 			job := &PipelineJob{
-				Pipeline: pipeline,
+				Pipeline:   pipeline,
 				IdByClient: fmt.Sprintf("%v-job-%v", pipelineName, i),
-				Status: Published,
+				Status:     Published,
 				Message: PipelineJobMessage{
 					AttributesJson: fmt.Sprintf(`{"foo":"%v"}`, i),
 				},
@@ -88,7 +88,7 @@ func TestPipelineJobCRUD(t *testing.T) {
 	}
 	for _, ptn := range invalidJsonPatterns {
 		pj := &PipelineJob{
-			Pipeline: pipeline1,
+			Pipeline:   pipeline1,
 			IdByClient: fmt.Sprintf("%v-job-Invalid", pipeline1.Name),
 			Message: PipelineJobMessage{
 				AttributesJson: ptn,
@@ -104,7 +104,7 @@ func TestPipelineJobCRUD(t *testing.T) {
 	}
 	GlobalPublisher = dummyPublisher
 
-	defer func(){
+	defer func() {
 		GlobalPublisher = originalPublisher
 	}()
 
@@ -122,7 +122,7 @@ func TestPipelineJobCRUD(t *testing.T) {
 		assert.NoError(t, err)
 
 		pj := &PipelineJob{
-			Pipeline: pipeline1,
+			Pipeline:   pipeline1,
 			IdByClient: fmt.Sprintf("%s-job-waiting-%v", pipeline1.Name, st),
 			Message: PipelineJobMessage{
 				AttributesJson: string(attrs_json),
@@ -143,7 +143,7 @@ func TestPipelineJobCRUD(t *testing.T) {
 		assert.NoError(t, err)
 
 		pj := &PipelineJob{
-			Pipeline: pipeline1,
+			Pipeline:   pipeline1,
 			IdByClient: fmt.Sprintf("%s-job-publishing-%v", pipeline1.Name, st),
 			Message: PipelineJobMessage{
 				AttributesJson: string(attrs_json),
@@ -165,7 +165,7 @@ func TestPipelineJobCRUD(t *testing.T) {
 		assert.NoError(t, err)
 
 		pj := &PipelineJob{
-			Pipeline: pipeline1,
+			Pipeline:   pipeline1,
 			IdByClient: fmt.Sprintf("%s-job-waiting-%v", pipeline1.Name, st),
 			Message: PipelineJobMessage{
 				AttributesJson: string(attrs_json),

@@ -6,8 +6,8 @@ import (
 	validator "gopkg.in/go-playground/validator.v9"
 )
 
-var Validators = map[string] validator.Func {
-	"json": isValidJSON,
+var Validators = map[string]validator.Func{
+	"json":        isValidJSON,
 	"jsonstr2str": isValidJSONStr2Str,
 }
 

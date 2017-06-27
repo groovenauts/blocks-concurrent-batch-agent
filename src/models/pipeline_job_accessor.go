@@ -45,7 +45,6 @@ func (aa *PipelineJobAccessor) Find(ctx context.Context, id string) (*PipelineJo
 	return m, nil
 }
 
-
 func (aa *PipelineJobAccessor) All(ctx context.Context) ([]*PipelineJob, error) {
 	q := datastore.NewQuery("PipelineJobs")
 	if aa.Parent != nil {
