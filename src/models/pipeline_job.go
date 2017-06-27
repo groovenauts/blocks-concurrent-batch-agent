@@ -124,6 +124,17 @@ func (m *PipelineJob) LoadPipeline(ctx context.Context) error {
 	return nil
 }
 
+func (m *PipelineJob) JobMessage() (*pubsub.PubsubMessage, error) {
+	attrs, err := m.Attributes()
+	if err != nil {
+		return nil, err
+	}
+	return &pubsub.PubsubMessage{
+		Attributes: attrs,
+		Data:       base64.StdEncoding.EncodeToString([]byte(m.Message.Data)),
+	}, nil
+}
+
 func (m *PipelineJob) Publish(ctx context.Context) (string, error) {
 	// https://cloud.google.com/appengine/docs/standard/go/issue-requests
 	client := urlfetch.Client(ctx)
@@ -134,19 +145,16 @@ func (m *PipelineJob) Publish(ctx context.Context) (string, error) {
 		return "", err
 	}
 
-	attrs, err := m.Attributes()
+	msg, err := m.JobMessage()
 	if err != nil {
 		return "", err
 	}
 
-	call := service.Projects.Topics.Publish(m.Pipeline.JobTopicFqn(), &pubsub.PublishRequest{
-		Messages: []*pubsub.PubsubMessage{
-			&pubsub.PubsubMessage{
-				Attributes: attrs,
-				Data:       base64.StdEncoding.EncodeToString([]byte(m.Message.Data)),
-			},
-		},
-	})
+	req := &pubsub.PublishRequest{
+		Messages: []*pubsub.PubsubMessage{msg},
+	}
+
+	call := service.Projects.Topics.Publish(m.Pipeline.JobTopicFqn(), req)
 	res, err := call.Do()
 	if err != nil {
 		log.Errorf(ctx, "Publish error: %v\n", err)
