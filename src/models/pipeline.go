@@ -45,14 +45,6 @@ func (st Status) String() string {
 	return res
 }
 
-type InvalidOperation struct {
-	Msg string
-}
-
-func (e *InvalidOperation) Error() string {
-	return e.Msg
-}
-
 var processorFactory ProcessorFactory = &DefaultProcessorFactory{}
 
 type (

@@ -14,3 +14,11 @@ func (e *InvalidParent) Error() string {
 }
 
 var ErrTimeout = errors.New("Timeout")
+
+type InvalidOperation struct {
+	Msg string
+}
+
+func (e *InvalidOperation) Error() string {
+	return e.Msg
+}
