@@ -210,3 +210,11 @@ func (m *Pipeline) WaitUntil(ctx context.Context, st Status, interval, timeout t
 	}
 	return ErrTimeout
 }
+
+func (m *Pipeline) JobTopicName() string {
+	return fmt.Sprintf("%s-job-topic", m.Name)
+}
+
+func (m *Pipeline) JobTopicFqn() string {
+	return fmt.Sprintf("projects/%s/topics/%s", m.ProjectID, m.JobTopicName())
+}
