@@ -8,27 +8,10 @@ import (
 	"test_utils"
 
 	"github.com/stretchr/testify/assert"
-	"golang.org/x/net/context"
-	pubsub "google.golang.org/api/pubsub/v1"
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/aetest"
 	// "google.golang.org/appengine/log"
 )
-
-type PublishInvocation struct {
-	Topic string
-	Req *pubsub.PublishRequest
-}
-
-type DummyPublisher struct {
-	Invocations []*PublishInvocation
-}
-
-func (p *DummyPublisher) Publish(ctx context.Context, topic string, req *pubsub.PublishRequest) (string, error) {
-	p.Invocations = append(p.Invocations, &PublishInvocation{Topic: topic, Req: req})
-	return fmt.Sprintf("DummyMsgId-%v", len(p.Invocations)), nil
-}
-
 
 func TestPipelineJobCRUD(t *testing.T) {
 	opt := &aetest.Options{StronglyConsistentDatastore: true}
