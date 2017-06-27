@@ -27,7 +27,7 @@ const (
 
 type (
 	PipelineJobMessage struct {
-		AttributesJson string    `json:"attributes_json" datastore:"attributes_json"`
+		AttributesJson string    `json:"attributes_json" datastore:"attributes_json" validate:"jsonstr2str"`
 		Data           string    `json:"data" datastore:"data"`
 	}
 
@@ -51,12 +51,16 @@ func (m *PipelineJob) Attributes() (map[string]string, error) {
 }
 
 func (m *PipelineJob) Validate() error {
-	validator := validator.New()
-	err := validator.Struct(m)
+	v := validator.New()
+	for k, val := range Validators {
+		v.RegisterValidation(k, val)
+	}
+	err := v.Struct(m)
 	return err
 }
 
 func (m *PipelineJob) Create(ctx context.Context) error {
+	log.Debugf(ctx, "===========================================\nCreating PipelineJob\n%v\n", m)
 	err := m.Validate()
 	if err != nil {
 		return err

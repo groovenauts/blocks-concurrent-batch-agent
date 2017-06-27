@@ -60,7 +60,7 @@ func TestPipelineJobCRUD(t *testing.T) {
 				IdByClient: fmt.Sprintf("%v-job-%v", pipelineName, i),
 				Status: Published,
 				Message: PipelineJobMessage{
-					AttributesJson: fmt.Sprintf(`{"foo":%v}`, i),
+					AttributesJson: fmt.Sprintf(`{"foo":"%v"}`, i),
 				},
 			}
 			err = job.Create(ctx)
@@ -77,4 +77,23 @@ func TestPipelineJobCRUD(t *testing.T) {
 	jobs, err = accessor.All(ctx)
 	assert.NoError(t, err)
 	assert.Equal(t, 2, len(jobs))
+
+	// Invalid Job
+	invalidJsonPatterns := []string{
+		`INVALID JSON DATA`,
+		`"VALID JSON String"`,
+		`["VALID JSON String Array"]`,
+		`{"VALID JSON String to Integer": 1000}`,
+	}
+	for _, ptn := range invalidJsonPatterns {
+		pj := &PipelineJob{
+			Pipeline: pipeline1,
+			IdByClient: fmt.Sprintf("%v-job-Invalid", pipeline1.Name),
+			Message: PipelineJobMessage{
+				AttributesJson: ptn,
+			},
+		}
+		err = pj.Validate()
+		assert.Error(t, err)
+	}
 }

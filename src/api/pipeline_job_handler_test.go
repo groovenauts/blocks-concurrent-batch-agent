@@ -68,7 +68,7 @@ func TestPipelineJobHandlerActions(t *testing.T) {
 				IdByClient: fmt.Sprintf("%v-job-%v", pipelineName, i),
 				Status: models.Published,
 				Message: models.PipelineJobMessage{
-					AttributesJson: fmt.Sprintf(`{"foo":%v}`, i),
+					AttributesJson: fmt.Sprintf(`{"foo":"%v"}`, i),
 				},
 			}
 			err = job.Create(ctx)
@@ -122,13 +122,22 @@ func TestPipelineJobHandlerActions(t *testing.T) {
 	token := "Bearer " + auth.Token
 
 	// Test for create
-	json1 := `{` +
-		`"id_by_client":"` + pl1.Name + `-job-new1"` +
-		`,"message":{` +
-		`"attributes_jbon":"{\"download_files\":\"gcs://bucket1/path/to/file1\"}"` +
-		`}` +
-		`}`
-	req, err = inst.NewRequest(echo.POST, "/pipelines/"+pl1.ID+"/jobs", strings.NewReader(json1))
+	attrs := map[string]string{
+		"download_files": "gcs://bucket1/path/to/file1",
+	}
+	attrs_json, err := json.Marshal(attrs)
+	assert.NoError(t, err)
+	obj1 := map[string]interface{}{
+		"id_by_client": pl1.Name + `-job-new1"`,
+		"message": map[string]string{
+			"attributes_json": string(attrs_json),
+		},
+	}
+
+	json1, err := json.Marshal(obj1)
+	assert.NoError(t, err)
+
+	req, err = inst.NewRequest(echo.POST, "/pipelines/"+pl1.ID+"/jobs", strings.NewReader(string(json1)))
 	assert.NoError(t, err)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	req.Header.Set(auth_header, token)
