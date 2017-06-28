@@ -61,7 +61,9 @@ func TestPipelineJobCRUD(t *testing.T) {
 				IdByClient: fmt.Sprintf("%v-job-%v", pipelineName, i),
 				Status:     Published,
 				Message: PipelineJobMessage{
-					AttributesJson: fmt.Sprintf(`{"foo":"%v"}`, i),
+					AttributeMap: map[string]string{
+						"foo": fmt.Sprintf("%v", i),
+					},
 				},
 			}
 			err = job.Create(ctx)
@@ -79,24 +81,6 @@ func TestPipelineJobCRUD(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 2, len(jobs))
 
-	// Invalid Job
-	invalidJsonPatterns := []string{
-		`INVALID JSON DATA`,
-		`"VALID JSON String"`,
-		`["VALID JSON String Array"]`,
-		`{"VALID JSON String to Integer": 1000}`,
-	}
-	for _, ptn := range invalidJsonPatterns {
-		pj := &PipelineJob{
-			Pipeline:   pipeline1,
-			IdByClient: fmt.Sprintf("%v-job-Invalid", pipeline1.Name),
-			Message: PipelineJobMessage{
-				AttributesJson: ptn,
-			},
-		}
-		err = pj.Validate()
-		assert.Error(t, err)
-	}
 
 	originalPublisher := GlobalPublisher
 	dummyPublisher := &DummyPublisher{
@@ -109,10 +93,8 @@ func TestPipelineJobCRUD(t *testing.T) {
 	}()
 
 	// CreateAndPublishIfPossible
-	attrs := map[string]string{
-		"download_files": "gcs://bucket1/path/to/file1",
-	}
-	attrs_json, err := json.Marshal(attrs)
+	download_files := "gcs://bucket1/path/to/file1"
+	download_files_json, err := json.Marshal(download_files)
 	assert.NoError(t, err)
 
 	// Don't publish Job Message soon when the pipeline isn't Opened
@@ -125,7 +107,9 @@ func TestPipelineJobCRUD(t *testing.T) {
 			Pipeline:   pipeline1,
 			IdByClient: fmt.Sprintf("%s-job-waiting-%v", pipeline1.Name, st),
 			Message: PipelineJobMessage{
-				AttributesJson: string(attrs_json),
+				AttributeMap: map[string]string{
+					"download_files": string(download_files_json),
+				},
 			},
 		}
 		err := pj.CreateAndPublishIfPossible(ctx)
@@ -146,7 +130,9 @@ func TestPipelineJobCRUD(t *testing.T) {
 			Pipeline:   pipeline1,
 			IdByClient: fmt.Sprintf("%s-job-publishing-%v", pipeline1.Name, st),
 			Message: PipelineJobMessage{
-				AttributesJson: string(attrs_json),
+				AttributeMap: map[string]string{
+					"download_files": string(download_files_json),
+				},
 			},
 		}
 		err := pj.CreateAndPublishIfPossible(ctx)
@@ -168,7 +154,9 @@ func TestPipelineJobCRUD(t *testing.T) {
 			Pipeline:   pipeline1,
 			IdByClient: fmt.Sprintf("%s-job-waiting-%v", pipeline1.Name, st),
 			Message: PipelineJobMessage{
-				AttributesJson: string(attrs_json),
+				AttributeMap: map[string]string{
+					"download_files": string(download_files_json),
+				},
 			},
 		}
 		err := pj.CreateAndPublishIfPossible(ctx)

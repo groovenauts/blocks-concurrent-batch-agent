@@ -42,6 +42,7 @@ func (aa *PipelineJobAccessor) Find(ctx context.Context, id string) (*PipelineJo
 		log.Errorf(ctx, "PipelineJobAccessor#Find %v id: %q\n", err, id)
 		return nil, err
 	}
+	m.Message.EntriesToMap()
 	return m, nil
 }
 
@@ -66,6 +67,7 @@ func (aa *PipelineJobAccessor) All(ctx context.Context) ([]*PipelineJob, error) 
 			return nil, err
 		}
 		m.ID = key.Encode()
+		m.Message.EntriesToMap()
 		res = append(res, &m)
 	}
 	return res, nil

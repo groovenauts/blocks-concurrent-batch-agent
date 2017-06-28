@@ -2,7 +2,6 @@ package models
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 
 	"golang.org/x/net/context"
@@ -25,29 +24,44 @@ const (
 )
 
 type (
-	PipelineJobMessage struct {
-		AttributesJson string `json:"attributes_json" datastore:"attributes_json" validate:"jsonstr2str"`
-		Data           string `json:"data" datastore:"data"`
+	KeyValuePair struct {
+		Name  string `datastore:"name"  validate:"required"`
+		Value string `datastore:"value"`
 	}
 
-	PipelineJob struct {
-		ID         string             `json:"id"  datastore:"-"`
-		Pipeline   *Pipeline          `json:"-"   validate:"required" datastore:"-"`
-		IdByClient string             `json:"id_by_client" validate:"required" datastore:"id_by_client"`
-		Status     JobStatus          `json:"status"       datastore:"status" `
-		Message    PipelineJobMessage `json:"message" datastore:"message"`
-		MessageID  string             `json:"message_id"   datastore:"message_id"`
+	PipelineJobMessage struct {
+		AttributeMap     map[string]string `json:"attributes" datastore:"-"`
+		AttributeEntries []KeyValuePair    `json:"-"          datastore:"attribute_entries"`
+		Data             string `json:"data" datastore:"data"`
 	}
 )
 
-func (m *PipelineJob) Attributes() (map[string]string, error) {
-	var result map[string]string
-	err := json.Unmarshal([]byte(m.Message.AttributesJson), &result)
-	if err != nil {
-		return nil, err
+func (m PipelineJobMessage) MapToEntries() {
+	entries := []KeyValuePair{}
+	for k, v := range m.AttributeMap {
+		entries = append(entries, KeyValuePair{Name: k, Value: v})
 	}
-	return result, nil
+	m.AttributeEntries = entries
 }
+
+func (m PipelineJobMessage) EntriesToMap() {
+	kv := map[string]string{}
+	for _, entry := range m.AttributeEntries {
+		kv[entry.Name] = entry.Value
+	}
+	m.AttributeMap = kv
+}
+
+type(
+	PipelineJob struct {
+		ID         string              `json:"id"  datastore:"-"`
+		Pipeline   *Pipeline           `json:"-"   validate:"required" datastore:"-"`
+		IdByClient string              `json:"id_by_client" validate:"required" datastore:"id_by_client"`
+		Status     JobStatus           `json:"status"       datastore:"status" `
+		Message    PipelineJobMessage  `json:"message" datastore:"message"`
+		MessageID  string              `json:"message_id"   datastore:"message_id"`
+	}
+)
 
 func (m *PipelineJob) Validate() error {
 	v := validator.New()
@@ -60,6 +74,11 @@ func (m *PipelineJob) Validate() error {
 
 func (m *PipelineJob) Create(ctx context.Context) error {
 	log.Debugf(ctx, "===========================================\nCreating PipelineJob\n%v\n", m)
+
+	if len(m.Message.AttributeEntries) == 0 {
+		m.Message.MapToEntries()
+	}
+
 	err := m.Validate()
 	if err != nil {
 		return err
@@ -128,25 +147,16 @@ func (m *PipelineJob) LoadPipeline(ctx context.Context) error {
 	return nil
 }
 
-func (m *PipelineJob) JobMessage() (*pubsub.PubsubMessage, error) {
-	attrs, err := m.Attributes()
-	if err != nil {
-		return nil, err
-	}
+func (m *PipelineJob) JobMessage() *pubsub.PubsubMessage {
 	return &pubsub.PubsubMessage{
-		Attributes: attrs,
+		Attributes: m.Message.AttributeMap,
 		Data:       base64.StdEncoding.EncodeToString([]byte(m.Message.Data)),
-	}, nil
+	}
 }
 
 func (m *PipelineJob) Publish(ctx context.Context) (string, error) {
-	msg, err := m.JobMessage()
-	if err != nil {
-		return "", err
-	}
-
 	req := &pubsub.PublishRequest{
-		Messages: []*pubsub.PubsubMessage{msg},
+		Messages: []*pubsub.PubsubMessage{m.JobMessage()},
 	}
 
 	msgId, err := GlobalPublisher.Publish(ctx, m.Pipeline.JobTopicFqn(), req)
