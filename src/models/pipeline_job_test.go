@@ -81,7 +81,6 @@ func TestPipelineJobCRUD(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 2, len(jobs))
 
-
 	originalPublisher := GlobalPublisher
 	dummyPublisher := &DummyPublisher{
 		Invocations: []*PublishInvocation{},

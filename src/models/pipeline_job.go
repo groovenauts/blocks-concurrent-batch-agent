@@ -32,7 +32,7 @@ type (
 	PipelineJobMessage struct {
 		AttributeMap     map[string]string `json:"attributes" datastore:"-"`
 		AttributeEntries []KeyValuePair    `json:"-"          datastore:"attribute_entries"`
-		Data             string `json:"data" datastore:"data"`
+		Data             string            `json:"data" datastore:"data"`
 	}
 )
 
@@ -52,14 +52,14 @@ func (m PipelineJobMessage) EntriesToMap() {
 	m.AttributeMap = kv
 }
 
-type(
+type (
 	PipelineJob struct {
-		ID         string              `json:"id"  datastore:"-"`
-		Pipeline   *Pipeline           `json:"-"   validate:"required" datastore:"-"`
-		IdByClient string              `json:"id_by_client" validate:"required" datastore:"id_by_client"`
-		Status     JobStatus           `json:"status"       datastore:"status" `
-		Message    PipelineJobMessage  `json:"message" datastore:"message"`
-		MessageID  string              `json:"message_id"   datastore:"message_id"`
+		ID         string             `json:"id"  datastore:"-"`
+		Pipeline   *Pipeline          `json:"-"   validate:"required" datastore:"-"`
+		IdByClient string             `json:"id_by_client" validate:"required" datastore:"id_by_client"`
+		Status     JobStatus          `json:"status"       datastore:"status" `
+		Message    PipelineJobMessage `json:"message" datastore:"message"`
+		MessageID  string             `json:"message_id"   datastore:"message_id"`
 	}
 )
 
