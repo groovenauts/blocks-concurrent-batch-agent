@@ -6,7 +6,6 @@ import (
 
 	pubsub "google.golang.org/api/pubsub/v1"
 	"google.golang.org/appengine/log"
-
 )
 
 type Publisher interface {

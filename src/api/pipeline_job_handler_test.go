@@ -164,16 +164,16 @@ func TestPipelineJobHandlerActions(t *testing.T) {
 	var pjRes map[string]interface{}
 	assert.NoError(t, json.Unmarshal([]byte(s), &pjRes))
 	assert.Equal(t, map[string]interface{}{
-		"id": pj.ID,
+		"id":           pj.ID,
 		"id_by_client": "pipeline1-job-new1",
-		"status": float64(0),
+		"status":       float64(0),
 		"message": map[string]interface{}{
 			"attributes": map[string]interface{}{
 				"download_files": `["gcs://bucket1/path/to/file1"]`,
 			},
 			"data": "",
 		},
-		"message_id":"",
+		"message_id": "",
 	}, pjRes)
 
 	// Test for invalid POST
