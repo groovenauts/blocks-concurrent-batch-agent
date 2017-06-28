@@ -2,9 +2,11 @@ package models
 
 import (
 	"golang.org/x/net/context"
+	"golang.org/x/oauth2/google"
+
 	pubsub "google.golang.org/api/pubsub/v1"
 	"google.golang.org/appengine/log"
-	"google.golang.org/appengine/urlfetch"
+
 )
 
 type Publisher interface {
@@ -14,8 +16,12 @@ type Publisher interface {
 type PubsubPublisher struct{}
 
 func (p *PubsubPublisher) Publish(ctx context.Context, topic string, req *pubsub.PublishRequest) (string, error) {
-	// https://cloud.google.com/appengine/docs/standard/go/issue-requests
-	client := urlfetch.Client(ctx)
+	// https://developers.google.com/identity/protocols/application-default-credentials#callinggo
+	client, err := google.DefaultClient(ctx, pubsub.PubsubScope)
+	if err != nil {
+		log.Criticalf(ctx, "Failed to get google.DefaultClient for pubsub scope because of %v\n", err)
+		return "", err
+	}
 
 	service, err := pubsub.New(client)
 	if err != nil {
