@@ -37,18 +37,30 @@ func TestAdminHandler(t *testing.T) {
 		ID:         "1",
 	}
 
-	req, err := inst.NewRequest(echo.GET, "/admin/auths", nil)
+	req, err := inst.NewRequest(echo.GET, "/admin/orgs", nil)
 	assert.NoError(t, err)
 	ctx := appengine.NewContext(req)
+
+	test_utils.ClearDatastore(t, ctx, "Organizations")
+	org := &models.Organization{Name: "ORG1"}
+	org.Create(ctx)
+
+	// GET /admin/orgs/:org_id/auths
+	path := "/admin/orgs/" + org.ID + "/auths"
+	req, err = inst.NewRequest(echo.GET, path, nil)
+	assert.NoError(t, err)
+	ctx = appengine.NewContext(req)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	c.SetPath("/admin/auths")
+	c.SetPath(path)
+	c.SetParamNames("org_id")
+	c.SetParamValues(org.ID)
 
 	test_utils.ClearDatastore(t, ctx, "Auths")
 	aetest.Login(user, req)
 	log.Debugf(ctx, "user: %v\n", user)
 
-	f := withFlash(h.index)
+	f := h.WithOrg(h.index)
 	err = f(c)
 	if err != nil {
 		log.Errorf(ctx, "%v Error: %v\n", c.Path(), err)
@@ -56,14 +68,18 @@ func TestAdminHandler(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
 
-	req, err = inst.NewRequest(echo.POST, "/admin/auths", strings.NewReader(""))
+	// POST /admin/orgs/:org_id/auths
+	path = "/admin/orgs/" + org.ID + "/auths"
+	req, err = inst.NewRequest(echo.POST, path, strings.NewReader(""))
 	assert.NoError(t, err)
 	rec = httptest.NewRecorder()
 	c = e.NewContext(req, rec)
-	c.SetPath("/admin/auths")
+	c.SetPath(path)
+	c.SetParamNames("org_id")
+	c.SetParamValues(org.ID)
 
 	test_utils.ExpectChange(t, ctx, "Auths", 1, func() {
-		f = withFlash(h.create)
+		f = h.WithOrg(h.create)
 		err = f(c)
 		if err != nil {
 			log.Errorf(ctx, "%v Error: %v\n", c.Path(), err)
@@ -72,14 +88,18 @@ func TestAdminHandler(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 	})
 
-	req, err = inst.NewRequest(echo.GET, "/admin/auths", nil)
+	// GET /admin/orgs/:org_id/auths
+	path = "/admin/orgs/" + org.ID + "/auths"
+	req, err = inst.NewRequest(echo.GET, path, nil)
 	assert.NoError(t, err)
 	ctx = appengine.NewContext(req)
 	rec = httptest.NewRecorder()
 	c = e.NewContext(req, rec)
-	c.SetPath("/admin/auths")
+	c.SetPath(path)
+	c.SetParamNames("org_id")
+	c.SetParamValues(org.ID)
 
-	f = withFlash(h.index)
+	f = h.WithOrg(h.index)
 	err = f(c)
 	if err != nil {
 		log.Errorf(ctx, "%v Error: %v\n", c.Path(), err)
@@ -92,17 +112,17 @@ func TestAdminHandler(t *testing.T) {
 	auth := auths[0]
 	assert.NotEmpty(t, auth.ID)
 
-	// disable
-	path := "/admin/auths/" + auth.ID + "/disable"
+	// POST /admin/orgs/:org_id/auths/:id/disable
+	path = "/admin/orgs/" + org.ID + "/auths/" + auth.ID + "/disable"
 	req, err = inst.NewRequest(echo.POST, path, strings.NewReader(""))
 	assert.NoError(t, err)
 	rec = httptest.NewRecorder()
 	c = e.NewContext(req, rec)
 	c.SetPath(path)
-	c.SetParamNames("id")
-	c.SetParamValues(auth.ID)
+	c.SetParamNames("org_id", "id")
+	c.SetParamValues(org.ID, auth.ID)
 
-	f = h.AuthHandler(h.disable)
+	f = h.Identified(h.disable)
 	err = f(c)
 	if err != nil {
 		log.Errorf(ctx, "%v Error: %v\n", c.Path(), err)
@@ -115,18 +135,18 @@ func TestAdminHandler(t *testing.T) {
 	assert.NoError(t, err)
 	assert.True(t, updated.Disabled)
 
-	// destroy
-	path = "/admin/auths/" + auth.ID + "/delete"
+	// POST /admin/orgs/:org_id/auths/:id/delete
+	path = "/admin/orgs/" + org.ID + "/auths/" + auth.ID + "/delete"
 	req, err = inst.NewRequest(echo.POST, path, strings.NewReader(""))
 	assert.NoError(t, err)
 	rec = httptest.NewRecorder()
 	c = e.NewContext(req, rec)
 	c.SetPath(path)
-	c.SetParamNames("id")
-	c.SetParamValues(auth.ID)
+	c.SetParamNames("org_id", "id")
+	c.SetParamValues(org.ID, auth.ID)
 
 	test_utils.ExpectChange(t, ctx, "Auths", -1, func() {
-		f = h.AuthHandler(h.destroy)
+		f = h.Identified(h.destroy)
 		err = f(c)
 		if err != nil {
 			log.Errorf(ctx, "%v Error: %v\n", c.Path(), err)

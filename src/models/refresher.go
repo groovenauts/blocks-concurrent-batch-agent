@@ -12,6 +12,12 @@ type Refresher struct {
 
 func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 	log.Debugf(ctx, "Refreshing pipeline %v\n", pl)
+	err := pl.LoadOrganization(ctx)
+	if err != nil {
+		log.Errorf(ctx, "Failed to load Organization for Pipeline: %v\npl: %v\n", err, pl)
+		return err
+	}
+
 	switch pl.Status {
 	case Deploying:
 		return b.UpdatePipelineWithStatus(ctx, pl, "deploying", pl.DeployingOperationName,

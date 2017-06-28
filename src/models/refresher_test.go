@@ -107,11 +107,18 @@ func TestRefresherProcessForDeploying(t *testing.T) {
 		},
 	}
 
+	org1 := &Organization{
+		Name: "org01",
+	}
+	err = org1.Create(ctx)
+	assert.NoError(t, err)
+
 	for _, expection := range expections {
 		pl := Pipeline{
-			Name:      "pipeline01",
-			ProjectID: proj,
-			Zone:      "us-central1-f",
+			Organization: org1,
+			Name:         "pipeline01",
+			ProjectID:    proj,
+			Zone:         "us-central1-f",
 			BootDisk: PipelineVmDisk{
 				SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
 			},
@@ -171,11 +178,18 @@ func TestRefresherProcessForClosing(t *testing.T) {
 		},
 	}
 
+	org1 := &Organization{
+		Name: "org01",
+	}
+	err = org1.Create(ctx)
+	assert.NoError(t, err)
+
 	for _, expection := range expections {
 		pl := Pipeline{
-			Name:      "pipeline01",
-			ProjectID: proj,
-			Zone:      "us-central1-f",
+			Organization: org1,
+			Name:         "pipeline01",
+			ProjectID:    proj,
+			Zone:         "us-central1-f",
 			BootDisk: PipelineVmDisk{
 				SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
 			},

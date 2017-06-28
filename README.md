@@ -42,9 +42,14 @@ $ make run
 ### Get Token on browser
 
 1. Open http://localhost:8080/_ah/login and login
-2. Open http://localhost:8080/admin/auths
-3. Click [Create new token]
-4. Copy the token shown
+2. Open http://localhost:8080/admin/orgs
+3. Click [New Organization]
+4. Enter your organization Name and click [Create]
+5. Reload the page unless your organization appears
+6. Click [Show] of your organization
+7. Click [Auth List]
+8. Click [Create new token]
+9. Copy the organization ID and the token
 
 ### Call API with curl
 
@@ -56,7 +61,7 @@ Make `pipeline.json` like this:
   "project_id":"proj-123",
   "zone":"us-central1-f",
   "boot_disk": {
-    "source_image":"https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+    "source_image":"https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable",
     "disk_type": "pd-ssd",
     "disk_size_gb": 30
   },
@@ -71,13 +76,14 @@ Make `pipeline.json` like this:
 ```
 
 ```
+$ ORG_ID="[the organization ID you got before]"
 $ TOKEN="[the token you got before]"
-$ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X POST http://localhost:8080/pipelines --data @pipeline.json
-$ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://localhost:8080/pipelines
+$ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X POST http://localhost:8080/orgs/$ORG_ID/pipelines --data @pipeline.json
+$ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://localhost:8080/orgs/$ORG_ID/pipelines
 ```
 
 ```
-$ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X DELETE http://localhost:8080/pipelines/$ID
+$ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X DELETE http://localhost:8080/orgs/$ORG_ID/pipelines/$ID
 ```
 
 ## Deploy to appengine
@@ -94,17 +100,24 @@ $ gcloud --project ${PROJECT} app services set-traffic concurrent-batch-agent --
 
 ### Get Token on browser
 
-2. Open http://<hostname>/admin/auths
-3. Click [Create new token]
-4. Copy the token shown
+`$AEHOST` means `the host name you deployed`
+
+1. Open http://$AEHOST/admin/orgs
+2. Click [New Organization]
+3. Enter your organization Name and click [Create]
+4. Reload the page unless your organization appears
+5. Click [Show] of your organization
+6. Click [Auth List]
+7. Click [Create new token]
+8. Copy the token shown
 
 ### New Pipeline data
 
-
 ```
+$ ORG_ID="[the organization ID you got before]"
 $ export TOKEN="[the token you got before]"
 $ export AEHOST="[the host name you deployed]"
-$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X POST http://$AEHOST/pipelines --data @pipeline.json
+$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X POST http://$AEHOST/orgs/$ORG_ID/pipelines --data @pipeline.json
 ```
 
 #### Temporary work around
@@ -117,7 +130,7 @@ $ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' 
 
 ### Show all Pipeline data
 
-$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://$AEHOST/pipelines
+$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://$AEHOST/orgs/$ORG_ID/pipelines
 
 ### Close and Delete data
 

@@ -12,12 +12,15 @@
 <p>Remember the following HTTP Header</p>
 
 <pre><code>
-Authorization: Bearer {{.Auth.Token}}
+Organization ID: {{.Organization.ID}}
+Token: {{.Auth.Token}}
 </code></pre>
 
 <pre><code>
-curl -H "Authorization: Bearer {{.Auth.Token}}" http://{{.Hostname}}/pipelines
+curl -H "Authorization: Bearer {{.Auth.Token}}" http://{{.Hostname}}/orgs/{{.Organization.ID}}/pipelines
 </code></pre>
 
-<a href="/admin/auths">Back to list</a>
+<div>
+  <a href="/admin/orgs/{{.Organization.ID}}/auths">Back to list</a>
+</div>
 {{end}}

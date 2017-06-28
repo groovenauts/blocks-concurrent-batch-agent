@@ -9,13 +9,15 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 type (
 	Auth struct {
-		ID                string `datastore:"-"`
-		Token             string `datastore:"-"`
-		Password          string `datastore:"-"`
+		ID                string        `datastore:"-"`
+		Organization      *Organization `datastore:"-" validate:"required"`
+		Token             string        `datastore:"-"`
+		Password          string        `datastore:"-"`
 		EncryptedPassword string
 		Disabled          bool
 		CreatedAt         time.Time
@@ -23,9 +25,24 @@ type (
 	}
 )
 
+func (m *Auth) Validate() error {
+	validator := validator.New()
+	err := validator.Struct(m)
+	return err
+}
+
 func (m *Auth) Create(ctx context.Context) error {
+	err := m.Validate()
+	if err != nil {
+		return err
+	}
 	m.generatePassword()
-	key := datastore.NewIncompleteKey(ctx, "Auths", nil)
+
+	orgKey, err := datastore.DecodeKey(m.Organization.ID)
+	if err != nil {
+		return err
+	}
+	key := datastore.NewIncompleteKey(ctx, "Auths", orgKey)
 	// Password is a string encoded by base64
 	enc_pw, err := bcrypt.GenerateFromPassword([]byte(m.Password), 10)
 	if err != nil {

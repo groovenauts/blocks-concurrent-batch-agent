@@ -9,7 +9,6 @@ import (
 	"models"
 
 	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/taskqueue"
@@ -31,20 +30,19 @@ func Setup(echo *echo.Echo) {
 	h := &handler{}
 	h.buildActions()
 
-	g := e.Group("/pipelines")
-	g.Use(middleware.CORS())
-
+	g := e.Group("/orgs/:org_id/pipelines")
 	g.GET("", h.Actions["index"])
 	g.POST("", h.Actions["create"])
 	g.GET("/subscriptions", h.Actions["subscriptions"])
 
+	g = e.Group("/pipelines")
 	g.GET("/:id", h.Actions["show"])
-	g.DELETE("/:id", h.Actions["destroy"])
 	// g.POST("/:id/build_task", h.Actions["build"])
-	g.POST("/:id/build_task", gae_support.With(h.withAuth(h.Identified(h.pipelineTask("build")))))
+	g.POST("/:id/build_task", gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.Identified(h.pipelineTask("build")))))))
 	g.PUT("/:id/close", h.Actions["close"])
 	// g.POST("/:id/close_task", h.Actions["close_task"])
-	g.POST("/:id/close_task", gae_support.With(h.withAuth(h.Identified(h.pipelineTask("close")))))
+	g.POST("/:id/close_task", gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.Identified(h.pipelineTask("close")))))))
+	g.DELETE("/:id", h.Actions["destroy"])
 
 	g.GET("/refresh", h.Actions["refresh"])
 	g.POST("/:id/refresh_task", h.Actions["refresh_task"])
@@ -52,18 +50,33 @@ func Setup(echo *echo.Echo) {
 
 func (h *handler) buildActions() {
 	h.Actions = map[string](func(c echo.Context) error){
-		"index":         gae_support.With(h.withAuth(h.index)),
-		"create":        gae_support.With(h.withAuth(h.create)),
-		"subscriptions": gae_support.With(h.withAuth(h.subscriptions)),
+		"index":         gae_support.With(h.withOrg(h.withAuth(h.index))),
+		"create":        gae_support.With(h.withOrg(h.withAuth(h.create))),
+		"subscriptions": gae_support.With(h.withOrg(h.withAuth(h.subscriptions))),
+		"show":          gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.Identified(h.show))))),
+		"close":         gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.Identified(h.close))))),
+		"destroy":       gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.Identified(h.destroy))))),
+		"refresh":       gae_support.With(h.refresh), // Don't use withAuth because this is called from cron
+		"refresh_task":  gae_support.With(h.Identified(h.pipelineTask("refresh"))),
+		// "build_task": gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.Identified(h.pipelineTask("build")))))),
+		// "close_task": gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.Identified(h.pipelineTask("close")))))),
+	}
+}
 
-		"show":    gae_support.With(h.withAuth(h.Identified(h.show))),
-		"destroy": gae_support.With(h.withAuth(h.Identified(h.destroy))),
-		// "build_task":    gae_support.With(h.withAuth(h.Identified(h.pipelineTask("build")))),
-		"close": gae_support.With(h.withAuth(h.Identified(h.callPipelineTask("close")))),
-		// "close_task":    gae_support.With(h.withAuth(h.Identified(h.pipelineTask("close")))),
-
-		"refresh":      gae_support.With(h.refresh), // Don't use withAuth because this is called from cron
-		"refresh_task": gae_support.With(h.Identified(h.pipelineTask("refresh"))),
+func (h *handler) withOrg(f func(c echo.Context) error) func(echo.Context) error {
+	return func(c echo.Context) error {
+		ctx := c.Get("aecontext").(context.Context)
+		org_id := c.Param("org_id")
+		org, err := models.GlobalOrganizationAccessor.Find(ctx, org_id)
+		if err == models.ErrNoSuchOrganization {
+			return c.JSON(http.StatusNotFound, map[string]string{"message": "No Organization found for " + org_id})
+		}
+		if err != nil {
+			log.Errorf(ctx, "Failed to find Organization id: %v because of %v\n", org_id, err)
+			return err
+		}
+		c.Set("organization", org)
+		return f(c)
 	}
 }
 
@@ -80,10 +93,21 @@ func (h *handler) withAuth(impl func(c echo.Context) error) func(c echo.Context)
 		if token == "" {
 			return c.JSON(http.StatusUnauthorized, map[string]string{"message": "Unauthorized"})
 		}
-		_, err := models.GlobalAuthAccessor.FindWithToken(ctx, token)
+		org := c.Get("organization").(*models.Organization)
+		_, err := org.AuthAccessor().FindWithToken(ctx, token)
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, map[string]string{"message": "Invalid token"})
 		}
+		return impl(c)
+	}
+}
+
+func (h *handler) PlToOrg(impl func(c echo.Context) error) func(c echo.Context) error {
+	return func(c echo.Context) error {
+		ctx := c.Get("aecontext").(context.Context)
+		pl := c.Get("pipeline").(*models.Pipeline)
+		pl.LoadOrganization(ctx)
+		c.Set("organization", pl.Organization)
 		return impl(c)
 	}
 }
@@ -92,7 +116,24 @@ func (h *handler) Identified(impl func(c echo.Context) error) func(c echo.Contex
 	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		id := c.Param("id")
-		pl, err := models.GlobalPipelineAccessor.Find(ctx, id)
+
+		var accessor *models.PipelineAccessor
+		obj := c.Get("organization")
+
+		if obj == nil {
+			accessor = models.GlobalPipelineAccessor
+		} else {
+			org, ok := c.Get("organization").(*models.Organization)
+			if ok {
+				accessor = org.PipelineAccessor()
+			} else {
+				msg := fmt.Sprintf("invalid organization: %v", obj)
+				log.Errorf(ctx, "Identified %s\n", msg)
+				panic(msg)
+			}
+		}
+
+		pl, err := accessor.Find(ctx, id)
 		switch {
 		case err == models.ErrNoSuchPipeline:
 			return c.JSON(http.StatusNotFound, map[string]string{"message": "Not found for " + id})
@@ -106,19 +147,17 @@ func (h *handler) Identified(impl func(c echo.Context) error) func(c echo.Contex
 }
 
 // curl -v -X PUT http://localhost:8080/pipelines/1/close
-func (h *handler) callPipelineTask(action string) func(c echo.Context) error {
-	return func(c echo.Context) error {
-		ctx := c.Get("aecontext").(context.Context)
-		pl := c.Get("pipeline").(*models.Pipeline)
-		id := c.Param("id")
-		req := c.Request()
-		t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/%s_task", id, action), map[string][]string{})
-		t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
-		if _, err := taskqueue.Add(ctx, t, ""); err != nil {
-			return err
-		}
-		return c.JSON(http.StatusCreated, pl)
+func (h *handler) close(c echo.Context) error {
+	ctx := c.Get("aecontext").(context.Context)
+	pl := c.Get("pipeline").(*models.Pipeline)
+	id := c.Param("id")
+	req := c.Request()
+	t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/close_task", id), map[string][]string{})
+	t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
+	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
+		return err
 	}
+	return c.JSON(http.StatusCreated, pl)
 }
 
 // curl -v -X POST http://localhost:8080/pipelines/1/build_task
@@ -136,7 +175,7 @@ func (h *handler) pipelineTask(action string) func(c echo.Context) error {
 	}
 }
 
-// curl -v -X POST http://localhost:8080/pipelines --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
+// curl -v -X POST http://localhost:8080/orgs/2/pipelines --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
 func (h *handler) create(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	req := c.Request()
@@ -146,6 +185,8 @@ func (h *handler) create(c echo.Context) error {
 		log.Errorf(ctx, "req: %v\n", req)
 		return err
 	}
+	org := c.Get("organization").(*models.Organization)
+	pl.Organization = org
 	err := pl.Create(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to create pipeline: %v\n%v\n", pl, err)
@@ -153,7 +194,7 @@ func (h *handler) create(c echo.Context) error {
 	}
 	log.Debugf(ctx, "Created pipeline: %v\n", pl)
 	if !pl.Dryrun {
-		t := taskqueue.NewPOSTTask("/pipelines/"+pl.ID+"/build_task", map[string][]string{})
+		t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/build_task", pl.ID), map[string][]string{})
 		t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
 		if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 			return err
@@ -162,20 +203,22 @@ func (h *handler) create(c echo.Context) error {
 	return c.JSON(http.StatusCreated, pl)
 }
 
-// curl -v http://localhost:8080/pipelines
+// curl -v http://localhost:8080/orgs/2/pipelines
 func (h *handler) index(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
-	pipelines, err := models.GlobalPipelineAccessor.GetAll(ctx)
+	org := c.Get("organization").(*models.Organization)
+	pipelines, err := org.PipelineAccessor().GetAll(ctx)
 	if err != nil {
 		return err
 	}
 	return c.JSON(http.StatusOK, pipelines)
 }
 
-// curl -v http://localhost:8080/pipelines/subscriptions
+// curl -v http://localhost:8080/orgs/2/pipelines/subscriptions
 func (h *handler) subscriptions(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
-	subscriptions, err := models.GlobalPipelineAccessor.GetActiveSubscriptions(ctx)
+	org := c.Get("organization").(*models.Organization)
+	subscriptions, err := org.PipelineAccessor().GetActiveSubscriptions(ctx)
 	if err != nil {
 		return err
 	}
@@ -211,17 +254,23 @@ func (h *handler) refresh(c echo.Context) error {
 	statuses := map[string]models.Status{"deploying": models.Deploying, "closing": models.Closing}
 	res := map[string][]string{}
 	for name, st := range statuses {
-		ids, err := models.GlobalPipelineAccessor.GetIDsByStatus(ctx, st)
+		orgs, err := models.GlobalOrganizationAccessor.All(ctx)
 		if err != nil {
 			return err
 		}
-		for _, id := range ids {
-			t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/refresh_task", id), map[string][]string{})
-			if _, err := taskqueue.Add(ctx, t, ""); err != nil {
+		for _, org := range orgs {
+			ids, err := org.PipelineAccessor().GetIDsByStatus(ctx, st)
+			if err != nil {
 				return err
 			}
+			for _, id := range ids {
+				t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/refresh_task", id), map[string][]string{})
+				if _, err := taskqueue.Add(ctx, t, ""); err != nil {
+					return err
+				}
+			}
+			res[org.Name+"-"+name] = ids
 		}
-		res[name] = ids
 	}
 	return c.JSON(http.StatusOK, res)
 }
