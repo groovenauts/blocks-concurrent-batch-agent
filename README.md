@@ -152,7 +152,7 @@ And publish (or reserve publishing) the job to the pipeline.
 
 ```
 $ export ID="[id of the pipeline]"
-$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X PUT http://$AEHOST/pipelines/$ID/jobs --data @job.json
+$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X POST http://$AEHOST/pipelines/$ID/jobs --data @job.json
 ```
 
 
