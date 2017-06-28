@@ -129,7 +129,7 @@ func TestPipelineJobHandlerActions(t *testing.T) {
 	assert.NoError(t, err)
 
 	obj1 := map[string]interface{}{
-		"id_by_client": pl1.Name + `-job-new1"`,
+		"id_by_client": pl1.Name + `-job-new1`,
 		"message": map[string]interface{}{
 			"attributes": map[string]string{
 				"download_files": string(download_files_json),
@@ -160,6 +160,21 @@ func TestPipelineJobHandlerActions(t *testing.T) {
 	if assert.NoError(t, json.Unmarshal([]byte(s), &pj)) {
 		assert.NotNil(t, pj.ID)
 	}
+
+	var pjRes map[string]interface{}
+	assert.NoError(t, json.Unmarshal([]byte(s), &pjRes))
+	assert.Equal(t, map[string]interface{}{
+		"id": pj.ID,
+		"id_by_client": "pipeline1-job-new1",
+		"status": float64(0),
+		"message": map[string]interface{}{
+			"attributes": map[string]interface{}{
+				"download_files": `["gcs://bucket1/path/to/file1"]`,
+			},
+			"data": "",
+		},
+		"message_id":"",
+	}, pjRes)
 
 	// Test for invalid POST
 	invalidAttrsPatterns := []interface{}{
