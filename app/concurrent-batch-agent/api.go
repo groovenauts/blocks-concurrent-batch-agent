@@ -5,5 +5,5 @@ import (
 )
 
 func init() {
-	api.Setup(e)
+	api.SetupRoutes(e)
 }

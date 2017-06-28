@@ -3,7 +3,6 @@ package api
 import (
 	"fmt"
 	"net/http"
-	"regexp"
 
 	"gae_support"
 	"models"
@@ -14,56 +13,26 @@ import (
 	"google.golang.org/appengine/taskqueue"
 )
 
-type handler struct {
+type PipelineHandler struct {
 	Actions map[string](func(c echo.Context) error)
 }
 
-var e *echo.Echo
-
-const (
-	AUTH_HEADER = "Authorization"
-)
-
-func Setup(echo *echo.Echo) {
-	e = echo
-
-	h := &handler{}
-	h.buildActions()
-
-	g := e.Group("/orgs/:org_id/pipelines")
-	g.GET("", h.Actions["index"])
-	g.POST("", h.Actions["create"])
-	g.GET("/subscriptions", h.Actions["subscriptions"])
-
-	g = e.Group("/pipelines")
-	g.GET("/:id", h.Actions["show"])
-	// g.POST("/:id/build_task", h.Actions["build"])
-	g.POST("/:id/build_task", gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.Identified(h.pipelineTask("build")))))))
-	g.PUT("/:id/close", h.Actions["close"])
-	// g.POST("/:id/close_task", h.Actions["close_task"])
-	g.POST("/:id/close_task", gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.Identified(h.pipelineTask("close")))))))
-	g.DELETE("/:id", h.Actions["destroy"])
-
-	g.GET("/refresh", h.Actions["refresh"])
-	g.POST("/:id/refresh_task", h.Actions["refresh_task"])
-}
-
-func (h *handler) buildActions() {
+func (h *PipelineHandler) buildActions() {
 	h.Actions = map[string](func(c echo.Context) error){
-		"index":         gae_support.With(h.withOrg(h.withAuth(h.index))),
-		"create":        gae_support.With(h.withOrg(h.withAuth(h.create))),
-		"subscriptions": gae_support.With(h.withOrg(h.withAuth(h.subscriptions))),
-		"show":          gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.Identified(h.show))))),
-		"close":         gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.Identified(h.close))))),
-		"destroy":       gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.Identified(h.destroy))))),
+		"index":         gae_support.With(h.withOrg(withAuth(h.index))),
+		"create":        gae_support.With(h.withOrg(withAuth(h.create))),
+		"subscriptions": gae_support.With(h.withOrg(withAuth(h.subscriptions))),
+		"show":          gae_support.With(h.Identified(h.PlToOrg(withAuth(h.Identified(h.show))))),
+		"close":         gae_support.With(h.Identified(h.PlToOrg(withAuth(h.Identified(h.close))))),
+		"destroy":       gae_support.With(h.Identified(h.PlToOrg(withAuth(h.Identified(h.destroy))))),
 		"refresh":       gae_support.With(h.refresh), // Don't use withAuth because this is called from cron
 		"refresh_task":  gae_support.With(h.Identified(h.pipelineTask("refresh"))),
-		// "build_task": gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.Identified(h.pipelineTask("build")))))),
-		// "close_task": gae_support.With(h.Identified(h.PlToOrg(h.withAuth(h.Identified(h.pipelineTask("close")))))),
+		// "build_task": gae_support.With(h.Identified(h.PlToOrg(withAuth(h.Identified(h.pipelineTask("build")))))),
+		// "close_task": gae_support.With(h.Identified(h.PlToOrg(withAuth(h.Identified(h.pipelineTask("close")))))),
 	}
 }
 
-func (h *handler) withOrg(f func(c echo.Context) error) func(echo.Context) error {
+func (h *PipelineHandler) withOrg(f func(c echo.Context) error) func(echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		org_id := c.Param("org_id")
@@ -80,29 +49,7 @@ func (h *handler) withOrg(f func(c echo.Context) error) func(echo.Context) error
 	}
 }
 
-func (h *handler) withAuth(impl func(c echo.Context) error) func(c echo.Context) error {
-	return func(c echo.Context) error {
-		ctx := c.Get("aecontext").(context.Context)
-		req := c.Request()
-		raw := req.Header.Get(AUTH_HEADER)
-		if raw == "" {
-			return c.JSON(http.StatusUnauthorized, map[string]string{"message": "Unauthorized"})
-		}
-		re := regexp.MustCompile(`\ABearer\s+`)
-		token := re.ReplaceAllString(raw, "")
-		if token == "" {
-			return c.JSON(http.StatusUnauthorized, map[string]string{"message": "Unauthorized"})
-		}
-		org := c.Get("organization").(*models.Organization)
-		_, err := org.AuthAccessor().FindWithToken(ctx, token)
-		if err != nil {
-			return c.JSON(http.StatusUnauthorized, map[string]string{"message": "Invalid token"})
-		}
-		return impl(c)
-	}
-}
-
-func (h *handler) PlToOrg(impl func(c echo.Context) error) func(c echo.Context) error {
+func (h *PipelineHandler) PlToOrg(impl func(c echo.Context) error) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		pl := c.Get("pipeline").(*models.Pipeline)
@@ -112,7 +59,7 @@ func (h *handler) PlToOrg(impl func(c echo.Context) error) func(c echo.Context) 
 	}
 }
 
-func (h *handler) Identified(impl func(c echo.Context) error) func(c echo.Context) error {
+func (h *PipelineHandler) Identified(impl func(c echo.Context) error) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		id := c.Param("id")
@@ -147,7 +94,7 @@ func (h *handler) Identified(impl func(c echo.Context) error) func(c echo.Contex
 }
 
 // curl -v -X PUT http://localhost:8080/pipelines/1/close
-func (h *handler) close(c echo.Context) error {
+func (h *PipelineHandler) close(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
 	id := c.Param("id")
@@ -163,7 +110,7 @@ func (h *handler) close(c echo.Context) error {
 // curl -v -X POST http://localhost:8080/pipelines/1/build_task
 // curl -v -X	POST http://localhost:8080/pipelines/1/close_task
 // curl -v -X	POST http://localhost:8080/pipelines/1/refresh_task
-func (h *handler) pipelineTask(action string) func(c echo.Context) error {
+func (h *PipelineHandler) pipelineTask(action string) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		pl := c.Get("pipeline").(*models.Pipeline)
@@ -176,7 +123,7 @@ func (h *handler) pipelineTask(action string) func(c echo.Context) error {
 }
 
 // curl -v -X POST http://localhost:8080/orgs/2/pipelines --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
-func (h *handler) create(c echo.Context) error {
+func (h *PipelineHandler) create(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	req := c.Request()
 	pl := &models.Pipeline{}
@@ -204,7 +151,7 @@ func (h *handler) create(c echo.Context) error {
 }
 
 // curl -v http://localhost:8080/orgs/2/pipelines
-func (h *handler) index(c echo.Context) error {
+func (h *PipelineHandler) index(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	org := c.Get("organization").(*models.Organization)
 	pipelines, err := org.PipelineAccessor().GetAll(ctx)
@@ -215,7 +162,7 @@ func (h *handler) index(c echo.Context) error {
 }
 
 // curl -v http://localhost:8080/orgs/2/pipelines/subscriptions
-func (h *handler) subscriptions(c echo.Context) error {
+func (h *PipelineHandler) subscriptions(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	org := c.Get("organization").(*models.Organization)
 	subscriptions, err := org.PipelineAccessor().GetActiveSubscriptions(ctx)
@@ -226,13 +173,13 @@ func (h *handler) subscriptions(c echo.Context) error {
 }
 
 // curl -v http://localhost:8080/pipelines/1
-func (h *handler) show(c echo.Context) error {
+func (h *PipelineHandler) show(c echo.Context) error {
 	pl := c.Get("pipeline").(*models.Pipeline)
 	return c.JSON(http.StatusOK, pl)
 }
 
 // curl -v -X DELETE http://localhost:8080/pipelines/1
-func (h *handler) destroy(c echo.Context) error {
+func (h *PipelineHandler) destroy(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
 	if err := pl.Destroy(ctx); err != nil {
@@ -249,7 +196,7 @@ func (h *handler) destroy(c echo.Context) error {
 
 // This is called from cron
 // curl -v -X PUT http://localhost:8080/pipelines/refresh
-func (h *handler) refresh(c echo.Context) error {
+func (h *PipelineHandler) refresh(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	statuses := map[string]models.Status{"deploying": models.Deploying, "closing": models.Closing}
 	res := map[string][]string{}

@@ -19,7 +19,7 @@ import (
 )
 
 func TestAdminHandler(t *testing.T) {
-	handlers := Setup(echo.New(), "../../app/concurrent-batch-agent/admin/views")
+	handlers := SetupRoutes(echo.New(), "../../app/concurrent-batch-agent/admin/views")
 	h, ok := handlers["auths"].(*AuthHandler)
 	assert.True(t, ok)
 
