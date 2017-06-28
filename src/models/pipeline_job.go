@@ -36,7 +36,7 @@ type (
 	}
 )
 
-func (m PipelineJobMessage) MapToEntries() {
+func (m *PipelineJobMessage) MapToEntries() {
 	entries := []KeyValuePair{}
 	for k, v := range m.AttributeMap {
 		entries = append(entries, KeyValuePair{Name: k, Value: v})
@@ -44,7 +44,7 @@ func (m PipelineJobMessage) MapToEntries() {
 	m.AttributeEntries = entries
 }
 
-func (m PipelineJobMessage) EntriesToMap() {
+func (m *PipelineJobMessage) EntriesToMap() {
 	kv := map[string]string{}
 	for _, entry := range m.AttributeEntries {
 		kv[entry.Name] = entry.Value
@@ -73,9 +73,14 @@ func (m *PipelineJob) Validate() error {
 }
 
 func (m *PipelineJob) Create(ctx context.Context) error {
+	log.Debugf(ctx, "PipelineJob#Create: %v\n", m)
+
 	if len(m.Message.AttributeEntries) == 0 {
-		m.Message.MapToEntries()
+		msg := &m.Message
+		msg.MapToEntries()
 	}
+
+	log.Debugf(ctx, "PipelineJob#Create: %v\n", m)
 
 	err := m.Validate()
 	if err != nil {
@@ -98,7 +103,8 @@ func (m *PipelineJob) Create(ctx context.Context) error {
 
 func (m *PipelineJob) Update(ctx context.Context) error {
 	if len(m.Message.AttributeEntries) == 0 {
-		m.Message.MapToEntries()
+		msg := &m.Message
+		msg.MapToEntries()
 	}
 
 	err := m.Validate()
@@ -151,7 +157,8 @@ func (m *PipelineJob) LoadPipeline(ctx context.Context) error {
 
 func (m *PipelineJob) JobMessage() *pubsub.PubsubMessage {
 	if len(m.Message.AttributeMap) == 0 {
-		m.Message.EntriesToMap()
+		msg := &m.Message
+		msg.EntriesToMap()
 	}
 	return &pubsub.PubsubMessage{
 		Attributes: m.Message.AttributeMap,

@@ -117,6 +117,13 @@ func TestPipelineJobCRUD(t *testing.T) {
 
 		assert.Equal(t, Waiting, pj.Status)
 		assert.Equal(t, 0, len(dummyPublisher.Invocations))
+
+		saved, err := GlobalPipelineJobAccessor.Find(ctx, pj.ID)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(saved.Message.AttributeEntries))
+		entry1 := saved.Message.AttributeEntries[0]
+		assert.Equal(t, "download_files", entry1.Name)
+		assert.Equal(t, string(download_files_json), entry1.Value)
 	}
 
 	// Publish Job Message soon when the pipeline is Opened

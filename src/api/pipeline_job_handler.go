@@ -82,8 +82,6 @@ func (h *PipelineJobHandler) WaitAndPublish(c echo.Context) error {
 	pj := c.Get("pipeline_job").(*models.PipelineJob)
 	pj.Status = models.Publishing
 	log.Debugf(ctx, "PublishAndUpdate#1: %v\n", pj)
-	pj.Message.EntriesToMap()
-	log.Debugf(ctx, "PublishAndUpdate#2: %v\n", pj)
 	err = pj.Update(ctx)
 	if err != nil {
 		return err
