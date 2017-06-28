@@ -73,8 +73,6 @@ func (m *PipelineJob) Validate() error {
 }
 
 func (m *PipelineJob) Create(ctx context.Context) error {
-	log.Debugf(ctx, "===========================================\nCreating PipelineJob\n%v\n", m)
-
 	if len(m.Message.AttributeEntries) == 0 {
 		m.Message.MapToEntries()
 	}
@@ -99,6 +97,10 @@ func (m *PipelineJob) Create(ctx context.Context) error {
 }
 
 func (m *PipelineJob) Update(ctx context.Context) error {
+	if len(m.Message.AttributeEntries) == 0 {
+		m.Message.MapToEntries()
+	}
+
 	err := m.Validate()
 	if err != nil {
 		return err
