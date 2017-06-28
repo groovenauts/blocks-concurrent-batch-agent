@@ -68,7 +68,9 @@ func TestPipelineJobHandlerActions(t *testing.T) {
 				IdByClient: fmt.Sprintf("%v-job-%v", pipelineName, i),
 				Status:     models.Published,
 				Message: models.PipelineJobMessage{
-					AttributesJson: fmt.Sprintf(`{"foo":"%v"}`, i),
+					AttributeMap: map[string]string{
+						"foo": fmt.Sprintf("%v", i),
+					},
 				},
 			}
 			err = job.Create(ctx)
@@ -122,15 +124,16 @@ func TestPipelineJobHandlerActions(t *testing.T) {
 	token := "Bearer " + auth.Token
 
 	// Test for create
-	attrs := map[string]string{
-		"download_files": "gcs://bucket1/path/to/file1",
-	}
-	attrs_json, err := json.Marshal(attrs)
+	download_files := []string{"gcs://bucket1/path/to/file1"}
+	download_files_json, err := json.Marshal(download_files)
 	assert.NoError(t, err)
+
 	obj1 := map[string]interface{}{
 		"id_by_client": pl1.Name + `-job-new1"`,
-		"message": map[string]string{
-			"attributes_json": string(attrs_json),
+		"message": map[string]interface{}{
+			"attributes": map[string]string{
+				"download_files": string(download_files_json),
+			},
 		},
 	}
 
@@ -156,6 +159,42 @@ func TestPipelineJobHandlerActions(t *testing.T) {
 	pj.Pipeline = pl1
 	if assert.NoError(t, json.Unmarshal([]byte(s), &pj)) {
 		assert.NotNil(t, pj.ID)
+	}
+
+	// Test for invalid POST
+	invalidAttrsPatterns := []interface{}{
+		"VALID JSON String",
+		[]string{"VALID JSON String Array"},
+		map[string]int{"VALID JSON String to Integer": 1000},
+	}
+	for _, ptn := range invalidAttrsPatterns {
+		obj := map[string]interface{}{
+			"id_by_client": pl1.Name + `-job-new1"`,
+			"message": map[string]interface{}{
+				"attributes": ptn,
+			},
+		}
+
+		json2, err := json.Marshal(obj)
+		assert.NoError(t, err)
+
+		req, err = inst.NewRequest(echo.POST, "/pipelines/"+pl1.ID+"/jobs", strings.NewReader(string(json2)))
+		assert.NoError(t, err)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		req.Header.Set(auth_header, token)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetPath("/pipelines/" + pl1.ID + "/jobs")
+		c.SetParamNames("pipeline_id")
+		c.SetParamValues(pl1.ID)
+
+		assert.NoError(t, actions["create"](c))
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
+
+		var res map[string]interface{}
+		s := rec.Body.String()
+		assert.NoError(t, json.Unmarshal([]byte(s), &res))
+		assert.NotEmpty(t, res["error"])
 	}
 
 	// Test for show

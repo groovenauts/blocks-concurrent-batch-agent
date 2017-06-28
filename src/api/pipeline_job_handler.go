@@ -33,7 +33,7 @@ func (h *PipelineJobHandler) create(c echo.Context) error {
 	if err := c.Bind(pj); err != nil {
 		log.Errorf(ctx, "err: %v\n", err)
 		log.Errorf(ctx, "req: %v\n", req)
-		return err
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 	}
 	pl := c.Get("pipeline").(*models.Pipeline)
 	pj.Pipeline = pl
