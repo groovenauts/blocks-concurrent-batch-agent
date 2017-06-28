@@ -148,6 +148,9 @@ func (m *PipelineJob) LoadPipeline(ctx context.Context) error {
 }
 
 func (m *PipelineJob) JobMessage() *pubsub.PubsubMessage {
+	if len(m.Message.AttributeEntries) == 0 {
+		m.Message.MapToEntries()
+	}
 	return &pubsub.PubsubMessage{
 		Attributes: m.Message.AttributeMap,
 		Data:       base64.StdEncoding.EncodeToString([]byte(m.Message.Data)),
@@ -155,11 +158,15 @@ func (m *PipelineJob) JobMessage() *pubsub.PubsubMessage {
 }
 
 func (m *PipelineJob) Publish(ctx context.Context) (string, error) {
+	msg := m.JobMessage()
+	topic := m.Pipeline.JobTopicFqn()
+	log.Debugf(ctx, "Sending message to %v: %v\n", topic, msg)
+
 	req := &pubsub.PublishRequest{
-		Messages: []*pubsub.PubsubMessage{m.JobMessage()},
+		Messages: []*pubsub.PubsubMessage{msg},
 	}
 
-	msgId, err := GlobalPublisher.Publish(ctx, m.Pipeline.JobTopicFqn(), req)
+	msgId, err := GlobalPublisher.Publish(ctx, topic, req)
 	if err != nil {
 		return "", err
 	}
