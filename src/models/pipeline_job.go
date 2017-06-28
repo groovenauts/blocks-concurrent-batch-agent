@@ -148,7 +148,7 @@ func (m *PipelineJob) LoadPipeline(ctx context.Context) error {
 }
 
 func (m *PipelineJob) JobMessage() *pubsub.PubsubMessage {
-	if len(m.Message.AttributeEntries) == 0 {
+	if len(m.Message.AttributeMap) == 0 {
 		m.Message.EntriesToMap()
 	}
 	return &pubsub.PubsubMessage{
