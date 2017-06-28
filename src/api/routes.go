@@ -40,7 +40,8 @@ func SetupRoutes(echo *echo.Echo) map[string]interface{} {
 
 	g = e.Group("/jobs")
 	g.GET("/:id", pjActions["show"])
-	g.POST("/:id/publish", pjActions["publish"])
+	// g.POST("/:id/publish", pjActions["publish"])
+	g.POST("/:id/publish", gae_support.With(pjBy("id", PjToPl(PlToOrg(withAuth(pjh.WaitAndPublish))))))
 
 	return map[string]interface{}{
 		"pipelines":     h,
