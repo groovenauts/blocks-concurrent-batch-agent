@@ -65,6 +65,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 
 	org1 := &Organization{
 		Name: "org01",
+		TokenAmount: 10,
 	}
 	err = org1.Create(ctx)
 	assert.NoError(t, err)
@@ -83,6 +84,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 		ContainerSize: 2,
 		ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
 		Command:       "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
+		TokenConsumption: 2,
 	}
 	err = pl.Create(ctx)
 	assert.NoError(t, err)
@@ -98,6 +100,11 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	pl3, err := GlobalPipelineAccessor.Find(ctx, pl.ID)
 	assert.NoError(t, err)
 	ExpectToHaveProps(t, pl3)
+
+	// org1.TokenAmount got reduced
+	orgReloaded, err := GlobalOrganizationAccessor.Find(ctx, org1.ID)
+	assert.NoError(t, err)
+	assert.Equal(t, org1.TokenAmount - pl.TokenConsumption, orgReloaded.TokenAmount)
 
 	// Update status
 	pl.Status = Building
@@ -206,6 +213,7 @@ func TestGetActiveSubscriptions(t *testing.T) {
 
 	org1 := &Organization{
 		Name: "org01",
+		TokenAmount: 20,
 	}
 	err = org1.Create(ctx)
 	assert.NoError(t, err)
@@ -225,6 +233,7 @@ func TestGetActiveSubscriptions(t *testing.T) {
 			ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
 			Command:       "",
 			Status:        st,
+			TokenConsumption: 2,
 		}
 		assert.NoError(t, pl.Create(ctx))
 		pipelines[st] = pl

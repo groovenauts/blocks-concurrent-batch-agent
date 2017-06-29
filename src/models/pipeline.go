@@ -89,6 +89,7 @@ type (
 		DeployingErrors        []DeploymentError `json:"deploying_errors"`
 		ClosingOperationName   string            `json:"closing_operation_name"`
 		ClosingErrors          []DeploymentError `json:"closing_errors"`
+		TokenConsumption       int               `json:"token_consumption"`
 	}
 )
 
@@ -109,12 +110,37 @@ func (m *Pipeline) Create(ctx context.Context) error {
 		return err
 	}
 
-	key := datastore.NewIncompleteKey(ctx, "Pipelines", parentKey)
-	res, err := datastore.Put(ctx, key, m)
+	err = datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+		org, err := GlobalOrganizationAccessor.Find(ctx, m.Organization.ID)
+		if err != nil {
+			return err
+		}
+		newAmount := org.TokenAmount - m.TokenConsumption
+		if newAmount < 0 {
+			msg := fmt.Sprintf("Insufficient tokens; %v has only %v tokens but %v required %v tokens", org.Name, org.TokenAmount, m.Name, m.TokenConsumption)
+			return &InvalidOperation{Msg: msg}
+		}
+		org.TokenAmount = newAmount
+		err = org.Update(ctx)
+		if err != nil {
+			return err
+		}
+
+		key := datastore.NewIncompleteKey(ctx, "Pipelines", parentKey)
+		res, err := datastore.Put(ctx, key, m)
+		if err != nil {
+			return err
+		}
+		m.ID = res.Encode()
+
+		return nil
+	}, nil)
+
 	if err != nil {
+		log.Errorf(ctx, "Transaction failed: %v\n", err)
 		return err
 	}
-	m.ID = res.Encode()
+
 	return nil
 }
 
