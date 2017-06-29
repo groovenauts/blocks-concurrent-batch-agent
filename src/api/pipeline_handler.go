@@ -150,7 +150,11 @@ func (h *PipelineHandler) refresh(c echo.Context) error {
 func (h *PipelineHandler) buildTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
-	err := pl.Process(ctx, "build")
+	builder, err := models.NewBuilder(ctx)
+	if err != nil {
+		return err
+	}
+	err = builder.Process(ctx, pl)
 	if err != nil {
 		return err
 	}
@@ -161,7 +165,11 @@ func (h *PipelineHandler) buildTask(c echo.Context) error {
 func (h *PipelineHandler) closeTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
-	err := pl.Process(ctx, "close")
+	closer, err := models.NewCloser(ctx)
+	if err != nil {
+		return err
+	}
+	err = closer.Process(ctx, pl)
 	if err != nil {
 		return err
 	}
@@ -172,7 +180,11 @@ func (h *PipelineHandler) closeTask(c echo.Context) error {
 func (h *PipelineHandler) refreshTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
-	err := pl.Process(ctx, "refresh")
+	refresher, err := models.NewRefresher(ctx)
+	if err != nil {
+		return err
+	}
+	err = refresher.Process(ctx, pl)
 	if err != nil {
 		return err
 	}

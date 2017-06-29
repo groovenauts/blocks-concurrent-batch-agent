@@ -206,26 +206,6 @@ func (m *Pipeline) Update(ctx context.Context) error {
 	return nil
 }
 
-func (m *Pipeline) Process(ctx context.Context, action string) error {
-	var processor Processor
-	var err error
-	switch action {
-	case "build":
-		processor, err = NewBuilder(ctx)
-	case "close":
-		processor, err = NewCloser(ctx)
-	case "refresh":
-		processor, err = NewRefresher(ctx)
-	default:
-		return fmt.Errorf("Unknown processor action: %v\n", action)
-	}
-
-	if err != nil {
-		return err
-	}
-	return processor.Process(ctx, m)
-}
-
 func (m *Pipeline) CompleteClosing(ctx context.Context) error {
 	err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
 		org, err := GlobalOrganizationAccessor.Find(ctx, m.Organization.ID)
