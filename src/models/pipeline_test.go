@@ -88,6 +88,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	}
 	err = pl.Create(ctx)
 	assert.NoError(t, err)
+	assert.NotEmpty(t, pl.ID)
 	key, err := datastore.DecodeKey(pl.ID)
 	assert.NoError(t, err)
 
@@ -105,6 +106,27 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	orgReloaded, err := GlobalOrganizationAccessor.Find(ctx, org1.ID)
 	assert.NoError(t, err)
 	assert.Equal(t, org1.TokenAmount - pl.TokenConsumption, orgReloaded.TokenAmount)
+	assert.Equal(t, Initialized, pl.Status)
+
+
+	pendingPl := &Pipeline{
+		Organization: org1,
+		Name:         "pipeline01",
+		ProjectID:    proj,
+		Zone:         "us-central1-f",
+		BootDisk: PipelineVmDisk{
+			SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+		},
+		MachineType:   "f1-micro",
+		TargetSize:    2,
+		ContainerSize: 2,
+		ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
+		Command:       "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
+		TokenConsumption: org1.TokenAmount - pl.TokenConsumption + 1,
+	}
+	err = pendingPl.Create(ctx)
+	assert.NoError(t, err)
+	assert.Equal(t, Pending, pendingPl.Status)
 
 	// Update status
 	pl.Status = Building
@@ -114,10 +136,17 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	// GetAllPipeline
 	pls, err := GlobalPipelineAccessor.GetAll(ctx)
 	assert.NoError(t, err)
-	if len(pls) != 1 {
-		t.Fatalf("len(pls) expects %v but was %v\n", 1, len(pls))
+	if len(pls) != 2 {
+		t.Fatalf("len(pls) expects %v but was %v\n", 2, len(pls))
 	}
-	ExpectToHaveProps(t, pls[0])
+	var pls0 *Pipeline
+	for _, i := range pls {
+		if i.Status == Initialized {
+			pls0 = i
+		}
+	}
+	assert.NotNil(t, pls0)
+	ExpectToHaveProps(t, pls0)
 
 	// Update status
 	pl.Status = Opened
@@ -178,6 +207,7 @@ func TestStatusTypeAndValue(t *testing.T) {
 	st := "models.Status"
 	assert.Equal(t, st, fmt.Sprintf(ft, Initialized))
 	assert.Equal(t, st, fmt.Sprintf(ft, Broken))
+	assert.Equal(t, st, fmt.Sprintf(ft, Pending))
 	assert.Equal(t, st, fmt.Sprintf(ft, Building))
 	assert.Equal(t, st, fmt.Sprintf(ft, Deploying))
 	assert.Equal(t, st, fmt.Sprintf(ft, Opened))
@@ -187,12 +217,13 @@ func TestStatusTypeAndValue(t *testing.T) {
 
 	assert.Equal(t, "0", fmt.Sprintf(fv, Initialized))
 	assert.Equal(t, "1", fmt.Sprintf(fv, Broken))
-	assert.Equal(t, "2", fmt.Sprintf(fv, Building))
-	assert.Equal(t, "3", fmt.Sprintf(fv, Deploying))
-	assert.Equal(t, "4", fmt.Sprintf(fv, Opened))
-	assert.Equal(t, "5", fmt.Sprintf(fv, Closing))
-	assert.Equal(t, "6", fmt.Sprintf(fv, Closing_error))
-	assert.Equal(t, "7", fmt.Sprintf(fv, Closed))
+	assert.Equal(t, "2", fmt.Sprintf(fv, Pending))
+	assert.Equal(t, "3", fmt.Sprintf(fv, Building))
+	assert.Equal(t, "4", fmt.Sprintf(fv, Deploying))
+	assert.Equal(t, "5", fmt.Sprintf(fv, Opened))
+	assert.Equal(t, "6", fmt.Sprintf(fv, Closing))
+	assert.Equal(t, "7", fmt.Sprintf(fv, Closing_error))
+	assert.Equal(t, "8", fmt.Sprintf(fv, Closed))
 }
 
 func TestGetActiveSubscriptions(t *testing.T) {

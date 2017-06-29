@@ -18,6 +18,7 @@ type Status int
 const (
 	Initialized Status = iota
 	Broken
+	Pending
 	Building
 	Deploying
 	Opened
@@ -29,6 +30,7 @@ const (
 var StatusStrings = map[Status]string{
 	Initialized:   "initialized",
 	Broken:        "broken",
+	Pending:       "pending",
 	Building:      "building",
 	Deploying:     "deploying",
 	Opened:        "opened",
@@ -117,13 +119,14 @@ func (m *Pipeline) Create(ctx context.Context) error {
 		}
 		newAmount := org.TokenAmount - m.TokenConsumption
 		if newAmount < 0 {
-			msg := fmt.Sprintf("Insufficient tokens; %v has only %v tokens but %v required %v tokens", org.Name, org.TokenAmount, m.Name, m.TokenConsumption)
-			return &InvalidOperation{Msg: msg}
-		}
-		org.TokenAmount = newAmount
-		err = org.Update(ctx)
-		if err != nil {
-			return err
+			log.Warningf(ctx, "Insufficient tokens; %v has only %v tokens but %v required %v tokens", org.Name, org.TokenAmount, m.Name, m.TokenConsumption)
+			m.Status = Pending
+		} else {
+			org.TokenAmount = newAmount
+			err = org.Update(ctx)
+			if err != nil {
+				return err
+			}
 		}
 
 		key := datastore.NewIncompleteKey(ctx, "Pipelines", parentKey)
