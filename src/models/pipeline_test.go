@@ -305,7 +305,7 @@ func TestGetPendingPipelines(t *testing.T) {
 
 	now := time.Now()
 	for i := 1; i < 6; i++ {
-		theTime := now.Add(10 * time.Minute)
+		theTime := now.Add( time.Duration(-1 * (6 - i) * 10) * time.Minute)
 		pl := &Pipeline{
 			Organization: org1,
 			Name:         fmt.Sprintf("pipeline-%v", i),
@@ -339,7 +339,7 @@ func TestGetPendingPipelines(t *testing.T) {
 	assert.Equal(t, Pending, pipelines[3].Status)
 	assert.Equal(t, Pending, pipelines[4].Status)
 	
-	res, err := GlobalPipelineAccessor.GetPendings(ctx)
+	res, err := org1.PipelineAccessor().GetPendings(ctx)
 	assert.NoError(t, err)
 	assert.Equal(t, 3, len(res))
 
