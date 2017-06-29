@@ -179,7 +179,7 @@ func TestRefresherProcessForClosing(t *testing.T) {
 	}
 
 	org1 := &Organization{
-		Name: "org01",
+		Name:        "org01",
 		TokenAmount: 10,
 	}
 	err = org1.Create(ctx)
@@ -194,13 +194,13 @@ func TestRefresherProcessForClosing(t *testing.T) {
 			BootDisk: PipelineVmDisk{
 				SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
 			},
-			MachineType:    "f1-micro",
-			TargetSize:     2,
-			ContainerSize:  2,
-			ContainerName:  "groovenauts/batch_type_iot_example:0.3.1",
-			Command:        "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
-			DeploymentName: "pipeline01",
-			Status:         Closing,
+			MachineType:      "f1-micro",
+			TargetSize:       2,
+			ContainerSize:    2,
+			ContainerName:    "groovenauts/batch_type_iot_example:0.3.1",
+			Command:          "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
+			DeploymentName:   "pipeline01",
+			Status:           Closing,
 			TokenConsumption: 0,
 		}
 		err = pl.Create(ctx)
@@ -226,7 +226,7 @@ func TestRefresherProcessForClosing(t *testing.T) {
 
 		switch expection.status {
 		case Closed:
-			assert.Equal(t, orgBefore.TokenAmount + pl.TokenConsumption, orgAfter.TokenAmount)
+			assert.Equal(t, orgBefore.TokenAmount+pl.TokenConsumption, orgAfter.TokenAmount)
 		default:
 			assert.Equal(t, orgBefore.TokenAmount, orgAfter.TokenAmount)
 		}

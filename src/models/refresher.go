@@ -53,7 +53,7 @@ func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 	}
 }
 
-func (b *Refresher) UpdatePipelineWithStatus(ctx context.Context, pl *Pipeline, status, ope_name string, handler func(*[]DeploymentError, string)error) error {
+func (b *Refresher) UpdatePipelineWithStatus(ctx context.Context, pl *Pipeline, status, ope_name string, handler func(*[]DeploymentError, string) error) error {
 	// See the "Examples" below "Response"
 	//   https://cloud.google.com/deployment-manager/docs/reference/latest/deployments/insert#response
 	proj := pl.ProjectID

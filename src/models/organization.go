@@ -10,12 +10,12 @@ import (
 
 type (
 	Organization struct {
-		ID        string    `json:"id" datastore:"-"`
-		Name      string    `json:"name" form:"name" validate:"required"`
-		Memo      string    `json:"memo" form:"memo"`
-		TokenAmount int     `json:"token_amount" form:"token_amount"`
-		CreatedAt time.Time `json:"created_at"`
-		UpdatedAt time.Time `json:"updated_at"`
+		ID          string    `json:"id" datastore:"-"`
+		Name        string    `json:"name" form:"name" validate:"required"`
+		Memo        string    `json:"memo" form:"memo"`
+		TokenAmount int       `json:"token_amount" form:"token_amount"`
+		CreatedAt   time.Time `json:"created_at"`
+		UpdatedAt   time.Time `json:"updated_at"`
 	}
 )
 

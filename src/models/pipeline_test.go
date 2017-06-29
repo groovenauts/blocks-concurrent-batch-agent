@@ -64,7 +64,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	}
 
 	org1 := &Organization{
-		Name: "org01",
+		Name:        "org01",
 		TokenAmount: 10,
 	}
 	err = org1.Create(ctx)
@@ -79,11 +79,11 @@ func TestWatcherCalcDifferences(t *testing.T) {
 		BootDisk: PipelineVmDisk{
 			SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
 		},
-		MachineType:   "f1-micro",
-		TargetSize:    2,
-		ContainerSize: 2,
-		ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
-		Command:       "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
+		MachineType:      "f1-micro",
+		TargetSize:       2,
+		ContainerSize:    2,
+		ContainerName:    "groovenauts/batch_type_iot_example:0.3.1",
+		Command:          "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
 		TokenConsumption: 2,
 	}
 	err = pl.Create(ctx)
@@ -105,9 +105,8 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	// org1.TokenAmount got reduced
 	orgReloaded, err := GlobalOrganizationAccessor.Find(ctx, org1.ID)
 	assert.NoError(t, err)
-	assert.Equal(t, org1.TokenAmount - pl.TokenConsumption, orgReloaded.TokenAmount)
+	assert.Equal(t, org1.TokenAmount-pl.TokenConsumption, orgReloaded.TokenAmount)
 	assert.Equal(t, Initialized, pl.Status)
-
 
 	pendingPl := &Pipeline{
 		Organization: org1,
@@ -117,11 +116,11 @@ func TestWatcherCalcDifferences(t *testing.T) {
 		BootDisk: PipelineVmDisk{
 			SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
 		},
-		MachineType:   "f1-micro",
-		TargetSize:    2,
-		ContainerSize: 2,
-		ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
-		Command:       "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
+		MachineType:      "f1-micro",
+		TargetSize:       2,
+		ContainerSize:    2,
+		ContainerName:    "groovenauts/batch_type_iot_example:0.3.1",
+		Command:          "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
 		TokenConsumption: org1.TokenAmount - pl.TokenConsumption + 1,
 	}
 	err = pendingPl.Create(ctx)
@@ -243,7 +242,7 @@ func TestGetActiveSubscriptions(t *testing.T) {
 	pipelines := map[Status]*Pipeline{}
 
 	org1 := &Organization{
-		Name: "org01",
+		Name:        "org01",
 		TokenAmount: 20,
 	}
 	err = org1.Create(ctx)
@@ -258,12 +257,12 @@ func TestGetActiveSubscriptions(t *testing.T) {
 			BootDisk: PipelineVmDisk{
 				SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
 			},
-			MachineType:   "f1-micro",
-			TargetSize:    2,
-			ContainerSize: 2,
-			ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
-			Command:       "",
-			Status:        st,
+			MachineType:      "f1-micro",
+			TargetSize:       2,
+			ContainerSize:    2,
+			ContainerName:    "groovenauts/batch_type_iot_example:0.3.1",
+			Command:          "",
+			Status:           st,
 			TokenConsumption: 2,
 		}
 		assert.NoError(t, pl.Create(ctx))
