@@ -20,6 +20,14 @@ type (
 )
 
 func (m *Organization) Validate() error {
+	t := time.Now()
+	if m.CreatedAt.IsZero() {
+		m.CreatedAt = t
+	}
+	if m.UpdatedAt.IsZero() {
+		m.UpdatedAt = t
+	}
+
 	validator := validator.New()
 	err := validator.Struct(m)
 	return err
@@ -32,9 +40,6 @@ func (m *Organization) Create(ctx context.Context) error {
 	}
 
 	key := datastore.NewIncompleteKey(ctx, "Organizations", nil)
-	t := time.Now()
-	m.CreatedAt = t
-	m.UpdatedAt = t
 	res, err := datastore.Put(ctx, key, m)
 	if err != nil {
 		return err
@@ -55,6 +60,8 @@ func (m *Organization) Destroy(ctx context.Context) error {
 }
 
 func (m *Organization) Update(ctx context.Context) error {
+	m.UpdatedAt = time.Now()
+
 	err := m.Validate()
 	if err != nil {
 		return err
@@ -64,8 +71,6 @@ func (m *Organization) Update(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	t := time.Now()
-	m.UpdatedAt = t
 	_, err = datastore.Put(ctx, key, m)
 	if err != nil {
 		return err

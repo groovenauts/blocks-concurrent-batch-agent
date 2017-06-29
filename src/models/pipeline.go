@@ -92,6 +92,8 @@ type (
 		ClosingOperationName   string            `json:"closing_operation_name"`
 		ClosingErrors          []DeploymentError `json:"closing_errors"`
 		TokenConsumption       int               `json:"token_consumption"`
+		CreatedAt              time.Time         `json:"created_at"`
+		UpdatedAt              time.Time         `json:"updated_at"`
 	}
 )
 
@@ -102,6 +104,14 @@ func (m *Pipeline) Validate() error {
 }
 
 func (m *Pipeline) Create(ctx context.Context) error {
+	t := time.Now()
+	if m.CreatedAt.IsZero() {
+		m.CreatedAt = t
+	}
+	if m.UpdatedAt.IsZero() {
+		m.UpdatedAt = t
+	}
+
 	err := m.Validate()
 	if err != nil {
 		return err
@@ -164,6 +174,8 @@ func (m *Pipeline) Destroy(ctx context.Context) error {
 }
 
 func (m *Pipeline) Update(ctx context.Context) error {
+	m.UpdatedAt = time.Now()
+
 	err := m.Validate()
 	if err != nil {
 		return err

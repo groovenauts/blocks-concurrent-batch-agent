@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"models"
 	"test_utils"
@@ -174,6 +175,8 @@ func TestPipelineJobHandlerActions(t *testing.T) {
 			"data": "",
 		},
 		"message_id": "",
+		"created_at": pj.CreatedAt.Format(time.RFC3339Nano),
+		"updated_at": pj.UpdatedAt.Format(time.RFC3339Nano),
 	}, pjRes)
 
 	// Test for invalid POST

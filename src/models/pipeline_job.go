@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/base64"
 	"fmt"
+	"time"
 
 	"golang.org/x/net/context"
 	pubsub "google.golang.org/api/pubsub/v1"
@@ -60,6 +61,8 @@ type (
 		Status     JobStatus          `json:"status"       datastore:"status" `
 		Message    PipelineJobMessage `json:"message" datastore:"message"`
 		MessageID  string             `json:"message_id"   datastore:"message_id"`
+		CreatedAt  time.Time          `json:"created_at"`
+		UpdatedAt  time.Time          `json:"updated_at"`
 	}
 )
 
@@ -73,7 +76,13 @@ func (m *PipelineJob) Validate() error {
 }
 
 func (m *PipelineJob) Create(ctx context.Context) error {
-	log.Debugf(ctx, "PipelineJob#Create: %v\n", m)
+	t := time.Now()
+	if m.CreatedAt.IsZero() {
+		m.CreatedAt = t
+	}
+	if m.UpdatedAt.IsZero() {
+		m.UpdatedAt = t
+	}
 
 	if len(m.Message.AttributeEntries) == 0 {
 		msg := &m.Message
@@ -106,6 +115,8 @@ func (m *PipelineJob) Update(ctx context.Context) error {
 		msg := &m.Message
 		msg.MapToEntries()
 	}
+
+	m.UpdatedAt = time.Now()
 
 	err := m.Validate()
 	if err != nil {
