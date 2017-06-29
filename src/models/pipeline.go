@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
@@ -42,14 +43,6 @@ func (st Status) String() string {
 		return "Invalid Status: " + strconv.Itoa(int(st))
 	}
 	return res
-}
-
-type InvalidOperation struct {
-	Msg string
-}
-
-func (e *InvalidOperation) Error() string {
-	return e.Msg
 }
 
 var processorFactory ProcessorFactory = &DefaultProcessorFactory{}
@@ -183,4 +176,37 @@ func (m *Pipeline) LoadOrganization(ctx context.Context) error {
 	}
 	m.Organization = org
 	return nil
+}
+
+func (m *Pipeline) JobAccessor() *PipelineJobAccessor {
+	return &PipelineJobAccessor{Parent: m}
+}
+
+func (m *Pipeline) Reload(ctx context.Context) error {
+	err := GlobalPipelineAccessor.LoadByID(ctx, m)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *Pipeline) WaitUntil(ctx context.Context, st Status, interval, timeout time.Duration) error {
+	t0 := time.Now()
+	deadline := t0.Add(timeout)
+	for deadline.After(time.Now()) {
+		m.Reload(ctx)
+		if m.Status == st {
+			return nil
+		}
+		time.Sleep(interval)
+	}
+	return ErrTimeout
+}
+
+func (m *Pipeline) JobTopicName() string {
+	return fmt.Sprintf("%s-job-topic", m.Name)
+}
+
+func (m *Pipeline) JobTopicFqn() string {
+	return fmt.Sprintf("projects/%s/topics/%s", m.ProjectID, m.JobTopicName())
 }

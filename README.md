@@ -132,6 +132,32 @@ $ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' 
 
 $ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://$AEHOST/orgs/$ORG_ID/pipelines
 
+
+### Send a job message
+
+Create job.json like this:
+
+```json
+{
+  "id_by_client": "ID on your app",
+  "message":{
+    "attributes":{
+      "download_files":"[\"gs://bucket1/path/to/file1\"]"
+    }
+  }
+}
+```
+
+And publish (or reserve publishing) the job to the pipeline.
+
+```
+$ export ID="[id of the pipeline]"
+$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X POST http://$AEHOST/pipelines/$ID/jobs --data @job.json
+```
+
+
+
+
 ### Close and Delete data
 
 ```
@@ -139,3 +165,4 @@ $ export ID="[id of the result]"
 $ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X PUT http://$AEHOST/pipelines/$ID/close --data ""
 $ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X DELETE http://$AEHOST/pipelines/$ID
 ```
+

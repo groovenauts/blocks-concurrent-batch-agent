@@ -19,77 +19,16 @@ type PipelineHandler struct {
 
 func (h *PipelineHandler) buildActions() {
 	h.Actions = map[string](func(c echo.Context) error){
-		"index":         gae_support.With(h.withOrg(withAuth(h.index))),
-		"create":        gae_support.With(h.withOrg(withAuth(h.create))),
-		"subscriptions": gae_support.With(h.withOrg(withAuth(h.subscriptions))),
-		"show":          gae_support.With(h.Identified(h.PlToOrg(withAuth(h.Identified(h.show))))),
-		"close":         gae_support.With(h.Identified(h.PlToOrg(withAuth(h.Identified(h.close))))),
-		"destroy":       gae_support.With(h.Identified(h.PlToOrg(withAuth(h.Identified(h.destroy))))),
+		"index":         gae_support.With(orgBy("org_id", withAuth(h.index))),
+		"create":        gae_support.With(orgBy("org_id", withAuth(h.create))),
+		"subscriptions": gae_support.With(orgBy("org_id", withAuth(h.subscriptions))),
+		"show":          gae_support.With(plBy("id", PlToOrg(withAuth(h.show)))),
+		"close":         gae_support.With(plBy("id", PlToOrg(withAuth(h.close)))),
+		"destroy":       gae_support.With(plBy("id", PlToOrg(withAuth(h.destroy)))),
 		"refresh":       gae_support.With(h.refresh), // Don't use withAuth because this is called from cron
-		"refresh_task":  gae_support.With(h.Identified(h.pipelineTask("refresh"))),
-		// "build_task": gae_support.With(h.Identified(h.PlToOrg(withAuth(h.Identified(h.pipelineTask("build")))))),
-		// "close_task": gae_support.With(h.Identified(h.PlToOrg(withAuth(h.Identified(h.pipelineTask("close")))))),
-	}
-}
-
-func (h *PipelineHandler) withOrg(f func(c echo.Context) error) func(echo.Context) error {
-	return func(c echo.Context) error {
-		ctx := c.Get("aecontext").(context.Context)
-		org_id := c.Param("org_id")
-		org, err := models.GlobalOrganizationAccessor.Find(ctx, org_id)
-		if err == models.ErrNoSuchOrganization {
-			return c.JSON(http.StatusNotFound, map[string]string{"message": "No Organization found for " + org_id})
-		}
-		if err != nil {
-			log.Errorf(ctx, "Failed to find Organization id: %v because of %v\n", org_id, err)
-			return err
-		}
-		c.Set("organization", org)
-		return f(c)
-	}
-}
-
-func (h *PipelineHandler) PlToOrg(impl func(c echo.Context) error) func(c echo.Context) error {
-	return func(c echo.Context) error {
-		ctx := c.Get("aecontext").(context.Context)
-		pl := c.Get("pipeline").(*models.Pipeline)
-		pl.LoadOrganization(ctx)
-		c.Set("organization", pl.Organization)
-		return impl(c)
-	}
-}
-
-func (h *PipelineHandler) Identified(impl func(c echo.Context) error) func(c echo.Context) error {
-	return func(c echo.Context) error {
-		ctx := c.Get("aecontext").(context.Context)
-		id := c.Param("id")
-
-		var accessor *models.PipelineAccessor
-		obj := c.Get("organization")
-
-		if obj == nil {
-			accessor = models.GlobalPipelineAccessor
-		} else {
-			org, ok := c.Get("organization").(*models.Organization)
-			if ok {
-				accessor = org.PipelineAccessor()
-			} else {
-				msg := fmt.Sprintf("invalid organization: %v", obj)
-				log.Errorf(ctx, "Identified %s\n", msg)
-				panic(msg)
-			}
-		}
-
-		pl, err := accessor.Find(ctx, id)
-		switch {
-		case err == models.ErrNoSuchPipeline:
-			return c.JSON(http.StatusNotFound, map[string]string{"message": "Not found for " + id})
-		case err != nil:
-			log.Errorf(ctx, "@Identified %v id: %v\n", err, id)
-			return err
-		}
-		c.Set("pipeline", pl)
-		return impl(c)
+		"refresh_task":  gae_support.With(plBy("id", h.pipelineTask("refresh"))),
+		// "build_task": gae_support.With(plBy("id", PlToOrg(withAuth(h.pipelineTask("build"))))),
+		// "close_task": gae_support.With(plBy("id", PlToOrg(withAuth(h.pipelineTask("close"))))),
 	}
 }
 

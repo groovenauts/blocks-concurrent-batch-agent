@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -10,4 +11,14 @@ type InvalidParent struct {
 
 func (e *InvalidParent) Error() string {
 	return fmt.Sprintf("Invalid parent from ID: %q", e.ID)
+}
+
+var ErrTimeout = errors.New("Timeout")
+
+type InvalidOperation struct {
+	Msg string
+}
+
+func (e *InvalidOperation) Error() string {
+	return e.Msg
 }

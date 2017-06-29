@@ -18,36 +18,53 @@ var GlobalPipelineAccessor = &PipelineAccessor{}
 var ErrNoSuchPipeline = errors.New("No such data in Pipelines")
 
 func (pa *PipelineAccessor) Find(ctx context.Context, id string) (*Pipeline, error) {
-	key, err := datastore.DecodeKey(id)
+	pl := &Pipeline{ID: id}
+	err := pa.LoadByID(ctx, pl)
 	if err != nil {
-		log.Errorf(ctx, "Failed to decode id(%v) to key because of %v \n", id, err)
 		return nil, err
+	}
+	return pl, nil
+}
+
+func (pa *PipelineAccessor) FindByKey(ctx context.Context, key *datastore.Key) (*Pipeline, error) {
+	pl := &Pipeline{}
+	err := pa.LoadByKey(ctx, key, pl)
+	if err != nil {
+		return nil, err
+	}
+	return pl, nil
+}
+
+func (pa *PipelineAccessor) LoadByID(ctx context.Context, pl *Pipeline) error {
+	key, err := datastore.DecodeKey(pl.ID)
+	if err != nil {
+		log.Errorf(ctx, "Failed to decode id(%v) to key because of %v \n", pl.ID, err)
+		return err
 	}
 	if pa.Parent != nil {
 		parentKey, err := datastore.DecodeKey(pa.Parent.ID)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		if !parentKey.Equal(key.Parent()) {
-			return nil, &InvalidParent{id}
+			return &InvalidParent{pl.ID}
 		}
 	}
-	return pa.FindByKey(ctx, key)
+	return pa.LoadByKey(ctx, key, pl)
 }
 
-func (pa *PipelineAccessor) FindByKey(ctx context.Context, key *datastore.Key) (*Pipeline, error) {
+func (pa *PipelineAccessor) LoadByKey(ctx context.Context, key *datastore.Key, pl *Pipeline) error {
 	ctx = context.WithValue(ctx, "Pipeline.key", key)
-	pl := &Pipeline{}
 	err := datastore.Get(ctx, key, pl)
 	switch {
 	case err == datastore.ErrNoSuchEntity:
-		return nil, ErrNoSuchPipeline
+		return ErrNoSuchPipeline
 	case err != nil:
 		log.Errorf(ctx, "Failed to Get pipeline key(%v) to key because of %v \n", key, err)
-		return nil, err
+		return err
 	}
 	pl.ID = key.Encode()
-	return pl, nil
+	return nil
 }
 
 func (pa *PipelineAccessor) considerParent(q *datastore.Query) (*datastore.Query, error) {
