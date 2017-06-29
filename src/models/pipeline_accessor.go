@@ -110,6 +110,15 @@ func (pa *PipelineAccessor) GetByQuery(ctx context.Context, q *datastore.Query) 
 	return res, nil
 }
 
+func (pa *PipelineAccessor) GetPendings(ctx context.Context) ([]*Pipeline, error) {
+	q := datastore.NewQuery("Pipelines").Filter("Status =", Pending).Order("CreatedAt")
+	q, err := pa.considerParent(q)
+	if err != nil {
+		return nil, err
+	}
+	return pa.GetByQuery(ctx, q)
+}
+
 func (pa *PipelineAccessor) GetIDsByStatus(ctx context.Context, st Status) ([]string, error) {
 	q := datastore.NewQuery("Pipelines").Filter("Status =", st)
 	q, err := pa.considerParent(q)

@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"test_utils"
 
@@ -277,4 +278,74 @@ func TestGetActiveSubscriptions(t *testing.T) {
 	assert.Equal(t, pipelines[Opened].ID, subscription.PipelineID)
 	assert.Equal(t, "pipeline-opened", subscription.Pipeline)
 	assert.Equal(t, "projects/test-project-x/subscriptions/pipeline-opened-progress-subscription", subscription.Name)
+}
+
+func TestGetPendingPipelines(t *testing.T) {
+	// See https://github.com/golang/appengine/blob/master/aetest/instance.go#L36-L50
+	opt := &aetest.Options{StronglyConsistentDatastore: true}
+	inst, err := aetest.NewInstance(opt)
+	assert.NoError(t, err)
+	defer inst.Close()
+
+	req, err := inst.NewRequest("GET", "/", nil)
+	if !assert.NoError(t, err) {
+		inst.Close()
+		return
+	}
+	ctx := appengine.NewContext(req)
+
+	pipelines := []*Pipeline{}
+
+	org1 := &Organization{
+		Name:        "org01",
+		TokenAmount: 10,
+	}
+	err = org1.Create(ctx)
+	assert.NoError(t, err)
+
+	now := time.Now()
+	for i := 1; i < 6; i++ {
+		theTime := now.Add(10 * time.Minute)
+		pl := &Pipeline{
+			Organization: org1,
+			Name:         fmt.Sprintf("pipeline-%v", i),
+			ProjectID:    proj,
+			Zone:         "us-central1-f",
+			BootDisk: PipelineVmDisk{
+				SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+			},
+			MachineType:      "f1-micro",
+			TargetSize:       6 - i,
+			ContainerSize:    1,
+			ContainerName:    "groovenauts/batch_type_iot_example:0.3.1",
+			Command:          "",
+			TokenConsumption: 6 - i,
+			CreatedAt: theTime,
+			UpdatedAt: theTime,
+		}
+		assert.NoError(t, pl.Create(ctx))
+		pipelines = append(pipelines, pl)
+	}
+	
+	// TokenAmount: 10
+	// pipeline-1 {TokenConsumption: 5} 50 min ago Initialized
+	// pipeline-2 {TokenConsumption: 4} 40 min ago Initialized
+	// pipeline-3 {TokenConsumption: 3} 30 min ago Pending
+	// pipeline-4 {TokenConsumption: 2} 20 min ago Pending
+	// pipeline-5 {TokenConsumption: 1} 10 min ago Pending
+	assert.Equal(t, Initialized, pipelines[0].Status)
+	assert.Equal(t, Initialized, pipelines[1].Status)
+	assert.Equal(t, Pending, pipelines[2].Status)
+	assert.Equal(t, Pending, pipelines[3].Status)
+	assert.Equal(t, Pending, pipelines[4].Status)
+	
+	res, err := GlobalPipelineAccessor.GetPendings(ctx)
+	assert.NoError(t, err)
+	assert.Equal(t, 3, len(res))
+
+	names := []string{}
+	for _, pl := range res {
+		names = append(names, pl.Name)
+	}
+	assert.Equal(t, []string{"pipeline-3", "pipeline-4", "pipeline-5"}, names)
 }
