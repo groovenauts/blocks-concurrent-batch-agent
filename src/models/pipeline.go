@@ -47,8 +47,6 @@ func (st Status) String() string {
 	return res
 }
 
-var processorFactory ProcessorFactory = &DefaultProcessorFactory{}
-
 type (
 	// See https://godoc.org/google.golang.org/api/deploymentmanager/v2#OperationErrorErrors
 	DeploymentError struct {
@@ -209,7 +207,19 @@ func (m *Pipeline) Update(ctx context.Context) error {
 }
 
 func (m *Pipeline) Process(ctx context.Context, action string) error {
-	processor, err := processorFactory.Create(ctx, action)
+	var processor Processor
+	var err error
+	switch action {
+	case "build":
+		processor, err = NewBuilder(ctx)
+	case "close":
+		processor, err = NewCloser(ctx)
+	case "refresh":
+		processor, err = NewRefresher(ctx)
+	default:
+		return fmt.Errorf("Unknown processor action: %v\n", action)
+	}
+
 	if err != nil {
 		return err
 	}

@@ -10,6 +10,14 @@ type Refresher struct {
 	deployer DeploymentServicer
 }
 
+func NewRefresher(ctx context.Context) (*Refresher, error) {
+	deployer, err := DefaultDeploymentServicer(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &Refresher{deployer: deployer}, nil
+}
+
 func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 	log.Debugf(ctx, "Refreshing pipeline %v\n", pl)
 	err := pl.LoadOrganization(ctx)

@@ -14,6 +14,14 @@ type Builder struct {
 	deployer DeploymentServicer
 }
 
+func NewBuilder(ctx context.Context) (*Builder, error) {
+	deployer, err := DefaultDeploymentServicer(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &Builder{deployer: deployer}, nil
+}
+
 func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
 	err := pl.LoadOrganization(ctx)
 	if err != nil {
