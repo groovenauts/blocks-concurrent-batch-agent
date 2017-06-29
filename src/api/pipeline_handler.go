@@ -26,7 +26,7 @@ func (h *PipelineHandler) buildActions() {
 		"close":         gae_support.With(plBy("id", PlToOrg(withAuth(h.close)))),
 		"destroy":       gae_support.With(plBy("id", PlToOrg(withAuth(h.destroy)))),
 		"refresh":       gae_support.With(h.refresh), // Don't use withAuth because this is called from cron
-		"refresh_task":  gae_support.With(plBy("id", h.pipelineTask("refresh"))),
+		"refresh_task":  gae_support.With(plBy("id", h.refreshTask)),
 		// "build_task": gae_support.With(plBy("id", PlToOrg(withAuth(h.pipelineTask("build"))))),
 		// "close_task": gae_support.With(plBy("id", PlToOrg(withAuth(h.pipelineTask("close"))))),
 	}
@@ -147,16 +147,34 @@ func (h *PipelineHandler) refresh(c echo.Context) error {
 }
 
 // curl -v -X POST http://localhost:8080/pipelines/1/build_task
-// curl -v -X	POST http://localhost:8080/pipelines/1/close_task
-// curl -v -X	POST http://localhost:8080/pipelines/1/refresh_task
-func (h *PipelineHandler) pipelineTask(action string) func(c echo.Context) error {
-	return func(c echo.Context) error {
-		ctx := c.Get("aecontext").(context.Context)
-		pl := c.Get("pipeline").(*models.Pipeline)
-		err := pl.Process(ctx, action)
-		if err != nil {
-			return err
-		}
-		return c.JSON(http.StatusOK, pl)
+func (h *PipelineHandler) buildTask(c echo.Context) error {
+	ctx := c.Get("aecontext").(context.Context)
+	pl := c.Get("pipeline").(*models.Pipeline)
+	err := pl.Process(ctx, "build")
+	if err != nil {
+		return err
 	}
+	return c.JSON(http.StatusOK, pl)
+}
+
+// curl -v -X	POST http://localhost:8080/pipelines/1/close_task
+func (h *PipelineHandler) closeTask(c echo.Context) error {
+	ctx := c.Get("aecontext").(context.Context)
+	pl := c.Get("pipeline").(*models.Pipeline)
+	err := pl.Process(ctx, "close")
+	if err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, pl)
+}
+
+// curl -v -X	POST http://localhost:8080/pipelines/1/refresh_task
+func (h *PipelineHandler) refreshTask(c echo.Context) error {
+	ctx := c.Get("aecontext").(context.Context)
+	pl := c.Get("pipeline").(*models.Pipeline)
+	err := pl.Process(ctx, "refresh")
+	if err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, pl)
 }
