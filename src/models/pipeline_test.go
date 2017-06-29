@@ -244,7 +244,7 @@ func TestGetActiveSubscriptions(t *testing.T) {
 
 	org1 := &Organization{
 		Name:        "org01",
-		TokenAmount: 20,
+		TokenAmount: len(StatusStrings) * 2,
 	}
 	err = org1.Create(ctx)
 	assert.NoError(t, err)
@@ -270,9 +270,18 @@ func TestGetActiveSubscriptions(t *testing.T) {
 		pipelines[st] = pl
 	}
 
-	res, err := GlobalPipelineAccessor.GetActiveSubscriptions(ctx)
-	assert.NoError(t, err)
-	assert.Equal(t, 1, len(res))
+	var res []*Subscription
+	test_utils.RetryWith(5, func() func(){
+		res, err = GlobalPipelineAccessor.GetActiveSubscriptions(ctx)
+		assert.NoError(t, err)
+		if 1 == len(res) {
+			return nil
+		} else {
+			return func() {
+				assert.Equal(t, 1, len(res))
+			}
+		}
+	})
 
 	subscription := res[0]
 	assert.Equal(t, pipelines[Opened].ID, subscription.PipelineID)
