@@ -41,11 +41,11 @@ func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 					log.Errorf(ctx, "%v error found for project: %v deployment: %v\n%v\n", status, proj, pl.DeploymentName, errors)
 					pl.ClosingErrors = *errors
 					pl.Status = Closing_error
+					return pl.Update(ctx)
 				} else {
 					log.Infof(ctx, "%v completed successfully project: %v deployment: %v\n", status, proj, pl.DeploymentName)
-					pl.Status = Closed
+					return pl.CompleteClosing(ctx)
 				}
-				return pl.Update(ctx)
 			},
 		)
 	default:

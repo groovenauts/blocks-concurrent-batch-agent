@@ -185,6 +185,24 @@ func (m *Pipeline) Process(ctx context.Context, action string) error {
 	return processor.Process(ctx, m)
 }
 
+func (m *Pipeline) CompleteClosing(ctx context.Context) error {
+	err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+		org, err := GlobalOrganizationAccessor.Find(ctx, m.Organization.ID)
+		if err != nil {
+			return err
+		}
+		org.TokenAmount = org.TokenAmount + m.TokenConsumption
+		err = org.Update(ctx)
+		if err != nil {
+			return err
+		}
+
+		m.Status = Closed
+		return m.Update(ctx)
+	}, nil)
+	return err
+}
+
 func (m *Pipeline) LoadOrganization(ctx context.Context) error {
 	key, err := datastore.DecodeKey(m.ID)
 	if err != nil {
