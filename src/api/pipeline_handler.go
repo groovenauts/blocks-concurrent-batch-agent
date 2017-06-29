@@ -32,33 +32,15 @@ func (h *PipelineHandler) buildActions() {
 	}
 }
 
-// curl -v -X PUT http://localhost:8080/pipelines/1/close
-func (h *PipelineHandler) close(c echo.Context) error {
+// curl -v http://localhost:8080/orgs/2/pipelines
+func (h *PipelineHandler) index(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
-	pl := c.Get("pipeline").(*models.Pipeline)
-	id := c.Param("id")
-	req := c.Request()
-	t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/close_task", id), map[string][]string{})
-	t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
-	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
+	org := c.Get("organization").(*models.Organization)
+	pipelines, err := org.PipelineAccessor().GetAll(ctx)
+	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusCreated, pl)
-}
-
-// curl -v -X POST http://localhost:8080/pipelines/1/build_task
-// curl -v -X	POST http://localhost:8080/pipelines/1/close_task
-// curl -v -X	POST http://localhost:8080/pipelines/1/refresh_task
-func (h *PipelineHandler) pipelineTask(action string) func(c echo.Context) error {
-	return func(c echo.Context) error {
-		ctx := c.Get("aecontext").(context.Context)
-		pl := c.Get("pipeline").(*models.Pipeline)
-		err := pl.Process(ctx, action)
-		if err != nil {
-			return err
-		}
-		return c.JSON(http.StatusOK, pl)
-	}
+	return c.JSON(http.StatusOK, pipelines)
 }
 
 // curl -v -X POST http://localhost:8080/orgs/2/pipelines --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
@@ -89,17 +71,6 @@ func (h *PipelineHandler) create(c echo.Context) error {
 	return c.JSON(http.StatusCreated, pl)
 }
 
-// curl -v http://localhost:8080/orgs/2/pipelines
-func (h *PipelineHandler) index(c echo.Context) error {
-	ctx := c.Get("aecontext").(context.Context)
-	org := c.Get("organization").(*models.Organization)
-	pipelines, err := org.PipelineAccessor().GetAll(ctx)
-	if err != nil {
-		return err
-	}
-	return c.JSON(http.StatusOK, pipelines)
-}
-
 // curl -v http://localhost:8080/orgs/2/pipelines/subscriptions
 func (h *PipelineHandler) subscriptions(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
@@ -115,6 +86,20 @@ func (h *PipelineHandler) subscriptions(c echo.Context) error {
 func (h *PipelineHandler) show(c echo.Context) error {
 	pl := c.Get("pipeline").(*models.Pipeline)
 	return c.JSON(http.StatusOK, pl)
+}
+
+// curl -v -X PUT http://localhost:8080/pipelines/1/close
+func (h *PipelineHandler) close(c echo.Context) error {
+	ctx := c.Get("aecontext").(context.Context)
+	pl := c.Get("pipeline").(*models.Pipeline)
+	id := c.Param("id")
+	req := c.Request()
+	t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/close_task", id), map[string][]string{})
+	t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
+	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
+		return err
+	}
+	return c.JSON(http.StatusCreated, pl)
 }
 
 // curl -v -X DELETE http://localhost:8080/pipelines/1
@@ -159,4 +144,19 @@ func (h *PipelineHandler) refresh(c echo.Context) error {
 		}
 	}
 	return c.JSON(http.StatusOK, res)
+}
+
+// curl -v -X POST http://localhost:8080/pipelines/1/build_task
+// curl -v -X	POST http://localhost:8080/pipelines/1/close_task
+// curl -v -X	POST http://localhost:8080/pipelines/1/refresh_task
+func (h *PipelineHandler) pipelineTask(action string) func(c echo.Context) error {
+	return func(c echo.Context) error {
+		ctx := c.Get("aecontext").(context.Context)
+		pl := c.Get("pipeline").(*models.Pipeline)
+		err := pl.Process(ctx, action)
+		if err != nil {
+			return err
+		}
+		return c.JSON(http.StatusOK, pl)
+	}
 }
