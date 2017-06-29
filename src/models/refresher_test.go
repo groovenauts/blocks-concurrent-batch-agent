@@ -180,6 +180,7 @@ func TestRefresherProcessForClosing(t *testing.T) {
 
 	org1 := &Organization{
 		Name: "org01",
+		TokenAmount: 10,
 	}
 	err = org1.Create(ctx)
 	assert.NoError(t, err)
@@ -200,8 +201,17 @@ func TestRefresherProcessForClosing(t *testing.T) {
 			Command:        "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
 			DeploymentName: "pipeline01",
 			Status:         Closing,
+			TokenConsumption: 0,
 		}
 		err = pl.Create(ctx)
+		assert.NoError(t, err)
+
+		pl.TokenConsumption = 2
+		err = pl.Update(ctx)
+		assert.NoError(t, err)
+
+		orgBefore, err := GlobalOrganizationAccessor.Find(ctx, org1.ID)
+		assert.NoError(t, err)
 
 		r := &Refresher{deployer: expection.deployer}
 		err = r.Process(ctx, &pl)
@@ -210,6 +220,15 @@ func TestRefresherProcessForClosing(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, expection.status, pl2.Status)
 		assert.Equal(t, expection.errors, pl2.ClosingErrors)
-	}
 
+		orgAfter, err := GlobalOrganizationAccessor.Find(ctx, org1.ID)
+		assert.NoError(t, err)
+
+		switch expection.status {
+		case Closed:
+			assert.Equal(t, orgBefore.TokenAmount + pl.TokenConsumption, orgAfter.TokenAmount)
+		default:
+			assert.Equal(t, orgBefore.TokenAmount, orgAfter.TokenAmount)
+		}
+	}
 }
