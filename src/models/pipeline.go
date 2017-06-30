@@ -147,6 +147,7 @@ func (m *Pipeline) Create(ctx context.Context) error {
 			log.Warningf(ctx, "Insufficient tokens; %v has only %v tokens but %v required %v tokens", org.Name, org.TokenAmount, m.Name, m.TokenConsumption)
 			m.Status = Pending
 		} else {
+			m.Status = Reserved
 			org.TokenAmount = newAmount
 			err = org.Update(ctx)
 			if err != nil {
@@ -214,7 +215,26 @@ func (m *Pipeline) CompleteClosing(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		org.TokenAmount = org.TokenAmount + m.TokenConsumption
+		newTokenAmount := org.TokenAmount + m.TokenConsumption
+
+		pendings, err := org.PipelineAccessor().GetPendings(ctx)
+		if err != nil {
+			return err
+		}
+
+		for _, pending := range pendings {
+			if newTokenAmount < pending.TokenConsumption {
+				break
+			}
+			newTokenAmount = newTokenAmount - pending.TokenConsumption
+			pending.Status = Reserved
+			err := pending.Update(ctx)
+			if err != nil {
+				return err
+			}
+		}
+
+		org.TokenAmount = newTokenAmount
 		err = org.Update(ctx)
 		if err != nil {
 			return err

@@ -107,7 +107,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	orgReloaded, err := GlobalOrganizationAccessor.Find(ctx, org1.ID)
 	assert.NoError(t, err)
 	assert.Equal(t, org1.TokenAmount-pl.TokenConsumption, orgReloaded.TokenAmount)
-	assert.Equal(t, Initialized, pl.Status)
+	assert.Equal(t, Reserved, pl.Status)
 
 	pendingPl := &Pipeline{
 		Organization: org1,
@@ -141,7 +141,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	}
 	var pls0 *Pipeline
 	for _, i := range pls {
-		if i.Status == Initialized {
+		if i.Status == Reserved {
 			pls0 = i
 		}
 	}
@@ -155,7 +155,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 
 	// GetPipelineIDsByStatus
 	statuses := []Status{
-		Initialized, Broken, Building, Deploying,
+		Initialized, Broken, Pending, Reserved, Building, Deploying,
 		// Opened,
 		Closing, Closed,
 	}
@@ -186,7 +186,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 
 	// destroy
 	indestructible_statuses := []Status{
-		Initialized, Broken, Building, Deploying, Opened, Closing,
+		Initialized, Broken, Pending, Reserved, Building, Deploying, Opened, Closing,
 		//Closed,
 	}
 	for _, st := range indestructible_statuses {
@@ -339,13 +339,13 @@ func TestGetPendingPipelines(t *testing.T) {
 	}
 	
 	// TokenAmount: 10
-	// pipeline-1 {TokenConsumption: 5} 50 min ago Initialized
-	// pipeline-2 {TokenConsumption: 4} 40 min ago Initialized
+	// pipeline-1 {TokenConsumption: 5} 50 min ago Reserved
+	// pipeline-2 {TokenConsumption: 4} 40 min ago Reserved
 	// pipeline-3 {TokenConsumption: 3} 30 min ago Pending
 	// pipeline-4 {TokenConsumption: 2} 20 min ago Pending
 	// pipeline-5 {TokenConsumption: 1} 10 min ago Pending
-	assert.Equal(t, Initialized, pipelines[0].Status)
-	assert.Equal(t, Initialized, pipelines[1].Status)
+	assert.Equal(t, Reserved, pipelines[0].Status)
+	assert.Equal(t, Reserved, pipelines[1].Status)
 	assert.Equal(t, Pending, pipelines[2].Status)
 	assert.Equal(t, Pending, pipelines[3].Status)
 	assert.Equal(t, Pending, pipelines[4].Status)
