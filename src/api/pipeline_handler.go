@@ -1,4 +1,3 @@
-
 package api
 
 import (
@@ -71,10 +70,10 @@ func (h *PipelineHandler) create(c echo.Context) error {
 	return c.JSON(http.StatusCreated, pl)
 }
 
-func (h *PipelineHandler) postBuildTask(ctx context.Context, req *http.Request, pl *models.Pipeline, ) error {
+func (h *PipelineHandler) postBuildTask(ctx context.Context, req *http.Request, pl *models.Pipeline) error {
 	if pl.Dryrun {
 		log.Debugf(ctx, "[DRYRUN] POST buildTask for %v\n", pl)
-		return  nil
+		return nil
 	}
 	t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/build_task", pl.ID), map[string][]string{})
 	// build_task checks AUTH_HEADER by using withPlIDHexAuth filter instead of withAuth filter
@@ -196,7 +195,7 @@ func (h *PipelineHandler) refreshTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
 	refresher := &models.Refresher{}
-	err := refresher.Process(ctx, pl, pl.RefreshHandlerWith(ctx, func(pl *models.Pipeline) error{
+	err := refresher.Process(ctx, pl, pl.RefreshHandlerWith(ctx, func(pl *models.Pipeline) error {
 		t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/build_task", pl.ID), map[string][]string{})
 		// build_task checks AUTH_HEADER by using withPlIDHexAuth filter instead of withAuth filter
 		// so Set IDHex to AUTH_HEADER instead of original AUTH_HEADER

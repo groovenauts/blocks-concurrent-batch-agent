@@ -126,7 +126,7 @@ func (m *Pipeline) CreateWith(ctx context.Context, f func(ctx context.Context) e
 }
 
 func (m *Pipeline) ReserveOrWait(ctx context.Context) error {
-	return m.CreateWith(ctx, func(ctx context.Context) error{
+	return m.CreateWith(ctx, func(ctx context.Context) error {
 		err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
 			org, err := GlobalOrganizationAccessor.Find(ctx, m.Organization.ID)
 			if err != nil {
@@ -228,11 +228,11 @@ func (m *Pipeline) Update(ctx context.Context) error {
 	return nil
 }
 
-func (m *Pipeline) RefreshHandler(ctx context.Context) func(*[]DeploymentError)error {
+func (m *Pipeline) RefreshHandler(ctx context.Context) func(*[]DeploymentError) error {
 	return m.RefreshHandlerWith(ctx, nil)
 }
 
-func (m *Pipeline) RefreshHandlerWith(ctx context.Context, pipelineProcesser func(*Pipeline) error) func(*[]DeploymentError)error {
+func (m *Pipeline) RefreshHandlerWith(ctx context.Context, pipelineProcesser func(*Pipeline) error) func(*[]DeploymentError) error {
 	return func(errors *[]DeploymentError) error {
 		switch m.Status {
 		case Deploying:

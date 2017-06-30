@@ -14,11 +14,11 @@ type Refresher struct {
 
 func (b *Refresher) Setup(ctx context.Context, pl *Pipeline) error {
 	if b.deployer == nil {
-	deployer, err := DefaultDeploymentServicer(ctx)
-	if err != nil {
-		return err
-	}
-	b.deployer = deployer
+		deployer, err := DefaultDeploymentServicer(ctx)
+		if err != nil {
+			return err
+		}
+		b.deployer = deployer
 	}
 
 	err := pl.LoadOrganization(ctx)
