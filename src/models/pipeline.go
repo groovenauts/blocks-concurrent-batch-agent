@@ -152,25 +152,33 @@ func (m *Pipeline) Create(ctx context.Context) error {
 			}
 		}
 
-		parentKey, err := datastore.DecodeKey(m.Organization.ID)
-		if err != nil {
-			return err
-		}
-
-		key := datastore.NewIncompleteKey(ctx, "Pipelines", parentKey)
-		res, err := datastore.Put(ctx, key, m)
-		if err != nil {
-			return err
-		}
-		m.ID = res.Encode()
-
-		return nil
+		return m.PutWithNewKey(ctx)
 	}, nil)
 
 	if err != nil {
 		log.Errorf(ctx, "Transaction failed: %v\n", err)
 		return err
 	}
+
+	return nil
+}
+
+func (m *Pipeline) PutWithNewKey(ctx context.Context) error {
+	parentKey, err := datastore.DecodeKey(m.Organization.ID)
+	if err != nil {
+		return err
+	}
+
+	key := datastore.NewIncompleteKey(ctx, "Pipelines", parentKey)
+	if err != nil {
+		return err
+	}
+
+	res, err := datastore.Put(ctx, key, m)
+	if err != nil {
+		return err
+	}
+	m.ID = res.Encode()
 
 	return nil
 }
