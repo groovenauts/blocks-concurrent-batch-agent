@@ -208,6 +208,7 @@ func TestStatusTypeAndValue(t *testing.T) {
 	assert.Equal(t, st, fmt.Sprintf(ft, Initialized))
 	assert.Equal(t, st, fmt.Sprintf(ft, Broken))
 	assert.Equal(t, st, fmt.Sprintf(ft, Pending))
+	assert.Equal(t, st, fmt.Sprintf(ft, Reserved))
 	assert.Equal(t, st, fmt.Sprintf(ft, Building))
 	assert.Equal(t, st, fmt.Sprintf(ft, Deploying))
 	assert.Equal(t, st, fmt.Sprintf(ft, Opened))
@@ -218,12 +219,13 @@ func TestStatusTypeAndValue(t *testing.T) {
 	assert.Equal(t, "0", fmt.Sprintf(fv, Initialized))
 	assert.Equal(t, "1", fmt.Sprintf(fv, Broken))
 	assert.Equal(t, "2", fmt.Sprintf(fv, Pending))
-	assert.Equal(t, "3", fmt.Sprintf(fv, Building))
-	assert.Equal(t, "4", fmt.Sprintf(fv, Deploying))
-	assert.Equal(t, "5", fmt.Sprintf(fv, Opened))
-	assert.Equal(t, "6", fmt.Sprintf(fv, Closing))
-	assert.Equal(t, "7", fmt.Sprintf(fv, Closing_error))
-	assert.Equal(t, "8", fmt.Sprintf(fv, Closed))
+	assert.Equal(t, "3", fmt.Sprintf(fv, Reserved))
+	assert.Equal(t, "4", fmt.Sprintf(fv, Building))
+	assert.Equal(t, "5", fmt.Sprintf(fv, Deploying))
+	assert.Equal(t, "6", fmt.Sprintf(fv, Opened))
+	assert.Equal(t, "7", fmt.Sprintf(fv, Closing))
+	assert.Equal(t, "8", fmt.Sprintf(fv, Closing_error))
+	assert.Equal(t, "9", fmt.Sprintf(fv, Closed))
 }
 
 func TestGetActiveSubscriptions(t *testing.T) {

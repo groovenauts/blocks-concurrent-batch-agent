@@ -19,6 +19,7 @@ const (
 	Initialized Status = iota
 	Broken
 	Pending
+	Reserved
 	Building
 	Deploying
 	Opened
@@ -31,6 +32,7 @@ var StatusStrings = map[Status]string{
 	Initialized:   "initialized",
 	Broken:        "broken",
 	Pending:       "pending",
+	Reserved:      "reserved",
 	Building:      "building",
 	Deploying:     "deploying",
 	Opened:        "opened",
