@@ -104,6 +104,10 @@ func (m *Pipeline) Validate() error {
 	return err
 }
 
+func (m *Pipeline) Create(ctx context.Context) error {
+	return m.CreateWith(ctx, m.PutWithNewKey)
+}
+
 func (m *Pipeline) CreateWith(ctx context.Context, f func(ctx context.Context) error) error {
 	t := time.Now()
 	if m.CreatedAt.IsZero() {
