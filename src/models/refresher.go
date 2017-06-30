@@ -36,7 +36,7 @@ func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 	switch pl.Status {
 	case Deploying:
 		b.Setup(ctx, pl)
-		return b.UpdatePipelineWithStatus(ctx, pl,
+		return b.Refresh(ctx, pl,
 			func(errors *[]DeploymentError) error {
 				if errors != nil {
 					return pl.FailDeploying(ctx, errors)
@@ -47,7 +47,7 @@ func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 		)
 	case Closing:
 		b.Setup(ctx, pl)
-		return b.UpdatePipelineWithStatus(ctx, pl,
+		return b.Refresh(ctx, pl,
 			func(errors *[]DeploymentError) error {
 				if errors != nil {
 					return pl.FailDeploying(ctx, errors)
@@ -61,7 +61,7 @@ func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 	}
 }
 
-func (b *Refresher) UpdatePipelineWithStatus(ctx context.Context, pl *Pipeline, handler func(*[]DeploymentError) error) error {
+func (b *Refresher) Refresh(ctx context.Context, pl *Pipeline, handler func(*[]DeploymentError) error) error {
 	status := pl.Status.String()
 
 	var ope_name string
