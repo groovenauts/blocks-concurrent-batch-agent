@@ -271,7 +271,7 @@ func TestGetActiveSubscriptions(t *testing.T) {
 	}
 
 	var res []*Subscription
-	test_utils.RetryWith(10, func() func(){
+	test_utils.RetryWith(12, func() func(){
 		res, err = GlobalPipelineAccessor.GetActiveSubscriptions(ctx)
 		assert.NoError(t, err)
 		if 1 == len(res) {
