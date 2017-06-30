@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/hex"
 	"fmt"
 	"strconv"
 	"time"
@@ -343,4 +344,8 @@ func (m *Pipeline) JobTopicName() string {
 
 func (m *Pipeline) JobTopicFqn() string {
 	return fmt.Sprintf("projects/%s/topics/%s", m.ProjectID, m.JobTopicName())
+}
+
+func (m *Pipeline) IDHex() string {
+	return hex.EncodeToString([]byte(m.ID))
 }

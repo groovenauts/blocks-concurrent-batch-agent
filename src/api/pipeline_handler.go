@@ -77,7 +77,9 @@ func (h *PipelineHandler) postBuildTask(ctx context.Context, req *http.Request, 
 		return  nil
 	}
 	t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/build_task", pl.ID), map[string][]string{})
-	t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
+	// build_task checks AUTH_HEADER by using withPlIDHexAuth filter instead of withAuth filter
+	// so Set IDHex to AUTH_HEADER instead of original AUTH_HEADER
+	t.Header.Add(AUTH_HEADER, fmt.Sprintf("Bearer %s", pl.IDHex()))
 	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 		return err
 	}
@@ -195,9 +197,11 @@ func (h *PipelineHandler) refreshTask(c echo.Context) error {
 	pl := c.Get("pipeline").(*models.Pipeline)
 	refresher := &models.Refresher{}
 	err := refresher.Process(ctx, pl, pl.RefreshHandlerWith(ctx, func(pl *models.Pipeline) error{
-		req := c.Request()
 		t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/build_task", pl.ID), map[string][]string{})
-		t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
+		// build_task checks AUTH_HEADER by using withPlIDHexAuth filter instead of withAuth filter
+		// so Set IDHex to AUTH_HEADER instead of original AUTH_HEADER
+		// because build_task is called without AUTH_HEADER.
+		t.Header.Add(AUTH_HEADER, fmt.Sprintf("Bearer %s", pl.IDHex()))
 		if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 			return err
 		}
