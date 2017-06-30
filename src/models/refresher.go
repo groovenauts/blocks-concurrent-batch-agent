@@ -35,7 +35,7 @@ func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 	case Deploying:
 		b.Setup(ctx, pl)
 		return b.UpdatePipelineWithStatus(ctx, pl, "deploying", pl.DeployingOperationName,
-			func(errors *[]DeploymentError, status string) error {
+			func(errors *[]DeploymentError) error {
 				if errors != nil {
 					return pl.FailDeploying(ctx, errors)
 				} else {
@@ -46,7 +46,7 @@ func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 	case Closing:
 		b.Setup(ctx, pl)
 		return b.UpdatePipelineWithStatus(ctx, pl, "closing", pl.ClosingOperationName,
-			func(errors *[]DeploymentError, status string) error {
+			func(errors *[]DeploymentError) error {
 				if errors != nil {
 					return pl.FailDeploying(ctx, errors)
 				} else {
@@ -59,7 +59,7 @@ func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 	}
 }
 
-func (b *Refresher) UpdatePipelineWithStatus(ctx context.Context, pl *Pipeline, status, ope_name string, handler func(*[]DeploymentError, string) error) error {
+func (b *Refresher) UpdatePipelineWithStatus(ctx context.Context, pl *Pipeline, status, ope_name string, handler func(*[]DeploymentError) error) error {
 	// See the "Examples" below "Response"
 	//   https://cloud.google.com/deployment-manager/docs/reference/latest/deployments/insert#response
 	ope, err := b.deployer.GetOperation(ctx, pl.ProjectID, ope_name)
@@ -75,7 +75,7 @@ func (b *Refresher) UpdatePipelineWithStatus(ctx context.Context, pl *Pipeline, 
 		} else {
 			log.Infof(ctx, "%v completed successfully project: %v deployment: %v\n", status, pl.ProjectID, pl.DeploymentName)
 		}
-		err = handler(errors, status)
+		err = handler(errors)
 		if err != nil {
 			log.Errorf(ctx, "Failed to update Pipeline Status to %v: %v\npl: %v\n", pl.Status, err, pl)
 			return err
