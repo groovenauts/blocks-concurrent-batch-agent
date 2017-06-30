@@ -209,6 +209,27 @@ func (m *Pipeline) Update(ctx context.Context) error {
 	return nil
 }
 
+func (m *Pipeline) RefreshHandler(ctx context.Context) func(*[]DeploymentError)error {
+	return func(errors *[]DeploymentError) error {
+		switch m.Status {
+		case Deploying:
+			if errors != nil {
+				return m.FailDeploying(ctx, errors)
+			} else {
+				return m.CompleteDeploying(ctx)
+			}
+		case Closing:
+			if errors != nil {
+				return m.FailDeploying(ctx, errors)
+			} else {
+				return m.CompleteClosing(ctx)
+			}
+		default:
+			return &InvalidOperation{Msg: fmt.Sprintf("Invalid Status %v to handle refreshing Pipline %q\n", m.Status, m.ID)}
+		}
+	}
+}
+
 func (m *Pipeline) FailDeploying(ctx context.Context, errors *[]DeploymentError) error {
 	m.DeployingErrors = *errors
 	m.Status = Broken

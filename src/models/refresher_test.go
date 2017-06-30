@@ -114,7 +114,7 @@ func TestRefresherProcessForDeploying(t *testing.T) {
 	assert.NoError(t, err)
 
 	for _, expection := range expections {
-		pl := Pipeline{
+		pl := &Pipeline{
 			Organization: org1,
 			Name:         "pipeline01",
 			ProjectID:    proj,
@@ -133,7 +133,7 @@ func TestRefresherProcessForDeploying(t *testing.T) {
 		err = pl.Create(ctx)
 
 		r := &Refresher{deployer: expection.deployer}
-		err = r.Process(ctx, &pl)
+		err = r.Process(ctx, pl, pl.RefreshHandler(ctx))
 		assert.NoError(t, err)
 		pl2, err := GlobalPipelineAccessor.Find(ctx, pl.ID)
 		assert.NoError(t, err)
@@ -186,7 +186,7 @@ func TestRefresherProcessForClosing(t *testing.T) {
 	assert.NoError(t, err)
 
 	for _, expection := range expections {
-		pl := Pipeline{
+		pl := &Pipeline{
 			Organization: org1,
 			Name:         "pipeline01",
 			ProjectID:    proj,
@@ -214,7 +214,7 @@ func TestRefresherProcessForClosing(t *testing.T) {
 		assert.NoError(t, err)
 
 		r := &Refresher{deployer: expection.deployer}
-		err = r.Process(ctx, &pl)
+		err = r.Process(ctx, pl, pl.RefreshHandler(ctx))
 		assert.NoError(t, err)
 		pl2, err := GlobalPipelineAccessor.Find(ctx, pl.ID)
 		assert.NoError(t, err)

@@ -30,32 +30,13 @@ func (b *Refresher) Setup(ctx context.Context, pl *Pipeline) error {
 	return nil
 }
 
-func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
+func (b *Refresher) Process(ctx context.Context, pl *Pipeline, handler func(*[]DeploymentError) error) error {
 	log.Debugf(ctx, "Refreshing pipeline %v\n", pl)
 
 	switch pl.Status {
 	case Deploying, Closing:
 		b.Setup(ctx, pl)
-		return b.Refresh(ctx, pl,
-			func(errors *[]DeploymentError) error {
-				switch pl.Status {
-				case Deploying:
-				if errors != nil {
-					return pl.FailDeploying(ctx, errors)
-				} else {
-					return pl.CompleteDeploying(ctx)
-				}
-				case Closing:
-				if errors != nil {
-					return pl.FailDeploying(ctx, errors)
-				} else {
-					return pl.CompleteClosing(ctx)
-				}
-				default:
-					return &InvalidOperation{Msg: fmt.Sprintf("Invalid Status %v to handle refreshing Pipline %q\n", pl.Status, pl.ID)}
-				}
-			},
-		)
+		return b.Refresh(ctx, pl, handler)
 	default:
 		return nil
 	}

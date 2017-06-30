@@ -194,7 +194,7 @@ func (h *PipelineHandler) refreshTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
 	refresher := &models.Refresher{}
-	err := refresher.Process(ctx, pl)
+	err := refresher.Process(ctx, pl, pl.RefreshHandler(ctx))
 	if err != nil {
 		return err
 	}
