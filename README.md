@@ -71,7 +71,8 @@ Make `pipeline.json` like this:
   "target_size":1,
   "container_size":1,
   "container_name":"groovenauts/concurrent_batch_basic_example:0.4.0-alpha2",
-  "command":""
+  "command":"",
+  "token_consumption": 1
 }
 ```
 
