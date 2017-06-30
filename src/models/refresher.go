@@ -11,24 +11,34 @@ type Refresher struct {
 }
 
 func NewRefresher(ctx context.Context) (*Refresher, error) {
-	deployer, err := DefaultDeploymentServicer(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return &Refresher{deployer: deployer}, nil
+	return &Refresher{}, nil
 }
 
-func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
-	log.Debugf(ctx, "Refreshing pipeline %v\n", pl)
+func (b *Refresher) Setup(ctx context.Context, pl *Pipeline) error {
+	if b.deployer == nil {
+	deployer, err := DefaultDeploymentServicer(ctx)
+	if err != nil {
+		return err
+	}
+	b.deployer = deployer
+	}
+
 	err := pl.LoadOrganization(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to load Organization for Pipeline: %v\npl: %v\n", err, pl)
 		return err
 	}
 
+	return nil
+}
+
+func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
+	log.Debugf(ctx, "Refreshing pipeline %v\n", pl)
+
 	proj := pl.ProjectID
 	switch pl.Status {
 	case Deploying:
+		b.Setup(ctx, pl)
 		return b.UpdatePipelineWithStatus(ctx, pl, "deploying", pl.DeployingOperationName,
 			func(errors *[]DeploymentError, status string) error {
 				if errors != nil {
@@ -43,6 +53,7 @@ func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 			},
 		)
 	case Closing:
+		b.Setup(ctx, pl)
 		return b.UpdatePipelineWithStatus(ctx, pl, "closing", pl.ClosingOperationName,
 			func(errors *[]DeploymentError, status string) error {
 				if errors != nil {
