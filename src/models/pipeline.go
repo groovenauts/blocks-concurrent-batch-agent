@@ -118,11 +118,6 @@ func (m *Pipeline) Create(ctx context.Context) error {
 		return err
 	}
 
-	parentKey, err := datastore.DecodeKey(m.Organization.ID)
-	if err != nil {
-		return err
-	}
-
 	err = datastore.RunInTransaction(ctx, func(ctx context.Context) error {
 		org, err := GlobalOrganizationAccessor.Find(ctx, m.Organization.ID)
 		if err != nil {
@@ -155,6 +150,11 @@ func (m *Pipeline) Create(ctx context.Context) error {
 					return err
 				}
 			}
+		}
+
+		parentKey, err := datastore.DecodeKey(m.Organization.ID)
+		if err != nil {
+			return err
 		}
 
 		key := datastore.NewIncompleteKey(ctx, "Pipelines", parentKey)
