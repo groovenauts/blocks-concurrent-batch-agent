@@ -12,7 +12,6 @@ type (
 	// See https://godoc.org/google.golang.org/api/deploymentmanager/v2#DeploymentsService
 	DeploymentServicer interface {
 		Delete(ctx context.Context, project string, deployment string) (*deploymentmanager.Operation, error)
-		Get(ctx context.Context, project string, deployment string) (*deploymentmanager.Deployment, error)
 		Insert(ctx context.Context, project string, deployment *deploymentmanager.Deployment) (*deploymentmanager.Operation, error)
 		GetOperation(ctx context.Context, project string, operation string) (*deploymentmanager.Operation, error)
 	}
@@ -40,10 +39,6 @@ type DeploymentServiceWrapper struct {
 
 func (w *DeploymentServiceWrapper) Delete(ctx context.Context, project string, deployment string) (*deploymentmanager.Operation, error) {
 	return w.service.Delete(project, deployment).Context(ctx).Do()
-}
-
-func (w *DeploymentServiceWrapper) Get(ctx context.Context, project string, deployment string) (*deploymentmanager.Deployment, error) {
-	return w.service.Get(project, deployment).Context(ctx).Do()
 }
 
 func (w *DeploymentServiceWrapper) Insert(ctx context.Context, project string, deployment *deploymentmanager.Deployment) (*deploymentmanager.Operation, error) {
