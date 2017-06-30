@@ -104,7 +104,7 @@ func (m *Pipeline) Validate() error {
 	return err
 }
 
-func (m *Pipeline) ReserveOrWait(ctx context.Context) error {
+func (m *Pipeline) CreateWith(ctx context.Context, f func(ctx context.Context) error) error {
 	t := time.Now()
 	if m.CreatedAt.IsZero() {
 		m.CreatedAt = t
@@ -118,7 +118,12 @@ func (m *Pipeline) ReserveOrWait(ctx context.Context) error {
 		return err
 	}
 
-	err = datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+	return f(ctx)
+}
+
+func (m *Pipeline) ReserveOrWait(ctx context.Context) error {
+	return m.CreateWith(ctx, func(ctx context.Context) error{
+	err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
 		org, err := GlobalOrganizationAccessor.Find(ctx, m.Organization.ID)
 		if err != nil {
 			return err
@@ -161,6 +166,7 @@ func (m *Pipeline) ReserveOrWait(ctx context.Context) error {
 	}
 
 	return nil
+	})
 }
 
 func (m *Pipeline) PutWithNewKey(ctx context.Context) error {
