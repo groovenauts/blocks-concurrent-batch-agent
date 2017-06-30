@@ -37,10 +37,8 @@ func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 		return b.UpdatePipelineWithStatus(ctx, pl, "deploying", pl.DeployingOperationName,
 			func(errors *[]DeploymentError, status string) error {
 				if errors != nil {
-					log.Errorf(ctx, "%v error found for project: %v deployment: %v\n%v\n", status, pl.ProjectID, pl.DeploymentName, errors)
 					return pl.FailDeploying(ctx, errors)
 				} else {
-					log.Infof(ctx, "%v completed successfully project: %v deployment: %v\n", status, pl.ProjectID, pl.DeploymentName)
 					return pl.CompleteDeploying(ctx)
 				}
 			},
@@ -50,10 +48,8 @@ func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 		return b.UpdatePipelineWithStatus(ctx, pl, "closing", pl.ClosingOperationName,
 			func(errors *[]DeploymentError, status string) error {
 				if errors != nil {
-					log.Errorf(ctx, "%v error found for project: %v deployment: %v\n%v\n", status, pl.ProjectID, pl.DeploymentName, errors)
 					return pl.FailDeploying(ctx, errors)
 				} else {
-					log.Infof(ctx, "%v completed successfully project: %v deployment: %v\n", status, pl.ProjectID, pl.DeploymentName)
 					return pl.CompleteClosing(ctx)
 				}
 			},
@@ -74,6 +70,11 @@ func (b *Refresher) UpdatePipelineWithStatus(ctx context.Context, pl *Pipeline, 
 	log.Debugf(ctx, "Refreshing %v operation: %v\n", status, ope)
 	if ope.Status == "DONE" {
 		errors := b.ErrorsFromOperation(ope)
+		if errors != nil {
+			log.Errorf(ctx, "%v error found for project: %v deployment: %v\n%v\n", status, pl.ProjectID, pl.DeploymentName, errors)
+		} else {
+			log.Infof(ctx, "%v completed successfully project: %v deployment: %v\n", status, pl.ProjectID, pl.DeploymentName)
+		}
 		err = handler(errors, status)
 		if err != nil {
 			log.Errorf(ctx, "Failed to update Pipeline Status to %v: %v\npl: %v\n", pl.Status, err, pl)
