@@ -194,7 +194,15 @@ func (h *PipelineHandler) refreshTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
 	refresher := &models.Refresher{}
-	err := refresher.Process(ctx, pl, pl.RefreshHandler(ctx))
+	err := refresher.Process(ctx, pl, pl.RefreshHandlerWith(ctx, func(pl *models.Pipeline) error{
+		req := c.Request()
+		t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/build_task", pl.ID), map[string][]string{})
+		t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
+		if _, err := taskqueue.Add(ctx, t, ""); err != nil {
+			return err
+		}
+		return nil
+	}))
 	if err != nil {
 		return err
 	}
