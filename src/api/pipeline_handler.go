@@ -56,9 +56,9 @@ func (h *PipelineHandler) create(c echo.Context) error {
 	}
 	org := c.Get("organization").(*models.Organization)
 	pl.Organization = org
-	err := pl.Create(ctx)
+	err := pl.ReserveOrWait(ctx)
 	if err != nil {
-		log.Errorf(ctx, "Failed to create pipeline: %v\n%v\n", pl, err)
+		log.Errorf(ctx, "Failed to reserve or wait pipeline: %v\n%v\n", pl, err)
 		return err
 	}
 	log.Debugf(ctx, "Created pipeline: %v\n", pl)

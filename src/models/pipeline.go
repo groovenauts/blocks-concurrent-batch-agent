@@ -104,7 +104,7 @@ func (m *Pipeline) Validate() error {
 	return err
 }
 
-func (m *Pipeline) Create(ctx context.Context) error {
+func (m *Pipeline) ReserveOrWait(ctx context.Context) error {
 	t := time.Now()
 	if m.CreatedAt.IsZero() {
 		m.CreatedAt = t
