@@ -10,10 +10,6 @@ type Refresher struct {
 	deployer DeploymentServicer
 }
 
-func NewRefresher(ctx context.Context) (*Refresher, error) {
-	return &Refresher{}, nil
-}
-
 func (b *Refresher) Setup(ctx context.Context, pl *Pipeline) error {
 	if b.deployer == nil {
 	deployer, err := DefaultDeploymentServicer(ctx)

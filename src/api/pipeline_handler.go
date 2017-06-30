@@ -193,11 +193,8 @@ func (h *PipelineHandler) closeTask(c echo.Context) error {
 func (h *PipelineHandler) refreshTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
-	refresher, err := models.NewRefresher(ctx)
-	if err != nil {
-		return err
-	}
-	err = refresher.Process(ctx, pl)
+	refresher := &models.Refresher{}
+	err := refresher.Process(ctx, pl)
 	if err != nil {
 		return err
 	}
