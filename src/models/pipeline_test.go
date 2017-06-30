@@ -273,7 +273,7 @@ func TestGetActiveSubscriptions(t *testing.T) {
 	}
 
 	var res []*Subscription
-	test_utils.RetryWith(12, func() func(){
+	test_utils.RetryWith(12, func() func() {
 		res, err = GlobalPipelineAccessor.GetActiveSubscriptions(ctx)
 		assert.NoError(t, err)
 		if 1 == len(res) {
@@ -316,7 +316,7 @@ func TestGetPendingPipelines(t *testing.T) {
 
 	now := time.Now()
 	for i := 1; i < 6; i++ {
-		theTime := now.Add( time.Duration(-1 * (6 - i) * 10) * time.Minute)
+		theTime := now.Add(time.Duration(-1*(6-i)*10) * time.Minute)
 		pl := &Pipeline{
 			Organization: org1,
 			Name:         fmt.Sprintf("pipeline-%v", i),
@@ -331,13 +331,13 @@ func TestGetPendingPipelines(t *testing.T) {
 			ContainerName:    "groovenauts/batch_type_iot_example:0.3.1",
 			Command:          "",
 			TokenConsumption: 6 - i,
-			CreatedAt: theTime,
-			UpdatedAt: theTime,
+			CreatedAt:        theTime,
+			UpdatedAt:        theTime,
 		}
 		assert.NoError(t, pl.Create(ctx))
 		pipelines = append(pipelines, pl)
 	}
-	
+
 	// TokenAmount: 10
 	// pipeline-1 {TokenConsumption: 5} 50 min ago Reserved
 	// pipeline-2 {TokenConsumption: 4} 40 min ago Reserved
@@ -349,7 +349,7 @@ func TestGetPendingPipelines(t *testing.T) {
 	assert.Equal(t, Pending, pipelines[2].Status)
 	assert.Equal(t, Pending, pipelines[3].Status)
 	assert.Equal(t, Pending, pipelines[4].Status)
-	
+
 	res, err := org1.PipelineAccessor().GetPendings(ctx)
 	assert.NoError(t, err)
 	assert.Equal(t, 3, len(res))

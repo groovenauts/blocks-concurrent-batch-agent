@@ -141,19 +141,19 @@ func (m *Pipeline) Create(ctx context.Context) error {
 		if cnt > 0 {
 			log.Warningf(ctx, "Insufficient tokens; %v has already %v pending pipelines", org.Name, cnt)
 			m.Status = Pending
-		} else  {
-		newAmount := org.TokenAmount - m.TokenConsumption
-		if newAmount < 0 {
-			log.Warningf(ctx, "Insufficient tokens; %v has only %v tokens but %v required %v tokens", org.Name, org.TokenAmount, m.Name, m.TokenConsumption)
-			m.Status = Pending
 		} else {
-			m.Status = Reserved
-			org.TokenAmount = newAmount
-			err = org.Update(ctx)
-			if err != nil {
-				return err
+			newAmount := org.TokenAmount - m.TokenConsumption
+			if newAmount < 0 {
+				log.Warningf(ctx, "Insufficient tokens; %v has only %v tokens but %v required %v tokens", org.Name, org.TokenAmount, m.Name, m.TokenConsumption)
+				m.Status = Pending
+			} else {
+				m.Status = Reserved
+				org.TokenAmount = newAmount
+				err = org.Update(ctx)
+				if err != nil {
+					return err
+				}
 			}
-		}
 		}
 
 		key := datastore.NewIncompleteKey(ctx, "Pipelines", parentKey)
