@@ -43,13 +43,11 @@ func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 			func(errors *[]DeploymentError, status string) error {
 				if errors != nil {
 					log.Errorf(ctx, "%v error found for project: %v deployment: %v\n%v\n", status, proj, pl.DeploymentName, errors)
-					pl.DeployingErrors = *errors
-					pl.Status = Broken
+					return pl.FailDeploying(ctx, errors)
 				} else {
 					log.Infof(ctx, "%v completed successfully project: %v deployment: %v\n", status, proj, pl.DeploymentName)
-					pl.Status = Opened
+					return pl.CompleteDeploying(ctx)
 				}
-				return pl.Update(ctx)
 			},
 		)
 	case Closing:
@@ -58,9 +56,7 @@ func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 			func(errors *[]DeploymentError, status string) error {
 				if errors != nil {
 					log.Errorf(ctx, "%v error found for project: %v deployment: %v\n%v\n", status, proj, pl.DeploymentName, errors)
-					pl.ClosingErrors = *errors
-					pl.Status = Closing_error
-					return pl.Update(ctx)
+					return pl.FailDeploying(ctx, errors)
 				} else {
 					log.Infof(ctx, "%v completed successfully project: %v deployment: %v\n", status, proj, pl.DeploymentName)
 					return pl.CompleteClosing(ctx)

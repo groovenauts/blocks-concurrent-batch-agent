@@ -209,6 +209,23 @@ func (m *Pipeline) Update(ctx context.Context) error {
 	return nil
 }
 
+func (m *Pipeline) FailDeploying(ctx context.Context, errors *[]DeploymentError) error {
+	m.DeployingErrors = *errors
+	m.Status = Broken
+	return m.Update(ctx)
+}
+
+func (m *Pipeline) CompleteDeploying(ctx context.Context) error {
+	m.Status = Opened
+	return m.Update(ctx)
+}
+
+func (m *Pipeline) FailClosing(ctx context.Context, errors *[]DeploymentError) error {
+	m.ClosingErrors = *errors
+	m.Status = Closing_error
+	return m.Update(ctx)
+}
+
 func (m *Pipeline) CompleteClosing(ctx context.Context) error {
 	err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
 		org, err := GlobalOrganizationAccessor.Find(ctx, m.Organization.ID)
