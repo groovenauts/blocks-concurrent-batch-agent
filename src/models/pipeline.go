@@ -210,6 +210,10 @@ func (m *Pipeline) Update(ctx context.Context) error {
 }
 
 func (m *Pipeline) RefreshHandler(ctx context.Context) func(*[]DeploymentError)error {
+	return m.RefreshHandlerWith(ctx, nil)
+}
+
+func (m *Pipeline) RefreshHandlerWith(ctx context.Context, pipelineProcesser func(*Pipeline) error) func(*[]DeploymentError)error {
 	return func(errors *[]DeploymentError) error {
 		switch m.Status {
 		case Deploying:
@@ -222,7 +226,7 @@ func (m *Pipeline) RefreshHandler(ctx context.Context) func(*[]DeploymentError)e
 			if errors != nil {
 				return m.FailDeploying(ctx, errors)
 			} else {
-				return m.CompleteClosing(ctx)
+				return m.CompleteClosing(ctx, pipelineProcesser)
 			}
 		default:
 			return &InvalidOperation{Msg: fmt.Sprintf("Invalid Status %v to handle refreshing Pipline %q\n", m.Status, m.ID)}
@@ -247,8 +251,8 @@ func (m *Pipeline) FailClosing(ctx context.Context, errors *[]DeploymentError) e
 	return m.Update(ctx)
 }
 
-func (m *Pipeline) CompleteClosing(ctx context.Context) error {
-	err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+func (m *Pipeline) CompleteClosing(ctx context.Context, pipelineProcesser func(*Pipeline) error) error {
+	return datastore.RunInTransaction(ctx, func(ctx context.Context) error {
 		org, err := GlobalOrganizationAccessor.Find(ctx, m.Organization.ID)
 		if err != nil {
 			return err
@@ -270,6 +274,12 @@ func (m *Pipeline) CompleteClosing(ctx context.Context) error {
 			if err != nil {
 				return err
 			}
+			if pipelineProcesser != nil {
+				err := pipelineProcesser(pending)
+				if err != nil {
+					return err
+				}
+			}
 		}
 
 		org.TokenAmount = newTokenAmount
@@ -281,7 +291,6 @@ func (m *Pipeline) CompleteClosing(ctx context.Context) error {
 		m.Status = Closed
 		return m.Update(ctx)
 	}, nil)
-	return err
 }
 
 func (m *Pipeline) LoadOrganization(ctx context.Context) error {
