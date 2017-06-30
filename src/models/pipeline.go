@@ -243,7 +243,7 @@ func (m *Pipeline) RefreshHandlerWith(ctx context.Context, pipelineProcesser fun
 			}
 		case Closing:
 			if errors != nil {
-				return m.FailDeploying(ctx, errors)
+				return m.FailClosing(ctx, errors)
 			} else {
 				return m.CompleteClosing(ctx, pipelineProcesser)
 			}
