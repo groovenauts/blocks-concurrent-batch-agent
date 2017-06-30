@@ -31,17 +31,16 @@ func (b *Refresher) Setup(ctx context.Context, pl *Pipeline) error {
 func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 	log.Debugf(ctx, "Refreshing pipeline %v\n", pl)
 
-	proj := pl.ProjectID
 	switch pl.Status {
 	case Deploying:
 		b.Setup(ctx, pl)
 		return b.UpdatePipelineWithStatus(ctx, pl, "deploying", pl.DeployingOperationName,
 			func(errors *[]DeploymentError, status string) error {
 				if errors != nil {
-					log.Errorf(ctx, "%v error found for project: %v deployment: %v\n%v\n", status, proj, pl.DeploymentName, errors)
+					log.Errorf(ctx, "%v error found for project: %v deployment: %v\n%v\n", status, pl.ProjectID, pl.DeploymentName, errors)
 					return pl.FailDeploying(ctx, errors)
 				} else {
-					log.Infof(ctx, "%v completed successfully project: %v deployment: %v\n", status, proj, pl.DeploymentName)
+					log.Infof(ctx, "%v completed successfully project: %v deployment: %v\n", status, pl.ProjectID, pl.DeploymentName)
 					return pl.CompleteDeploying(ctx)
 				}
 			},
@@ -51,10 +50,10 @@ func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 		return b.UpdatePipelineWithStatus(ctx, pl, "closing", pl.ClosingOperationName,
 			func(errors *[]DeploymentError, status string) error {
 				if errors != nil {
-					log.Errorf(ctx, "%v error found for project: %v deployment: %v\n%v\n", status, proj, pl.DeploymentName, errors)
+					log.Errorf(ctx, "%v error found for project: %v deployment: %v\n%v\n", status, pl.ProjectID, pl.DeploymentName, errors)
 					return pl.FailDeploying(ctx, errors)
 				} else {
-					log.Infof(ctx, "%v completed successfully project: %v deployment: %v\n", status, proj, pl.DeploymentName)
+					log.Infof(ctx, "%v completed successfully project: %v deployment: %v\n", status, pl.ProjectID, pl.DeploymentName)
 					return pl.CompleteClosing(ctx)
 				}
 			},
@@ -67,10 +66,9 @@ func (b *Refresher) Process(ctx context.Context, pl *Pipeline) error {
 func (b *Refresher) UpdatePipelineWithStatus(ctx context.Context, pl *Pipeline, status, ope_name string, handler func(*[]DeploymentError, string) error) error {
 	// See the "Examples" below "Response"
 	//   https://cloud.google.com/deployment-manager/docs/reference/latest/deployments/insert#response
-	proj := pl.ProjectID
-	ope, err := b.deployer.GetOperation(ctx, proj, ope_name)
+	ope, err := b.deployer.GetOperation(ctx, pl.ProjectID, ope_name)
 	if err != nil {
-		log.Errorf(ctx, "Failed to get %v operation project: %v deployment: %v\n%v\n", status, proj, ope_name, err)
+		log.Errorf(ctx, "Failed to get %v operation project: %v deployment: %v\n%v\n", status, pl.ProjectID, ope_name, err)
 		return err
 	}
 	log.Debugf(ctx, "Refreshing %v operation: %v\n", status, ope)
