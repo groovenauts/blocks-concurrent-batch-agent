@@ -33,9 +33,7 @@ func (b *Closer) Process(ctx context.Context, pl *Pipeline) error {
 		return err
 	}
 
-	pl.Status = Closing
-	pl.ClosingOperationName = ope.Name
-	err = pl.Update(ctx)
+	err = pl.StartClosing(ctx, ope.Name)
 	if err != nil {
 		log.Errorf(ctx, "Failed to update Pipeline status to 'closing': %v\npl: %v\n", err, pl)
 		return err

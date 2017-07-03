@@ -253,6 +253,18 @@ func (m *Pipeline) RefreshHandlerWith(ctx context.Context, pipelineProcesser fun
 	}
 }
 
+func (m *Pipeline) StartBuilding(ctx context.Context) error {
+	m.Status = Building
+	return m.Update(ctx)
+}
+
+func (m *Pipeline) StartDeploying(ctx context.Context, deploymentName, operationName string) error {
+	m.Status = Deploying
+	m.DeploymentName = deploymentName
+	m.DeployingOperationName = operationName
+	return m.Update(ctx)
+}
+
 func (m *Pipeline) FailDeploying(ctx context.Context, errors *[]DeploymentError) error {
 	m.DeployingErrors = *errors
 	m.Status = Broken
@@ -261,6 +273,12 @@ func (m *Pipeline) FailDeploying(ctx context.Context, errors *[]DeploymentError)
 
 func (m *Pipeline) CompleteDeploying(ctx context.Context) error {
 	m.Status = Opened
+	return m.Update(ctx)
+}
+
+func (m *Pipeline) StartClosing(ctx context.Context, operationName string) error {
+	m.Status = Closing
+	m.ClosingOperationName = operationName
 	return m.Update(ctx)
 }
 
