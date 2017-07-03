@@ -222,6 +222,13 @@ func (m *Pipeline) Destroy(ctx context.Context) error {
 }
 
 func (m *Pipeline) Update(ctx context.Context) error {
+	if m.Organization == nil {
+		err := m.LoadOrganization(ctx)
+		if err != nil {
+			return err
+		}
+	}
+
 	m.UpdatedAt = time.Now()
 
 	err := m.Validate()
