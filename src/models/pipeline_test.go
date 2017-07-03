@@ -230,6 +230,43 @@ func TestStatusTypeAndValue(t *testing.T) {
 	assert.Equal(t, "9", fmt.Sprintf(fv, Closed))
 }
 
+func TestPipelineStateTransition(t *testing.T) {
+	statuses := []Status{
+		Uninitialized,
+		Broken,
+		Pending,
+		// Reserved,
+		Building,
+		Deploying,
+		Opened,
+		Closing,
+		ClosingError,
+		Closed,
+	}
+	for _, st := range statuses {
+		pl := &Pipeline{
+			Organization: nil,
+			Name:         "pipeline01",
+			ProjectID:    "dummy-porj-999",
+			Zone:         "us-central1-f",
+			BootDisk: PipelineVmDisk{
+				SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+			},
+			MachineType:      "f1-micro",
+			TargetSize:       1,
+			ContainerSize:    1,
+			ContainerName:    "groovenauts/batch_type_iot_example:0.3.1",
+			Command:          "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
+			TokenConsumption: 1,
+			Status:           st,
+		}
+		err := pl.StartBuilding(nil)
+		assert.Error(t, err)
+		_, ok := err.(*InvalidStateTransition)
+		assert.True(t, ok)
+	}
+}
+
 func TestGetActiveSubscriptions(t *testing.T) {
 	// See https://github.com/golang/appengine/blob/master/aetest/instance.go#L36-L50
 	opt := &aetest.Options{StronglyConsistentDatastore: true}

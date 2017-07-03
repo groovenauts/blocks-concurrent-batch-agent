@@ -265,39 +265,48 @@ func (m *Pipeline) RefreshHandlerWith(ctx context.Context, pipelineProcesser fun
 	}
 }
 
-func (m *Pipeline) StartBuilding(ctx context.Context) error {
-	m.Status = Building
+func (m *Pipeline) StateTransition(ctx context.Context, froms []Status, to Status) error {
+	allowed := false
+	for _, from := range froms {
+		if m.Status == from {
+			allowed = true
+			break
+		}
+	}
+	if !allowed {
+		return &InvalidStateTransition{fmt.Sprintf("Forbidden state transition from %v to %v for pipeline: %v", m.Status, to, m)}
+	}
+	m.Status = to
 	return m.Update(ctx)
 }
 
+func (m *Pipeline) StartBuilding(ctx context.Context) error {
+	return m.StateTransition(ctx, []Status{Reserved}, Building)
+}
+
 func (m *Pipeline) StartDeploying(ctx context.Context, deploymentName, operationName string) error {
-	m.Status = Deploying
 	m.DeploymentName = deploymentName
 	m.DeployingOperationName = operationName
-	return m.Update(ctx)
+	return m.StateTransition(ctx, []Status{Building}, Deploying)
 }
 
 func (m *Pipeline) FailDeploying(ctx context.Context, errors *[]DeploymentError) error {
 	m.DeployingErrors = *errors
-	m.Status = Broken
-	return m.Update(ctx)
+	return m.StateTransition(ctx, []Status{Deploying}, Broken)
 }
 
 func (m *Pipeline) CompleteDeploying(ctx context.Context) error {
-	m.Status = Opened
-	return m.Update(ctx)
+	return m.StateTransition(ctx, []Status{Deploying}, Opened)
 }
 
 func (m *Pipeline) StartClosing(ctx context.Context, operationName string) error {
-	m.Status = Closing
 	m.ClosingOperationName = operationName
-	return m.Update(ctx)
+	return m.StateTransition(ctx, []Status{Opened}, Closing)
 }
 
 func (m *Pipeline) FailClosing(ctx context.Context, errors *[]DeploymentError) error {
 	m.ClosingErrors = *errors
-	m.Status = ClosingError
-	return m.Update(ctx)
+	return m.StateTransition(ctx, []Status{Closing}, ClosingError)
 }
 
 func (m *Pipeline) CompleteClosing(ctx context.Context, pipelineProcesser func(*Pipeline) error) error {
@@ -337,8 +346,7 @@ func (m *Pipeline) CompleteClosing(ctx context.Context, pipelineProcesser func(*
 			return err
 		}
 
-		m.Status = Closed
-		return m.Update(ctx)
+		return m.StateTransition(ctx, []Status{Closing}, Closed)
 	}, nil)
 }
 
