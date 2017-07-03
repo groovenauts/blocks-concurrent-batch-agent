@@ -77,26 +77,28 @@ Make `pipeline.json` like this:
 ```
 
 ```
-$ ORG_ID="[the organization ID you got before]"
-$ TOKEN="[the token you got before]"
-$ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X POST http://localhost:8080/orgs/$ORG_ID/pipelines --data @pipeline.json
-$ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://localhost:8080/orgs/$ORG_ID/pipelines
+$ export AEHOST=localhost:8080
+$ export ORG_ID="[the organization ID you got before]"
+$ export TOKEN="[the token you got before]"
+$ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X POST http://$AEHOST/orgs/$ORG_ID/pipelines --data @pipeline.json
+$ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://$AEHOST/orgs/$ORG_ID/pipelines
 ```
 
 ```
-$ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X DELETE http://localhost:8080/orgs/$ORG_ID/pipelines/$ID
+$ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X DELETE http://$AEHOST/orgs/$ORG_ID/pipelines/$ID
 ```
 
 ## Deploy to appengine
 
 ```
-$ PROJECT=<YOUR_GCP_PROJECT> make deploy
+$ export PROJECT=<YOUR_GCP_PROJECT>
+$ make deploy
 ```
 
 If you want to set it active, run the following command
 
 ```
-$ gcloud --project ${PROJECT} app services set-traffic concurrent-batch-agent --splits=$(cat VERSION)=1
+$ make update-traffic
 ```
 
 ### Get Token on browser
@@ -115,9 +117,9 @@ $ gcloud --project ${PROJECT} app services set-traffic concurrent-batch-agent --
 ### New Pipeline data
 
 ```
-$ ORG_ID="[the organization ID you got before]"
-$ export TOKEN="[the token you got before]"
 $ export AEHOST="[the host name you deployed]"
+$ export ORG_ID="[the organization ID you got before]"
+$ export TOKEN="[the token you got before]"
 $ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X POST http://$AEHOST/orgs/$ORG_ID/pipelines --data @pipeline.json
 ```
 
