@@ -1,0 +1,7 @@
+indexes:
+
+- kind: Pipelines
+  ancestor: yes
+  properties:
+  - name: Status
+  - name: CreatedAt
