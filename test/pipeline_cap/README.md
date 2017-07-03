@@ -53,7 +53,6 @@ Repeat the following until the pipeline's status will be 9.
 ```bash
 $ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://$AEHOST/pipelines/refresh
 $ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://$AEHOST/orgs/$ORG_ID/pipelines | jq .
-$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://$AEHOST/orgs/$ORG_ID | jq .
 ```
 
 And check if pipeline2 is starting and `pipeline3` isn't starting.
@@ -81,7 +80,6 @@ Repeat the following until the pipeline's status will be 9.
 ```bash
 $ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://$AEHOST/pipelines/refresh
 $ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://$AEHOST/orgs/$ORG_ID/pipelines | jq .
-$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://$AEHOST/orgs/$ORG_ID | jq .
 ```
 
 
@@ -109,7 +107,6 @@ Repeat the following until the pipeline's status will be 9.
 ```bash
 $ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://$AEHOST/pipelines/refresh
 $ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://$AEHOST/orgs/$ORG_ID/pipelines | jq .
-$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://$AEHOST/orgs/$ORG_ID | jq .
 ```
 
 And delete pipeline3.
