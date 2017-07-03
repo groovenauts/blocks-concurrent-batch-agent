@@ -150,7 +150,7 @@ func TestActions(t *testing.T) {
 
 	expections := []expection{}
 	for _, st := range []models.Status{
-		models.Initialized,
+		models.Uninitialized,
 		models.Broken,
 		models.Building,
 		models.Opened,

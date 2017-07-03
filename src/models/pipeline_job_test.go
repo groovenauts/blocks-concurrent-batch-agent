@@ -97,7 +97,7 @@ func TestPipelineJobCRUD(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Don't publish Job Message soon when the pipeline isn't Opened
-	for _, st := range []Status{Initialized, Pending, Reserved, Building, Deploying} {
+	for _, st := range []Status{Uninitialized, Pending, Reserved, Building, Deploying} {
 		pipeline1.Status = st
 		err = pipeline1.Update(ctx)
 		assert.NoError(t, err)

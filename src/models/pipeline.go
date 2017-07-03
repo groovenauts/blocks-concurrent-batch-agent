@@ -17,7 +17,7 @@ import (
 type Status int
 
 const (
-	Initialized Status = iota
+	Uninitialized Status = iota
 	Broken
 	Pending
 	Reserved
@@ -30,7 +30,7 @@ const (
 )
 
 var StatusStrings = map[Status]string{
-	Initialized:   "initialized",
+	Uninitialized: "uninitialized",
 	Broken:        "broken",
 	Pending:       "pending",
 	Reserved:      "reserved",

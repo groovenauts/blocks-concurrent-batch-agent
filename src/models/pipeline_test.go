@@ -155,7 +155,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 
 	// GetPipelineIDsByStatus
 	statuses := []Status{
-		Initialized, Broken,
+		Uninitialized, Broken,
 		// Pending,
 		Reserved, Building, Deploying,
 		// Opened,
@@ -188,7 +188,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 
 	// destroy
 	indestructible_statuses := []Status{
-		Initialized, Broken, Pending, Reserved, Building, Deploying, Opened, Closing,
+		Uninitialized, Broken, Pending, Reserved, Building, Deploying, Opened, Closing,
 		//Closed,
 	}
 	for _, st := range indestructible_statuses {
@@ -207,7 +207,7 @@ func TestStatusTypeAndValue(t *testing.T) {
 	ft := "%T"
 	fv := "%#v"
 	st := "models.Status"
-	assert.Equal(t, st, fmt.Sprintf(ft, Initialized))
+	assert.Equal(t, st, fmt.Sprintf(ft, Uninitialized))
 	assert.Equal(t, st, fmt.Sprintf(ft, Broken))
 	assert.Equal(t, st, fmt.Sprintf(ft, Pending))
 	assert.Equal(t, st, fmt.Sprintf(ft, Reserved))
@@ -218,7 +218,7 @@ func TestStatusTypeAndValue(t *testing.T) {
 	assert.Equal(t, st, fmt.Sprintf(ft, Closing_error))
 	assert.Equal(t, st, fmt.Sprintf(ft, Closed))
 
-	assert.Equal(t, "0", fmt.Sprintf(fv, Initialized))
+	assert.Equal(t, "0", fmt.Sprintf(fv, Uninitialized))
 	assert.Equal(t, "1", fmt.Sprintf(fv, Broken))
 	assert.Equal(t, "2", fmt.Sprintf(fv, Pending))
 	assert.Equal(t, "3", fmt.Sprintf(fv, Reserved))
