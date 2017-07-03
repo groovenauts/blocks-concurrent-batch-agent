@@ -166,7 +166,7 @@ func TestRefresherProcessForClosing(t *testing.T) {
 			errors:   nil,
 		},
 		Expection{
-			status:   Closing_error,
+			status:   ClosingError,
 			deployer: &TestDeployerError{},
 			errors: []DeploymentError{
 				DeploymentError{

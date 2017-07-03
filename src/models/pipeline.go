@@ -25,7 +25,7 @@ const (
 	Deploying
 	Opened
 	Closing
-	Closing_error
+	ClosingError
 	Closed
 )
 
@@ -38,7 +38,7 @@ var StatusStrings = map[Status]string{
 	Deploying:     "deploying",
 	Opened:        "opened",
 	Closing:       "closing",
-	Closing_error: "closing_error",
+	ClosingError:  "closing_error",
 	Closed:        "closed",
 }
 
@@ -284,7 +284,7 @@ func (m *Pipeline) StartClosing(ctx context.Context, operationName string) error
 
 func (m *Pipeline) FailClosing(ctx context.Context, errors *[]DeploymentError) error {
 	m.ClosingErrors = *errors
-	m.Status = Closing_error
+	m.Status = ClosingError
 	return m.Update(ctx)
 }
 

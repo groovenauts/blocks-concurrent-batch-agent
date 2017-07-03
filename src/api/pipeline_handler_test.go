@@ -154,7 +154,7 @@ func TestActions(t *testing.T) {
 		models.Broken,
 		models.Building,
 		models.Opened,
-		models.Closing_error,
+		models.ClosingError,
 		models.Closed,
 	} {
 		expections = append(expections, expection{

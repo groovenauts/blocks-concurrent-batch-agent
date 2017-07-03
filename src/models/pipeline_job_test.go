@@ -151,7 +151,7 @@ func TestPipelineJobCRUD(t *testing.T) {
 	}
 
 	// Raise error when create PipelineJob
-	for _, st := range []Status{Broken, Closing, Closing_error, Closed} {
+	for _, st := range []Status{Broken, Closing, ClosingError, Closed} {
 		pipeline1.Status = st
 		err = pipeline1.Update(ctx)
 		assert.NoError(t, err)

@@ -215,7 +215,7 @@ func TestStatusTypeAndValue(t *testing.T) {
 	assert.Equal(t, st, fmt.Sprintf(ft, Deploying))
 	assert.Equal(t, st, fmt.Sprintf(ft, Opened))
 	assert.Equal(t, st, fmt.Sprintf(ft, Closing))
-	assert.Equal(t, st, fmt.Sprintf(ft, Closing_error))
+	assert.Equal(t, st, fmt.Sprintf(ft, ClosingError))
 	assert.Equal(t, st, fmt.Sprintf(ft, Closed))
 
 	assert.Equal(t, "0", fmt.Sprintf(fv, Uninitialized))
@@ -226,7 +226,7 @@ func TestStatusTypeAndValue(t *testing.T) {
 	assert.Equal(t, "5", fmt.Sprintf(fv, Deploying))
 	assert.Equal(t, "6", fmt.Sprintf(fv, Opened))
 	assert.Equal(t, "7", fmt.Sprintf(fv, Closing))
-	assert.Equal(t, "8", fmt.Sprintf(fv, Closing_error))
+	assert.Equal(t, "8", fmt.Sprintf(fv, ClosingError))
 	assert.Equal(t, "9", fmt.Sprintf(fv, Closed))
 }
 
