@@ -32,6 +32,14 @@ func (m *Auth) Validate() error {
 }
 
 func (m *Auth) Create(ctx context.Context) error {
+	t := time.Now()
+	if m.CreatedAt.IsZero() {
+		m.CreatedAt = t
+	}
+	if m.UpdatedAt.IsZero() {
+		m.UpdatedAt = t
+	}
+
 	err := m.Validate()
 	if err != nil {
 		return err
@@ -50,9 +58,6 @@ func (m *Auth) Create(ctx context.Context) error {
 		return err
 	}
 	m.EncryptedPassword = string(enc_pw) // EncryptedPassword is binary string
-	t := time.Now()
-	m.CreatedAt = t
-	m.UpdatedAt = t
 	res, err := datastore.Put(ctx, key, m)
 	if err != nil {
 		log.Errorf(ctx, "@CreateAuth %v mp: %v\n", err, m)
@@ -78,12 +83,12 @@ func (m *Auth) Destroy(ctx context.Context) error {
 }
 
 func (m *Auth) Update(ctx context.Context) error {
+	m.UpdatedAt = time.Now()
+
 	key, err := datastore.DecodeKey(m.ID)
 	if err != nil {
 		return err
 	}
-	t := time.Now()
-	m.UpdatedAt = t
 	_, err = datastore.Put(ctx, key, m)
 	if err != nil {
 		return err

@@ -22,3 +22,11 @@ type InvalidOperation struct {
 func (e *InvalidOperation) Error() string {
 	return e.Msg
 }
+
+type InvalidStateTransition struct {
+	Msg string
+}
+
+func (e *InvalidStateTransition) Error() string {
+	return e.Msg
+}

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/hex"
 	"fmt"
 	"strconv"
 	"time"
@@ -16,24 +17,28 @@ import (
 type Status int
 
 const (
-	Initialized Status = iota
+	Uninitialized Status = iota
 	Broken
+	Pending
+	Reserved
 	Building
 	Deploying
 	Opened
 	Closing
-	Closing_error
+	ClosingError
 	Closed
 )
 
 var StatusStrings = map[Status]string{
-	Initialized:   "initialized",
+	Uninitialized: "uninitialized",
 	Broken:        "broken",
+	Pending:       "pending",
+	Reserved:      "reserved",
 	Building:      "building",
 	Deploying:     "deploying",
 	Opened:        "opened",
 	Closing:       "closing",
-	Closing_error: "closing_error",
+	ClosingError:  "closing_error",
 	Closed:        "closed",
 }
 
@@ -44,8 +49,6 @@ func (st Status) String() string {
 	}
 	return res
 }
-
-var processorFactory ProcessorFactory = &DefaultProcessorFactory{}
 
 type (
 	// See https://godoc.org/google.golang.org/api/deploymentmanager/v2#OperationErrorErrors
@@ -89,6 +92,9 @@ type (
 		DeployingErrors        []DeploymentError `json:"deploying_errors"`
 		ClosingOperationName   string            `json:"closing_operation_name"`
 		ClosingErrors          []DeploymentError `json:"closing_errors"`
+		TokenConsumption       int               `json:"token_consumption"`
+		CreatedAt              time.Time         `json:"created_at"`
+		UpdatedAt              time.Time         `json:"updated_at"`
 	}
 )
 
@@ -99,22 +105,91 @@ func (m *Pipeline) Validate() error {
 }
 
 func (m *Pipeline) Create(ctx context.Context) error {
+	return m.CreateWith(ctx, m.PutWithNewKey)
+}
+
+func (m *Pipeline) CreateWith(ctx context.Context, f func(ctx context.Context) error) error {
+	t := time.Now()
+	if m.CreatedAt.IsZero() {
+		m.CreatedAt = t
+	}
+	if m.UpdatedAt.IsZero() {
+		m.UpdatedAt = t
+	}
+
 	err := m.Validate()
 	if err != nil {
 		return err
 	}
 
+	return f(ctx)
+}
+
+func (m *Pipeline) ReserveOrWait(ctx context.Context) error {
+	return m.CreateWith(ctx, func(ctx context.Context) error {
+		err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+			org, err := GlobalOrganizationAccessor.Find(ctx, m.Organization.ID)
+			if err != nil {
+				return err
+			}
+
+			pending, err := org.PipelineAccessor().PendingQuery()
+			if err != nil {
+				return err
+			}
+
+			cnt, err := pending.Count(ctx)
+			if err != nil {
+				return err
+			}
+
+			if cnt > 0 {
+				log.Warningf(ctx, "Insufficient tokens; %v has already %v pending pipelines", org.Name, cnt)
+				m.Status = Pending
+			} else {
+				newAmount := org.TokenAmount - m.TokenConsumption
+				if newAmount < 0 {
+					log.Warningf(ctx, "Insufficient tokens; %v has only %v tokens but %v required %v tokens", org.Name, org.TokenAmount, m.Name, m.TokenConsumption)
+					m.Status = Pending
+				} else {
+					m.Status = Reserved
+					org.TokenAmount = newAmount
+					err = org.Update(ctx)
+					if err != nil {
+						return err
+					}
+				}
+			}
+
+			return m.PutWithNewKey(ctx)
+		}, nil)
+
+		if err != nil {
+			log.Errorf(ctx, "Transaction failed: %v\n", err)
+			return err
+		}
+
+		return nil
+	})
+}
+
+func (m *Pipeline) PutWithNewKey(ctx context.Context) error {
 	parentKey, err := datastore.DecodeKey(m.Organization.ID)
 	if err != nil {
 		return err
 	}
 
 	key := datastore.NewIncompleteKey(ctx, "Pipelines", parentKey)
+	if err != nil {
+		return err
+	}
+
 	res, err := datastore.Put(ctx, key, m)
 	if err != nil {
 		return err
 	}
 	m.ID = res.Encode()
+
 	return nil
 }
 
@@ -135,6 +210,15 @@ func (m *Pipeline) Destroy(ctx context.Context) error {
 }
 
 func (m *Pipeline) Update(ctx context.Context) error {
+	if m.Organization == nil {
+		err := m.LoadOrganization(ctx)
+		if err != nil {
+			return err
+		}
+	}
+
+	m.UpdatedAt = time.Now()
+
 	err := m.Validate()
 	if err != nil {
 		return err
@@ -151,12 +235,114 @@ func (m *Pipeline) Update(ctx context.Context) error {
 	return nil
 }
 
-func (m *Pipeline) Process(ctx context.Context, action string) error {
-	processor, err := processorFactory.Create(ctx, action)
-	if err != nil {
-		return err
+func (m *Pipeline) RefreshHandler(ctx context.Context) func(*[]DeploymentError) error {
+	return m.RefreshHandlerWith(ctx, nil)
+}
+
+func (m *Pipeline) RefreshHandlerWith(ctx context.Context, pipelineProcesser func(*Pipeline) error) func(*[]DeploymentError) error {
+	return func(errors *[]DeploymentError) error {
+		switch m.Status {
+		case Deploying:
+			if errors != nil {
+				return m.FailDeploying(ctx, errors)
+			} else {
+				return m.CompleteDeploying(ctx)
+			}
+		case Closing:
+			if errors != nil {
+				return m.FailClosing(ctx, errors)
+			} else {
+				return m.CompleteClosing(ctx, pipelineProcesser)
+			}
+		default:
+			return &InvalidOperation{Msg: fmt.Sprintf("Invalid Status %v to handle refreshing Pipline %q\n", m.Status, m.ID)}
+		}
 	}
-	return processor.Process(ctx, m)
+}
+
+func (m *Pipeline) StateTransition(ctx context.Context, froms []Status, to Status) error {
+	allowed := false
+	for _, from := range froms {
+		if m.Status == from {
+			allowed = true
+			break
+		}
+	}
+	if !allowed {
+		return &InvalidStateTransition{fmt.Sprintf("Forbidden state transition from %v to %v for pipeline: %v", m.Status, to, m)}
+	}
+	m.Status = to
+	return m.Update(ctx)
+}
+
+func (m *Pipeline) StartBuilding(ctx context.Context) error {
+	return m.StateTransition(ctx, []Status{Reserved}, Building)
+}
+
+func (m *Pipeline) StartDeploying(ctx context.Context, deploymentName, operationName string) error {
+	m.DeploymentName = deploymentName
+	m.DeployingOperationName = operationName
+	return m.StateTransition(ctx, []Status{Building}, Deploying)
+}
+
+func (m *Pipeline) FailDeploying(ctx context.Context, errors *[]DeploymentError) error {
+	m.DeployingErrors = *errors
+	return m.StateTransition(ctx, []Status{Deploying}, Broken)
+}
+
+func (m *Pipeline) CompleteDeploying(ctx context.Context) error {
+	return m.StateTransition(ctx, []Status{Deploying}, Opened)
+}
+
+func (m *Pipeline) StartClosing(ctx context.Context, operationName string) error {
+	m.ClosingOperationName = operationName
+	return m.StateTransition(ctx, []Status{Opened}, Closing)
+}
+
+func (m *Pipeline) FailClosing(ctx context.Context, errors *[]DeploymentError) error {
+	m.ClosingErrors = *errors
+	return m.StateTransition(ctx, []Status{Closing}, ClosingError)
+}
+
+func (m *Pipeline) CompleteClosing(ctx context.Context, pipelineProcesser func(*Pipeline) error) error {
+	return datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+		org, err := GlobalOrganizationAccessor.Find(ctx, m.Organization.ID)
+		if err != nil {
+			return err
+		}
+		newTokenAmount := org.TokenAmount + m.TokenConsumption
+
+		pendings, err := org.PipelineAccessor().GetPendings(ctx)
+		if err != nil {
+			return err
+		}
+
+		for _, pending := range pendings {
+			if newTokenAmount < pending.TokenConsumption {
+				break
+			}
+			newTokenAmount = newTokenAmount - pending.TokenConsumption
+			pending.Status = Reserved
+			err := pending.Update(ctx)
+			if err != nil {
+				return err
+			}
+			if pipelineProcesser != nil {
+				err := pipelineProcesser(pending)
+				if err != nil {
+					return err
+				}
+			}
+		}
+
+		org.TokenAmount = newTokenAmount
+		err = org.Update(ctx)
+		if err != nil {
+			return err
+		}
+
+		return m.StateTransition(ctx, []Status{Closing}, Closed)
+	}, nil)
 }
 
 func (m *Pipeline) LoadOrganization(ctx context.Context) error {
@@ -209,4 +395,8 @@ func (m *Pipeline) JobTopicName() string {
 
 func (m *Pipeline) JobTopicFqn() string {
 	return fmt.Sprintf("projects/%s/topics/%s", m.ProjectID, m.JobTopicName())
+}
+
+func (m *Pipeline) IDHex() string {
+	return hex.EncodeToString([]byte(m.ID))
 }

@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"test_utils"
 
@@ -64,12 +65,13 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	}
 
 	org1 := &Organization{
-		Name: "org01",
+		Name:        "org01",
+		TokenAmount: 10,
 	}
 	err = org1.Create(ctx)
 	assert.NoError(t, err)
 
-	// CreatePipeline valid
+	// CreatePipeline (ReserveOrWait) valid
 	pl := &Pipeline{
 		Organization: org1,
 		Name:         "pipeline01",
@@ -78,14 +80,16 @@ func TestWatcherCalcDifferences(t *testing.T) {
 		BootDisk: PipelineVmDisk{
 			SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
 		},
-		MachineType:   "f1-micro",
-		TargetSize:    2,
-		ContainerSize: 2,
-		ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
-		Command:       "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
+		MachineType:      "f1-micro",
+		TargetSize:       2,
+		ContainerSize:    2,
+		ContainerName:    "groovenauts/batch_type_iot_example:0.3.1",
+		Command:          "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
+		TokenConsumption: 2,
 	}
-	err = pl.Create(ctx)
+	err = pl.ReserveOrWait(ctx)
 	assert.NoError(t, err)
+	assert.NotEmpty(t, pl.ID)
 	key, err := datastore.DecodeKey(pl.ID)
 	assert.NoError(t, err)
 
@@ -99,6 +103,31 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	assert.NoError(t, err)
 	ExpectToHaveProps(t, pl3)
 
+	// org1.TokenAmount got reduced
+	orgReloaded, err := GlobalOrganizationAccessor.Find(ctx, org1.ID)
+	assert.NoError(t, err)
+	assert.Equal(t, org1.TokenAmount-pl.TokenConsumption, orgReloaded.TokenAmount)
+	assert.Equal(t, Reserved, pl.Status)
+
+	pendingPl := &Pipeline{
+		Organization: org1,
+		Name:         "pipeline01",
+		ProjectID:    proj,
+		Zone:         "us-central1-f",
+		BootDisk: PipelineVmDisk{
+			SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+		},
+		MachineType:      "f1-micro",
+		TargetSize:       2,
+		ContainerSize:    2,
+		ContainerName:    "groovenauts/batch_type_iot_example:0.3.1",
+		Command:          "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
+		TokenConsumption: org1.TokenAmount - pl.TokenConsumption + 1,
+	}
+	err = pendingPl.ReserveOrWait(ctx)
+	assert.NoError(t, err)
+	assert.Equal(t, Pending, pendingPl.Status)
+
 	// Update status
 	pl.Status = Building
 	err = pl.Update(ctx)
@@ -107,10 +136,17 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	// GetAllPipeline
 	pls, err := GlobalPipelineAccessor.GetAll(ctx)
 	assert.NoError(t, err)
-	if len(pls) != 1 {
-		t.Fatalf("len(pls) expects %v but was %v\n", 1, len(pls))
+	if len(pls) != 2 {
+		t.Fatalf("len(pls) expects %v but was %v\n", 2, len(pls))
 	}
-	ExpectToHaveProps(t, pls[0])
+	var pls0 *Pipeline
+	for _, i := range pls {
+		if i.Status == Reserved {
+			pls0 = i
+		}
+	}
+	assert.NotNil(t, pls0)
+	ExpectToHaveProps(t, pls0)
 
 	// Update status
 	pl.Status = Opened
@@ -119,7 +155,9 @@ func TestWatcherCalcDifferences(t *testing.T) {
 
 	// GetPipelineIDsByStatus
 	statuses := []Status{
-		Initialized, Broken, Building, Deploying,
+		Uninitialized, Broken,
+		// Pending,
+		Reserved, Building, Deploying,
 		// Opened,
 		Closing, Closed,
 	}
@@ -150,7 +188,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 
 	// destroy
 	indestructible_statuses := []Status{
-		Initialized, Broken, Building, Deploying, Opened, Closing,
+		Uninitialized, Broken, Pending, Reserved, Building, Deploying, Opened, Closing,
 		//Closed,
 	}
 	for _, st := range indestructible_statuses {
@@ -169,23 +207,64 @@ func TestStatusTypeAndValue(t *testing.T) {
 	ft := "%T"
 	fv := "%#v"
 	st := "models.Status"
-	assert.Equal(t, st, fmt.Sprintf(ft, Initialized))
+	assert.Equal(t, st, fmt.Sprintf(ft, Uninitialized))
 	assert.Equal(t, st, fmt.Sprintf(ft, Broken))
+	assert.Equal(t, st, fmt.Sprintf(ft, Pending))
+	assert.Equal(t, st, fmt.Sprintf(ft, Reserved))
 	assert.Equal(t, st, fmt.Sprintf(ft, Building))
 	assert.Equal(t, st, fmt.Sprintf(ft, Deploying))
 	assert.Equal(t, st, fmt.Sprintf(ft, Opened))
 	assert.Equal(t, st, fmt.Sprintf(ft, Closing))
-	assert.Equal(t, st, fmt.Sprintf(ft, Closing_error))
+	assert.Equal(t, st, fmt.Sprintf(ft, ClosingError))
 	assert.Equal(t, st, fmt.Sprintf(ft, Closed))
 
-	assert.Equal(t, "0", fmt.Sprintf(fv, Initialized))
+	assert.Equal(t, "0", fmt.Sprintf(fv, Uninitialized))
 	assert.Equal(t, "1", fmt.Sprintf(fv, Broken))
-	assert.Equal(t, "2", fmt.Sprintf(fv, Building))
-	assert.Equal(t, "3", fmt.Sprintf(fv, Deploying))
-	assert.Equal(t, "4", fmt.Sprintf(fv, Opened))
-	assert.Equal(t, "5", fmt.Sprintf(fv, Closing))
-	assert.Equal(t, "6", fmt.Sprintf(fv, Closing_error))
-	assert.Equal(t, "7", fmt.Sprintf(fv, Closed))
+	assert.Equal(t, "2", fmt.Sprintf(fv, Pending))
+	assert.Equal(t, "3", fmt.Sprintf(fv, Reserved))
+	assert.Equal(t, "4", fmt.Sprintf(fv, Building))
+	assert.Equal(t, "5", fmt.Sprintf(fv, Deploying))
+	assert.Equal(t, "6", fmt.Sprintf(fv, Opened))
+	assert.Equal(t, "7", fmt.Sprintf(fv, Closing))
+	assert.Equal(t, "8", fmt.Sprintf(fv, ClosingError))
+	assert.Equal(t, "9", fmt.Sprintf(fv, Closed))
+}
+
+func TestPipelineStateTransition(t *testing.T) {
+	statuses := []Status{
+		Uninitialized,
+		Broken,
+		Pending,
+		// Reserved,
+		Building,
+		Deploying,
+		Opened,
+		Closing,
+		ClosingError,
+		Closed,
+	}
+	for _, st := range statuses {
+		pl := &Pipeline{
+			Organization: nil,
+			Name:         "pipeline01",
+			ProjectID:    "dummy-porj-999",
+			Zone:         "us-central1-f",
+			BootDisk: PipelineVmDisk{
+				SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+			},
+			MachineType:      "f1-micro",
+			TargetSize:       1,
+			ContainerSize:    1,
+			ContainerName:    "groovenauts/batch_type_iot_example:0.3.1",
+			Command:          "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
+			TokenConsumption: 1,
+			Status:           st,
+		}
+		err := pl.StartBuilding(nil)
+		assert.Error(t, err)
+		_, ok := err.(*InvalidStateTransition)
+		assert.True(t, ok)
+	}
 }
 
 func TestGetActiveSubscriptions(t *testing.T) {
@@ -205,7 +284,8 @@ func TestGetActiveSubscriptions(t *testing.T) {
 	pipelines := map[Status]*Pipeline{}
 
 	org1 := &Organization{
-		Name: "org01",
+		Name:        "org01",
+		TokenAmount: len(StatusStrings) * 2,
 	}
 	err = org1.Create(ctx)
 	assert.NoError(t, err)
@@ -219,23 +299,103 @@ func TestGetActiveSubscriptions(t *testing.T) {
 			BootDisk: PipelineVmDisk{
 				SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
 			},
-			MachineType:   "f1-micro",
-			TargetSize:    2,
-			ContainerSize: 2,
-			ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
-			Command:       "",
-			Status:        st,
+			MachineType:      "f1-micro",
+			TargetSize:       2,
+			ContainerSize:    2,
+			ContainerName:    "groovenauts/batch_type_iot_example:0.3.1",
+			Command:          "",
+			Status:           st,
+			TokenConsumption: 2,
 		}
 		assert.NoError(t, pl.Create(ctx))
 		pipelines[st] = pl
 	}
 
-	res, err := GlobalPipelineAccessor.GetActiveSubscriptions(ctx)
-	assert.NoError(t, err)
-	assert.Equal(t, 1, len(res))
+	var res []*Subscription
+	test_utils.RetryWith(12, func() func() {
+		res, err = GlobalPipelineAccessor.GetActiveSubscriptions(ctx)
+		assert.NoError(t, err)
+		if 1 == len(res) {
+			return nil
+		} else {
+			return func() {
+				assert.Equal(t, 1, len(res))
+			}
+		}
+	})
 
 	subscription := res[0]
 	assert.Equal(t, pipelines[Opened].ID, subscription.PipelineID)
 	assert.Equal(t, "pipeline-opened", subscription.Pipeline)
 	assert.Equal(t, "projects/test-project-x/subscriptions/pipeline-opened-progress-subscription", subscription.Name)
+}
+
+func TestGetPendingPipelines(t *testing.T) {
+	// See https://github.com/golang/appengine/blob/master/aetest/instance.go#L36-L50
+	opt := &aetest.Options{StronglyConsistentDatastore: true}
+	inst, err := aetest.NewInstance(opt)
+	assert.NoError(t, err)
+	defer inst.Close()
+
+	req, err := inst.NewRequest("GET", "/", nil)
+	if !assert.NoError(t, err) {
+		inst.Close()
+		return
+	}
+	ctx := appengine.NewContext(req)
+
+	pipelines := []*Pipeline{}
+
+	org1 := &Organization{
+		Name:        "org01",
+		TokenAmount: 10,
+	}
+	err = org1.Create(ctx)
+	assert.NoError(t, err)
+
+	now := time.Now()
+	for i := 1; i < 6; i++ {
+		theTime := now.Add(time.Duration(-1*(6-i)*10) * time.Minute)
+		pl := &Pipeline{
+			Organization: org1,
+			Name:         fmt.Sprintf("pipeline-%v", i),
+			ProjectID:    proj,
+			Zone:         "us-central1-f",
+			BootDisk: PipelineVmDisk{
+				SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+			},
+			MachineType:      "f1-micro",
+			TargetSize:       6 - i,
+			ContainerSize:    1,
+			ContainerName:    "groovenauts/batch_type_iot_example:0.3.1",
+			Command:          "",
+			TokenConsumption: 6 - i,
+			CreatedAt:        theTime,
+			UpdatedAt:        theTime,
+		}
+		assert.NoError(t, pl.ReserveOrWait(ctx))
+		pipelines = append(pipelines, pl)
+	}
+
+	// TokenAmount: 10
+	// pipeline-1 {TokenConsumption: 5} 50 min ago Reserved
+	// pipeline-2 {TokenConsumption: 4} 40 min ago Reserved
+	// pipeline-3 {TokenConsumption: 3} 30 min ago Pending
+	// pipeline-4 {TokenConsumption: 2} 20 min ago Pending
+	// pipeline-5 {TokenConsumption: 1} 10 min ago Pending
+	assert.Equal(t, Reserved, pipelines[0].Status)
+	assert.Equal(t, Reserved, pipelines[1].Status)
+	assert.Equal(t, Pending, pipelines[2].Status)
+	assert.Equal(t, Pending, pipelines[3].Status)
+	assert.Equal(t, Pending, pipelines[4].Status)
+
+	res, err := org1.PipelineAccessor().GetPendings(ctx)
+	assert.NoError(t, err)
+	assert.Equal(t, 3, len(res))
+
+	names := []string{}
+	for _, pl := range res {
+		names = append(names, pl.Name)
+	}
+	assert.Equal(t, []string{"pipeline-3", "pipeline-4", "pipeline-5"}, names)
 }

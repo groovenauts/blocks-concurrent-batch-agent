@@ -14,6 +14,14 @@ type Builder struct {
 	deployer DeploymentServicer
 }
 
+func NewBuilder(ctx context.Context) (*Builder, error) {
+	deployer, err := DefaultDeploymentServicer(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &Builder{deployer: deployer}, nil
+}
+
 func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
 	err := pl.LoadOrganization(ctx)
 	if err != nil {
@@ -21,8 +29,7 @@ func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
 		return err
 	}
 
-	pl.Status = Building
-	err = pl.Update(ctx)
+	err = pl.StartBuilding(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to update Pipeline status to 'building': %v\npl: %v\n", err, pl)
 		return err
@@ -41,10 +48,7 @@ func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
 
 	log.Infof(ctx, "Built pipeline successfully %v\n", pl)
 
-	pl.Status = Deploying
-	pl.DeploymentName = deployment.Name
-	pl.DeployingOperationName = ope.Name
-	err = pl.Update(ctx)
+	err = pl.StartDeploying(ctx, deployment.Name, ope.Name)
 	if err != nil {
 		log.Errorf(ctx, "Failed to update Pipeline deployment name to %v: %v\npl: %v\n", ope.Name, err, pl)
 		return err

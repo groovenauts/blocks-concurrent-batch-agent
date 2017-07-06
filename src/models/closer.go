@@ -9,6 +9,14 @@ type Closer struct {
 	deployer DeploymentServicer
 }
 
+func NewCloser(ctx context.Context) (*Closer, error) {
+	deployer, err := DefaultDeploymentServicer(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &Closer{deployer: deployer}, nil
+}
+
 func (b *Closer) Process(ctx context.Context, pl *Pipeline) error {
 	log.Debugf(ctx, "Closing pipeline %v\n", pl)
 
@@ -25,9 +33,7 @@ func (b *Closer) Process(ctx context.Context, pl *Pipeline) error {
 		return err
 	}
 
-	pl.Status = Closing
-	pl.ClosingOperationName = ope.Name
-	err = pl.Update(ctx)
+	err = pl.StartClosing(ctx, ope.Name)
 	if err != nil {
 		log.Errorf(ctx, "Failed to update Pipeline status to 'closing': %v\npl: %v\n", err, pl)
 		return err

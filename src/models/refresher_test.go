@@ -114,7 +114,7 @@ func TestRefresherProcessForDeploying(t *testing.T) {
 	assert.NoError(t, err)
 
 	for _, expection := range expections {
-		pl := Pipeline{
+		pl := &Pipeline{
 			Organization: org1,
 			Name:         "pipeline01",
 			ProjectID:    proj,
@@ -133,7 +133,7 @@ func TestRefresherProcessForDeploying(t *testing.T) {
 		err = pl.Create(ctx)
 
 		r := &Refresher{deployer: expection.deployer}
-		err = r.Process(ctx, &pl)
+		err = r.Process(ctx, pl, pl.RefreshHandler(ctx))
 		assert.NoError(t, err)
 		pl2, err := GlobalPipelineAccessor.Find(ctx, pl.ID)
 		assert.NoError(t, err)
@@ -166,7 +166,7 @@ func TestRefresherProcessForClosing(t *testing.T) {
 			errors:   nil,
 		},
 		Expection{
-			status:   Closing_error,
+			status:   ClosingError,
 			deployer: &TestDeployerError{},
 			errors: []DeploymentError{
 				DeploymentError{
@@ -179,13 +179,14 @@ func TestRefresherProcessForClosing(t *testing.T) {
 	}
 
 	org1 := &Organization{
-		Name: "org01",
+		Name:        "org01",
+		TokenAmount: 10,
 	}
 	err = org1.Create(ctx)
 	assert.NoError(t, err)
 
 	for _, expection := range expections {
-		pl := Pipeline{
+		pl := &Pipeline{
 			Organization: org1,
 			Name:         "pipeline01",
 			ProjectID:    proj,
@@ -193,23 +194,41 @@ func TestRefresherProcessForClosing(t *testing.T) {
 			BootDisk: PipelineVmDisk{
 				SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
 			},
-			MachineType:    "f1-micro",
-			TargetSize:     2,
-			ContainerSize:  2,
-			ContainerName:  "groovenauts/batch_type_iot_example:0.3.1",
-			Command:        "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
-			DeploymentName: "pipeline01",
-			Status:         Closing,
+			MachineType:      "f1-micro",
+			TargetSize:       2,
+			ContainerSize:    2,
+			ContainerName:    "groovenauts/batch_type_iot_example:0.3.1",
+			Command:          "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
+			DeploymentName:   "pipeline01",
+			Status:           Closing,
+			TokenConsumption: 0,
 		}
 		err = pl.Create(ctx)
+		assert.NoError(t, err)
+
+		pl.TokenConsumption = 2
+		err = pl.Update(ctx)
+		assert.NoError(t, err)
+
+		orgBefore, err := GlobalOrganizationAccessor.Find(ctx, org1.ID)
+		assert.NoError(t, err)
 
 		r := &Refresher{deployer: expection.deployer}
-		err = r.Process(ctx, &pl)
+		err = r.Process(ctx, pl, pl.RefreshHandler(ctx))
 		assert.NoError(t, err)
 		pl2, err := GlobalPipelineAccessor.Find(ctx, pl.ID)
 		assert.NoError(t, err)
 		assert.Equal(t, expection.status, pl2.Status)
 		assert.Equal(t, expection.errors, pl2.ClosingErrors)
-	}
 
+		orgAfter, err := GlobalOrganizationAccessor.Find(ctx, org1.ID)
+		assert.NoError(t, err)
+
+		switch expection.status {
+		case Closed:
+			assert.Equal(t, orgBefore.TokenAmount+pl.TokenConsumption, orgAfter.TokenAmount)
+		default:
+			assert.Equal(t, orgBefore.TokenAmount, orgAfter.TokenAmount)
+		}
+	}
 }
