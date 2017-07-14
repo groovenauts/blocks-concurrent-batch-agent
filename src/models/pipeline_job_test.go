@@ -144,10 +144,21 @@ func TestPipelineJobCRUD(t *testing.T) {
 		err := pj.CreateAndPublishIfPossible(ctx)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, pj.ID)
+		assert.Equal(t, pj.ID, pj.Message.AttributeMap[PipelineJobIdKey])
 
 		assert.Equal(t, Published, pj.Status)
 		assert.Equal(t, 1, len(dummyPublisher.Invocations))
 		dummyPublisher.Invocations = []*PublishInvocation{}
+
+		saved, err := GlobalPipelineJobAccessor.Find(ctx, pj.ID)
+		assert.NoError(t, err)
+		assert.Equal(t, 2, len(saved.Message.AttributeEntries))
+		entry0 := saved.Message.AttributeEntries[0]
+		assert.Equal(t, "download_files", entry0.Name)
+		assert.Equal(t, string(download_files_json), entry0.Value)
+		entry1 := saved.Message.AttributeEntries[1]
+		assert.Equal(t, PipelineJobIdKey, entry1.Name)
+		assert.Equal(t, saved.ID, entry1.Value)
 	}
 
 	// Raise error when create PipelineJob

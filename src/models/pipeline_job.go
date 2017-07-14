@@ -37,6 +37,8 @@ type (
 	}
 )
 
+const PipelineJobIdKey = "concurrent_batch.pipeline_job_id"
+
 func (m *PipelineJobMessage) MapToEntries() {
 	entries := []KeyValuePair{}
 	for k, v := range m.AttributeMap {
@@ -167,9 +169,13 @@ func (m *PipelineJob) LoadPipeline(ctx context.Context) error {
 }
 
 func (m *PipelineJob) JobMessage() *pubsub.PubsubMessage {
+	entry := KeyValuePair{Name: PipelineJobIdKey, Value: m.ID}
+	m.Message.AttributeEntries = append(m.Message.AttributeEntries, entry)
 	if len(m.Message.AttributeMap) == 0 {
 		msg := &m.Message
 		msg.EntriesToMap()
+	} else {
+		m.Message.AttributeMap[PipelineJobIdKey] = m.ID
 	}
 	return &pubsub.PubsubMessage{
 		Attributes: m.Message.AttributeMap,
@@ -179,6 +185,7 @@ func (m *PipelineJob) JobMessage() *pubsub.PubsubMessage {
 
 func (m *PipelineJob) Publish(ctx context.Context) (string, error) {
 	msg := m.JobMessage()
+	log.Debugf(ctx, "m.JobMessage: %v\n", msg)
 	topic := m.Pipeline.JobTopicFqn()
 	log.Debugf(ctx, "Sending message to %v: %v\n", topic, msg)
 
