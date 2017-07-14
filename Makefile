@@ -1,6 +1,8 @@
 export GOPATH := $(GOPATH):$(PWD):$(PWD)/vendor
 VERSION = $(shell cat ./VERSION)
 
+.PHONY: all checksetup glide_rename glide_install glide_reinstall glide_update check build test ci run show_version deploy update-traffic
+
 all: check
 
 checksetup:
