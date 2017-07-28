@@ -25,7 +25,7 @@ func (h *PipelineJobHandler) buildActions() map[string](func(c echo.Context) err
 	}
 }
 
-// curl -v -X POST http://localhost:8080/orgs/2/pipelines --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
+// curl -v -X POST http://localhost:8080/pipelines/3/jobs --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
 func (h *PipelineJobHandler) create(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	req := c.Request()
@@ -54,7 +54,7 @@ func (h *PipelineJobHandler) create(c echo.Context) error {
 	return c.JSON(http.StatusCreated, pj)
 }
 
-// curl -v http://localhost:8080/orgs/2/pipelines
+// curl -v http://localhost:8080/pipelines/3/jobs
 func (h *PipelineJobHandler) index(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
@@ -65,13 +65,13 @@ func (h *PipelineJobHandler) index(c echo.Context) error {
 	return c.JSON(http.StatusOK, jobs)
 }
 
-// curl -v http://localhost:8080/pipelines/1
+// curl -v http://localhost:8080/jobs/1
 func (h *PipelineJobHandler) show(c echo.Context) error {
 	pj := c.Get("pipeline_job").(*models.PipelineJob)
 	return c.JSON(http.StatusOK, pj)
 }
 
-// curl -v http://localhost:8080/pipelines/1
+// curl -v http://localhost:8080/jobs/1/publish
 func (h *PipelineJobHandler) WaitAndPublish(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
