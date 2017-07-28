@@ -198,6 +198,12 @@ func (m *PipelineJob) Publish(ctx context.Context) (string, error) {
 		return "", err
 	}
 
+	m.MessageID = msgId
+	err = m.Update(ctx)
+	if err != nil {
+		return "", err
+	}
+
 	return msgId, nil
 }
 
