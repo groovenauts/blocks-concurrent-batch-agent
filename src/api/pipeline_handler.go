@@ -96,16 +96,11 @@ func (h *PipelineHandler) show(c echo.Context) error {
 
 // curl -v -X PUT http://localhost:8080/pipelines/1/close
 func (h *PipelineHandler) close(c echo.Context) error {
-	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
 	id := c.Param("id")
-	req := c.Request()
-	t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/close_task", id), map[string][]string{})
-	t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
-	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
-		return err
-	}
-	return c.JSON(http.StatusCreated, pl)
+	return h.NewPOSTTask(c, fmt.Sprintf("/pipelines/%s/close_task", id), func() error {
+		return c.JSON(http.StatusCreated, pl)
+	})
 }
 
 // curl -v -X DELETE http://localhost:8080/pipelines/1
@@ -151,6 +146,19 @@ func (h *PipelineHandler) refresh(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, res)
 }
+
+func (h *PipelineHandler) NewPOSTTask(c echo.Context, path string, f func() error) error {
+	ctx := c.Get("aecontext").(context.Context)
+	req := c.Request()
+	t := taskqueue.NewPOSTTask(path, map[string][]string{})
+	t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
+	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
+		return err
+	}
+	return f()
+}
+
+
 
 // curl -v -X POST http://localhost:8080/pipelines/1/build_task
 func (h *PipelineHandler) buildTask(c echo.Context) error {
