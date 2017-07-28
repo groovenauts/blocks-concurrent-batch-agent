@@ -21,12 +21,16 @@ func SetupRoutes(echo *echo.Echo) map[string]interface{} {
 
 	g = e.Group("/pipelines")
 	g.GET("/:id", h.Actions["show"])
-	// g.POST("/:id/build_task", h.Actions["build"])
-	g.POST("/:id/build_task", gae_support.With(plBy("id", withPlIDHexAuth(h.buildTask))))
 	g.PUT("/:id/close", h.Actions["close"])
-	// g.POST("/:id/close_task", h.Actions["close_task"])
 	g.POST("/:id/close_task", gae_support.With(plBy("id", PlToOrg(withAuth(h.closeTask)))))
 	g.DELETE("/:id", h.Actions["destroy"])
+
+	g.POST("/:id/build_task", gae_support.With(plBy("id", withPlIDHexAuth(h.buildTask))))
+	g.POST("/:id/wait_building_task", gae_support.With(plBy("id", withPlIDHexAuth(h.waitBuildingTask))))
+	g.POST("/:id/publish_task", gae_support.With(plBy("id", withPlIDHexAuth(h.publishTask))))
+	g.POST("/:id/subscribe_task", gae_support.With(plBy("id", withPlIDHexAuth(h.subscribeTask))))
+	g.POST("/:id/start_closing_task", gae_support.With(plBy("id", withPlIDHexAuth(h.startClosingTask))))
+	g.POST("/:id/wait_closing_task", gae_support.With(plBy("id", withPlIDHexAuth(h.waitClosingTask))))
 
 	g.GET("/refresh", h.Actions["refresh"])
 	// g.POST("/:id/refresh_task", h.Actions["refresh_task"])

@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"gae_support"
 	"models"
@@ -172,6 +173,122 @@ func (h *PipelineHandler) buildTask(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+
+	return h.NewPOSTTask(c, fmt.Sprintf("/pipelines/%s/wait_building_task", pl.ID), func() error {
+		return c.JSON(http.StatusOK, pl)
+	})
+}
+
+// curl -v -X	POST http://localhost:8080/pipelines/1/wait_building_task
+func (h *PipelineHandler) waitBuildingTask(c echo.Context) error {
+	ctx := c.Get("aecontext").(context.Context)
+	pl := c.Get("pipeline").(*models.Pipeline)
+	handler := pl.RefreshHandler(ctx)
+
+	for pl.Status == models.Deploying {
+		refresher := &models.Refresher{}
+		err := refresher.Process(ctx, pl, handler)
+		if err != nil {
+			return err
+		}
+		time.Sleep(30 * time.Second)
+	}
+
+	return h.NewPOSTTask(c, fmt.Sprintf("/pipelines/%s/publish_task", pl.ID), func() error {
+		return c.JSON(http.StatusOK, pl)
+	})
+}
+
+// curl -v -X	POST http://localhost:8080/pipelines/1/publish_task
+func (h *PipelineHandler) publishTask(c echo.Context) error {
+	ctx := c.Get("aecontext").(context.Context)
+	pl := c.Get("pipeline").(*models.Pipeline)
+	accessor := pl.JobAccessor()
+	jobs, err := accessor.All(ctx)
+	if err != nil {
+		return err
+	}
+
+	for _, job := range jobs {
+		if job.Status == models.Waiting {
+			_, err := job.Publish(ctx)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return h.NewPOSTTask(c, fmt.Sprintf("/pipelines/%s/subscribe_task", pl.ID), func() error {
+		return c.JSON(http.StatusOK, pl)
+	})
+}
+
+// curl -v -X	POST http://localhost:8080/pipelines/1/subscribe_task
+func (h *PipelineHandler) subscribeTask(c echo.Context) error {
+	ctx := c.Get("aecontext").(context.Context)
+	pl := c.Get("pipeline").(*models.Pipeline)
+
+	for {
+		finished, err := pl.AllJobFinished(ctx)
+		if err != nil {
+			return err
+		}
+		if finished {
+			break
+		}
+		err = pl.PullAndUpdateJobStatus(ctx)
+		if err != nil {
+			return err
+		}
+		time.Sleep(30 * time.Second)
+	}
+
+	return h.NewPOSTTask(c, fmt.Sprintf("/pipelines/%s/start_closing_task", pl.ID), func() error {
+		return c.JSON(http.StatusOK, pl)
+	})
+}
+
+// curl -v -X	POST http://localhost:8080/pipelines/1/start_closing_task
+func (h *PipelineHandler) startClosingTask(c echo.Context) error {
+	ctx := c.Get("aecontext").(context.Context)
+	pl := c.Get("pipeline").(*models.Pipeline)
+	closer, err := models.NewCloser(ctx)
+	if err != nil {
+		return err
+	}
+	err = closer.Process(ctx, pl)
+	if err != nil {
+		return err
+	}
+
+	return h.NewPOSTTask(c, fmt.Sprintf("/pipelines/%s/wait_closing_task", pl.ID), func() error {
+		return c.JSON(http.StatusOK, pl)
+	})
+}
+
+// curl -v -X	POST http://localhost:8080/pipelines/1/wait_closing_task
+func (h *PipelineHandler) waitClosingTask(c echo.Context) error {
+	ctx := c.Get("aecontext").(context.Context)
+	req := c.Request()
+	pl := c.Get("pipeline").(*models.Pipeline)
+	handler := pl.RefreshHandlerWith(ctx, func(pl *models.Pipeline) error {
+		t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/build_task", pl.ID), map[string][]string{})
+		t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
+		if _, err := taskqueue.Add(ctx, t, ""); err != nil {
+			return err
+		}
+		return nil
+	})
+
+	for pl.Status == models.Closing {
+		refresher := &models.Refresher{}
+		err := refresher.Process(ctx, pl, handler)
+		if err != nil {
+			return err
+		}
+		time.Sleep(30 * time.Second)
+	}
+
 	return c.JSON(http.StatusOK, pl)
 }
 

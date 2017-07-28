@@ -400,3 +400,11 @@ func (m *Pipeline) JobTopicFqn() string {
 func (m *Pipeline) IDHex() string {
 	return hex.EncodeToString([]byte(m.ID))
 }
+
+func (m *Pipeline) AllJobFinished(ctx context.Context) (bool, error) {
+	return true, nil
+}
+
+func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
+	return nil
+}
