@@ -62,27 +62,19 @@ func (h *PipelineHandler) create(c echo.Context) error {
 	}
 	log.Debugf(ctx, "Created pipeline: %v\n", pl)
 	if pl.Status == models.Reserved {
-		err = h.postBuildTask(ctx, req, pl)
-		if err != nil {
-			return err
+		if pl.Dryrun {
+			log.Debugf(ctx, "[DRYRUN] POST buildTask for %v\n", pl)
+		} else {
+			t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/build_task", pl.ID), map[string][]string{})
+			// build_task checks AUTH_HEADER by using withPlIDHexAuth filter instead of withAuth filter
+			// so Set IDHex to AUTH_HEADER instead of original AUTH_HEADER
+			t.Header.Add(AUTH_HEADER, fmt.Sprintf("Bearer %s", pl.IDHex()))
+			if _, err := taskqueue.Add(ctx, t, ""); err != nil {
+				return err
+			}
 		}
 	}
 	return c.JSON(http.StatusCreated, pl)
-}
-
-func (h *PipelineHandler) postBuildTask(ctx context.Context, req *http.Request, pl *models.Pipeline) error {
-	if pl.Dryrun {
-		log.Debugf(ctx, "[DRYRUN] POST buildTask for %v\n", pl)
-		return nil
-	}
-	t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/build_task", pl.ID), map[string][]string{})
-	// build_task checks AUTH_HEADER by using withPlIDHexAuth filter instead of withAuth filter
-	// so Set IDHex to AUTH_HEADER instead of original AUTH_HEADER
-	t.Header.Add(AUTH_HEADER, fmt.Sprintf("Bearer %s", pl.IDHex()))
-	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
-		return err
-	}
-	return nil
 }
 
 // curl -v http://localhost:8080/orgs/2/pipelines/subscriptions
