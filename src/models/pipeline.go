@@ -402,7 +402,11 @@ func (m *Pipeline) IDHex() string {
 }
 
 func (m *Pipeline) AllJobFinished(ctx context.Context) (bool, error) {
-	return true, nil
+	working, err := m.JobAccessor().WorkingAny(ctx)
+	if err != nil {
+		return false, err
+	}
+	return !working, nil
 }
 
 func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {

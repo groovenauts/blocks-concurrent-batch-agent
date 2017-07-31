@@ -213,6 +213,7 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 		if err != nil {
 			return err
 		}
+		log.Debugf(ctx, "Pipeline#AllJobFinished() returned %v\n", finished)
 		if finished {
 			break
 		}

@@ -24,6 +24,11 @@ const (
 	// Success
 )
 
+var (
+	WorkingJobStatuses = []JobStatus{Waiting, Publishing, Published}
+	FinishedJobStatuses = []JobStatus{PublishError}
+)
+
 type (
 	KeyValuePair struct {
 		Name  string `datastore:"name"  validate:"required"`
