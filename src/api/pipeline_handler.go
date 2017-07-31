@@ -145,8 +145,6 @@ func (h *PipelineHandler) refresh(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
-
-
 // curl -v -X POST http://localhost:8080/pipelines/1/build_task
 func (h *PipelineHandler) buildTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)

@@ -287,9 +287,9 @@ func (m *PipelineJob) UpdateStatusIfGreaterThanBefore(ctx context.Context, compl
 			newStatus = Executing
 		case CLEANUP:
 			// Do nothing
-		case CANCELLING  :
+		case CANCELLING:
 			newStatus = Failure
-		case ACKSENDING  :
+		case ACKSENDING:
 			newStatus = Success
 		}
 	case FAILURE:

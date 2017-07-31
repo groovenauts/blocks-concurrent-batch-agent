@@ -4,7 +4,6 @@ import (
 	"fmt"
 )
 
-
 type JobStepStatus int
 
 const (
@@ -27,8 +26,6 @@ func ParseJobStepStatus(s string) (JobStepStatus, error) {
 	}
 	return UnknownJobStepStatus, fmt.Errorf("Unknown JobStepStatus %q", s)
 }
-
-
 
 type JobStep int
 
