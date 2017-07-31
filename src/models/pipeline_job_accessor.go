@@ -47,7 +47,7 @@ func (aa *PipelineJobAccessor) Find(ctx context.Context, id string) (*PipelineJo
 	return m, nil
 }
 
-func (aa *PipelineJobAccessor) All(ctx context.Context) ([]*PipelineJob, error) {
+func (aa *PipelineJobAccessor) Query() (*datastore.Query, error) {
 	q := datastore.NewQuery("PipelineJobs")
 	if aa.Parent != nil {
 		key, err := datastore.DecodeKey(aa.Parent.ID)
@@ -55,6 +55,14 @@ func (aa *PipelineJobAccessor) All(ctx context.Context) ([]*PipelineJob, error) 
 			return nil, err
 		}
 		q = q.Ancestor(key)
+	}
+	return q, nil
+}
+
+func (aa *PipelineJobAccessor) All(ctx context.Context) ([]*PipelineJob, error) {
+	q, err := aa.Query()
+	if err != nil {
+		return nil, err
 	}
 	iter := q.Run(ctx)
 	var res = []*PipelineJob{}
