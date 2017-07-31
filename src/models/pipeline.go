@@ -418,5 +418,11 @@ func (m *Pipeline) AllJobFinished(ctx context.Context) (bool, error) {
 }
 
 func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
+	pubsubSubscriber := &PubsubSubscriber{MessagePerPull: 10}
+	err := pubsubSubscriber.setup(ctx)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
