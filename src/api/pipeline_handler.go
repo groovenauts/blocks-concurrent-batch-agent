@@ -148,17 +148,6 @@ func (h *PipelineHandler) refresh(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
-func (h *PipelineHandler) NewPOSTTask(c echo.Context, path string, f func() error) error {
-	ctx := c.Get("aecontext").(context.Context)
-	req := c.Request()
-	t := taskqueue.NewPOSTTask(path, map[string][]string{})
-	t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
-	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
-		return err
-	}
-	return f()
-}
-
 
 
 // curl -v -X POST http://localhost:8080/pipelines/1/build_task
@@ -327,4 +316,15 @@ func (h *PipelineHandler) refreshTask(c echo.Context) error {
 		return err
 	}
 	return c.JSON(http.StatusOK, pl)
+}
+
+func (h *PipelineHandler) NewPOSTTask(c echo.Context, path string, f func() error) error {
+	ctx := c.Get("aecontext").(context.Context)
+	req := c.Request()
+	t := taskqueue.NewPOSTTask(path, map[string][]string{})
+	t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
+	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
+		return err
+	}
+	return f()
 }
