@@ -1,4 +1,4 @@
-package main
+package models
 
 import (
 	pubsub "google.golang.org/api/pubsub/v1"
