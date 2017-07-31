@@ -98,10 +98,7 @@ func (h *PipelineHandler) show(c echo.Context) error {
 // curl -v -X PUT http://localhost:8080/pipelines/1/close
 func (h *PipelineHandler) close(c echo.Context) error {
 	pl := c.Get("pipeline").(*models.Pipeline)
-	id := c.Param("id")
-	return h.NewPOSTTask(c, fmt.Sprintf("/pipelines/%s/close_task", id), func() error {
-		return c.JSON(http.StatusCreated, pl)
-	})
+	return h.PostPipelineTask(c, "close_task", pl, http.StatusOK)
 }
 
 // curl -v -X DELETE http://localhost:8080/pipelines/1
@@ -163,9 +160,7 @@ func (h *PipelineHandler) buildTask(c echo.Context) error {
 		return err
 	}
 
-	return h.NewPOSTTask(c, fmt.Sprintf("/pipelines/%s/wait_building_task", pl.ID), func() error {
-		return c.JSON(http.StatusOK, pl)
-	})
+	return h.PostPipelineTask(c, "wait_building_task", pl, http.StatusOK)
 }
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/wait_building_task
@@ -183,9 +178,7 @@ func (h *PipelineHandler) waitBuildingTask(c echo.Context) error {
 		time.Sleep(30 * time.Second)
 	}
 
-	return h.NewPOSTTask(c, fmt.Sprintf("/pipelines/%s/publish_task", pl.ID), func() error {
-		return c.JSON(http.StatusOK, pl)
-	})
+	return h.PostPipelineTask(c, "publish_task", pl, http.StatusOK)
 }
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/publish_task
@@ -207,9 +200,7 @@ func (h *PipelineHandler) publishTask(c echo.Context) error {
 		}
 	}
 
-	return h.NewPOSTTask(c, fmt.Sprintf("/pipelines/%s/subscribe_task", pl.ID), func() error {
-		return c.JSON(http.StatusOK, pl)
-	})
+	return h.PostPipelineTask(c, "subscribe_task", pl, http.StatusOK)
 }
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/subscribe_task
@@ -232,9 +223,7 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 		time.Sleep(30 * time.Second)
 	}
 
-	return h.NewPOSTTask(c, fmt.Sprintf("/pipelines/%s/start_closing_task", pl.ID), func() error {
-		return c.JSON(http.StatusOK, pl)
-	})
+	return h.PostPipelineTask(c, "start_closing_task", pl, http.StatusOK)
 }
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/start_closing_task
@@ -250,9 +239,7 @@ func (h *PipelineHandler) startClosingTask(c echo.Context) error {
 		return err
 	}
 
-	return h.NewPOSTTask(c, fmt.Sprintf("/pipelines/%s/wait_closing_task", pl.ID), func() error {
-		return c.JSON(http.StatusOK, pl)
-	})
+	return h.PostPipelineTask(c, "wait_closing_task", pl, http.StatusOK)
 }
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/wait_closing_task
@@ -318,13 +305,13 @@ func (h *PipelineHandler) refreshTask(c echo.Context) error {
 	return c.JSON(http.StatusOK, pl)
 }
 
-func (h *PipelineHandler) NewPOSTTask(c echo.Context, path string, f func() error) error {
+func (h *PipelineHandler) PostPipelineTask(c echo.Context, action string, pl *models.Pipeline, status int) error {
 	ctx := c.Get("aecontext").(context.Context)
 	req := c.Request()
-	t := taskqueue.NewPOSTTask(path, map[string][]string{})
+	t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/%s", pl.ID, action), map[string][]string{})
 	t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
 	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 		return err
 	}
-	return f()
+	return c.JSON(status, pl)
 }
