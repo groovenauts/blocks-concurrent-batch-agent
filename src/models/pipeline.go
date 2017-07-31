@@ -397,6 +397,14 @@ func (m *Pipeline) JobTopicFqn() string {
 	return fmt.Sprintf("projects/%s/topics/%s", m.ProjectID, m.JobTopicName())
 }
 
+func (m *Pipeline) ProgressSubscriptionName() string {
+	return fmt.Sprintf("%s-progress-subscription", m.Name)
+}
+
+func (m *Pipeline) ProgressSubscriptionFqn() string {
+	return fmt.Sprintf("projects/%s/subscriptions/%s", m.ProjectID, m.ProgressSubscriptionName())
+}
+
 func (m *Pipeline) IDHex() string {
 	return hex.EncodeToString([]byte(m.ID))
 }
