@@ -2,13 +2,13 @@ package models
 
 import (
 	"fmt"
-	"net/http"
 	"testing"
 
 	pubsub "google.golang.org/api/pubsub/v1"
 
 	"github.com/stretchr/testify/assert"
-	"golang.org/x/net/context"
+
+	"google.golang.org/appengine/aetest"
 )
 
 type DummyPuller struct {
@@ -40,7 +40,9 @@ func (dp *DummyPuller) Acknowledge(subscription, ackId string) (*pubsub.Empty, e
 }
 
 func TestProcessProgressNotification(t *testing.T) {
-	ctx := context.Background()
+	ctx, done, err := aetest.NewContext()
+	assert.NoError(t, err)
+	defer done()
 
 	dp := &DummyPuller{}
 
@@ -68,7 +70,7 @@ func TestProcessProgressNotification(t *testing.T) {
 	}
 
 	// Normal pattern
-	err := ps.processProgressNotification(ctx, subscription, recvMsg, returnNil)
+	err = ps.processProgressNotification(ctx, subscription, recvMsg, returnNil)
 	assert.NoError(t, err)
 
 	//  f returns an error
@@ -78,33 +80,6 @@ func TestProcessProgressNotification(t *testing.T) {
 
 	// Ack error and fail to get pipeline status
 	dp.Error = fmt.Errorf("ack-error")
-	subscription.isOpened = func() (bool, error) {
-		return false, fmt.Errorf("pipeline status error")
-	}
 	err = ps.processProgressNotification(ctx, subscription, recvMsg, returnNil)
 	assert.Error(t, err)
-
-	// Ack error and fail to get pipeline status
-	dp.Error = fmt.Errorf("ack-error")
-	subscription.isOpened = func() (bool, error) {
-		return true, nil // opened
-	}
-	err = ps.processProgressNotification(ctx, subscription, recvMsg, returnNil)
-	assert.Error(t, err)
-
-	// Ack error and fail to get pipeline status
-	dp.Error = fmt.Errorf("ack-error")
-	subscription.isOpened = func() (bool, error) {
-		return false, nil // closing
-	}
-	err = ps.processProgressNotification(ctx, subscription, recvMsg, returnNil)
-	assert.NoError(t, err)
-
-	// Ack error and fail to get pipeline status because the pipeline is already deleted
-	dp.Error = fmt.Errorf("ack-error")
-	subscription.isOpened = func() (bool, error) {
-		return false, &InvalidHttpResponse{StatusCode: http.StatusNotFound, Msg: "Already removed"}
-	}
-	err = ps.processProgressNotification(ctx, subscription, recvMsg, returnNil)
-	assert.NoError(t, err)
 }
