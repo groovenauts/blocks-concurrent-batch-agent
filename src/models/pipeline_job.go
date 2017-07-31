@@ -15,18 +15,23 @@ import (
 
 type JobStatus int
 
+func (js JobStatus) GreaterThan(other JobStatus) bool {
+	return int(js) > int(other)
+}
+
 const (
 	Waiting JobStatus = iota
 	Publishing
 	PublishError
 	Published
-	// Failure
-	// Success
+	Executing
+	Failure
+	Success
 )
 
 var (
-	WorkingJobStatuses = []JobStatus{Waiting, Publishing, Published}
-	FinishedJobStatuses = []JobStatus{PublishError}
+	WorkingJobStatuses  = []JobStatus{Waiting, Publishing, Published, Executing}
+	FinishedJobStatuses = []JobStatus{PublishError, Failure, Success}
 )
 
 type (
@@ -259,5 +264,48 @@ func (m *PipelineJob) CreateAndPublishIfPossible(ctx context.Context) error {
 		return err
 	}
 
+	return nil
+}
+
+func (m *PipelineJob) UpdateStatusIfGreaterThanBefore(ctx context.Context, completed bool, step JobStep, stepStatus JobStepStatus) error {
+	if completed {
+		m.Status = Success
+		err := m.Update(ctx)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
+	newStatus := m.Status
+	switch stepStatus {
+	case STARTING:
+		// Ignore
+	case SUCCESS:
+		switch step {
+		case INITIALIZING, DOWNLOADING, EXECUTING, UPLOADING, NACKSENDING:
+			newStatus = Executing
+		case CLEANUP:
+			// Do nothing
+		case CANCELLING  :
+			newStatus = Failure
+		case ACKSENDING  :
+			newStatus = Success
+		}
+	case FAILURE:
+		switch step {
+		case INITIALIZING, DOWNLOADING, EXECUTING, UPLOADING:
+			newStatus = Executing
+		}
+	}
+
+	if newStatus.GreaterThan(m.Status) {
+		m.Status = newStatus
+		err := m.Update(ctx)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
 	return nil
 }

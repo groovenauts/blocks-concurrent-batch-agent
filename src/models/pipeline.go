@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"time"
 
+	pubsub "google.golang.org/api/pubsub/v1"
+
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
@@ -418,11 +420,40 @@ func (m *Pipeline) AllJobFinished(ctx context.Context) (bool, error) {
 }
 
 func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
-	pubsubSubscriber := &PubsubSubscriber{MessagePerPull: 10}
-	err := pubsubSubscriber.setup(ctx)
+	s := &PubsubSubscriber{MessagePerPull: 10}
+	err := s.setup(ctx)
 	if err != nil {
 		return err
 	}
 
+	accessor := m.JobAccessor()
+	err = s.subscribe(ctx, m.ProgressSubscriptionFqn(), func(recvMsg *pubsub.ReceivedMessage) error {
+		attrs := recvMsg.Message.Attributes
+		jobId := attrs[PipelineJobIdKey]
+		job, err := accessor.Find(ctx, jobId)
+		if err != nil {
+			return err
+		}
+		step, err := ParseJobStep(attrs["step"])
+		if err != nil {
+			return err
+		}
+		stepStatus, err := ParseJobStepStatus(attrs["step_status"])
+		if err != nil {
+			return err
+		}
+		completed, err := strconv.ParseBool(attrs["completed"])
+		if err != nil {
+			return err
+		}
+		err = job.UpdateStatusIfGreaterThanBefore(ctx, completed, step, stepStatus)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
 	return nil
 }
