@@ -29,7 +29,8 @@ func SetupRoutes(echo *echo.Echo) map[string]interface{} {
 	g.DELETE("/:id", h.Actions["destroy"])
 
 	g.GET("/refresh", h.Actions["refresh"])
-	g.POST("/:id/refresh_task", h.Actions["refresh_task"])
+	// g.POST("/:id/refresh_task", h.Actions["refresh_task"])
+	g.POST("/:id/refresh_task", gae_support.With(plBy("id", h.refreshTask)))
 
 	pjh := &PipelineJobHandler{}
 	pjActions := pjh.buildActions()

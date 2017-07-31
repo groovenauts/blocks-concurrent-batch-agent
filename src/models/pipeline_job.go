@@ -27,13 +27,13 @@ const (
 type (
 	KeyValuePair struct {
 		Name  string `datastore:"name"  validate:"required"`
-		Value string `datastore:"value"`
+		Value string `datastore:"value,noindex"`
 	}
 
 	PipelineJobMessage struct {
 		AttributeMap     map[string]string `json:"attributes" datastore:"-"`
 		AttributeEntries []KeyValuePair    `json:"-"          datastore:"attribute_entries"`
-		Data             string            `json:"data" datastore:"data"`
+		Data             string            `json:"data" datastore:"data,noindex"`
 	}
 )
 

@@ -26,7 +26,7 @@ func (h *PipelineHandler) buildActions() {
 		"close":         gae_support.With(plBy("id", PlToOrg(withAuth(h.close)))),
 		"destroy":       gae_support.With(plBy("id", PlToOrg(withAuth(h.destroy)))),
 		"refresh":       gae_support.With(h.refresh), // Don't use withAuth because this is called from cron
-		"refresh_task":  gae_support.With(plBy("id", h.refreshTask)),
+		// "refresh_task":  gae_support.With(plBy("id", h.refreshTask)),
 		// "build_task": gae_support.With(plBy("id", PlToOrg(withAuth(h.pipelineTask("build"))))),
 		// "close_task": gae_support.With(plBy("id", PlToOrg(withAuth(h.pipelineTask("close"))))),
 	}
