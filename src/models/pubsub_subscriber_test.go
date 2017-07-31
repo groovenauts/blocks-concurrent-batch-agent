@@ -51,11 +51,7 @@ func TestProcessProgressNotification(t *testing.T) {
 		puller:         dp,
 	}
 
-	subscription := &Subscription{
-		PipelineID: "pipeline0123456789",
-		Pipeline:   "dummy-pipeline01",
-		Name:       "dummy-pipeline01-progress-subscription",
-	}
+	subscription := "dummy-pipeline01-progress-subscription"
 
 	recvMsg := &pubsub.ReceivedMessage{
 		AckId: "dummy-ack-id",

@@ -55,18 +55,18 @@ func (ps *PubsubSubscriber) setup(ctx context.Context) error {
 	return nil
 }
 
-func (ps *PubsubSubscriber) subscribe(ctx context.Context, subscription *Subscription, f func(msg *pubsub.ReceivedMessage) error) error {
+func (ps *PubsubSubscriber) subscribe(ctx context.Context, subscription string, f func(msg *pubsub.ReceivedMessage) error) error {
 	pullRequest := &pubsub.PullRequest{
 		ReturnImmediately: true,
 		MaxMessages:       ps.MessagePerPull,
 	}
-	log.Debugf(ctx, "%v Pulling subscription\n", subscription.Name)
-	res, err := ps.puller.Pull(subscription.Name, pullRequest)
+	log.Debugf(ctx, "%v Pulling subscription\n", subscription)
+	res, err := ps.puller.Pull(subscription, pullRequest)
 	if err != nil {
-		log.Errorf(ctx, "%v Failed to pull: [%T] %v\n", subscription.Name, err, err)
+		log.Errorf(ctx, "%v Failed to pull: [%T] %v\n", subscription, err, err)
 		return err
 	}
-	log.Debugf(ctx, "%v Pulled successfully\n", subscription.Name)
+	log.Debugf(ctx, "%v Pulled successfully\n", subscription)
 	for _, receivedMessage := range res.ReceivedMessages {
 		err := ps.processProgressNotification(ctx, subscription, receivedMessage, f)
 		if err != nil {
@@ -76,13 +76,13 @@ func (ps *PubsubSubscriber) subscribe(ctx context.Context, subscription *Subscri
 	return nil
 }
 
-func (ps *PubsubSubscriber) processProgressNotification(ctx context.Context, subscription *Subscription, receivedMessage *pubsub.ReceivedMessage, f func(msg *pubsub.ReceivedMessage) error) error {
+func (ps *PubsubSubscriber) processProgressNotification(ctx context.Context, subscription string, receivedMessage *pubsub.ReceivedMessage, f func(msg *pubsub.ReceivedMessage) error) error {
 	err := f(receivedMessage)
 	if err != nil {
 		log.Errorf(ctx, "the received request process returns error: [%T] %v", err, err)
 		return err
 	}
-	_, err = ps.puller.Acknowledge(subscription.Name, receivedMessage.AckId)
+	_, err = ps.puller.Acknowledge(subscription, receivedMessage.AckId)
 	if err != nil {
 		log.Errorf(ctx, "Failed to acknowledge for message: %v cause of [%T] %v", receivedMessage, err, err)
 		return err
