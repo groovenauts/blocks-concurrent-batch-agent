@@ -155,6 +155,7 @@ func (h *PipelineHandler) buildTask(c echo.Context) error {
 	}
 	err = builder.Process(ctx, pl)
 	if err != nil {
+		log.Errorf(ctx, "Failed to build a pipeline %v because of %v\n", pl, err)
 		return err
 	}
 
@@ -171,6 +172,7 @@ func (h *PipelineHandler) waitBuildingTask(c echo.Context) error {
 		refresher := &models.Refresher{}
 		err := refresher.Process(ctx, pl, handler)
 		if err != nil {
+			log.Errorf(ctx, "Failed to refresh pipeline %v because of %v\n", pl, err)
 			return err
 		}
 		time.Sleep(30 * time.Second)
@@ -193,6 +195,7 @@ func (h *PipelineHandler) publishTask(c echo.Context) error {
 		if job.Status == models.Waiting {
 			_, err := job.Publish(ctx)
 			if err != nil {
+				log.Errorf(ctx, "Failed to publish job %v because of %v\n", job, err)
 				return err
 			}
 		}
@@ -209,14 +212,17 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 	for {
 		finished, err := pl.AllJobFinished(ctx)
 		if err != nil {
+			log.Errorf(ctx, "Failed to get Pipeline#AllJobFinished() because of %v\n", err)
 			return err
 		}
 		log.Debugf(ctx, "Pipeline#AllJobFinished() returned %v\n", finished)
 		if finished {
+			log.Infof(ctx, "Pipeline jobs finished\n")
 			break
 		}
 		err = pl.PullAndUpdateJobStatus(ctx)
 		if err != nil {
+			log.Errorf(ctx, "Failed to get Pipeline#PullAndUpdateJobStatus() because of %v\n", err)
 			return err
 		}
 		time.Sleep(30 * time.Second)
@@ -231,10 +237,12 @@ func (h *PipelineHandler) startClosingTask(c echo.Context) error {
 	pl := c.Get("pipeline").(*models.Pipeline)
 	closer, err := models.NewCloser(ctx)
 	if err != nil {
+		log.Errorf(ctx, "Failed to create new closer because of %v\n", err)
 		return err
 	}
 	err = closer.Process(ctx, pl)
 	if err != nil {
+		log.Errorf(ctx, "Failed to close pipeline because of %v\n", err)
 		return err
 	}
 
@@ -250,6 +258,7 @@ func (h *PipelineHandler) waitClosingTask(c echo.Context) error {
 		t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/build_task", pl.ID), map[string][]string{})
 		t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
 		if _, err := taskqueue.Add(ctx, t, ""); err != nil {
+			log.Errorf(ctx, "Failed to add a task %v to taskqueue because of %v\n", t, err)
 			return err
 		}
 		return nil
@@ -259,6 +268,7 @@ func (h *PipelineHandler) waitClosingTask(c echo.Context) error {
 		refresher := &models.Refresher{}
 		err := refresher.Process(ctx, pl, handler)
 		if err != nil {
+			log.Errorf(ctx, "Failed to refresh pipeline %v because of %v\n", pl, err)
 			return err
 		}
 		time.Sleep(30 * time.Second)
@@ -273,10 +283,12 @@ func (h *PipelineHandler) closeTask(c echo.Context) error {
 	pl := c.Get("pipeline").(*models.Pipeline)
 	closer, err := models.NewCloser(ctx)
 	if err != nil {
+		log.Errorf(ctx, "Failed to create new closer because of %v\n", err)
 		return err
 	}
 	err = closer.Process(ctx, pl)
 	if err != nil {
+		log.Errorf(ctx, "Failed to close pipeline because of %v\n", err)
 		return err
 	}
 	return c.JSON(http.StatusOK, pl)
@@ -294,11 +306,13 @@ func (h *PipelineHandler) refreshTask(c echo.Context) error {
 		// because build_task is called without AUTH_HEADER.
 		t.Header.Add(AUTH_HEADER, fmt.Sprintf("Bearer %s", pl.IDHex()))
 		if _, err := taskqueue.Add(ctx, t, ""); err != nil {
+			log.Errorf(ctx, "Failed to add a task %v to taskqueue because of %v\n", t, err)
 			return err
 		}
 		return nil
 	}))
 	if err != nil {
+		log.Errorf(ctx, "Failed to refresh pipeline %v because of %v\n", pl, err)
 		return err
 	}
 	return c.JSON(http.StatusOK, pl)
@@ -310,6 +324,7 @@ func (h *PipelineHandler) PostPipelineTask(c echo.Context, action string, pl *mo
 	t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/%s", pl.ID, action), map[string][]string{})
 	t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
 	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
+		log.Errorf(ctx, "Failed to add a task %v to taskqueue because of %v\n", t, err)
 		return err
 	}
 	return c.JSON(status, pl)
