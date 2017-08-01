@@ -66,9 +66,16 @@ func (ps *PubsubSubscriber) subscribe(ctx context.Context, subscription string, 
 		log.Errorf(ctx, "%v Failed to pull: [%T] %v\n", subscription, err, err)
 		return err
 	}
-	log.Debugf(ctx, "%v Pulled successfully. Messages: ", subscription, res.ReceivedMessages)
-	for _, receivedMessage := range res.ReceivedMessages {
-		err := ps.processProgressNotification(ctx, subscription, receivedMessage, f)
+	log.Infof(ctx, "%v Pulled %v messages successfully.", subscription, len(res.ReceivedMessages))
+	for i, recv := range res.ReceivedMessages {
+		m := recv.Message
+		log.Infof(ctx, "Pulled Message #%v AckId: %v, MessageId: %v, PublishTime: %v, Attributes: %v, Data: %v\n", i, recv.AckId, m.MessageId, m.PublishTime, m.Attributes, m.Data)
+	}
+
+	for i, recv := range res.ReceivedMessages {
+		m := recv.Message
+		log.Debugf(ctx, "Pulled Message #%v AckId: %v, MessageId: %v, PublishTime: %v\n", i, recv.AckId, m.MessageId, m.PublishTime)
+		err := ps.processProgressNotification(ctx, subscription, recv, f)
 		if err != nil {
 			return err
 		}
