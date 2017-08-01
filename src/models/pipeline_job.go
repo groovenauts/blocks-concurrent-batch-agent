@@ -52,6 +52,16 @@ var (
 	FinishedJobStatuses = []JobStatus{PublishError, Failure, Success}
 )
 
+func (js JobStatus) Working() bool {
+	for _, st := range WorkingJobStatuses {
+		if js == st {
+			return true
+		}
+	}
+	return false
+}
+
+
 type (
 	KeyValuePair struct {
 		Name  string `datastore:"name"  validate:"required"`

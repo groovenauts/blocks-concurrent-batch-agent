@@ -418,11 +418,24 @@ func (m *Pipeline) IDHex() string {
 }
 
 func (m *Pipeline) AllJobFinished(ctx context.Context) (bool, error) {
-	working, err := m.JobAccessor().WorkingAny(ctx)
+	jobs, err := m.JobAccessor().All(ctx)
 	if err != nil {
 		return false, err
 	}
-	return !working, nil
+	log.Debugf(ctx, "Pipeline has %v jobs\n", len(jobs))
+
+	if len(jobs) == 0 {
+		return false, nil
+	}
+
+	for _, job := range jobs {
+		log.Debugf(ctx, "Job: %v\n", job)
+		if job.Status.Working() {
+			return false, nil
+		}
+	}
+
+	return true, nil
 }
 
 func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
