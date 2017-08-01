@@ -61,7 +61,6 @@ func (js JobStatus) Working() bool {
 	return false
 }
 
-
 type (
 	KeyValuePair struct {
 		Name  string `datastore:"name"  validate:"required"`
