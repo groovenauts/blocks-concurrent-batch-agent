@@ -19,6 +19,14 @@ func (js JobStatus) GreaterThan(other JobStatus) bool {
 	return int(js) > int(other)
 }
 
+func (js JobStatus) String() string {
+	r, ok := JobStatusToString[js]
+	if !ok {
+		return "<Invalid JobStatus>"
+	}
+	return r
+}
+
 const (
 	Waiting JobStatus = iota
 	Publishing
@@ -28,6 +36,16 @@ const (
 	Failure
 	Success
 )
+
+var JobStatusToString = map[JobStatus]string{
+	Waiting:      "Waiting",
+	Publishing:   "Publishing",
+	PublishError: "PublishError",
+	Published:    "Published",
+	Executing:    "Executing",
+	Failure:      "Failure",
+	Success:      "Success",
+}
 
 var (
 	WorkingJobStatuses  = []JobStatus{Waiting, Publishing, Published, Executing}

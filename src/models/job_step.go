@@ -19,6 +19,20 @@ var JobStepStatusFromString = map[string]JobStepStatus{
 	"FAILURE":  FAILURE,
 }
 
+var JobStepStatusToString = map[JobStepStatus]string{
+	STARTING: "STARTING",
+	SUCCESS:  "SUCCESS",
+	FAILURE:  "FAILURE",
+}
+
+func (jss JobStepStatus) String() string {
+	r, ok := JobStepStatusToString[jss]
+	if !ok {
+		return "<Invalid JobStepStatus>"
+	}
+	return r
+}
+
 func ParseJobStepStatus(s string) (JobStepStatus, error) {
 	jss, ok := JobStepStatusFromString[s]
 	if ok {
@@ -50,6 +64,25 @@ var JobStepFromString = map[string]JobStep{
 	"NACKSENDING":  NACKSENDING,
 	"CANCELLING":   CANCELLING,
 	"ACKSENDING":   ACKSENDING,
+}
+
+var JobStepToString = map[JobStep]string{
+	INITIALIZING: "INITIALIZING",
+	DOWNLOADING:  "DOWNLOADING",
+	EXECUTING:    "EXECUTING",
+	UPLOADING:    "UPLOADING",
+	CLEANUP:      "CLEANUP",
+	NACKSENDING:  "NACKSENDING",
+	CANCELLING:   "CANCELLING",
+	ACKSENDING:   "ACKSENDING",
+}
+
+func (js JobStep) String() string {
+	r, ok := JobStepToString[js]
+	if !ok {
+		return "<Invalid JobStep>"
+	}
+	return r
 }
 
 func ParseJobStep(s string) (JobStep, error) {
