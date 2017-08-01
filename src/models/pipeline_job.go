@@ -147,6 +147,12 @@ func (m *PipelineJob) Update(ctx context.Context) error {
 	}
 
 	m.UpdatedAt = time.Now()
+	if m.Pipeline == nil {
+		err := m.LoadPipeline(ctx)
+		if err != nil {
+			return err
+		}
+	}
 
 	err := m.Validate()
 	if err != nil {
@@ -193,6 +199,12 @@ func (m *PipelineJob) LoadPipeline(ctx context.Context) error {
 		return err
 	}
 	m.Pipeline = pl
+	if pl.Organization == nil {
+		err = pl.LoadOrganization(ctx)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
