@@ -13,7 +13,7 @@ import (
 	// "google.golang.org/appengine/log"
 )
 
-func TestPipelineJobCRUD(t *testing.T) {
+func TestJobCRUD(t *testing.T) {
 	opt := &aetest.Options{StronglyConsistentDatastore: true}
 	inst, err := aetest.NewInstance(opt)
 	assert.NoError(t, err)
@@ -26,7 +26,7 @@ func TestPipelineJobCRUD(t *testing.T) {
 	}
 	ctx := appengine.NewContext(req)
 
-	kinds := []string{"PipelineJobs", "Pipelines", "Organizations"}
+	kinds := []string{"Jobs", "Pipelines", "Organizations"}
 	for _, k := range kinds {
 		test_utils.ClearDatastore(t, ctx, k)
 	}
@@ -56,11 +56,11 @@ func TestPipelineJobCRUD(t *testing.T) {
 		pipelines[pipelineName] = pipeline
 
 		for i := 1; i < 3; i++ {
-			job := &PipelineJob{
+			job := &Job{
 				Pipeline:   pipeline,
 				IdByClient: fmt.Sprintf("%v-job-%v", pipelineName, i),
 				Status:     Published,
-				Message: PipelineJobMessage{
+				Message: JobMessage{
 					AttributeMap: map[string]string{
 						"foo": fmt.Sprintf("%v", i),
 					},
@@ -71,7 +71,7 @@ func TestPipelineJobCRUD(t *testing.T) {
 		}
 	}
 
-	jobs, err := GlobalPipelineJobAccessor.All(ctx)
+	jobs, err := GlobalJobAccessor.All(ctx)
 	assert.NoError(t, err)
 	assert.Equal(t, 4, len(jobs))
 
@@ -97,28 +97,28 @@ func TestPipelineJobCRUD(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Don't publish Job Message soon when the pipeline isn't Opened
-	for _, st := range []Status{Uninitialized, Pending, Reserved, Building, Deploying} {
+	for _, st := range []Status{Uninitialized, Waiting, Reserved, Building, Deploying} {
 		pipeline1.Status = st
 		err = pipeline1.Update(ctx)
 		assert.NoError(t, err)
 
-		pj := &PipelineJob{
+		job := &Job{
 			Pipeline:   pipeline1,
 			IdByClient: fmt.Sprintf("%s-job-waiting-%v", pipeline1.Name, st),
-			Message: PipelineJobMessage{
+			Message: JobMessage{
 				AttributeMap: map[string]string{
 					"download_files": string(download_files_json),
 				},
 			},
 		}
-		err := pj.CreateAndPublishIfPossible(ctx)
+		err := job.CreateAndPublishIfPossible(ctx)
 		assert.NoError(t, err)
-		assert.NotEmpty(t, pj.ID)
+		assert.NotEmpty(t, job.ID)
 
-		assert.Equal(t, Waiting, pj.Status)
+		assert.Equal(t, Ready, job.Status)
 		assert.Equal(t, 0, len(dummyPublisher.Invocations))
 
-		saved, err := GlobalPipelineJobAccessor.Find(ctx, pj.ID)
+		saved, err := GlobalJobAccessor.Find(ctx, job.ID)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(saved.Message.AttributeEntries))
 		entry1 := saved.Message.AttributeEntries[0]
@@ -132,58 +132,58 @@ func TestPipelineJobCRUD(t *testing.T) {
 		err = pipeline1.Update(ctx)
 		assert.NoError(t, err)
 
-		pj := &PipelineJob{
+		job := &Job{
 			Pipeline:   pipeline1,
 			IdByClient: fmt.Sprintf("%s-job-publishing-%v", pipeline1.Name, st),
-			Message: PipelineJobMessage{
+			Message: JobMessage{
 				AttributeMap: map[string]string{
 					"download_files": string(download_files_json),
 				},
 			},
 		}
-		err := pj.CreateAndPublishIfPossible(ctx)
+		err := job.CreateAndPublishIfPossible(ctx)
 		assert.NoError(t, err)
-		assert.NotEmpty(t, pj.ID)
-		assert.Equal(t, pj.ID, pj.Message.AttributeMap[PipelineJobIdKey])
+		assert.NotEmpty(t, job.ID)
+		assert.Equal(t, job.ID, job.Message.AttributeMap[JobIdKey])
 
-		assert.Equal(t, Published, pj.Status)
+		assert.Equal(t, Published, job.Status)
 		assert.Equal(t, 1, len(dummyPublisher.Invocations))
 		dummyPublisher.Invocations = []*PublishInvocation{}
 
-		saved, err := GlobalPipelineJobAccessor.Find(ctx, pj.ID)
+		saved, err := GlobalJobAccessor.Find(ctx, job.ID)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, len(saved.Message.AttributeEntries))
 		entry0 := saved.Message.AttributeEntries[0]
 		assert.Equal(t, "download_files", entry0.Name)
 		assert.Equal(t, string(download_files_json), entry0.Value)
 		entry1 := saved.Message.AttributeEntries[1]
-		assert.Equal(t, PipelineJobIdKey, entry1.Name)
+		assert.Equal(t, JobIdKey, entry1.Name)
 		assert.Equal(t, saved.ID, entry1.Value)
 	}
 
-	// Raise error when create PipelineJob
+	// Raise error when create Job
 	for _, st := range []Status{Broken, Closing, ClosingError, Closed} {
 		pipeline1.Status = st
 		err = pipeline1.Update(ctx)
 		assert.NoError(t, err)
 
-		pj := &PipelineJob{
+		job := &Job{
 			Pipeline:   pipeline1,
 			IdByClient: fmt.Sprintf("%s-job-waiting-%v", pipeline1.Name, st),
-			Message: PipelineJobMessage{
+			Message: JobMessage{
 				AttributeMap: map[string]string{
 					"download_files": string(download_files_json),
 				},
 			},
 		}
-		err := pj.CreateAndPublishIfPossible(ctx)
+		err := job.CreateAndPublishIfPossible(ctx)
 		assert.Error(t, err)
-		assert.Empty(t, pj.ID)
+		assert.Empty(t, job.ID)
 		assert.Equal(t, 0, len(dummyPublisher.Invocations))
 	}
 }
 
-func TestPipelineJobUpdateStatusIfGreaterThanBefore(t *testing.T) {
+func TestJobUpdateStatusIfGreaterThanBefore(t *testing.T) {
 	opt := &aetest.Options{StronglyConsistentDatastore: true}
 	inst, err := aetest.NewInstance(opt)
 	assert.NoError(t, err)
@@ -220,19 +220,19 @@ func TestPipelineJobUpdateStatusIfGreaterThanBefore(t *testing.T) {
 	download_files_json, err := json.Marshal(download_files)
 	assert.NoError(t, err)
 
-	pj := &PipelineJob{
+	job := &Job{
 		Pipeline:   pipeline,
-		Status:     Waiting,
+		Status:     Ready,
 		IdByClient: fmt.Sprintf("%s-job1", pipeline.Name),
-		Message: PipelineJobMessage{
+		Message: JobMessage{
 			AttributeMap: map[string]string{
 				"download_files": string(download_files_json),
 			},
 		},
 	}
-	err = pj.Create(ctx)
+	err = job.Create(ctx)
 	assert.NoError(t, err)
-	assert.NotEmpty(t, pj.ID)
+	assert.NotEmpty(t, job.ID)
 
 	type Pattern struct {
 		curSt      JobStatus
@@ -244,7 +244,7 @@ func TestPipelineJobUpdateStatusIfGreaterThanBefore(t *testing.T) {
 
 	patterns := []Pattern{}
 	// Normal cases
-	for _, st := range []JobStatus{Waiting, Publishing, PublishError, Published, Executing} {
+	for _, st := range []JobStatus{Ready, Publishing, PublishError, Published, Executing} {
 		patterns = append(patterns, []Pattern{
 			{st, false, INITIALIZING, SUCCESS, Executing},
 			{st, false, NACKSENDING, SUCCESS, Executing},
@@ -265,7 +265,7 @@ func TestPipelineJobUpdateStatusIfGreaterThanBefore(t *testing.T) {
 	}...)
 
 	// Abnormal cases
-	for _, st := range []JobStatus{Waiting, Publishing, PublishError, Published, Executing} {
+	for _, st := range []JobStatus{Ready, Publishing, PublishError, Published, Executing} {
 		patterns = append(patterns, []Pattern{
 			{st, false, INITIALIZING, FAILURE, Executing},
 			{st, false, NACKSENDING, FAILURE, st},
@@ -283,13 +283,13 @@ func TestPipelineJobUpdateStatusIfGreaterThanBefore(t *testing.T) {
 	}
 
 	for _, pat := range patterns {
-		pj.Status = pat.curSt
-		err := pj.Update(ctx)
+		job.Status = pat.curSt
+		err := job.Update(ctx)
 		assert.NoError(t, err)
-		err = pj.UpdateStatusIfGreaterThanBefore(ctx, pat.completed, pat.step, pat.stepSt)
+		err = job.UpdateStatusIfGreaterThanBefore(ctx, pat.completed, pat.step, pat.stepSt)
 		assert.NoError(t, err)
-		if !assert.Equal(t, pat.expectedSt, pj.Status) {
-			fmt.Printf("Expected was %v but is %v for [%v %v %v %v %v]\n", pat.expectedSt, pj.Status, pat.curSt, pat.completed, pat.step, pat.stepSt, pat.expectedSt)
+		if !assert.Equal(t, pat.expectedSt, job.Status) {
+			fmt.Printf("Expected was %v but is %v for [%v %v %v %v %v]\n", pat.expectedSt, job.Status, pat.curSt, pat.completed, pat.step, pat.stepSt, pat.expectedSt)
 		}
 	}
 }

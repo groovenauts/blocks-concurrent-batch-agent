@@ -28,7 +28,7 @@ func (js JobStatus) String() string {
 }
 
 const (
-	Waiting JobStatus = iota
+	Ready JobStatus = iota
 	Publishing
 	PublishError
 	Published
@@ -38,7 +38,7 @@ const (
 )
 
 var JobStatusToString = map[JobStatus]string{
-	Waiting:      "Waiting",
+	Ready:        "Ready",
 	Publishing:   "Publishing",
 	PublishError: "PublishError",
 	Published:    "Published",
@@ -48,7 +48,7 @@ var JobStatusToString = map[JobStatus]string{
 }
 
 var (
-	WorkingJobStatuses  = []JobStatus{Waiting, Publishing, Published, Executing}
+	WorkingJobStatuses  = []JobStatus{Ready, Publishing, Published, Executing}
 	FinishedJobStatuses = []JobStatus{PublishError, Failure, Success}
 )
 
@@ -67,16 +67,16 @@ type (
 		Value string `datastore:"value,noindex"`
 	}
 
-	PipelineJobMessage struct {
+	JobMessage struct {
 		AttributeMap     map[string]string `json:"attributes" datastore:"-"`
 		AttributeEntries []KeyValuePair    `json:"-"          datastore:"attribute_entries"`
 		Data             string            `json:"data" datastore:"data,noindex"`
 	}
 )
 
-const PipelineJobIdKey = "concurrent_batch.pipeline_job_id"
+const JobIdKey = "concurrent_batch.job_id"
 
-func (m *PipelineJobMessage) MapToEntries() {
+func (m *JobMessage) MapToEntries() {
 	entries := []KeyValuePair{}
 	for k, v := range m.AttributeMap {
 		entries = append(entries, KeyValuePair{Name: k, Value: v})
@@ -84,7 +84,7 @@ func (m *PipelineJobMessage) MapToEntries() {
 	m.AttributeEntries = entries
 }
 
-func (m *PipelineJobMessage) EntriesToMap() {
+func (m *JobMessage) EntriesToMap() {
 	kv := map[string]string{}
 	for _, entry := range m.AttributeEntries {
 		kv[entry.Name] = entry.Value
@@ -93,19 +93,19 @@ func (m *PipelineJobMessage) EntriesToMap() {
 }
 
 type (
-	PipelineJob struct {
-		ID         string             `json:"id"  datastore:"-"`
-		Pipeline   *Pipeline          `json:"-"   validate:"required" datastore:"-"`
-		IdByClient string             `json:"id_by_client" validate:"required" datastore:"id_by_client"`
-		Status     JobStatus          `json:"status"       datastore:"status" `
-		Message    PipelineJobMessage `json:"message" datastore:"message"`
-		MessageID  string             `json:"message_id"   datastore:"message_id"`
-		CreatedAt  time.Time          `json:"created_at"`
-		UpdatedAt  time.Time          `json:"updated_at"`
+	Job struct {
+		ID         string     `json:"id"  datastore:"-"`
+		Pipeline   *Pipeline  `json:"-"   validate:"required" datastore:"-"`
+		IdByClient string     `json:"id_by_client" validate:"required" datastore:"id_by_client"`
+		Status     JobStatus  `json:"status"       datastore:"status" `
+		Message    JobMessage `json:"message" datastore:"message"`
+		MessageID  string     `json:"message_id"   datastore:"message_id"`
+		CreatedAt  time.Time  `json:"created_at"`
+		UpdatedAt  time.Time  `json:"updated_at"`
 	}
 )
 
-func (m *PipelineJob) Validate() error {
+func (m *Job) Validate() error {
 	v := validator.New()
 	for k, val := range Validators {
 		v.RegisterValidation(k, val)
@@ -114,7 +114,7 @@ func (m *PipelineJob) Validate() error {
 	return err
 }
 
-func (m *PipelineJob) Create(ctx context.Context) error {
+func (m *Job) Create(ctx context.Context) error {
 	t := time.Now()
 	if m.CreatedAt.IsZero() {
 		m.CreatedAt = t
@@ -128,7 +128,7 @@ func (m *PipelineJob) Create(ctx context.Context) error {
 		msg.MapToEntries()
 	}
 
-	log.Debugf(ctx, "PipelineJob#Create: %v\n", m)
+	log.Debugf(ctx, "Job#Create: %v\n", m)
 
 	err := m.Validate()
 	if err != nil {
@@ -140,7 +140,7 @@ func (m *PipelineJob) Create(ctx context.Context) error {
 		return err
 	}
 
-	key := datastore.NewIncompleteKey(ctx, "PipelineJobs", parentKey)
+	key := datastore.NewIncompleteKey(ctx, "Jobs", parentKey)
 	res, err := datastore.Put(ctx, key, m)
 	if err != nil {
 		return err
@@ -149,7 +149,7 @@ func (m *PipelineJob) Create(ctx context.Context) error {
 	return nil
 }
 
-func (m *PipelineJob) Update(ctx context.Context) error {
+func (m *Job) Update(ctx context.Context) error {
 	if len(m.Message.AttributeEntries) == 0 {
 		msg := &m.Message
 		msg.MapToEntries()
@@ -181,7 +181,7 @@ func (m *PipelineJob) Update(ctx context.Context) error {
 	return nil
 }
 
-func (m *PipelineJob) Destroy(ctx context.Context) error {
+func (m *Job) Destroy(ctx context.Context) error {
 	key, err := datastore.DecodeKey(m.ID)
 	if err != nil {
 		return err
@@ -192,7 +192,7 @@ func (m *PipelineJob) Destroy(ctx context.Context) error {
 	return nil
 }
 
-func (m *PipelineJob) LoadPipeline(ctx context.Context) error {
+func (m *Job) LoadPipeline(ctx context.Context) error {
 	key, err := datastore.DecodeKey(m.ID)
 	if err != nil {
 		log.Errorf(ctx, "Failed to decode Key of pipeline %v because of %v\n", m.ID, err)
@@ -217,14 +217,14 @@ func (m *PipelineJob) LoadPipeline(ctx context.Context) error {
 	return nil
 }
 
-func (m *PipelineJob) JobMessage() *pubsub.PubsubMessage {
-	entry := KeyValuePair{Name: PipelineJobIdKey, Value: m.ID}
+func (m *Job) JobMessage() *pubsub.PubsubMessage {
+	entry := KeyValuePair{Name: JobIdKey, Value: m.ID}
 	m.Message.AttributeEntries = append(m.Message.AttributeEntries, entry)
 	if len(m.Message.AttributeMap) == 0 {
 		msg := &m.Message
 		msg.EntriesToMap()
 	} else {
-		m.Message.AttributeMap[PipelineJobIdKey] = m.ID
+		m.Message.AttributeMap[JobIdKey] = m.ID
 	}
 	return &pubsub.PubsubMessage{
 		Attributes: m.Message.AttributeMap,
@@ -232,7 +232,7 @@ func (m *PipelineJob) JobMessage() *pubsub.PubsubMessage {
 	}
 }
 
-func (m *PipelineJob) Publish(ctx context.Context) (string, error) {
+func (m *Job) Publish(ctx context.Context) (string, error) {
 	msg := m.JobMessage()
 	log.Debugf(ctx, "m.JobMessage: %v\n", msg)
 	topic := m.Pipeline.JobTopicFqn()
@@ -256,7 +256,7 @@ func (m *PipelineJob) Publish(ctx context.Context) (string, error) {
 	return msgId, nil
 }
 
-func (m *PipelineJob) PublishAndUpdate(ctx context.Context) error {
+func (m *Job) PublishAndUpdate(ctx context.Context) error {
 	msgId, err := m.Publish(ctx)
 	if err != nil {
 		m.Status = PublishError
@@ -277,11 +277,11 @@ func (m *PipelineJob) PublishAndUpdate(ctx context.Context) error {
 	return nil
 }
 
-func (m *PipelineJob) CreateAndPublishIfPossible(ctx context.Context) error {
+func (m *Job) CreateAndPublishIfPossible(ctx context.Context) error {
 	pl := m.Pipeline
 	switch pl.Status {
-	case Uninitialized, Pending, Reserved, Building, Deploying:
-		m.Status = Waiting
+	case Uninitialized, Waiting, Reserved, Building, Deploying:
+		m.Status = Ready
 	case Opened:
 		m.Status = Publishing
 	default:
@@ -306,7 +306,7 @@ func (m *PipelineJob) CreateAndPublishIfPossible(ctx context.Context) error {
 	return nil
 }
 
-func (m *PipelineJob) UpdateStatusIfGreaterThanBefore(ctx context.Context, completed bool, step JobStep, stepStatus JobStepStatus) error {
+func (m *Job) UpdateStatusIfGreaterThanBefore(ctx context.Context, completed bool, step JobStep, stepStatus JobStepStatus) error {
 	if completed {
 		m.Status = Success
 		err := m.Update(ctx)

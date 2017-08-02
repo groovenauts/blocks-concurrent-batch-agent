@@ -18,7 +18,7 @@ import (
 	"google.golang.org/appengine/aetest"
 )
 
-func TestPipelineJobHandlerActions(t *testing.T) {
+func TestJobHandlerActions(t *testing.T) {
 	handlers := SetupRoutes(echo.New())
 
 	opt := &aetest.Options{StronglyConsistentDatastore: true}
@@ -26,7 +26,7 @@ func TestPipelineJobHandlerActions(t *testing.T) {
 	assert.NoError(t, err)
 	defer inst.Close()
 
-	h, ok := handlers["pipeline_jobs"].(*PipelineJobHandler)
+	h, ok := handlers["jobs"].(*JobHandler)
 	assert.True(t, ok)
 	actions := h.buildActions()
 
@@ -34,7 +34,7 @@ func TestPipelineJobHandlerActions(t *testing.T) {
 	assert.NoError(t, err)
 	ctx := appengine.NewContext(req)
 
-	kinds := []string{"PipelineJobs", "Pipelines", "Organizations"}
+	kinds := []string{"Jobs", "Pipelines", "Organizations"}
 	for _, k := range kinds {
 		test_utils.ClearDatastore(t, ctx, k)
 	}
@@ -64,11 +64,11 @@ func TestPipelineJobHandlerActions(t *testing.T) {
 		pipelines[pipelineName] = pipeline
 
 		for i := 1; i < 3; i++ {
-			job := &models.PipelineJob{
+			job := &models.Job{
 				Pipeline:   pipeline,
 				IdByClient: fmt.Sprintf("%v-job-%v", pipelineName, i),
 				Status:     models.Published,
-				Message: models.PipelineJobMessage{
+				Message: models.JobMessage{
 					AttributeMap: map[string]string{
 						"foo": fmt.Sprintf("%v", i),
 					},
@@ -156,16 +156,16 @@ func TestPipelineJobHandlerActions(t *testing.T) {
 
 	s := rec.Body.String()
 
-	pj := models.PipelineJob{}
-	pj.Pipeline = pl1
-	if assert.NoError(t, json.Unmarshal([]byte(s), &pj)) {
-		assert.NotNil(t, pj.ID)
+	job := models.Job{}
+	job.Pipeline = pl1
+	if assert.NoError(t, json.Unmarshal([]byte(s), &job)) {
+		assert.NotNil(t, job.ID)
 	}
 
-	var pjRes map[string]interface{}
-	assert.NoError(t, json.Unmarshal([]byte(s), &pjRes))
+	var jobRes map[string]interface{}
+	assert.NoError(t, json.Unmarshal([]byte(s), &jobRes))
 	assert.Equal(t, map[string]interface{}{
-		"id":           pj.ID,
+		"id":           job.ID,
 		"id_by_client": "pipeline1-job-new1",
 		"status":       float64(0),
 		"message": map[string]interface{}{
@@ -175,9 +175,9 @@ func TestPipelineJobHandlerActions(t *testing.T) {
 			"data": "",
 		},
 		"message_id": "",
-		"created_at": pj.CreatedAt.Format(time.RFC3339Nano),
-		"updated_at": pj.UpdatedAt.Format(time.RFC3339Nano),
-	}, pjRes)
+		"created_at": job.CreatedAt.Format(time.RFC3339Nano),
+		"updated_at": job.UpdatedAt.Format(time.RFC3339Nano),
+	}, jobRes)
 
 	// Test for invalid POST
 	invalidAttrsPatterns := []interface{}{
@@ -216,7 +216,7 @@ func TestPipelineJobHandlerActions(t *testing.T) {
 	}
 
 	// Test for show
-	path := "/jobs/" + pj.ID
+	path := "/jobs/" + job.ID
 	req, err = inst.NewRequest(echo.GET, path, nil)
 	req.Header.Set(auth_header, token)
 	assert.NoError(t, err)
@@ -225,15 +225,15 @@ func TestPipelineJobHandlerActions(t *testing.T) {
 	c = e.NewContext(req, rec)
 	c.SetPath(path)
 	c.SetParamNames("id")
-	c.SetParamValues(pj.ID)
+	c.SetParamValues(job.ID)
 
 	if assert.NoError(t, actions["show"](c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		s := rec.Body.String()
-		pj2 := models.Pipeline{}
-		if assert.NoError(t, json.Unmarshal([]byte(s), &pj2)) {
-			assert.Equal(t, pj.ID, pj2.ID)
+		job2 := models.Pipeline{}
+		if assert.NoError(t, json.Unmarshal([]byte(s), &job2)) {
+			assert.Equal(t, job.ID, job2.ID)
 		}
 	}
 
