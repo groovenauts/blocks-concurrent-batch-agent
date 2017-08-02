@@ -50,6 +50,6 @@ func SetupRoutes(echo *echo.Echo) map[string]interface{} {
 
 	return map[string]interface{}{
 		"pipelines":     h,
-		"pipeline_jobs": pjh,
+		"jobs": pjh,
 	}
 }

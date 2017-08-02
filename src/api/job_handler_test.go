@@ -26,7 +26,7 @@ func TestJobHandlerActions(t *testing.T) {
 	assert.NoError(t, err)
 	defer inst.Close()
 
-	h, ok := handlers["pipeline_jobs"].(*JobHandler)
+	h, ok := handlers["jobs"].(*JobHandler)
 	assert.True(t, ok)
 	actions := h.buildActions()
 
