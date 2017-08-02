@@ -47,7 +47,7 @@ func (aa *PipelineJobAccessor) Find(ctx context.Context, id string) (*PipelineJo
 	return m, nil
 }
 
-func (aa *PipelineJobAccessor) All(ctx context.Context) ([]*PipelineJob, error) {
+func (aa *PipelineJobAccessor) Query() (*datastore.Query, error) {
 	q := datastore.NewQuery("PipelineJobs")
 	if aa.Parent != nil {
 		key, err := datastore.DecodeKey(aa.Parent.ID)
@@ -55,6 +55,14 @@ func (aa *PipelineJobAccessor) All(ctx context.Context) ([]*PipelineJob, error) 
 			return nil, err
 		}
 		q = q.Ancestor(key)
+	}
+	return q, nil
+}
+
+func (aa *PipelineJobAccessor) All(ctx context.Context) ([]*PipelineJob, error) {
+	q, err := aa.Query()
+	if err != nil {
+		return nil, err
 	}
 	iter := q.Run(ctx)
 	var res = []*PipelineJob{}
@@ -73,4 +81,21 @@ func (aa *PipelineJobAccessor) All(ctx context.Context) ([]*PipelineJob, error) 
 		res = append(res, &m)
 	}
 	return res, nil
+}
+
+func (aa *PipelineJobAccessor) WorkingAny(ctx context.Context) (bool, error) {
+	cnt := 0
+	for _, st := range WorkingJobStatuses {
+		q, err := aa.Query()
+		if err != nil {
+			return false, err
+		}
+		q = q.Filter("Status =", st)
+		c, err := q.Count(ctx)
+		if err != nil {
+			return false, err
+		}
+		cnt += c
+	}
+	return (cnt > 0), nil
 }

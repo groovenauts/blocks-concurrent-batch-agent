@@ -15,14 +15,51 @@ import (
 
 type JobStatus int
 
+func (js JobStatus) GreaterThan(other JobStatus) bool {
+	return int(js) > int(other)
+}
+
+func (js JobStatus) String() string {
+	r, ok := JobStatusToString[js]
+	if !ok {
+		return "<Invalid JobStatus>"
+	}
+	return r
+}
+
 const (
 	Waiting JobStatus = iota
 	Publishing
 	PublishError
 	Published
-	// Failure
-	// Success
+	Executing
+	Failure
+	Success
 )
+
+var JobStatusToString = map[JobStatus]string{
+	Waiting:      "Waiting",
+	Publishing:   "Publishing",
+	PublishError: "PublishError",
+	Published:    "Published",
+	Executing:    "Executing",
+	Failure:      "Failure",
+	Success:      "Success",
+}
+
+var (
+	WorkingJobStatuses  = []JobStatus{Waiting, Publishing, Published, Executing}
+	FinishedJobStatuses = []JobStatus{PublishError, Failure, Success}
+)
+
+func (js JobStatus) Working() bool {
+	for _, st := range WorkingJobStatuses {
+		if js == st {
+			return true
+		}
+	}
+	return false
+}
 
 type (
 	KeyValuePair struct {
@@ -119,6 +156,12 @@ func (m *PipelineJob) Update(ctx context.Context) error {
 	}
 
 	m.UpdatedAt = time.Now()
+	if m.Pipeline == nil {
+		err := m.LoadPipeline(ctx)
+		if err != nil {
+			return err
+		}
+	}
 
 	err := m.Validate()
 	if err != nil {
@@ -165,6 +208,12 @@ func (m *PipelineJob) LoadPipeline(ctx context.Context) error {
 		return err
 	}
 	m.Pipeline = pl
+	if pl.Organization == nil {
+		err = pl.LoadOrganization(ctx)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -194,6 +243,12 @@ func (m *PipelineJob) Publish(ctx context.Context) (string, error) {
 	}
 
 	msgId, err := GlobalPublisher.Publish(ctx, topic, req)
+	if err != nil {
+		return "", err
+	}
+
+	m.MessageID = msgId
+	err = m.Update(ctx)
 	if err != nil {
 		return "", err
 	}
@@ -248,5 +303,48 @@ func (m *PipelineJob) CreateAndPublishIfPossible(ctx context.Context) error {
 		return err
 	}
 
+	return nil
+}
+
+func (m *PipelineJob) UpdateStatusIfGreaterThanBefore(ctx context.Context, completed bool, step JobStep, stepStatus JobStepStatus) error {
+	if completed {
+		m.Status = Success
+		err := m.Update(ctx)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
+	newStatus := m.Status
+	switch stepStatus {
+	case STARTING:
+		// Ignore
+	case SUCCESS:
+		switch step {
+		case INITIALIZING, DOWNLOADING, EXECUTING, UPLOADING, NACKSENDING:
+			newStatus = Executing
+		case CLEANUP:
+			// Do nothing
+		case CANCELLING:
+			newStatus = Failure
+		case ACKSENDING:
+			newStatus = Success
+		}
+	case FAILURE:
+		switch step {
+		case INITIALIZING, DOWNLOADING, EXECUTING, UPLOADING:
+			newStatus = Executing
+		}
+	}
+
+	if newStatus.GreaterThan(m.Status) {
+		m.Status = newStatus
+		err := m.Update(ctx)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
 	return nil
 }

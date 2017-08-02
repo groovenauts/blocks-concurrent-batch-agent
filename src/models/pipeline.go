@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"time"
 
+	pubsub "google.golang.org/api/pubsub/v1"
+
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
@@ -218,6 +220,12 @@ func (m *Pipeline) Update(ctx context.Context) error {
 	}
 
 	m.UpdatedAt = time.Now()
+	if m.Organization == nil {
+		err := m.LoadOrganization(ctx)
+		if err != nil {
+			return err
+		}
+	}
 
 	err := m.Validate()
 	if err != nil {
@@ -397,6 +405,74 @@ func (m *Pipeline) JobTopicFqn() string {
 	return fmt.Sprintf("projects/%s/topics/%s", m.ProjectID, m.JobTopicName())
 }
 
+func (m *Pipeline) ProgressSubscriptionName() string {
+	return fmt.Sprintf("%s-progress-subscription", m.Name)
+}
+
+func (m *Pipeline) ProgressSubscriptionFqn() string {
+	return fmt.Sprintf("projects/%s/subscriptions/%s", m.ProjectID, m.ProgressSubscriptionName())
+}
+
 func (m *Pipeline) IDHex() string {
 	return hex.EncodeToString([]byte(m.ID))
+}
+
+func (m *Pipeline) AllJobFinished(ctx context.Context) (bool, error) {
+	jobs, err := m.JobAccessor().All(ctx)
+	if err != nil {
+		return false, err
+	}
+	log.Debugf(ctx, "Pipeline has %v jobs\n", len(jobs))
+
+	if len(jobs) == 0 {
+		return false, nil
+	}
+
+	for _, job := range jobs {
+		log.Debugf(ctx, "Job: %v\n", job)
+		if job.Status.Working() {
+			return false, nil
+		}
+	}
+
+	return true, nil
+}
+
+func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
+	s := &PubsubSubscriber{MessagePerPull: 10}
+	err := s.setup(ctx)
+	if err != nil {
+		return err
+	}
+
+	accessor := m.JobAccessor()
+	err = s.subscribe(ctx, m.ProgressSubscriptionFqn(), func(recvMsg *pubsub.ReceivedMessage) error {
+		attrs := recvMsg.Message.Attributes
+		jobId := attrs[PipelineJobIdKey]
+		job, err := accessor.Find(ctx, jobId)
+		if err != nil {
+			return err
+		}
+		step, err := ParseJobStep(attrs["step"])
+		if err != nil {
+			return err
+		}
+		stepStatus, err := ParseJobStepStatus(attrs["step_status"])
+		if err != nil {
+			return err
+		}
+		completed, err := strconv.ParseBool(attrs["completed"])
+		if err != nil {
+			return err
+		}
+		err = job.UpdateStatusIfGreaterThanBefore(ctx, completed, step, stepStatus)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }

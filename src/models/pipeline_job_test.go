@@ -182,3 +182,114 @@ func TestPipelineJobCRUD(t *testing.T) {
 		assert.Equal(t, 0, len(dummyPublisher.Invocations))
 	}
 }
+
+func TestPipelineJobUpdateStatusIfGreaterThanBefore(t *testing.T) {
+	opt := &aetest.Options{StronglyConsistentDatastore: true}
+	inst, err := aetest.NewInstance(opt)
+	assert.NoError(t, err)
+	defer inst.Close()
+
+	req, err := inst.NewRequest("GET", "/", nil)
+	if !assert.NoError(t, err) {
+		inst.Close()
+		return
+	}
+	ctx := appengine.NewContext(req)
+
+	org1 := &Organization{Name: "org1"}
+	err = org1.Create(ctx)
+	assert.NoError(t, err)
+
+	pipeline := &Pipeline{
+		Organization: org1,
+		Name:         "dummy-pipeline1",
+		ProjectID:    "dummy-proj-111",
+		Zone:         "asia-northeast1-a",
+		BootDisk: PipelineVmDisk{
+			SourceImage: "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable",
+		},
+		MachineType:   "f1-micro",
+		TargetSize:    1,
+		ContainerSize: 1,
+		ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
+	}
+	err = pipeline.Create(ctx)
+	assert.NoError(t, err)
+
+	download_files := "gcs://bucket1/path/to/file1"
+	download_files_json, err := json.Marshal(download_files)
+	assert.NoError(t, err)
+
+	pj := &PipelineJob{
+		Pipeline:   pipeline,
+		Status:     Waiting,
+		IdByClient: fmt.Sprintf("%s-job1", pipeline.Name),
+		Message: PipelineJobMessage{
+			AttributeMap: map[string]string{
+				"download_files": string(download_files_json),
+			},
+		},
+	}
+	err = pj.Create(ctx)
+	assert.NoError(t, err)
+	assert.NotEmpty(t, pj.ID)
+
+	type Pattern struct {
+		curSt      JobStatus
+		completed  bool
+		step       JobStep
+		stepSt     JobStepStatus
+		expectedSt JobStatus
+	}
+
+	patterns := []Pattern{}
+	// Normal cases
+	for _, st := range []JobStatus{Waiting, Publishing, PublishError, Published, Executing} {
+		patterns = append(patterns, []Pattern{
+			{st, false, INITIALIZING, SUCCESS, Executing},
+			{st, false, NACKSENDING, SUCCESS, Executing},
+			{st, false, CANCELLING, SUCCESS, Failure},
+			{st, true, ACKSENDING, SUCCESS, Success},
+		}...)
+	}
+	patterns = append(patterns, []Pattern{
+		{Failure, false, INITIALIZING, SUCCESS, Failure},
+		{Failure, false, NACKSENDING, SUCCESS, Failure},
+		{Failure, false, CANCELLING, SUCCESS, Failure},
+		{Failure, true, ACKSENDING, SUCCESS, Success},
+
+		{Success, false, INITIALIZING, SUCCESS, Success},
+		{Success, false, NACKSENDING, SUCCESS, Success},
+		{Success, false, CANCELLING, SUCCESS, Success},
+		{Success, true, ACKSENDING, SUCCESS, Success},
+	}...)
+
+	// Abnormal cases
+	for _, st := range []JobStatus{Waiting, Publishing, PublishError, Published, Executing} {
+		patterns = append(patterns, []Pattern{
+			{st, false, INITIALIZING, FAILURE, Executing},
+			{st, false, NACKSENDING, FAILURE, st},
+			{st, false, CANCELLING, FAILURE, st},
+			{st, false, ACKSENDING, FAILURE, st},
+		}...)
+	}
+	for _, st := range []JobStatus{Failure, Success} {
+		patterns = append(patterns, []Pattern{
+			{st, false, INITIALIZING, FAILURE, st},
+			{st, false, NACKSENDING, FAILURE, st},
+			{st, false, CANCELLING, FAILURE, st},
+			{st, false, ACKSENDING, FAILURE, st},
+		}...)
+	}
+
+	for _, pat := range patterns {
+		pj.Status = pat.curSt
+		err := pj.Update(ctx)
+		assert.NoError(t, err)
+		err = pj.UpdateStatusIfGreaterThanBefore(ctx, pat.completed, pat.step, pat.stepSt)
+		assert.NoError(t, err)
+		if !assert.Equal(t, pat.expectedSt, pj.Status) {
+			fmt.Printf("Expected was %v but is %v for [%v %v %v %v %v]\n", pat.expectedSt, pj.Status, pat.curSt, pat.completed, pat.step, pat.stepSt, pat.expectedSt)
+		}
+	}
+}
