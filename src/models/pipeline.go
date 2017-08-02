@@ -21,6 +21,7 @@ type Status int
 const (
 	Uninitialized Status = iota
 	Broken
+	Pending
 	Waiting
 	Reserved
 	Building
@@ -34,6 +35,7 @@ const (
 var StatusStrings = map[Status]string{
 	Uninitialized: "uninitialized",
 	Broken:        "broken",
+	Pending:       "pending",  // Go Waiting when all of the dependencies are satisfied
 	Waiting:       "waiting",  // Go Reserved when the pipeline has enough tokens for this TokenConsumption
 	Reserved:      "reserved", // Go Building when the pipeline is being built
 	Building:      "building",
