@@ -34,8 +34,8 @@ const (
 var StatusStrings = map[Status]string{
 	Uninitialized: "uninitialized",
 	Broken:        "broken",
-	Waiting:       "waiting",
-	Reserved:      "reserved",
+	Waiting:       "waiting",  // Go Reserved when the pipeline has enough tokens for this TokenConsumption
+	Reserved:      "reserved", // Go Building when the pipeline is being built
 	Building:      "building",
 	Deploying:     "deploying",
 	Opened:        "opened",
