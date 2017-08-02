@@ -36,7 +36,7 @@ func SetupRoutes(echo *echo.Echo) map[string]interface{} {
 	// g.POST("/:id/refresh_task", h.Actions["refresh_task"])
 	g.POST("/:id/refresh_task", gae_support.With(plBy("id", h.refreshTask)))
 
-	pjh := &PipelineJobHandler{}
+	pjh := &JobHandler{}
 	pjActions := pjh.buildActions()
 
 	g = e.Group("/pipelines/:pipeline_id/jobs")

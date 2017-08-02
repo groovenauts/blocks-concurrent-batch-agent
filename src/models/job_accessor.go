@@ -8,19 +8,19 @@ import (
 	"google.golang.org/appengine/log"
 )
 
-type PipelineJobAccessor struct {
+type JobAccessor struct {
 	Parent *Pipeline
 }
 
-var GlobalPipelineJobAccessor = &PipelineJobAccessor{}
+var GlobalJobAccessor = &JobAccessor{}
 
-var ErrNoSuchPipelineJob = errors.New("No such data in PipelineJobs")
+var ErrNoSuchJob = errors.New("No such data in Jobs")
 
-func (aa *PipelineJobAccessor) Find(ctx context.Context, id string) (*PipelineJob, error) {
-	// log.Debugf(ctx, "PipelineJobAccessor#Find id: %q\n", id)
+func (aa *JobAccessor) Find(ctx context.Context, id string) (*Job, error) {
+	// log.Debugf(ctx, "JobAccessor#Find id: %q\n", id)
 	key, err := datastore.DecodeKey(id)
 	if err != nil {
-		log.Errorf(ctx, "PipelineJobAccessor#Find %v id: %q\n", err, id)
+		log.Errorf(ctx, "JobAccessor#Find %v id: %q\n", err, id)
 		return nil, err
 	}
 	if aa.Parent != nil {
@@ -32,14 +32,14 @@ func (aa *PipelineJobAccessor) Find(ctx context.Context, id string) (*PipelineJo
 			return nil, &InvalidParent{id}
 		}
 	}
-	// log.Debugf(ctx, "PipelineJobAccessor#Find key: %q\n", key)
-	m := &PipelineJob{ID: id}
+	// log.Debugf(ctx, "JobAccessor#Find key: %q\n", key)
+	m := &Job{ID: id}
 	err = datastore.Get(ctx, key, m)
 	switch {
 	case err == datastore.ErrNoSuchEntity:
-		return nil, ErrNoSuchPipelineJob
+		return nil, ErrNoSuchJob
 	case err != nil:
-		log.Errorf(ctx, "PipelineJobAccessor#Find %v id: %q\n", err, id)
+		log.Errorf(ctx, "JobAccessor#Find %v id: %q\n", err, id)
 		return nil, err
 	}
 	msg := &m.Message
@@ -47,8 +47,8 @@ func (aa *PipelineJobAccessor) Find(ctx context.Context, id string) (*PipelineJo
 	return m, nil
 }
 
-func (aa *PipelineJobAccessor) Query() (*datastore.Query, error) {
-	q := datastore.NewQuery("PipelineJobs")
+func (aa *JobAccessor) Query() (*datastore.Query, error) {
+	q := datastore.NewQuery("Jobs")
 	if aa.Parent != nil {
 		key, err := datastore.DecodeKey(aa.Parent.ID)
 		if err != nil {
@@ -59,15 +59,15 @@ func (aa *PipelineJobAccessor) Query() (*datastore.Query, error) {
 	return q, nil
 }
 
-func (aa *PipelineJobAccessor) All(ctx context.Context) ([]*PipelineJob, error) {
+func (aa *JobAccessor) All(ctx context.Context) ([]*Job, error) {
 	q, err := aa.Query()
 	if err != nil {
 		return nil, err
 	}
 	iter := q.Run(ctx)
-	var res = []*PipelineJob{}
+	var res = []*Job{}
 	for {
-		m := PipelineJob{}
+		m := Job{}
 		key, err := iter.Next(&m)
 		if err == datastore.Done {
 			break
@@ -83,7 +83,7 @@ func (aa *PipelineJobAccessor) All(ctx context.Context) ([]*PipelineJob, error) 
 	return res, nil
 }
 
-func (aa *PipelineJobAccessor) WorkingAny(ctx context.Context) (bool, error) {
+func (aa *JobAccessor) WorkingAny(ctx context.Context) (bool, error) {
 	cnt := 0
 	for _, st := range WorkingJobStatuses {
 		q, err := aa.Query()

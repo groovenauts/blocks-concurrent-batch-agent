@@ -18,7 +18,7 @@ import (
 	"google.golang.org/appengine/aetest"
 )
 
-func TestPipelineJobHandlerActions(t *testing.T) {
+func TestJobHandlerActions(t *testing.T) {
 	handlers := SetupRoutes(echo.New())
 
 	opt := &aetest.Options{StronglyConsistentDatastore: true}
@@ -26,7 +26,7 @@ func TestPipelineJobHandlerActions(t *testing.T) {
 	assert.NoError(t, err)
 	defer inst.Close()
 
-	h, ok := handlers["pipeline_jobs"].(*PipelineJobHandler)
+	h, ok := handlers["pipeline_jobs"].(*JobHandler)
 	assert.True(t, ok)
 	actions := h.buildActions()
 
@@ -34,7 +34,7 @@ func TestPipelineJobHandlerActions(t *testing.T) {
 	assert.NoError(t, err)
 	ctx := appengine.NewContext(req)
 
-	kinds := []string{"PipelineJobs", "Pipelines", "Organizations"}
+	kinds := []string{"Jobs", "Pipelines", "Organizations"}
 	for _, k := range kinds {
 		test_utils.ClearDatastore(t, ctx, k)
 	}
@@ -64,11 +64,11 @@ func TestPipelineJobHandlerActions(t *testing.T) {
 		pipelines[pipelineName] = pipeline
 
 		for i := 1; i < 3; i++ {
-			job := &models.PipelineJob{
+			job := &models.Job{
 				Pipeline:   pipeline,
 				IdByClient: fmt.Sprintf("%v-job-%v", pipelineName, i),
 				Status:     models.Published,
-				Message: models.PipelineJobMessage{
+				Message: models.JobMessage{
 					AttributeMap: map[string]string{
 						"foo": fmt.Sprintf("%v", i),
 					},
@@ -156,7 +156,7 @@ func TestPipelineJobHandlerActions(t *testing.T) {
 
 	s := rec.Body.String()
 
-	pj := models.PipelineJob{}
+	pj := models.Job{}
 	pj.Pipeline = pl1
 	if assert.NoError(t, json.Unmarshal([]byte(s), &pj)) {
 		assert.NotNil(t, pj.ID)

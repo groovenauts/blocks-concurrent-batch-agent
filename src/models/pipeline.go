@@ -372,8 +372,8 @@ func (m *Pipeline) LoadOrganization(ctx context.Context) error {
 	return nil
 }
 
-func (m *Pipeline) JobAccessor() *PipelineJobAccessor {
-	return &PipelineJobAccessor{Parent: m}
+func (m *Pipeline) JobAccessor() *JobAccessor {
+	return &JobAccessor{Parent: m}
 }
 
 func (m *Pipeline) Reload(ctx context.Context) error {
@@ -448,7 +448,7 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 	accessor := m.JobAccessor()
 	err = s.subscribe(ctx, m.ProgressSubscriptionFqn(), func(recvMsg *pubsub.ReceivedMessage) error {
 		attrs := recvMsg.Message.Attributes
-		jobId := attrs[PipelineJobIdKey]
+		jobId := attrs[JobIdKey]
 		job, err := accessor.Find(ctx, jobId)
 		if err != nil {
 			return err

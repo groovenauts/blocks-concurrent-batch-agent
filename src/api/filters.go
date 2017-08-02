@@ -41,7 +41,7 @@ func PlToOrg(impl func(c echo.Context) error) func(c echo.Context) error {
 func PjToPl(impl func(c echo.Context) error) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
-		pj := c.Get("job").(*models.PipelineJob)
+		pj := c.Get("job").(*models.Job)
 		pj.LoadPipeline(ctx)
 		c.Set("pipeline", pj.Pipeline)
 		return impl(c)
@@ -87,11 +87,11 @@ func pjBy(key string, impl func(c echo.Context) error) func(c echo.Context) erro
 		ctx := c.Get("aecontext").(context.Context)
 		id := c.Param(key)
 
-		var accessor *models.PipelineJobAccessor
+		var accessor *models.JobAccessor
 		obj := c.Get("pipeline")
 
 		if obj == nil {
-			accessor = models.GlobalPipelineJobAccessor
+			accessor = models.GlobalJobAccessor
 		} else {
 			pl, ok := obj.(*models.Pipeline)
 			if ok {
@@ -105,7 +105,7 @@ func pjBy(key string, impl func(c echo.Context) error) func(c echo.Context) erro
 
 		pj, err := accessor.Find(ctx, id)
 		switch {
-		case err == models.ErrNoSuchPipelineJob:
+		case err == models.ErrNoSuchJob:
 			return c.JSON(http.StatusNotFound, map[string]string{"message": "Not found for " + id})
 		case err != nil:
 			log.Errorf(ctx, "plBy %v id: %v\n", err, id)

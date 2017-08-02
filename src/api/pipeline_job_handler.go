@@ -14,9 +14,9 @@ import (
 	"google.golang.org/appengine/taskqueue"
 )
 
-type PipelineJobHandler struct{}
+type JobHandler struct{}
 
-func (h *PipelineJobHandler) buildActions() map[string](func(c echo.Context) error) {
+func (h *JobHandler) buildActions() map[string](func(c echo.Context) error) {
 	return map[string](func(c echo.Context) error){
 		"index":  gae_support.With(plBy("pipeline_id", PlToOrg(withAuth(h.index)))),
 		"create": gae_support.With(plBy("pipeline_id", PlToOrg(withAuth(h.create)))),
@@ -26,10 +26,10 @@ func (h *PipelineJobHandler) buildActions() map[string](func(c echo.Context) err
 }
 
 // curl -v -X POST http://localhost:8080/pipelines/3/jobs --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
-func (h *PipelineJobHandler) create(c echo.Context) error {
+func (h *JobHandler) create(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	req := c.Request()
-	pj := &models.PipelineJob{}
+	pj := &models.Job{}
 	if err := c.Bind(pj); err != nil {
 		log.Errorf(ctx, "err: %v\n", err)
 		log.Errorf(ctx, "req: %v\n", req)
@@ -39,10 +39,10 @@ func (h *PipelineJobHandler) create(c echo.Context) error {
 	pj.Pipeline = pl
 	err := pj.CreateAndPublishIfPossible(ctx)
 	if err != nil {
-		log.Errorf(ctx, "Failed to create pipelineJob: %v\n%v\n", pj, err)
+		log.Errorf(ctx, "Failed to create Job: %v\n%v\n", pj, err)
 		return err
 	}
-	log.Debugf(ctx, "Created pipelineJob: %v\n", pl)
+	log.Debugf(ctx, "Created Job: %v\n", pl)
 
 	if pj.Status == models.Ready {
 		t := taskqueue.NewPOSTTask(fmt.Sprintf("/jobs/%s/publish", pj.ID), map[string][]string{})
@@ -55,7 +55,7 @@ func (h *PipelineJobHandler) create(c echo.Context) error {
 }
 
 // curl -v http://localhost:8080/pipelines/3/jobs
-func (h *PipelineJobHandler) index(c echo.Context) error {
+func (h *JobHandler) index(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
 	jobs, err := pl.JobAccessor().All(ctx)
@@ -66,20 +66,20 @@ func (h *PipelineJobHandler) index(c echo.Context) error {
 }
 
 // curl -v http://localhost:8080/jobs/1
-func (h *PipelineJobHandler) show(c echo.Context) error {
-	pj := c.Get("job").(*models.PipelineJob)
+func (h *JobHandler) show(c echo.Context) error {
+	pj := c.Get("job").(*models.Job)
 	return c.JSON(http.StatusOK, pj)
 }
 
 // curl -v http://localhost:8080/jobs/1/publish
-func (h *PipelineJobHandler) WaitAndPublish(c echo.Context) error {
+func (h *JobHandler) WaitAndPublish(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
 	err := pl.WaitUntil(ctx, models.Opened, 10*time.Second, 5*time.Minute)
 	if err != nil {
 		return err
 	}
-	pj := c.Get("job").(*models.PipelineJob)
+	pj := c.Get("job").(*models.Job)
 	pj.Status = models.Publishing
 	log.Debugf(ctx, "PublishAndUpdate#1: %v\n", pj)
 	err = pj.Update(ctx)
