@@ -49,7 +49,7 @@ func SetupRoutes(echo *echo.Echo) map[string]interface{} {
 	g.POST("/:id/publish", gae_support.With(jobBy("id", JobToPl(PlToOrg(withAuth(jh.WaitAndPublish))))))
 
 	return map[string]interface{}{
-		"pipelines":     h,
-		"jobs": jh,
+		"pipelines": h,
+		"jobs":      jh,
 	}
 }
