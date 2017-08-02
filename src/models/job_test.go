@@ -102,7 +102,7 @@ func TestJobCRUD(t *testing.T) {
 		err = pipeline1.Update(ctx)
 		assert.NoError(t, err)
 
-		pj := &Job{
+		job := &Job{
 			Pipeline:   pipeline1,
 			IdByClient: fmt.Sprintf("%s-job-waiting-%v", pipeline1.Name, st),
 			Message: JobMessage{
@@ -111,14 +111,14 @@ func TestJobCRUD(t *testing.T) {
 				},
 			},
 		}
-		err := pj.CreateAndPublishIfPossible(ctx)
+		err := job.CreateAndPublishIfPossible(ctx)
 		assert.NoError(t, err)
-		assert.NotEmpty(t, pj.ID)
+		assert.NotEmpty(t, job.ID)
 
-		assert.Equal(t, Ready, pj.Status)
+		assert.Equal(t, Ready, job.Status)
 		assert.Equal(t, 0, len(dummyPublisher.Invocations))
 
-		saved, err := GlobalJobAccessor.Find(ctx, pj.ID)
+		saved, err := GlobalJobAccessor.Find(ctx, job.ID)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(saved.Message.AttributeEntries))
 		entry1 := saved.Message.AttributeEntries[0]
@@ -132,7 +132,7 @@ func TestJobCRUD(t *testing.T) {
 		err = pipeline1.Update(ctx)
 		assert.NoError(t, err)
 
-		pj := &Job{
+		job := &Job{
 			Pipeline:   pipeline1,
 			IdByClient: fmt.Sprintf("%s-job-publishing-%v", pipeline1.Name, st),
 			Message: JobMessage{
@@ -141,16 +141,16 @@ func TestJobCRUD(t *testing.T) {
 				},
 			},
 		}
-		err := pj.CreateAndPublishIfPossible(ctx)
+		err := job.CreateAndPublishIfPossible(ctx)
 		assert.NoError(t, err)
-		assert.NotEmpty(t, pj.ID)
-		assert.Equal(t, pj.ID, pj.Message.AttributeMap[JobIdKey])
+		assert.NotEmpty(t, job.ID)
+		assert.Equal(t, job.ID, job.Message.AttributeMap[JobIdKey])
 
-		assert.Equal(t, Published, pj.Status)
+		assert.Equal(t, Published, job.Status)
 		assert.Equal(t, 1, len(dummyPublisher.Invocations))
 		dummyPublisher.Invocations = []*PublishInvocation{}
 
-		saved, err := GlobalJobAccessor.Find(ctx, pj.ID)
+		saved, err := GlobalJobAccessor.Find(ctx, job.ID)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, len(saved.Message.AttributeEntries))
 		entry0 := saved.Message.AttributeEntries[0]
@@ -167,7 +167,7 @@ func TestJobCRUD(t *testing.T) {
 		err = pipeline1.Update(ctx)
 		assert.NoError(t, err)
 
-		pj := &Job{
+		job := &Job{
 			Pipeline:   pipeline1,
 			IdByClient: fmt.Sprintf("%s-job-waiting-%v", pipeline1.Name, st),
 			Message: JobMessage{
@@ -176,9 +176,9 @@ func TestJobCRUD(t *testing.T) {
 				},
 			},
 		}
-		err := pj.CreateAndPublishIfPossible(ctx)
+		err := job.CreateAndPublishIfPossible(ctx)
 		assert.Error(t, err)
-		assert.Empty(t, pj.ID)
+		assert.Empty(t, job.ID)
 		assert.Equal(t, 0, len(dummyPublisher.Invocations))
 	}
 }
@@ -220,7 +220,7 @@ func TestJobUpdateStatusIfGreaterThanBefore(t *testing.T) {
 	download_files_json, err := json.Marshal(download_files)
 	assert.NoError(t, err)
 
-	pj := &Job{
+	job := &Job{
 		Pipeline:   pipeline,
 		Status:     Ready,
 		IdByClient: fmt.Sprintf("%s-job1", pipeline.Name),
@@ -230,9 +230,9 @@ func TestJobUpdateStatusIfGreaterThanBefore(t *testing.T) {
 			},
 		},
 	}
-	err = pj.Create(ctx)
+	err = job.Create(ctx)
 	assert.NoError(t, err)
-	assert.NotEmpty(t, pj.ID)
+	assert.NotEmpty(t, job.ID)
 
 	type Pattern struct {
 		curSt      JobStatus
@@ -283,13 +283,13 @@ func TestJobUpdateStatusIfGreaterThanBefore(t *testing.T) {
 	}
 
 	for _, pat := range patterns {
-		pj.Status = pat.curSt
-		err := pj.Update(ctx)
+		job.Status = pat.curSt
+		err := job.Update(ctx)
 		assert.NoError(t, err)
-		err = pj.UpdateStatusIfGreaterThanBefore(ctx, pat.completed, pat.step, pat.stepSt)
+		err = job.UpdateStatusIfGreaterThanBefore(ctx, pat.completed, pat.step, pat.stepSt)
 		assert.NoError(t, err)
-		if !assert.Equal(t, pat.expectedSt, pj.Status) {
-			fmt.Printf("Expected was %v but is %v for [%v %v %v %v %v]\n", pat.expectedSt, pj.Status, pat.curSt, pat.completed, pat.step, pat.stepSt, pat.expectedSt)
+		if !assert.Equal(t, pat.expectedSt, job.Status) {
+			fmt.Printf("Expected was %v but is %v for [%v %v %v %v %v]\n", pat.expectedSt, job.Status, pat.curSt, pat.completed, pat.step, pat.stepSt, pat.expectedSt)
 		}
 	}
 }

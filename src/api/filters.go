@@ -38,12 +38,12 @@ func PlToOrg(impl func(c echo.Context) error) func(c echo.Context) error {
 	}
 }
 
-func PjToPl(impl func(c echo.Context) error) func(c echo.Context) error {
+func JobToPl(impl func(c echo.Context) error) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
-		pj := c.Get("job").(*models.Job)
-		pj.LoadPipeline(ctx)
-		c.Set("pipeline", pj.Pipeline)
+		job := c.Get("job").(*models.Job)
+		job.LoadPipeline(ctx)
+		c.Set("pipeline", job.Pipeline)
 		return impl(c)
 	}
 }
@@ -82,7 +82,7 @@ func plBy(key string, impl func(c echo.Context) error) func(c echo.Context) erro
 	}
 }
 
-func pjBy(key string, impl func(c echo.Context) error) func(c echo.Context) error {
+func jobBy(key string, impl func(c echo.Context) error) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		id := c.Param(key)
@@ -98,12 +98,12 @@ func pjBy(key string, impl func(c echo.Context) error) func(c echo.Context) erro
 				accessor = pl.JobAccessor()
 			} else {
 				msg := fmt.Sprintf("invalid pipeline: %v", obj)
-				log.Errorf(ctx, "pjBy %s\n", msg)
+				log.Errorf(ctx, "jobBy %s\n", msg)
 				panic(msg)
 			}
 		}
 
-		pj, err := accessor.Find(ctx, id)
+		job, err := accessor.Find(ctx, id)
 		switch {
 		case err == models.ErrNoSuchJob:
 			return c.JSON(http.StatusNotFound, map[string]string{"message": "Not found for " + id})
@@ -111,7 +111,7 @@ func pjBy(key string, impl func(c echo.Context) error) func(c echo.Context) erro
 			log.Errorf(ctx, "plBy %v id: %v\n", err, id)
 			return err
 		}
-		c.Set("job", pj)
+		c.Set("job", job)
 		return impl(c)
 	}
 }
