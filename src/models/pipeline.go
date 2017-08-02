@@ -97,6 +97,7 @@ type (
 		ClosingOperationName   string            `json:"closing_operation_name"`
 		ClosingErrors          []DeploymentError `json:"closing_errors"`
 		TokenConsumption       int               `json:"token_consumption"`
+		Dependency             Dependency        `json:"dependency,omitempty"`
 		CreatedAt              time.Time         `json:"created_at"`
 		UpdatedAt              time.Time         `json:"updated_at"`
 	}
