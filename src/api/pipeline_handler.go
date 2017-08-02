@@ -117,8 +117,7 @@ func (h *PipelineHandler) destroy(c echo.Context) error {
 	return c.JSON(http.StatusOK, pl)
 }
 
-// This is called from cron
-// curl -v -X PUT http://localhost:8080/pipelines/refresh
+// curl -v -X POST http://localhost:8080/pipelines/:id/refresh
 func (h *PipelineHandler) refresh(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	statuses := map[string]models.Status{"deploying": models.Deploying, "closing": models.Closing}
