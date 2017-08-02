@@ -115,7 +115,7 @@ func TestPipelineJobCRUD(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotEmpty(t, pj.ID)
 
-		assert.Equal(t, Waiting, pj.Status)
+		assert.Equal(t, Ready, pj.Status)
 		assert.Equal(t, 0, len(dummyPublisher.Invocations))
 
 		saved, err := GlobalPipelineJobAccessor.Find(ctx, pj.ID)
@@ -222,7 +222,7 @@ func TestPipelineJobUpdateStatusIfGreaterThanBefore(t *testing.T) {
 
 	pj := &PipelineJob{
 		Pipeline:   pipeline,
-		Status:     Waiting,
+		Status:     Ready,
 		IdByClient: fmt.Sprintf("%s-job1", pipeline.Name),
 		Message: PipelineJobMessage{
 			AttributeMap: map[string]string{
@@ -244,7 +244,7 @@ func TestPipelineJobUpdateStatusIfGreaterThanBefore(t *testing.T) {
 
 	patterns := []Pattern{}
 	// Normal cases
-	for _, st := range []JobStatus{Waiting, Publishing, PublishError, Published, Executing} {
+	for _, st := range []JobStatus{Ready, Publishing, PublishError, Published, Executing} {
 		patterns = append(patterns, []Pattern{
 			{st, false, INITIALIZING, SUCCESS, Executing},
 			{st, false, NACKSENDING, SUCCESS, Executing},
@@ -265,7 +265,7 @@ func TestPipelineJobUpdateStatusIfGreaterThanBefore(t *testing.T) {
 	}...)
 
 	// Abnormal cases
-	for _, st := range []JobStatus{Waiting, Publishing, PublishError, Published, Executing} {
+	for _, st := range []JobStatus{Ready, Publishing, PublishError, Published, Executing} {
 		patterns = append(patterns, []Pattern{
 			{st, false, INITIALIZING, FAILURE, Executing},
 			{st, false, NACKSENDING, FAILURE, st},

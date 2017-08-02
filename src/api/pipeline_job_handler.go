@@ -44,7 +44,7 @@ func (h *PipelineJobHandler) create(c echo.Context) error {
 	}
 	log.Debugf(ctx, "Created pipelineJob: %v\n", pl)
 
-	if pj.Status == models.Waiting {
+	if pj.Status == models.Ready {
 		t := taskqueue.NewPOSTTask(fmt.Sprintf("/jobs/%s/publish", pj.ID), map[string][]string{})
 		t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
 		if _, err := taskqueue.Add(ctx, t, ""); err != nil {

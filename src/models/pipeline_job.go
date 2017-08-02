@@ -28,7 +28,7 @@ func (js JobStatus) String() string {
 }
 
 const (
-	Waiting JobStatus = iota
+	Ready JobStatus = iota
 	Publishing
 	PublishError
 	Published
@@ -38,7 +38,7 @@ const (
 )
 
 var JobStatusToString = map[JobStatus]string{
-	Waiting:      "Waiting",
+	Ready:        "Ready",
 	Publishing:   "Publishing",
 	PublishError: "PublishError",
 	Published:    "Published",
@@ -48,7 +48,7 @@ var JobStatusToString = map[JobStatus]string{
 }
 
 var (
-	WorkingJobStatuses  = []JobStatus{Waiting, Publishing, Published, Executing}
+	WorkingJobStatuses  = []JobStatus{Ready, Publishing, Published, Executing}
 	FinishedJobStatuses = []JobStatus{PublishError, Failure, Success}
 )
 
@@ -281,7 +281,7 @@ func (m *PipelineJob) CreateAndPublishIfPossible(ctx context.Context) error {
 	pl := m.Pipeline
 	switch pl.Status {
 	case Uninitialized, Pending, Reserved, Building, Deploying:
-		m.Status = Waiting
+		m.Status = Ready
 	case Opened:
 		m.Status = Publishing
 	default:
