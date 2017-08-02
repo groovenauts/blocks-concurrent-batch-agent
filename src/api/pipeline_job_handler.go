@@ -67,7 +67,7 @@ func (h *PipelineJobHandler) index(c echo.Context) error {
 
 // curl -v http://localhost:8080/jobs/1
 func (h *PipelineJobHandler) show(c echo.Context) error {
-	pj := c.Get("pipeline_job").(*models.PipelineJob)
+	pj := c.Get("job").(*models.PipelineJob)
 	return c.JSON(http.StatusOK, pj)
 }
 
@@ -79,7 +79,7 @@ func (h *PipelineJobHandler) WaitAndPublish(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	pj := c.Get("pipeline_job").(*models.PipelineJob)
+	pj := c.Get("job").(*models.PipelineJob)
 	pj.Status = models.Publishing
 	log.Debugf(ctx, "PublishAndUpdate#1: %v\n", pj)
 	err = pj.Update(ctx)

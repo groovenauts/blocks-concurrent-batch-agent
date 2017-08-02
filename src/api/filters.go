@@ -41,7 +41,7 @@ func PlToOrg(impl func(c echo.Context) error) func(c echo.Context) error {
 func PjToPl(impl func(c echo.Context) error) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
-		pj := c.Get("pipeline_job").(*models.PipelineJob)
+		pj := c.Get("job").(*models.PipelineJob)
 		pj.LoadPipeline(ctx)
 		c.Set("pipeline", pj.Pipeline)
 		return impl(c)
@@ -111,7 +111,7 @@ func pjBy(key string, impl func(c echo.Context) error) func(c echo.Context) erro
 			log.Errorf(ctx, "plBy %v id: %v\n", err, id)
 			return err
 		}
-		c.Set("pipeline_job", pj)
+		c.Set("job", pj)
 		return impl(c)
 	}
 }
