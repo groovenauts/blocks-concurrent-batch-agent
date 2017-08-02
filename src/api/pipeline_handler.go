@@ -119,29 +119,8 @@ func (h *PipelineHandler) destroy(c echo.Context) error {
 
 // curl -v -X POST http://localhost:8080/pipelines/:id/refresh
 func (h *PipelineHandler) refresh(c echo.Context) error {
-	ctx := c.Get("aecontext").(context.Context)
-	statuses := map[string]models.Status{"deploying": models.Deploying, "closing": models.Closing}
-	res := map[string][]string{}
-	for name, st := range statuses {
-		orgs, err := models.GlobalOrganizationAccessor.All(ctx)
-		if err != nil {
-			return err
-		}
-		for _, org := range orgs {
-			ids, err := org.PipelineAccessor().GetIDsByStatus(ctx, st)
-			if err != nil {
-				return err
-			}
-			for _, id := range ids {
-				t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/refresh_task", id), map[string][]string{})
-				if _, err := taskqueue.Add(ctx, t, ""); err != nil {
-					return err
-				}
-			}
-			res[org.Name+"-"+name] = ids
-		}
-	}
-	return c.JSON(http.StatusOK, res)
+	pl := c.Get("pipeline").(*models.Pipeline)
+	return h.PostPipelineTask(c, "refresh_task", pl, http.StatusOK)
 }
 
 // curl -v -X POST http://localhost:8080/pipelines/1/build_task
