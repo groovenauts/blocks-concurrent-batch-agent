@@ -32,7 +32,7 @@ func SetupRoutes(echo *echo.Echo) map[string]interface{} {
 	g.POST("/:id/start_closing_task", gae_support.With(plBy("id", withPlIDHexAuth(h.startClosingTask))))
 	g.POST("/:id/wait_closing_task", gae_support.With(plBy("id", withPlIDHexAuth(h.waitClosingTask))))
 
-	g.POST("/:id/refresh", gae_support.With(plBy("id", PlToOrg(withAuth(h.Actions["refresh"])))))
+	g.POST("/:id/refresh", h.Actions["refresh"])
 	g.POST("/:id/refresh_task", gae_support.With(plBy("id", PlToOrg(withAuth(h.refreshTask)))))
 
 	jh := &JobHandler{}
