@@ -66,11 +66,8 @@ func (h *PipelineHandler) create(c echo.Context) error {
 		if pl.Dryrun {
 			log.Debugf(ctx, "[DRYRUN] POST buildTask for %v\n", pl)
 		} else {
-			t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/build_task", pl.ID), map[string][]string{})
-			// build_task checks AUTH_HEADER by using withPlIDHexAuth filter instead of withAuth filter
-			// so Set IDHex to AUTH_HEADER instead of original AUTH_HEADER
-			t.Header.Add(AUTH_HEADER, fmt.Sprintf("Bearer %s", pl.IDHex()))
-			if _, err := taskqueue.Add(ctx, t, ""); err != nil {
+			err := h.PostPipelineTaskWithoutJSON(c, "build_task", pl)
+			if err != nil {
 				return err
 			}
 		}
@@ -230,16 +227,9 @@ func (h *PipelineHandler) startClosingTask(c echo.Context) error {
 // curl -v -X	POST http://localhost:8080/pipelines/1/wait_closing_task
 func (h *PipelineHandler) waitClosingTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
-	req := c.Request()
 	pl := c.Get("pipeline").(*models.Pipeline)
 	handler := pl.RefreshHandlerWith(ctx, func(pl *models.Pipeline) error {
-		t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/build_task", pl.ID), map[string][]string{})
-		t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
-		if _, err := taskqueue.Add(ctx, t, ""); err != nil {
-			log.Errorf(ctx, "Failed to add a task %v to taskqueue because of %v\n", t, err)
-			return err
-		}
-		return nil
+		return h.PostPipelineTaskWithoutJSON(c, "build_task", pl)
 	})
 
 	for pl.Status == models.Closing {
@@ -278,16 +268,7 @@ func (h *PipelineHandler) refreshTask(c echo.Context) error {
 	pl := c.Get("pipeline").(*models.Pipeline)
 	refresher := &models.Refresher{}
 	err := refresher.Process(ctx, pl, pl.RefreshHandlerWith(ctx, func(pl *models.Pipeline) error {
-		t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/build_task", pl.ID), map[string][]string{})
-		// build_task checks AUTH_HEADER by using withPlIDHexAuth filter instead of withAuth filter
-		// so Set IDHex to AUTH_HEADER instead of original AUTH_HEADER
-		// because build_task is called without AUTH_HEADER.
-		t.Header.Add(AUTH_HEADER, fmt.Sprintf("Bearer %s", pl.IDHex()))
-		if _, err := taskqueue.Add(ctx, t, ""); err != nil {
-			log.Errorf(ctx, "Failed to add a task %v to taskqueue because of %v\n", t, err)
-			return err
-		}
-		return nil
+		return h.PostPipelineTaskWithoutJSON(c, "build_task", pl)
 	}))
 	if err != nil {
 		log.Errorf(ctx, "Failed to refresh pipeline %v because of %v\n", pl, err)
