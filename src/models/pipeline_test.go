@@ -109,7 +109,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	assert.Equal(t, org1.TokenAmount-pl.TokenConsumption, orgReloaded.TokenAmount)
 	assert.Equal(t, Reserved, pl.Status)
 
-	pendingPl := &Pipeline{
+	waitingPl := &Pipeline{
 		Organization: org1,
 		Name:         "pipeline01",
 		ProjectID:    proj,
@@ -124,9 +124,9 @@ func TestWatcherCalcDifferences(t *testing.T) {
 		Command:          "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
 		TokenConsumption: org1.TokenAmount - pl.TokenConsumption + 1,
 	}
-	err = pendingPl.ReserveOrWait(ctx)
+	err = waitingPl.ReserveOrWait(ctx)
 	assert.NoError(t, err)
-	assert.Equal(t, Pending, pendingPl.Status)
+	assert.Equal(t, Waiting, waitingPl.Status)
 
 	// Update status
 	pl.Status = Building
@@ -156,7 +156,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	// GetPipelineIDsByStatus
 	statuses := []Status{
 		Uninitialized, Broken,
-		// Pending,
+		// Waiting,
 		Reserved, Building, Deploying,
 		// Opened,
 		Closing, Closed,
@@ -188,7 +188,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 
 	// destroy
 	indestructible_statuses := []Status{
-		Uninitialized, Broken, Pending, Reserved, Building, Deploying, Opened, Closing,
+		Uninitialized, Broken, Waiting, Reserved, Building, Deploying, Opened, Closing,
 		//Closed,
 	}
 	for _, st := range indestructible_statuses {
@@ -209,7 +209,7 @@ func TestStatusTypeAndValue(t *testing.T) {
 	st := "models.Status"
 	assert.Equal(t, st, fmt.Sprintf(ft, Uninitialized))
 	assert.Equal(t, st, fmt.Sprintf(ft, Broken))
-	assert.Equal(t, st, fmt.Sprintf(ft, Pending))
+	assert.Equal(t, st, fmt.Sprintf(ft, Waiting))
 	assert.Equal(t, st, fmt.Sprintf(ft, Reserved))
 	assert.Equal(t, st, fmt.Sprintf(ft, Building))
 	assert.Equal(t, st, fmt.Sprintf(ft, Deploying))
@@ -220,7 +220,7 @@ func TestStatusTypeAndValue(t *testing.T) {
 
 	assert.Equal(t, "0", fmt.Sprintf(fv, Uninitialized))
 	assert.Equal(t, "1", fmt.Sprintf(fv, Broken))
-	assert.Equal(t, "2", fmt.Sprintf(fv, Pending))
+	assert.Equal(t, "2", fmt.Sprintf(fv, Waiting))
 	assert.Equal(t, "3", fmt.Sprintf(fv, Reserved))
 	assert.Equal(t, "4", fmt.Sprintf(fv, Building))
 	assert.Equal(t, "5", fmt.Sprintf(fv, Deploying))
@@ -234,7 +234,7 @@ func TestPipelineStateTransition(t *testing.T) {
 	statuses := []Status{
 		Uninitialized,
 		Broken,
-		Pending,
+		Waiting,
 		// Reserved,
 		Building,
 		Deploying,
@@ -330,7 +330,7 @@ func TestGetActiveSubscriptions(t *testing.T) {
 	assert.Equal(t, "projects/test-project-x/subscriptions/pipeline-opened-progress-subscription", subscription.Name)
 }
 
-func TestGetPendingPipelines(t *testing.T) {
+func TestGetWaitingPipelines(t *testing.T) {
 	// See https://github.com/golang/appengine/blob/master/aetest/instance.go#L36-L50
 	opt := &aetest.Options{StronglyConsistentDatastore: true}
 	inst, err := aetest.NewInstance(opt)
@@ -380,16 +380,16 @@ func TestGetPendingPipelines(t *testing.T) {
 	// TokenAmount: 10
 	// pipeline-1 {TokenConsumption: 5} 50 min ago Reserved
 	// pipeline-2 {TokenConsumption: 4} 40 min ago Reserved
-	// pipeline-3 {TokenConsumption: 3} 30 min ago Pending
-	// pipeline-4 {TokenConsumption: 2} 20 min ago Pending
-	// pipeline-5 {TokenConsumption: 1} 10 min ago Pending
+	// pipeline-3 {TokenConsumption: 3} 30 min ago Waiting
+	// pipeline-4 {TokenConsumption: 2} 20 min ago Waiting
+	// pipeline-5 {TokenConsumption: 1} 10 min ago Waiting
 	assert.Equal(t, Reserved, pipelines[0].Status)
 	assert.Equal(t, Reserved, pipelines[1].Status)
-	assert.Equal(t, Pending, pipelines[2].Status)
-	assert.Equal(t, Pending, pipelines[3].Status)
-	assert.Equal(t, Pending, pipelines[4].Status)
+	assert.Equal(t, Waiting, pipelines[2].Status)
+	assert.Equal(t, Waiting, pipelines[3].Status)
+	assert.Equal(t, Waiting, pipelines[4].Status)
 
-	res, err := org1.PipelineAccessor().GetPendings(ctx)
+	res, err := org1.PipelineAccessor().GetWaitings(ctx)
 	assert.NoError(t, err)
 	assert.Equal(t, 3, len(res))
 

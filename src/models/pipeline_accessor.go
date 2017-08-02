@@ -110,8 +110,8 @@ func (pa *PipelineAccessor) GetByQuery(ctx context.Context, q *datastore.Query) 
 	return res, nil
 }
 
-func (pa *PipelineAccessor) PendingQuery() (*datastore.Query, error) {
-	q := datastore.NewQuery("Pipelines").Filter("Status =", Pending)
+func (pa *PipelineAccessor) WaitingQuery() (*datastore.Query, error) {
+	q := datastore.NewQuery("Pipelines").Filter("Status =", Waiting)
 	q, err := pa.considerParent(q)
 	if err != nil {
 		return nil, err
@@ -119,8 +119,8 @@ func (pa *PipelineAccessor) PendingQuery() (*datastore.Query, error) {
 	return q, nil
 }
 
-func (pa *PipelineAccessor) GetPendings(ctx context.Context) ([]*Pipeline, error) {
-	q, err := pa.PendingQuery()
+func (pa *PipelineAccessor) GetWaitings(ctx context.Context) ([]*Pipeline, error) {
+	q, err := pa.WaitingQuery()
 	if err != nil {
 		return nil, err
 	}

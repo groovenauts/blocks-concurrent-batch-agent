@@ -21,7 +21,7 @@ type Status int
 const (
 	Uninitialized Status = iota
 	Broken
-	Pending
+	Waiting
 	Reserved
 	Building
 	Deploying
@@ -34,7 +34,7 @@ const (
 var StatusStrings = map[Status]string{
 	Uninitialized: "uninitialized",
 	Broken:        "broken",
-	Pending:       "pending",
+	Waiting:       "waiting",
 	Reserved:      "reserved",
 	Building:      "building",
 	Deploying:     "deploying",
@@ -135,24 +135,24 @@ func (m *Pipeline) ReserveOrWait(ctx context.Context) error {
 				return err
 			}
 
-			pending, err := org.PipelineAccessor().PendingQuery()
+			waiting, err := org.PipelineAccessor().WaitingQuery()
 			if err != nil {
 				return err
 			}
 
-			cnt, err := pending.Count(ctx)
+			cnt, err := waiting.Count(ctx)
 			if err != nil {
 				return err
 			}
 
 			if cnt > 0 {
-				log.Warningf(ctx, "Insufficient tokens; %v has already %v pending pipelines", org.Name, cnt)
-				m.Status = Pending
+				log.Warningf(ctx, "Insufficient tokens; %v has already %v waiting pipelines", org.Name, cnt)
+				m.Status = Waiting
 			} else {
 				newAmount := org.TokenAmount - m.TokenConsumption
 				if newAmount < 0 {
 					log.Warningf(ctx, "Insufficient tokens; %v has only %v tokens but %v required %v tokens", org.Name, org.TokenAmount, m.Name, m.TokenConsumption)
-					m.Status = Pending
+					m.Status = Waiting
 				} else {
 					m.Status = Reserved
 					org.TokenAmount = newAmount
@@ -320,23 +320,23 @@ func (m *Pipeline) CompleteClosing(ctx context.Context, pipelineProcesser func(*
 		}
 		newTokenAmount := org.TokenAmount + m.TokenConsumption
 
-		pendings, err := org.PipelineAccessor().GetPendings(ctx)
+		waitings, err := org.PipelineAccessor().GetWaitings(ctx)
 		if err != nil {
 			return err
 		}
 
-		for _, pending := range pendings {
-			if newTokenAmount < pending.TokenConsumption {
+		for _, waiting := range waitings {
+			if newTokenAmount < waiting.TokenConsumption {
 				break
 			}
-			newTokenAmount = newTokenAmount - pending.TokenConsumption
-			pending.Status = Reserved
-			err := pending.Update(ctx)
+			newTokenAmount = newTokenAmount - waiting.TokenConsumption
+			waiting.Status = Reserved
+			err := waiting.Update(ctx)
 			if err != nil {
 				return err
 			}
 			if pipelineProcesser != nil {
-				err := pipelineProcesser(pending)
+				err := pipelineProcesser(waiting)
 				if err != nil {
 					return err
 				}
