@@ -74,7 +74,7 @@ type (
 	}
 )
 
-const PipelineJobIdKey = "concurrent_batch.pipeline_job_id"
+const PipelineJobIdKey = "concurrent_batch.job_id"
 
 func (m *PipelineJobMessage) MapToEntries() {
 	entries := []KeyValuePair{}
