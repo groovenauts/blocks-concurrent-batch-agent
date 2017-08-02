@@ -296,13 +296,21 @@ func (h *PipelineHandler) refreshTask(c echo.Context) error {
 	return c.JSON(http.StatusOK, pl)
 }
 
-func (h *PipelineHandler) PostPipelineTask(c echo.Context, action string, pl *models.Pipeline, status int) error {
+func (h *PipelineHandler) PostPipelineTaskWithoutJSON(c echo.Context, action string, pl *models.Pipeline) error {
 	ctx := c.Get("aecontext").(context.Context)
 	req := c.Request()
 	t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/%s", pl.ID, action), map[string][]string{})
 	t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
 	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 		log.Errorf(ctx, "Failed to add a task %v to taskqueue because of %v\n", t, err)
+		return err
+	}
+	return nil
+}
+
+func (h *PipelineHandler) PostPipelineTask(c echo.Context, action string, pl *models.Pipeline, status int) error {
+	err := h.PostPipelineTaskWithoutJSON(c, action, pl)
+	if err != nil {
 		return err
 	}
 	return c.JSON(status, pl)
