@@ -190,14 +190,16 @@ func TestActions(t *testing.T) {
 		assert.NoError(t, err)
 
 		test_utils.RetryWith(10, func() func() {
-			req, err = inst.NewRequest(echo.GET, "/pipelines/refresh", nil)
+			req, err = inst.NewRequest(echo.GET, "/pipelines/"+pl.ID+"/refresh", nil)
 			assert.NoError(t, err)
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			req.Header.Set(auth_header, token)
 
 			rec = httptest.NewRecorder()
 			c = e.NewContext(req, rec)
-			c.SetPath("/pipelines/refresh")
+			c.SetPath("/pipelines/" + pl.ID + "/refresh")
+			c.SetParamNames("id")
+			c.SetParamValues(pl.ID)
 
 			err := h.Actions["refresh"](c)
 			if err != nil {
@@ -207,13 +209,10 @@ func TestActions(t *testing.T) {
 				return func() { assert.Equal(t, http.StatusOK, rec.Code) }
 			}
 			s := rec.Body.String()
-			res := map[string][]string{}
-			err = json.Unmarshal([]byte(s), &res)
+			res := &models.Pipeline{}
+			err = json.Unmarshal([]byte(s), res)
 			if err != nil {
 				return func() { assert.NoError(t, err) }
-			}
-			if !assert.ObjectsAreEqual(expection.result, res) {
-				return func() { assert.Equal(t, expection.result, res) }
 			}
 			return nil
 		})

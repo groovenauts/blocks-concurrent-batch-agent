@@ -25,16 +25,15 @@ func SetupRoutes(echo *echo.Echo) map[string]interface{} {
 	g.POST("/:id/close_task", gae_support.With(plBy("id", PlToOrg(withAuth(h.closeTask)))))
 	g.DELETE("/:id", h.Actions["destroy"])
 
-	g.POST("/:id/build_task", gae_support.With(plBy("id", withPlIDHexAuth(h.buildTask))))
-	g.POST("/:id/wait_building_task", gae_support.With(plBy("id", withPlIDHexAuth(h.waitBuildingTask))))
-	g.POST("/:id/publish_task", gae_support.With(plBy("id", withPlIDHexAuth(h.publishTask))))
-	g.POST("/:id/subscribe_task", gae_support.With(plBy("id", withPlIDHexAuth(h.subscribeTask))))
-	g.POST("/:id/start_closing_task", gae_support.With(plBy("id", withPlIDHexAuth(h.startClosingTask))))
-	g.POST("/:id/wait_closing_task", gae_support.With(plBy("id", withPlIDHexAuth(h.waitClosingTask))))
+	g.POST("/:id/build_task", gae_support.With(plBy("id", PlToOrg(withAuth(h.buildTask)))))
+	g.POST("/:id/wait_building_task", gae_support.With(plBy("id", PlToOrg(withAuth(h.waitBuildingTask)))))
+	g.POST("/:id/publish_task", gae_support.With(plBy("id", PlToOrg(withAuth(h.publishTask)))))
+	g.POST("/:id/subscribe_task", gae_support.With(plBy("id", PlToOrg(withAuth(h.subscribeTask)))))
+	g.POST("/:id/start_closing_task", gae_support.With(plBy("id", PlToOrg(withAuth(h.startClosingTask)))))
+	g.POST("/:id/wait_closing_task", gae_support.With(plBy("id", PlToOrg(withAuth(h.waitClosingTask)))))
 
-	g.GET("/refresh", h.Actions["refresh"])
-	// g.POST("/:id/refresh_task", h.Actions["refresh_task"])
-	g.POST("/:id/refresh_task", gae_support.With(plBy("id", h.refreshTask)))
+	g.POST("/:id/refresh", h.Actions["refresh"])
+	g.POST("/:id/refresh_task", gae_support.With(plBy("id", PlToOrg(withAuth(h.refreshTask)))))
 
 	jh := &JobHandler{}
 	jhActions := jh.buildActions()
