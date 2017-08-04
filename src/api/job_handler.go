@@ -21,6 +21,7 @@ func (h *JobHandler) buildActions() map[string](func(c echo.Context) error) {
 		"index":  gae_support.With(plBy("pipeline_id", PlToOrg(withAuth(h.index)))),
 		"create": gae_support.With(plBy("pipeline_id", PlToOrg(withAuth(h.create)))),
 		"show":   gae_support.With(jobBy("id", JobToPl(PlToOrg(withAuth(h.show))))),
+		"getready": gae_support.With(jobBy("id", JobToPl(PlToOrg(withAuth(h.getReady))))),
 		// "publish": gae_support.With(jobBy("id", JobToPl(PlToOrg(withAuth(h.WaitAndPublish))))),
 	}
 }
@@ -65,6 +66,27 @@ func (h *JobHandler) index(c echo.Context) error {
 // curl -v http://localhost:8080/jobs/1
 func (h *JobHandler) show(c echo.Context) error {
 	job := c.Get("job").(*models.Job)
+	return c.JSON(http.StatusOK, job)
+}
+
+// curl -v http://localhost:8080/jobs/1
+func (h *JobHandler) getReady(c echo.Context) error {
+	ctx := c.Get("aecontext").(context.Context)
+	job := c.Get("job").(*models.Job)
+	pl := c.Get("pipeline").(*models.Pipeline)
+	job.Pipeline = pl
+	job.Status = models.Ready
+	err := job.UpdateAndPublishIfPossible(ctx) // This method might change the status to Publishing
+	if err != nil {
+		log.Errorf(ctx, "Failed to update Job: %v\n%v\n", job, err)
+		return err
+	}
+	log.Debugf(ctx, "Updated Job: %v\n", pl)
+
+	err = h.StartToWaitAndPublishIfNeeded(c, job)
+	if err != nil {
+		return err
+	}
 	return c.JSON(http.StatusOK, job)
 }
 
