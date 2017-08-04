@@ -239,6 +239,25 @@ func TestJobHandlerActions(t *testing.T) {
 				assert.Equal(t, job.ID, job2.ID)
 			}
 		}
+
+		// POST /jobs/:id/getready
+		path = "/jobs/" + job.ID + "/getready"
+		req, err = inst.NewRequest(echo.POST, path, strings.NewReader(""))
+		req.Header.Set(auth_header, token)
+		assert.NoError(t, err)
+
+		rec = httptest.NewRecorder()
+		c = e.NewContext(req, rec)
+		c.SetPath(path)
+		c.SetParamNames("id")
+		c.SetParamValues(job.ID)
+
+		assert.NoError(t, actions["getready"](c))
+		assert.Equal(t, http.StatusOK, rec.Code)
+
+		loaded, err := models.GlobalJobAccessor.Find(ctx, job.ID)
+		assert.NoError(t, err)
+		assert.Equal(t, models.Ready, loaded.Status)
 	}
 
 }
