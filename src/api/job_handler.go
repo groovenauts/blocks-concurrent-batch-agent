@@ -44,12 +44,9 @@ func (h *JobHandler) create(c echo.Context) error {
 	}
 	log.Debugf(ctx, "Created Job: %v\n", pl)
 
-	if job.Status == models.Ready {
-		t := taskqueue.NewPOSTTask(fmt.Sprintf("/jobs/%s/publish", job.ID), map[string][]string{})
-		t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
-		if _, err := taskqueue.Add(ctx, t, ""); err != nil {
-			return err
-		}
+	err = h.StartToWaitAndPublishIfNeeded(c, job)
+	if err != nil {
+		return err
 	}
 	return c.JSON(http.StatusCreated, job)
 }
@@ -69,6 +66,20 @@ func (h *JobHandler) index(c echo.Context) error {
 func (h *JobHandler) show(c echo.Context) error {
 	job := c.Get("job").(*models.Job)
 	return c.JSON(http.StatusOK, job)
+}
+
+func (h *JobHandler) StartToWaitAndPublishIfNeeded(c echo.Context, job *models.Job) error {
+	if job.Status != models.Ready {
+		return nil
+	}
+	ctx := c.Get("aecontext").(context.Context)
+	req := c.Request()
+	t := taskqueue.NewPOSTTask(fmt.Sprintf("/jobs/%s/publish", job.ID), map[string][]string{})
+	t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
+	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
+		return err
+	}
+	return nil
 }
 
 // curl -v http://localhost:8080/jobs/1/publish
