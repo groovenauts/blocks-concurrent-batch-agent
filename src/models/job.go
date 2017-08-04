@@ -289,6 +289,10 @@ func (m *Job) PublishAndUpdate(ctx context.Context) error {
 }
 
 func (m *Job) CreateAndPublishIfPossible(ctx context.Context) error {
+	return m.DoAndPublishIfPossible(ctx, m.Create)
+}
+
+func (m *Job) DoAndPublishIfPossible(ctx context.Context, f func(ctx context.Context) error) error {
 	if m.Status == Ready {
 		pl := m.Pipeline
 		switch pl.Status {
@@ -302,7 +306,7 @@ func (m *Job) CreateAndPublishIfPossible(ctx context.Context) error {
 		}
 	}
 
-	err := m.Create(ctx)
+	err := f(ctx)
 	if err != nil {
 		return err
 	}
