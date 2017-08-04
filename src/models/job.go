@@ -59,6 +59,10 @@ func (js JobStatus) Working() bool {
 	return js.IncludedIn(WorkingJobStatuses)
 }
 
+func (js JobStatus) Living() bool {
+	return js.IncludedIn(LivingJobStatuses)
+}
+
 func (js JobStatus) IncludedIn(statuses []JobStatus) bool {
 	for _, st := range statuses {
 		if js == st {
