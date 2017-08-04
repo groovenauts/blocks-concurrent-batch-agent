@@ -28,7 +28,8 @@ func (js JobStatus) String() string {
 }
 
 const (
-	Ready JobStatus = iota
+	Preparing JobStatus = iota
+	Ready
 	Publishing
 	PublishError
 	Published
@@ -38,6 +39,7 @@ const (
 )
 
 var JobStatusToString = map[JobStatus]string{
+	Preparing:    "Preparing",
 	Ready:        "Ready",
 	Publishing:   "Publishing",
 	PublishError: "PublishError",
@@ -278,15 +280,17 @@ func (m *Job) PublishAndUpdate(ctx context.Context) error {
 }
 
 func (m *Job) CreateAndPublishIfPossible(ctx context.Context) error {
-	pl := m.Pipeline
-	switch pl.Status {
-	case Uninitialized, Waiting, Reserved, Building, Deploying:
-		m.Status = Ready
-	case Opened:
-		m.Status = Publishing
-	default:
-		msg := fmt.Sprintf("Can't create and publish a job to a pipeline which is %v", pl.Status)
-		return &InvalidOperation{Msg: msg}
+	if m.Status == Ready {
+		pl := m.Pipeline
+		switch pl.Status {
+		case Uninitialized, Waiting, Reserved, Building, Deploying:
+			m.Status = Ready
+		case Opened:
+			m.Status = Publishing
+		default:
+			msg := fmt.Sprintf("Can't create and publish a job to a pipeline which is %v", pl.Status)
+			return &InvalidOperation{Msg: msg}
+		}
 	}
 
 	err := m.Create(ctx)
