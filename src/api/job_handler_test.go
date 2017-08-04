@@ -129,8 +129,10 @@ func TestJobHandlerActions(t *testing.T) {
 	download_files_json, err := json.Marshal(download_files)
 	assert.NoError(t, err)
 
+	for _, st := range []models.JobStatus{models.Preparing, models.Ready} {
 	obj1 := map[string]interface{}{
 		"id_by_client": pl1.Name + `-job-new1`,
+		"status": int(st),
 		"message": map[string]interface{}{
 			"attributes": map[string]string{
 				"download_files": string(download_files_json),
@@ -167,7 +169,7 @@ func TestJobHandlerActions(t *testing.T) {
 	assert.Equal(t, map[string]interface{}{
 		"id":           job.ID,
 		"id_by_client": "pipeline1-job-new1",
-		"status":       float64(0),
+		"status":       float64(st),
 		"message": map[string]interface{}{
 			"attributes": map[string]interface{}{
 				"download_files": `["gcs://bucket1/path/to/file1"]`,
@@ -188,6 +190,7 @@ func TestJobHandlerActions(t *testing.T) {
 	for _, ptn := range invalidAttrsPatterns {
 		obj := map[string]interface{}{
 			"id_by_client": pl1.Name + `-job-new1"`,
+			"status": int(st),
 			"message": map[string]interface{}{
 				"attributes": ptn,
 			},
@@ -235,6 +238,7 @@ func TestJobHandlerActions(t *testing.T) {
 		if assert.NoError(t, json.Unmarshal([]byte(s), &job2)) {
 			assert.Equal(t, job.ID, job2.ID)
 		}
+	}
 	}
 
 }
