@@ -51,11 +51,16 @@ var JobStatusToString = map[JobStatus]string{
 
 var (
 	WorkingJobStatuses  = []JobStatus{Ready, Publishing, Published, Executing}
+	LivingJobStatuses   = append([]JobStatus{Preparing}, WorkingJobStatuses...)
 	FinishedJobStatuses = []JobStatus{PublishError, Failure, Success}
 )
 
 func (js JobStatus) Working() bool {
-	for _, st := range WorkingJobStatuses {
+	return js.IncludedIn(WorkingJobStatuses)
+}
+
+func (js JobStatus) IncludedIn(statuses []JobStatus) bool {
+	for _, st := range statuses {
 		if js == st {
 			return true
 		}
