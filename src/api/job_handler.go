@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"gae_support"
 	"models"
@@ -93,14 +94,15 @@ func (h *JobHandler) StartToWaitAndPublishIfNeeded(c echo.Context, job *models.J
 	if job.Status != models.Ready {
 		return nil
 	}
-	return h.PostJobTask(c, job, "wait_task")
+	return h.PostJobTask(c, job, "wait_task", time.Now())
 }
 
-func (h *JobHandler) PostJobTask(c echo.Context, job *models.Job, action string) error {
+func (h *JobHandler) PostJobTask(c echo.Context, job *models.Job, action string, eta time.Time) error {
 	ctx := c.Get("aecontext").(context.Context)
 	req := c.Request()
 	t := taskqueue.NewPOSTTask(fmt.Sprintf("/jobs/%s/%v", job.ID, action), map[string][]string{})
 	t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
+	t.ETA = eta
 	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 		return err
 	}
@@ -109,17 +111,18 @@ func (h *JobHandler) PostJobTask(c echo.Context, job *models.Job, action string)
 
 // curl -v http://localhost:8080/jobs/1/wait_task
 func (h *JobHandler) WaitToPublishTask(c echo.Context) error {
+	started := time.Now()
 	pl := c.Get("pipeline").(*models.Pipeline)
 	job := c.Get("job").(*models.Job)
 	switch pl.Status {
 	case models.Opened:
-		err := h.PostJobTask(c, job, "publish_task")
+		err := h.PostJobTask(c, job, "publish_task", started)
 		if err != nil {
 			return nil
 		}
 		return c.JSON(http.StatusOK, job)
 	default:
-		err := h.PostJobTask(c, job, "wait_task")
+		err := h.PostJobTask(c, job, "wait_task", started.Add(30*time.Second))
 		if err != nil {
 			return nil
 		}
