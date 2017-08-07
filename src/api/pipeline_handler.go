@@ -228,23 +228,28 @@ func (h *PipelineHandler) startClosingTask(c echo.Context) error {
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/wait_closing_task
 func (h *PipelineHandler) waitClosingTask(c echo.Context) error {
+	started := time.Now()
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
 	handler := pl.RefreshHandlerWith(ctx, func(pl *models.Pipeline) error {
 		return h.PostPipelineTaskWith(c, "build_task", pl, nil)
 	})
 
-	for pl.Status == models.Closing {
 		refresher := &models.Refresher{}
 		err := refresher.Process(ctx, pl, handler)
 		if err != nil {
 			log.Errorf(ctx, "Failed to refresh pipeline %v because of %v\n", pl, err)
 			return err
 		}
-		time.Sleep(30 * time.Second)
-	}
 
-	return c.JSON(http.StatusOK, pl)
+	switch pl.Status {
+	case models.Closing:
+		return h.PostPipelineTaskWithETA(c, "wait_closing_task", pl, http.StatusNoContent, started.Add(30 * time.Second))
+	case models.Closed:
+		return c.JSON(http.StatusOK, pl)
+	default:
+		return &models.InvalidStateTransition{Msg: fmt.Sprintf("Unexpected Status: %v for Pipeline: %v", pl.Status, pl)}
+	}
 }
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/close_task
