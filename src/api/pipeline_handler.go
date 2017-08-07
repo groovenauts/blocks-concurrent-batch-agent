@@ -186,10 +186,15 @@ func (h *PipelineHandler) publishTask(c echo.Context) error {
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/subscribe_task
 func (h *PipelineHandler) subscribeTask(c echo.Context) error {
+	started := time.Now()
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
 
-	for {
+		err := pl.PullAndUpdateJobStatus(ctx)
+		if err != nil {
+			log.Errorf(ctx, "Failed to get Pipeline#PullAndUpdateJobStatus() because of %v\n", err)
+			return err
+		}
 		finished, err := pl.AllJobFinished(ctx)
 		if err != nil {
 			log.Errorf(ctx, "Failed to get Pipeline#AllJobFinished() because of %v\n", err)
@@ -197,18 +202,10 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 		}
 		log.Debugf(ctx, "Pipeline#AllJobFinished() returned %v\n", finished)
 		if finished {
-			log.Infof(ctx, "Pipeline jobs finished\n")
-			break
+			return h.PostPipelineTask(c, "start_closing_task", pl, http.StatusOK)
+		} else {
+			return h.PostPipelineTaskWithETA(c, "subscribe_task", pl, http.StatusNoContent, started.Add(30 * time.Second))
 		}
-		err = pl.PullAndUpdateJobStatus(ctx)
-		if err != nil {
-			log.Errorf(ctx, "Failed to get Pipeline#PullAndUpdateJobStatus() because of %v\n", err)
-			return err
-		}
-		time.Sleep(30 * time.Second)
-	}
-
-	return h.PostPipelineTask(c, "start_closing_task", pl, http.StatusOK)
 }
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/start_closing_task
