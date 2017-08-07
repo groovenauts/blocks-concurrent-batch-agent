@@ -67,62 +67,62 @@ func SetupDependencyTest(t *testing.T, f func(context.Context, *Pipeline, Jobs))
 func TestDependencySatisfied(t *testing.T) {
 	SetupDependencyTest(t, func(ctx context.Context, pipeline *Pipeline, jobs Jobs) {
 
-	jobIDs := []string{}
-	for _, job := range jobs {
-		jobIDs = append(jobIDs, job.ID)
-	}
-
-	deps := map[string]*Dependency{
-		"failure": &Dependency{Condition: OnFailure, JobIDs: jobIDs},
-		"success": &Dependency{Condition: OnSuccess, JobIDs: jobIDs},
-		"finish":	 &Dependency{Condition: OnFinish, JobIDs: jobIDs},
-	}
-
-	type Pattern struct {
-		Statuses []JobStatus
-		Results	 map[string]bool
-	}
-
-	allFalse := map[string]bool{"failure": false, "success": false, "finish": false}
-	finishOnly := map[string]bool{"failure": false, "success": false, "finish": true}
-	failureAndFinish := map[string]bool{"failure": true, "success": false, "finish": true}
-	successAndFinish := map[string]bool{"failure": false, "success": true, "finish": true}
-
-	falsePatterns := []Pattern{
-		Pattern{Statuses: []JobStatus{Ready, Ready, Ready}, Results: allFalse},
-		Pattern{Statuses: []JobStatus{Ready, Ready, Publishing}, Results: allFalse},
-		Pattern{Statuses: []JobStatus{Publishing, Publishing, Publishing}, Results: allFalse},
-		Pattern{Statuses: []JobStatus{Publishing, PublishError, Publishing}, Results: allFalse},
-		Pattern{Statuses: []JobStatus{PublishError, PublishError, PublishError}, Results: allFalse},
-		Pattern{Statuses: []JobStatus{Published, Published, Published}, Results: allFalse},
-		Pattern{Statuses: []JobStatus{Published, Published, Executing}, Results: allFalse},
-		Pattern{Statuses: []JobStatus{Published, Executing, Success}, Results: allFalse},
-		Pattern{Statuses: []JobStatus{Published, Executing, Failure}, Results: allFalse},
-		Pattern{Statuses: []JobStatus{Executing, Executing, Executing}, Results: allFalse},
-		Pattern{Statuses: []JobStatus{Executing, Success, Executing}, Results: allFalse},
-		Pattern{Statuses: []JobStatus{Success, Executing, Success}, Results: allFalse},
-		Pattern{Statuses: []JobStatus{Failure, Executing, Executing}, Results: allFalse},
-		Pattern{Statuses: []JobStatus{Failure, Executing, Failure}, Results: allFalse},
-		Pattern{Statuses: []JobStatus{Failure, Executing, Success}, Results: allFalse},
-		Pattern{Statuses: []JobStatus{Failure, Success, Success}, Results: finishOnly},
-		Pattern{Statuses: []JobStatus{Failure, Failure, Success}, Results: finishOnly},
-		Pattern{Statuses: []JobStatus{Success, Success, Success}, Results: successAndFinish},
-		Pattern{Statuses: []JobStatus{Failure, Failure, Failure}, Results: failureAndFinish},
-	}
-
-	for _, pat := range falsePatterns {
-		for i, st := range pat.Statuses {
-			job := jobs[i]
-			job.Status = st
-			err := job.Update(ctx)
-			assert.NoError(t, err)
+		jobIDs := []string{}
+		for _, job := range jobs {
+			jobIDs = append(jobIDs, job.ID)
 		}
-		for k, expected := range pat.Results {
-			dep := deps[k]
-			r, err := dep.Satisfied(ctx)
-			assert.NoError(t, err)
-			assert.Equal(t, expected, r)
+
+		deps := map[string]*Dependency{
+			"failure": &Dependency{Condition: OnFailure, JobIDs: jobIDs},
+			"success": &Dependency{Condition: OnSuccess, JobIDs: jobIDs},
+			"finish":  &Dependency{Condition: OnFinish, JobIDs: jobIDs},
 		}
-	}
-})
+
+		type Pattern struct {
+			Statuses []JobStatus
+			Results  map[string]bool
+		}
+
+		allFalse := map[string]bool{"failure": false, "success": false, "finish": false}
+		finishOnly := map[string]bool{"failure": false, "success": false, "finish": true}
+		failureAndFinish := map[string]bool{"failure": true, "success": false, "finish": true}
+		successAndFinish := map[string]bool{"failure": false, "success": true, "finish": true}
+
+		falsePatterns := []Pattern{
+			Pattern{Statuses: []JobStatus{Ready, Ready, Ready}, Results: allFalse},
+			Pattern{Statuses: []JobStatus{Ready, Ready, Publishing}, Results: allFalse},
+			Pattern{Statuses: []JobStatus{Publishing, Publishing, Publishing}, Results: allFalse},
+			Pattern{Statuses: []JobStatus{Publishing, PublishError, Publishing}, Results: allFalse},
+			Pattern{Statuses: []JobStatus{PublishError, PublishError, PublishError}, Results: allFalse},
+			Pattern{Statuses: []JobStatus{Published, Published, Published}, Results: allFalse},
+			Pattern{Statuses: []JobStatus{Published, Published, Executing}, Results: allFalse},
+			Pattern{Statuses: []JobStatus{Published, Executing, Success}, Results: allFalse},
+			Pattern{Statuses: []JobStatus{Published, Executing, Failure}, Results: allFalse},
+			Pattern{Statuses: []JobStatus{Executing, Executing, Executing}, Results: allFalse},
+			Pattern{Statuses: []JobStatus{Executing, Success, Executing}, Results: allFalse},
+			Pattern{Statuses: []JobStatus{Success, Executing, Success}, Results: allFalse},
+			Pattern{Statuses: []JobStatus{Failure, Executing, Executing}, Results: allFalse},
+			Pattern{Statuses: []JobStatus{Failure, Executing, Failure}, Results: allFalse},
+			Pattern{Statuses: []JobStatus{Failure, Executing, Success}, Results: allFalse},
+			Pattern{Statuses: []JobStatus{Failure, Success, Success}, Results: finishOnly},
+			Pattern{Statuses: []JobStatus{Failure, Failure, Success}, Results: finishOnly},
+			Pattern{Statuses: []JobStatus{Success, Success, Success}, Results: successAndFinish},
+			Pattern{Statuses: []JobStatus{Failure, Failure, Failure}, Results: failureAndFinish},
+		}
+
+		for _, pat := range falsePatterns {
+			for i, st := range pat.Statuses {
+				job := jobs[i]
+				job.Status = st
+				err := job.Update(ctx)
+				assert.NoError(t, err)
+			}
+			for k, expected := range pat.Results {
+				dep := deps[k]
+				r, err := dep.Satisfied(ctx)
+				assert.NoError(t, err)
+				assert.Equal(t, expected, r)
+			}
+		}
+	})
 }
