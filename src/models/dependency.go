@@ -17,7 +17,7 @@ type Dependency struct {
 	JobIDs    []string            `json:"job_ids"`
 }
 
-func (m *Dependency) Satisfied(ctx context.Context) (bool,error) {
+func (m *Dependency) Satisfied(ctx context.Context) (bool, error) {
 	for _, jobId := range m.JobIDs {
 		job, err := GlobalJobAccessor.Find(ctx, jobId)
 		if err != nil {

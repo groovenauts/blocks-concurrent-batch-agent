@@ -68,12 +68,12 @@ func TestDependencySatisfied(t *testing.T) {
 	deps := map[string]*Dependency{
 		"failure": &Dependency{Condition: OnFailure, JobIDs: jobIDs},
 		"success": &Dependency{Condition: OnSuccess, JobIDs: jobIDs},
-		"finish": &Dependency{Condition: OnFinish, JobIDs: jobIDs},
+		"finish":  &Dependency{Condition: OnFinish, JobIDs: jobIDs},
 	}
 
 	type Pattern struct {
 		Statuses []JobStatus
-		Results map[string]bool
+		Results  map[string]bool
 	}
 
 	allFalse := map[string]bool{"failure": false, "success": false, "finish": false}

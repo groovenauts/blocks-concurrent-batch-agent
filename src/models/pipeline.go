@@ -141,38 +141,38 @@ func (m *Pipeline) ReserveOrWait(ctx context.Context) error {
 			if !sat {
 				m.Status = Pending
 			} else {
-			org, err := GlobalOrganizationAccessor.Find(ctx, m.Organization.ID)
-			if err != nil {
-				return err
-			}
+				org, err := GlobalOrganizationAccessor.Find(ctx, m.Organization.ID)
+				if err != nil {
+					return err
+				}
 
-			waiting, err := org.PipelineAccessor().WaitingQuery()
-			if err != nil {
-				return err
-			}
+				waiting, err := org.PipelineAccessor().WaitingQuery()
+				if err != nil {
+					return err
+				}
 
-			cnt, err := waiting.Count(ctx)
-			if err != nil {
-				return err
-			}
+				cnt, err := waiting.Count(ctx)
+				if err != nil {
+					return err
+				}
 
-			if cnt > 0 {
-				log.Warningf(ctx, "Insufficient tokens; %v has already %v waiting pipelines", org.Name, cnt)
-				m.Status = Waiting
-			} else {
-				newAmount := org.TokenAmount - m.TokenConsumption
-				if newAmount < 0 {
-					log.Warningf(ctx, "Insufficient tokens; %v has only %v tokens but %v required %v tokens", org.Name, org.TokenAmount, m.Name, m.TokenConsumption)
+				if cnt > 0 {
+					log.Warningf(ctx, "Insufficient tokens; %v has already %v waiting pipelines", org.Name, cnt)
 					m.Status = Waiting
 				} else {
-					m.Status = Reserved
-					org.TokenAmount = newAmount
-					err = org.Update(ctx)
-					if err != nil {
-						return err
+					newAmount := org.TokenAmount - m.TokenConsumption
+					if newAmount < 0 {
+						log.Warningf(ctx, "Insufficient tokens; %v has only %v tokens but %v required %v tokens", org.Name, org.TokenAmount, m.Name, m.TokenConsumption)
+						m.Status = Waiting
+					} else {
+						m.Status = Reserved
+						org.TokenAmount = newAmount
+						err = org.Update(ctx)
+						if err != nil {
+							return err
+						}
 					}
 				}
-			}
 			}
 
 			return m.PutWithNewKey(ctx)
