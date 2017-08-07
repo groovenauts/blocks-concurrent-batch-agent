@@ -67,10 +67,7 @@ func SetupDependencyTest(t *testing.T, f func(context.Context, *Organization, *P
 func TestDependencySatisfied(t *testing.T) {
 	SetupDependencyTest(t, func(ctx context.Context, _ *Organization, pipeline *Pipeline, jobs Jobs) {
 
-		jobIDs := []string{}
-		for _, job := range jobs {
-			jobIDs = append(jobIDs, job.ID)
-		}
+		jobIDs := jobs.IDs()
 
 		deps := map[string]*Dependency{
 			"failure": &Dependency{Condition: OnFailure, JobIDs: jobIDs},

@@ -25,3 +25,11 @@ func (jobs Jobs) Finished() Jobs {
 	}
 	return result
 }
+
+func (jobs Jobs) IDs() []string {
+	jobIDs := []string{}
+	for _, job := range jobs {
+		jobIDs = append(jobIDs, job.ID)
+	}
+	return jobIDs
+}
