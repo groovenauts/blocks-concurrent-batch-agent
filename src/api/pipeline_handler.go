@@ -195,13 +195,15 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 		log.Errorf(ctx, "Failed to get Pipeline#PullAndUpdateJobStatus() because of %v\n", err)
 		return err
 	}
-	finished, err := pl.AllJobFinished(ctx)
+
+	jobs, err := pl.JobAccessor().All(ctx)
 	if err != nil {
-		log.Errorf(ctx, "Failed to get Pipeline#AllJobFinished() because of %v\n", err)
+		log.Errorf(ctx, "Failed to m.JobAccessor#All() because of %v\n", err)
 		return err
 	}
-	log.Debugf(ctx, "Pipeline#AllJobFinished() returned %v\n", finished)
-	if finished {
+	log.Debugf(ctx, "Pipeline has %v jobs\n", len(jobs))
+
+	if jobs.AllFinished() {
 		return h.PostPipelineTask(c, "start_closing_task", pl, http.StatusOK)
 	} else {
 		return h.PostPipelineTaskWithETA(c, "subscribe_task", pl, http.StatusNoContent, started.Add(30*time.Second))
