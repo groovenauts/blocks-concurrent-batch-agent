@@ -144,16 +144,16 @@ func (h *PipelineHandler) waitBuildingTask(c echo.Context) error {
 	pl := c.Get("pipeline").(*models.Pipeline)
 
 	handler := pl.RefreshHandler(ctx)
-		refresher := &models.Refresher{}
-		err := refresher.Process(ctx, pl, handler)
-		if err != nil {
-			log.Errorf(ctx, "Failed to refresh pipeline %v because of %v\n", pl, err)
-			return err
-		}
+	refresher := &models.Refresher{}
+	err := refresher.Process(ctx, pl, handler)
+	if err != nil {
+		log.Errorf(ctx, "Failed to refresh pipeline %v because of %v\n", pl, err)
+		return err
+	}
 
 	switch pl.Status {
 	case models.Deploying:
-		return h.PostPipelineTaskWithETA(c, "wait_building_task", pl, http.StatusNoContent, started.Add(30 * time.Second))
+		return h.PostPipelineTaskWithETA(c, "wait_building_task", pl, http.StatusNoContent, started.Add(30*time.Second))
 	case models.Opened:
 		return h.PostPipelineTask(c, "publish_task", pl, http.StatusOK)
 	default:
@@ -190,22 +190,22 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
 
-		err := pl.PullAndUpdateJobStatus(ctx)
-		if err != nil {
-			log.Errorf(ctx, "Failed to get Pipeline#PullAndUpdateJobStatus() because of %v\n", err)
-			return err
-		}
-		finished, err := pl.AllJobFinished(ctx)
-		if err != nil {
-			log.Errorf(ctx, "Failed to get Pipeline#AllJobFinished() because of %v\n", err)
-			return err
-		}
-		log.Debugf(ctx, "Pipeline#AllJobFinished() returned %v\n", finished)
-		if finished {
-			return h.PostPipelineTask(c, "start_closing_task", pl, http.StatusOK)
-		} else {
-			return h.PostPipelineTaskWithETA(c, "subscribe_task", pl, http.StatusNoContent, started.Add(30 * time.Second))
-		}
+	err := pl.PullAndUpdateJobStatus(ctx)
+	if err != nil {
+		log.Errorf(ctx, "Failed to get Pipeline#PullAndUpdateJobStatus() because of %v\n", err)
+		return err
+	}
+	finished, err := pl.AllJobFinished(ctx)
+	if err != nil {
+		log.Errorf(ctx, "Failed to get Pipeline#AllJobFinished() because of %v\n", err)
+		return err
+	}
+	log.Debugf(ctx, "Pipeline#AllJobFinished() returned %v\n", finished)
+	if finished {
+		return h.PostPipelineTask(c, "start_closing_task", pl, http.StatusOK)
+	} else {
+		return h.PostPipelineTaskWithETA(c, "subscribe_task", pl, http.StatusNoContent, started.Add(30*time.Second))
+	}
 }
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/start_closing_task
@@ -235,16 +235,16 @@ func (h *PipelineHandler) waitClosingTask(c echo.Context) error {
 		return h.PostPipelineTaskWith(c, "build_task", pl, nil)
 	})
 
-		refresher := &models.Refresher{}
-		err := refresher.Process(ctx, pl, handler)
-		if err != nil {
-			log.Errorf(ctx, "Failed to refresh pipeline %v because of %v\n", pl, err)
-			return err
-		}
+	refresher := &models.Refresher{}
+	err := refresher.Process(ctx, pl, handler)
+	if err != nil {
+		log.Errorf(ctx, "Failed to refresh pipeline %v because of %v\n", pl, err)
+		return err
+	}
 
 	switch pl.Status {
 	case models.Closing:
-		return h.PostPipelineTaskWithETA(c, "wait_closing_task", pl, http.StatusNoContent, started.Add(30 * time.Second))
+		return h.PostPipelineTaskWithETA(c, "wait_closing_task", pl, http.StatusNoContent, started.Add(30*time.Second))
 	case models.Closed:
 		return c.JSON(http.StatusOK, pl)
 	default:
