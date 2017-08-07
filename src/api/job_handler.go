@@ -18,9 +18,9 @@ type JobHandler struct{}
 
 func (h *JobHandler) buildActions() map[string](func(c echo.Context) error) {
 	return map[string](func(c echo.Context) error){
-		"index":  gae_support.With(plBy("pipeline_id", PlToOrg(withAuth(h.index)))),
-		"create": gae_support.With(plBy("pipeline_id", PlToOrg(withAuth(h.create)))),
-		"show":   gae_support.With(jobBy("id", JobToPl(PlToOrg(withAuth(h.show))))),
+		"index":    gae_support.With(plBy("pipeline_id", PlToOrg(withAuth(h.index)))),
+		"create":   gae_support.With(plBy("pipeline_id", PlToOrg(withAuth(h.create)))),
+		"show":     gae_support.With(jobBy("id", JobToPl(PlToOrg(withAuth(h.show))))),
 		"getready": gae_support.With(jobBy("id", JobToPl(PlToOrg(withAuth(h.getReady))))),
 		// "publish": gae_support.With(jobBy("id", JobToPl(PlToOrg(withAuth(h.WaitAndPublish))))),
 	}
