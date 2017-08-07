@@ -12,7 +12,7 @@ import (
 	// "google.golang.org/appengine/log"
 )
 
-func SetupDependencyTest(t *testing.T, f func(context.Context, *Pipeline, Jobs)) {
+func SetupDependencyTest(t *testing.T, f func(context.Context, *Organization, *Pipeline, Jobs)) {
 	opt := &aetest.Options{StronglyConsistentDatastore: true}
 	inst, err := aetest.NewInstance(opt)
 	assert.NoError(t, err)
@@ -61,11 +61,11 @@ func SetupDependencyTest(t *testing.T, f func(context.Context, *Pipeline, Jobs))
 		assert.NoError(t, err)
 		jobs = append(jobs, job)
 	}
-	f(ctx, pipeline, jobs)
+	f(ctx, org1, pipeline, jobs)
 }
 
 func TestDependencySatisfied(t *testing.T) {
-	SetupDependencyTest(t, func(ctx context.Context, pipeline *Pipeline, jobs Jobs) {
+	SetupDependencyTest(t, func(ctx context.Context, _ *Organization, pipeline *Pipeline, jobs Jobs) {
 
 		jobIDs := []string{}
 		for _, job := range jobs {
