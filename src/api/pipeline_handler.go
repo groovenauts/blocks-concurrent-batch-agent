@@ -66,7 +66,7 @@ func (h *PipelineHandler) create(c echo.Context) error {
 		if pl.Dryrun {
 			log.Debugf(ctx, "[DRYRUN] POST buildTask for %v\n", pl)
 		} else {
-			err := h.PostPipelineTaskWithoutJSON(c, "build_task", pl)
+			err := h.PostPipelineTaskWithoutJSON(c, "build_task", pl, nil)
 			if err != nil {
 				return err
 			}
@@ -229,7 +229,7 @@ func (h *PipelineHandler) waitClosingTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
 	handler := pl.RefreshHandlerWith(ctx, func(pl *models.Pipeline) error {
-		return h.PostPipelineTaskWithoutJSON(c, "build_task", pl)
+		return h.PostPipelineTaskWithoutJSON(c, "build_task", pl, nil)
 	})
 
 	for pl.Status == models.Closing {
@@ -268,7 +268,7 @@ func (h *PipelineHandler) refreshTask(c echo.Context) error {
 	pl := c.Get("pipeline").(*models.Pipeline)
 	refresher := &models.Refresher{}
 	err := refresher.Process(ctx, pl, pl.RefreshHandlerWith(ctx, func(pl *models.Pipeline) error {
-		return h.PostPipelineTaskWithoutJSON(c, "build_task", pl)
+		return h.PostPipelineTaskWithoutJSON(c, "build_task", pl, nil)
 	}))
 	if err != nil {
 		log.Errorf(ctx, "Failed to refresh pipeline %v because of %v\n", pl, err)
@@ -277,11 +277,17 @@ func (h *PipelineHandler) refreshTask(c echo.Context) error {
 	return c.JSON(http.StatusOK, pl)
 }
 
-func (h *PipelineHandler) PostPipelineTaskWithoutJSON(c echo.Context, action string, pl *models.Pipeline) error {
+func (h *PipelineHandler) PostPipelineTaskWithoutJSON(c echo.Context, action string, pl *models.Pipeline, f func(*taskqueue.Task) error) error {
 	ctx := c.Get("aecontext").(context.Context)
 	req := c.Request()
 	t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/%s", pl.ID, action), map[string][]string{})
 	t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
+	if f != nil {
+		err := f(t)
+		if err != nil {
+			return err
+		}
+	}
 	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 		log.Errorf(ctx, "Failed to add a task %v to taskqueue because of %v\n", t, err)
 		return err
@@ -290,7 +296,7 @@ func (h *PipelineHandler) PostPipelineTaskWithoutJSON(c echo.Context, action str
 }
 
 func (h *PipelineHandler) PostPipelineTask(c echo.Context, action string, pl *models.Pipeline, status int) error {
-	err := h.PostPipelineTaskWithoutJSON(c, action, pl)
+	err := h.PostPipelineTaskWithoutJSON(c, action, pl, nil)
 	if err != nil {
 		return err
 	}
