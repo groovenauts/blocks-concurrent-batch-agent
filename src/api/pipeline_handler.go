@@ -56,6 +56,15 @@ func (h *PipelineHandler) create(c echo.Context) error {
 	}
 	org := c.Get("organization").(*models.Organization)
 	pl.Organization = org
+	err := h.PostPipelineTaskIfPossible(c, pl)
+	if err != nil {
+		return err
+	}
+	return c.JSON(http.StatusCreated, pl)
+}
+
+func (h *PipelineHandler) PostPipelineTaskIfPossible(c echo.Context, pl *models.Pipeline) error {
+	ctx := c.Get("aecontext").(context.Context)
 	err := pl.ReserveOrWait(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to reserve or wait pipeline: %v\n%v\n", pl, err)
@@ -72,7 +81,7 @@ func (h *PipelineHandler) create(c echo.Context) error {
 			}
 		}
 	}
-	return c.JSON(http.StatusCreated, pl)
+	return nil
 }
 
 // curl -v http://localhost:8080/orgs/2/pipelines/subscriptions
