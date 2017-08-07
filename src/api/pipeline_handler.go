@@ -139,21 +139,26 @@ func (h *PipelineHandler) buildTask(c echo.Context) error {
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/wait_building_task
 func (h *PipelineHandler) waitBuildingTask(c echo.Context) error {
+	started := time.Now()
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
-	handler := pl.RefreshHandler(ctx)
 
-	for pl.Status == models.Deploying {
+	handler := pl.RefreshHandler(ctx)
 		refresher := &models.Refresher{}
 		err := refresher.Process(ctx, pl, handler)
 		if err != nil {
 			log.Errorf(ctx, "Failed to refresh pipeline %v because of %v\n", pl, err)
 			return err
 		}
-		time.Sleep(30 * time.Second)
-	}
 
-	return h.PostPipelineTask(c, "publish_task", pl, http.StatusOK)
+	switch pl.Status {
+	case models.Deploying:
+		return h.PostPipelineTaskWithETA(c, "wait_building_task", pl, http.StatusNoContent, started.Add(30 * time.Second))
+	case models.Opened:
+		return h.PostPipelineTask(c, "publish_task", pl, http.StatusOK)
+	default:
+		return &models.InvalidStateTransition{Msg: fmt.Sprintf("Unexpected Status: %v for Pipeline: %v", pl.Status, pl)}
+	}
 }
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/publish_task
