@@ -9,6 +9,7 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/aetest"
+	"google.golang.org/appengine/datastore"
 	// "google.golang.org/appengine/log"
 )
 
@@ -49,7 +50,7 @@ func SetupDependencyTest(t *testing.T, f func(context.Context, *Organization, *P
 	for i := 1; i < 4; i++ {
 		job := &Job{
 			Pipeline:   pipeline,
-			IdByClient: fmt.Sprintf("dummy-pipeline1-job-%v", i),
+			IdByClient: fmt.Sprintf("job-%v", i),
 			Status:     Ready,
 			Message: JobMessage{
 				AttributeMap: map[string]string{
@@ -120,6 +121,91 @@ func TestDependencySatisfied(t *testing.T) {
 				assert.NoError(t, err)
 				assert.Equal(t, expected, r)
 			}
+		}
+	})
+}
+
+func TestPipelineAccessorPendingsFor(t *testing.T) {
+	SetupDependencyTest(t, func(ctx context.Context, org *Organization, pipeline *Pipeline, jobs Jobs) {
+		jobIDs := jobs.IDs()
+
+		type Pattern struct {
+			Cond    DependencyCondition
+			JobNums []int
+		}
+
+		patterns := map[string]Pattern{
+			"F0": Pattern{Cond: OnFailure, JobNums: []int{0}},
+			"F1": Pattern{Cond: OnFailure, JobNums: []int{0, 1}},
+			"F2": Pattern{Cond: OnFailure, JobNums: []int{0, 1, 2}},
+			"S0": Pattern{Cond: OnSuccess, JobNums: []int{0}},
+			"S1": Pattern{Cond: OnSuccess, JobNums: []int{0, 1}},
+			"S2": Pattern{Cond: OnSuccess, JobNums: []int{0, 1, 2}},
+			"B0": Pattern{Cond: OnFinish, JobNums: []int{0}},
+			"B1": Pattern{Cond: OnFinish, JobNums: []int{0, 1}},
+			"B2": Pattern{Cond: OnFinish, JobNums: []int{0, 1, 2}},
+		}
+
+		pipelines := []*Pipeline{}
+
+		for key, pat := range patterns {
+			patJobIDs := []string{}
+			for _, num := range pat.JobNums {
+				patJobIDs = append(patJobIDs, jobIDs[num])
+			}
+			pipeline := &Pipeline{
+				Organization: org,
+				Name:         key,
+				Status:       Pending,
+				ProjectID:    "dummy-proj-111",
+				Zone:         "asia-northeast1-a",
+				BootDisk: PipelineVmDisk{
+					SourceImage: "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable",
+				},
+				MachineType:   "f1-micro",
+				TargetSize:    1,
+				ContainerSize: 1,
+				ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
+				Dependency: Dependency{
+					Condition: pat.Cond,
+					JobIDs:    patJobIDs,
+				},
+			}
+			err := pipeline.Create(ctx)
+			assert.NoError(t, err)
+			pipelines = append(pipelines, pipeline)
+		}
+
+		q1 := datastore.NewQuery("Pipelines").Filter("Dependency.JobIDs =", jobIDs[0])
+		cnt1, err := q1.Count(ctx)
+		assert.NoError(t, err)
+		assert.Equal(t, 9, cnt1)
+
+		q2 := datastore.NewQuery("Pipelines").Filter("Dependency.JobIDs =", jobIDs[2]).Filter("Dependency.Condition = ", OnFinish)
+		cnt2, err := q2.Count(ctx)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, cnt2)
+
+		for i, st := range []JobStatus{Success, Executing, Published} {
+			jobs[i].Status = st
+			jobs[i].Update(ctx)
+		}
+
+		finished := jobs.Finished()
+		assert.Equal(t, 1, len(finished))
+		assert.Equal(t, "job-1", finished[0].IdByClient)
+
+		pendingsTo2, err := GlobalPipelineAccessor.PendingsFor(ctx, []string{jobIDs[2]})
+		assert.NoError(t, err)
+		assert.Equal(t, 3, len(pendingsTo2))
+		for _, name := range []string{"F2", "S2", "B2"} {
+			matched := false
+			for _, pl := range pendingsTo2 {
+				if name == pl.Name {
+					matched = true
+				}
+			}
+			assert.True(t, matched)
 		}
 	})
 }
