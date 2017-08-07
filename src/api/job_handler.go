@@ -94,9 +94,13 @@ func (h *JobHandler) StartToWaitAndPublishIfNeeded(c echo.Context, job *models.J
 	if job.Status != models.Ready {
 		return nil
 	}
+	return h.PostJobTask(c, job, "publish_task")
+}
+
+func (h *JobHandler) PostJobTask(c echo.Context, job *models.Job, action string) error {
 	ctx := c.Get("aecontext").(context.Context)
 	req := c.Request()
-	t := taskqueue.NewPOSTTask(fmt.Sprintf("/jobs/%s/publish_task", job.ID), map[string][]string{})
+	t := taskqueue.NewPOSTTask(fmt.Sprintf("/jobs/%s/%v", job.ID, action), map[string][]string{})
 	t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
 	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 		return err
