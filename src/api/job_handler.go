@@ -96,7 +96,7 @@ func (h *JobHandler) StartToWaitAndPublishIfNeeded(c echo.Context, job *models.J
 	}
 	ctx := c.Get("aecontext").(context.Context)
 	req := c.Request()
-	t := taskqueue.NewPOSTTask(fmt.Sprintf("/jobs/%s/publish", job.ID), map[string][]string{})
+	t := taskqueue.NewPOSTTask(fmt.Sprintf("/jobs/%s/publish_task", job.ID), map[string][]string{})
 	t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
 	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 		return err
@@ -104,7 +104,7 @@ func (h *JobHandler) StartToWaitAndPublishIfNeeded(c echo.Context, job *models.J
 	return nil
 }
 
-// curl -v http://localhost:8080/jobs/1/publish
+// curl -v http://localhost:8080/jobs/1/publish_task
 func (h *JobHandler) WaitAndPublish(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
