@@ -45,7 +45,6 @@ func SetupRoutes(echo *echo.Echo) map[string]interface{} {
 	g = e.Group("/jobs")
 	g.GET("/:id", jhActions["show"])
 	g.POST("/:id/getready", jhActions["getready"])
-	// g.POST("/:id/publish_task", jhActions["publish"])
 	g.POST("/:id/publish_task", gae_support.With(jobBy("id", JobToPl(PlToOrg(withAuth(jh.WaitAndPublish))))))
 
 	return map[string]interface{}{
