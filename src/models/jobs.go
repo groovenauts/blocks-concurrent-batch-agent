@@ -15,3 +15,13 @@ func (jobs Jobs) AllFinished() bool {
 
 	return true
 }
+
+func (jobs Jobs) Finished() Jobs {
+	result := Jobs{}
+	for _, job := range jobs {
+		if job.Status.Finished() {
+			result = append(result, job)
+		}
+	}
+	return result
+}

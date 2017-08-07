@@ -61,7 +61,7 @@ var JobStatusToString = map[JobStatus]string{
 var (
 	WorkingJobStatuses  = []JobStatus{Ready, Publishing, Published, Executing}
 	LivingJobStatuses   = append([]JobStatus{Preparing}, WorkingJobStatuses...)
-	FinishedJobStatuses = []JobStatus{PublishError, Failure, Success}
+	FinishedJobStatuses = []JobStatus{Failure, Success}
 )
 
 func (js JobStatus) Working() bool {
@@ -70,6 +70,10 @@ func (js JobStatus) Working() bool {
 
 func (js JobStatus) Living() bool {
 	return js.IncludedIn(LivingJobStatuses)
+}
+
+func (js JobStatus) Finished() bool {
+	return js.IncludedIn(FinishedJobStatuses)
 }
 
 func (js JobStatus) IncludedIn(statuses []JobStatus) bool {
