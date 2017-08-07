@@ -5,12 +5,14 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"golang.org/x/net/context"
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/aetest"
 	// "google.golang.org/appengine/log"
 )
 
-func TestDependencySatisfied(t *testing.T) {
+func SetupDependencyTest(t *testing.T, f func(context.Context, *Pipeline, Jobs)) {
 	opt := &aetest.Options{StronglyConsistentDatastore: true}
 	inst, err := aetest.NewInstance(opt)
 	assert.NoError(t, err)
@@ -43,7 +45,7 @@ func TestDependencySatisfied(t *testing.T) {
 	err = pipeline.Create(ctx)
 	assert.NoError(t, err)
 
-	jobs := []*Job{}
+	jobs := Jobs{}
 	for i := 1; i < 4; i++ {
 		job := &Job{
 			Pipeline:   pipeline,
@@ -59,6 +61,11 @@ func TestDependencySatisfied(t *testing.T) {
 		assert.NoError(t, err)
 		jobs = append(jobs, job)
 	}
+	f(ctx, pipeline, jobs)
+}
+
+func TestDependencySatisfied(t *testing.T) {
+	SetupDependencyTest(t, func(ctx context.Context, pipeline *Pipeline, jobs Jobs) {
 
 	jobIDs := []string{}
 	for _, job := range jobs {
@@ -68,12 +75,12 @@ func TestDependencySatisfied(t *testing.T) {
 	deps := map[string]*Dependency{
 		"failure": &Dependency{Condition: OnFailure, JobIDs: jobIDs},
 		"success": &Dependency{Condition: OnSuccess, JobIDs: jobIDs},
-		"finish":  &Dependency{Condition: OnFinish, JobIDs: jobIDs},
+		"finish":	 &Dependency{Condition: OnFinish, JobIDs: jobIDs},
 	}
 
 	type Pattern struct {
 		Statuses []JobStatus
-		Results  map[string]bool
+		Results	 map[string]bool
 	}
 
 	allFalse := map[string]bool{"failure": false, "success": false, "finish": false}
@@ -117,4 +124,5 @@ func TestDependencySatisfied(t *testing.T) {
 			assert.Equal(t, expected, r)
 		}
 	}
+})
 }
