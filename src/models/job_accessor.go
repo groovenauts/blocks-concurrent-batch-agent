@@ -59,13 +59,13 @@ func (aa *JobAccessor) Query() (*datastore.Query, error) {
 	return q, nil
 }
 
-func (aa *JobAccessor) All(ctx context.Context) ([]*Job, error) {
+func (aa *JobAccessor) All(ctx context.Context) (Jobs, error) {
 	q, err := aa.Query()
 	if err != nil {
 		return nil, err
 	}
 	iter := q.Run(ctx)
-	var res = []*Job{}
+	var res = Jobs{}
 	for {
 		m := Job{}
 		key, err := iter.Next(&m)
