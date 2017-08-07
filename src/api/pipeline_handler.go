@@ -296,7 +296,14 @@ func (h *PipelineHandler) PostPipelineTaskWith(c echo.Context, action string, pl
 }
 
 func (h *PipelineHandler) PostPipelineTask(c echo.Context, action string, pl *models.Pipeline, status int) error {
-	err := h.PostPipelineTaskWith(c, action, pl, nil)
+	return h.PostPipelineTaskWithETA(c, action, pl, status, time.Now())
+}
+
+func (h *PipelineHandler) PostPipelineTaskWithETA(c echo.Context, action string, pl *models.Pipeline, status int, eta time.Time) error {
+	err := h.PostPipelineTaskWith(c, action, pl, func(t *taskqueue.Task) error {
+		t.ETA = eta
+		return nil
+	})
 	if err != nil {
 		return err
 	}
