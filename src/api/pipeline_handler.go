@@ -212,6 +212,25 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 	}
 	log.Debugf(ctx, "Pipeline has %v jobs\n", len(jobs))
 
+	pipelines, err := models.GlobalPipelineAccessor.PendingsFor(ctx, jobs.Finished().IDs())
+	if err != nil {
+		return err
+	}
+
+	for _, pl := range pipelines {
+		dep := &pl.Dependency
+		sat, err := dep.Satisfied(ctx)
+		if err != nil {
+			return err
+		}
+		if sat {
+			err := h.PostPipelineTaskIfPossible(c, pl)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
 	if jobs.AllFinished() {
 		return h.PostPipelineTask(c, "start_closing_task", pl, http.StatusOK)
 	} else {
