@@ -21,7 +21,7 @@ func (h *JobHandler) buildActions() map[string](func(c echo.Context) error) {
 		"create":   gae_support.With(plBy("pipeline_id", PlToOrg(withAuth(h.create)))),
 		"show":     gae_support.With(jobBy("id", JobToPl(PlToOrg(withAuth(h.show))))),
 		"getready": gae_support.With(jobBy("id", JobToPl(PlToOrg(withAuth(h.getReady))))),
-		// "publish": gae_support.With(jobBy("id", JobToPl(PlToOrg(withAuth(h.WaitAndPublish))))),
+		// "publish": gae_support.With(jobBy("id", JobToPl(PlToOrg(withAuth(h.PublishTask))))),
 	}
 }
 
@@ -128,7 +128,7 @@ func (h *JobHandler) WaitToPublishTask(c echo.Context) error {
 }
 
 // curl -v http://localhost:8080/jobs/1/publish_task
-func (h *JobHandler) WaitAndPublish(c echo.Context) error {
+func (h *JobHandler) PublishTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	job := c.Get("job").(*models.Job)
 	job.Status = models.Publishing
