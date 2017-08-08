@@ -430,7 +430,7 @@ func (m *Pipeline) AllJobFinished(ctx context.Context) (bool, error) {
 
 	for _, job := range jobs {
 		log.Debugf(ctx, "Job: %v\n", job)
-		if job.Status.Working() {
+		if job.Status.Living() {
 			return false, nil
 		}
 	}

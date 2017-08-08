@@ -105,6 +105,7 @@ func TestJobCRUD(t *testing.T) {
 		job := &Job{
 			Pipeline:   pipeline1,
 			IdByClient: fmt.Sprintf("%s-job-waiting-%v", pipeline1.Name, st),
+			Status:     Ready,
 			Message: JobMessage{
 				AttributeMap: map[string]string{
 					"download_files": string(download_files_json),
@@ -135,6 +136,7 @@ func TestJobCRUD(t *testing.T) {
 		job := &Job{
 			Pipeline:   pipeline1,
 			IdByClient: fmt.Sprintf("%s-job-publishing-%v", pipeline1.Name, st),
+			Status:     Ready,
 			Message: JobMessage{
 				AttributeMap: map[string]string{
 					"download_files": string(download_files_json),
@@ -161,6 +163,37 @@ func TestJobCRUD(t *testing.T) {
 		assert.Equal(t, saved.ID, entry1.Value)
 	}
 
+	// Don't publish Preparing Job Message even if the pipeline is Opened
+	for _, st := range []Status{Opened} {
+		pipeline1.Status = st
+		err = pipeline1.Update(ctx)
+		assert.NoError(t, err)
+
+		job := &Job{
+			Pipeline:   pipeline1,
+			IdByClient: fmt.Sprintf("%s-job-publishing-%v", pipeline1.Name, st),
+			Status:     Preparing,
+			Message: JobMessage{
+				AttributeMap: map[string]string{
+					"download_files": string(download_files_json),
+				},
+			},
+		}
+		err := job.CreateAndPublishIfPossible(ctx)
+		assert.NoError(t, err)
+		assert.NotEmpty(t, job.ID)
+
+		assert.Equal(t, Preparing, job.Status)
+		assert.Equal(t, 0, len(dummyPublisher.Invocations))
+
+		saved, err := GlobalJobAccessor.Find(ctx, job.ID)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(saved.Message.AttributeEntries))
+		entry1 := saved.Message.AttributeEntries[0]
+		assert.Equal(t, "download_files", entry1.Name)
+		assert.Equal(t, string(download_files_json), entry1.Value)
+	}
+
 	// Raise error when create Job
 	for _, st := range []Status{Broken, Closing, ClosingError, Closed} {
 		pipeline1.Status = st
@@ -170,6 +203,7 @@ func TestJobCRUD(t *testing.T) {
 		job := &Job{
 			Pipeline:   pipeline1,
 			IdByClient: fmt.Sprintf("%s-job-waiting-%v", pipeline1.Name, st),
+			Status:     Ready,
 			Message: JobMessage{
 				AttributeMap: map[string]string{
 					"download_files": string(download_files_json),

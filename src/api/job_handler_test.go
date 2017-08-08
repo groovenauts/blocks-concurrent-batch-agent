@@ -129,74 +129,21 @@ func TestJobHandlerActions(t *testing.T) {
 	download_files_json, err := json.Marshal(download_files)
 	assert.NoError(t, err)
 
-	obj1 := map[string]interface{}{
-		"id_by_client": pl1.Name + `-job-new1`,
-		"message": map[string]interface{}{
-			"attributes": map[string]string{
-				"download_files": string(download_files_json),
-			},
-		},
-	}
-
-	json1, err := json.Marshal(obj1)
-	assert.NoError(t, err)
-
-	req, err = inst.NewRequest(echo.POST, "/pipelines/"+pl1.ID+"/jobs", strings.NewReader(string(json1)))
-	assert.NoError(t, err)
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	req.Header.Set(auth_header, token)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-	c.SetPath("/pipelines/" + pl1.ID + "/jobs")
-	c.SetParamNames("pipeline_id")
-	c.SetParamValues(pl1.ID)
-
-	assert.NoError(t, actions["create"](c))
-	assert.Equal(t, http.StatusCreated, rec.Code)
-
-	s := rec.Body.String()
-
-	job := models.Job{}
-	job.Pipeline = pl1
-	if assert.NoError(t, json.Unmarshal([]byte(s), &job)) {
-		assert.NotNil(t, job.ID)
-	}
-
-	var jobRes map[string]interface{}
-	assert.NoError(t, json.Unmarshal([]byte(s), &jobRes))
-	assert.Equal(t, map[string]interface{}{
-		"id":           job.ID,
-		"id_by_client": "pipeline1-job-new1",
-		"status":       float64(0),
-		"message": map[string]interface{}{
-			"attributes": map[string]interface{}{
-				"download_files": `["gcs://bucket1/path/to/file1"]`,
-			},
-			"data": "",
-		},
-		"message_id": "",
-		"created_at": job.CreatedAt.Format(time.RFC3339Nano),
-		"updated_at": job.UpdatedAt.Format(time.RFC3339Nano),
-	}, jobRes)
-
-	// Test for invalid POST
-	invalidAttrsPatterns := []interface{}{
-		"VALID JSON String",
-		[]string{"VALID JSON String Array"},
-		map[string]int{"VALID JSON String to Integer": 1000},
-	}
-	for _, ptn := range invalidAttrsPatterns {
-		obj := map[string]interface{}{
-			"id_by_client": pl1.Name + `-job-new1"`,
+	for _, st := range []models.JobStatus{models.Preparing, models.Ready} {
+		obj1 := map[string]interface{}{
+			"id_by_client": pl1.Name + `-job-new1`,
+			"status":       int(st),
 			"message": map[string]interface{}{
-				"attributes": ptn,
+				"attributes": map[string]string{
+					"download_files": string(download_files_json),
+				},
 			},
 		}
 
-		json2, err := json.Marshal(obj)
+		json1, err := json.Marshal(obj1)
 		assert.NoError(t, err)
 
-		req, err = inst.NewRequest(echo.POST, "/pipelines/"+pl1.ID+"/jobs", strings.NewReader(string(json2)))
+		req, err = inst.NewRequest(echo.POST, "/pipelines/"+pl1.ID+"/jobs", strings.NewReader(string(json1)))
 		assert.NoError(t, err)
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		req.Header.Set(auth_header, token)
@@ -207,34 +154,110 @@ func TestJobHandlerActions(t *testing.T) {
 		c.SetParamValues(pl1.ID)
 
 		assert.NoError(t, actions["create"](c))
-		assert.Equal(t, http.StatusBadRequest, rec.Code)
+		assert.Equal(t, http.StatusCreated, rec.Code)
 
-		var res map[string]interface{}
 		s := rec.Body.String()
-		assert.NoError(t, json.Unmarshal([]byte(s), &res))
-		assert.NotEmpty(t, res["error"])
-	}
 
-	// Test for show
-	path := "/jobs/" + job.ID
-	req, err = inst.NewRequest(echo.GET, path, nil)
-	req.Header.Set(auth_header, token)
-	assert.NoError(t, err)
+		job := models.Job{}
+		job.Pipeline = pl1
+		if assert.NoError(t, json.Unmarshal([]byte(s), &job)) {
+			assert.NotNil(t, job.ID)
+		}
 
-	rec = httptest.NewRecorder()
-	c = e.NewContext(req, rec)
-	c.SetPath(path)
-	c.SetParamNames("id")
-	c.SetParamValues(job.ID)
+		var jobRes map[string]interface{}
+		assert.NoError(t, json.Unmarshal([]byte(s), &jobRes))
+		assert.Equal(t, map[string]interface{}{
+			"id":           job.ID,
+			"id_by_client": "pipeline1-job-new1",
+			"status":       float64(st),
+			"message": map[string]interface{}{
+				"attributes": map[string]interface{}{
+					"download_files": `["gcs://bucket1/path/to/file1"]`,
+				},
+				"data": "",
+			},
+			"message_id": "",
+			"created_at": job.CreatedAt.Format(time.RFC3339Nano),
+			"updated_at": job.UpdatedAt.Format(time.RFC3339Nano),
+		}, jobRes)
 
-	if assert.NoError(t, actions["show"](c)) {
+		// Test for invalid POST
+		invalidAttrsPatterns := []interface{}{
+			"VALID JSON String",
+			[]string{"VALID JSON String Array"},
+			map[string]int{"VALID JSON String to Integer": 1000},
+		}
+		for _, ptn := range invalidAttrsPatterns {
+			obj := map[string]interface{}{
+				"id_by_client": pl1.Name + `-job-new1"`,
+				"status":       int(st),
+				"message": map[string]interface{}{
+					"attributes": ptn,
+				},
+			}
+
+			json2, err := json.Marshal(obj)
+			assert.NoError(t, err)
+
+			req, err = inst.NewRequest(echo.POST, "/pipelines/"+pl1.ID+"/jobs", strings.NewReader(string(json2)))
+			assert.NoError(t, err)
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			req.Header.Set(auth_header, token)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			c.SetPath("/pipelines/" + pl1.ID + "/jobs")
+			c.SetParamNames("pipeline_id")
+			c.SetParamValues(pl1.ID)
+
+			assert.NoError(t, actions["create"](c))
+			assert.Equal(t, http.StatusBadRequest, rec.Code)
+
+			var res map[string]interface{}
+			s := rec.Body.String()
+			assert.NoError(t, json.Unmarshal([]byte(s), &res))
+			assert.NotEmpty(t, res["error"])
+		}
+
+		// Test for show
+		path := "/jobs/" + job.ID
+		req, err = inst.NewRequest(echo.GET, path, nil)
+		req.Header.Set(auth_header, token)
+		assert.NoError(t, err)
+
+		rec = httptest.NewRecorder()
+		c = e.NewContext(req, rec)
+		c.SetPath(path)
+		c.SetParamNames("id")
+		c.SetParamValues(job.ID)
+
+		if assert.NoError(t, actions["show"](c)) {
+			assert.Equal(t, http.StatusOK, rec.Code)
+
+			s := rec.Body.String()
+			job2 := models.Pipeline{}
+			if assert.NoError(t, json.Unmarshal([]byte(s), &job2)) {
+				assert.Equal(t, job.ID, job2.ID)
+			}
+		}
+
+		// POST /jobs/:id/getready
+		path = "/jobs/" + job.ID + "/getready"
+		req, err = inst.NewRequest(echo.POST, path, strings.NewReader(""))
+		req.Header.Set(auth_header, token)
+		assert.NoError(t, err)
+
+		rec = httptest.NewRecorder()
+		c = e.NewContext(req, rec)
+		c.SetPath(path)
+		c.SetParamNames("id")
+		c.SetParamValues(job.ID)
+
+		assert.NoError(t, actions["getready"](c))
 		assert.Equal(t, http.StatusOK, rec.Code)
 
-		s := rec.Body.String()
-		job2 := models.Pipeline{}
-		if assert.NoError(t, json.Unmarshal([]byte(s), &job2)) {
-			assert.Equal(t, job.ID, job2.ID)
-		}
+		loaded, err := models.GlobalJobAccessor.Find(ctx, job.ID)
+		assert.NoError(t, err)
+		assert.Equal(t, models.Ready, loaded.Status)
 	}
 
 }

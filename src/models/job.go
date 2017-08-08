@@ -28,7 +28,8 @@ func (js JobStatus) String() string {
 }
 
 const (
-	Ready JobStatus = iota
+	Preparing JobStatus = iota
+	Ready
 	Publishing
 	PublishError
 	Published
@@ -38,6 +39,7 @@ const (
 )
 
 var JobStatusToString = map[JobStatus]string{
+	Preparing:    "Preparing",
 	Ready:        "Ready",
 	Publishing:   "Publishing",
 	PublishError: "PublishError",
@@ -49,11 +51,20 @@ var JobStatusToString = map[JobStatus]string{
 
 var (
 	WorkingJobStatuses  = []JobStatus{Ready, Publishing, Published, Executing}
+	LivingJobStatuses   = append([]JobStatus{Preparing}, WorkingJobStatuses...)
 	FinishedJobStatuses = []JobStatus{PublishError, Failure, Success}
 )
 
 func (js JobStatus) Working() bool {
-	for _, st := range WorkingJobStatuses {
+	return js.IncludedIn(WorkingJobStatuses)
+}
+
+func (js JobStatus) Living() bool {
+	return js.IncludedIn(LivingJobStatuses)
+}
+
+func (js JobStatus) IncludedIn(statuses []JobStatus) bool {
+	for _, st := range statuses {
 		if js == st {
 			return true
 		}
@@ -278,18 +289,28 @@ func (m *Job) PublishAndUpdate(ctx context.Context) error {
 }
 
 func (m *Job) CreateAndPublishIfPossible(ctx context.Context) error {
-	pl := m.Pipeline
-	switch pl.Status {
-	case Uninitialized, Waiting, Reserved, Building, Deploying:
-		m.Status = Ready
-	case Opened:
-		m.Status = Publishing
-	default:
-		msg := fmt.Sprintf("Can't create and publish a job to a pipeline which is %v", pl.Status)
-		return &InvalidOperation{Msg: msg}
+	return m.DoAndPublishIfPossible(ctx, m.Create)
+}
+
+func (m *Job) UpdateAndPublishIfPossible(ctx context.Context) error {
+	return m.DoAndPublishIfPossible(ctx, m.Update)
+}
+
+func (m *Job) DoAndPublishIfPossible(ctx context.Context, f func(ctx context.Context) error) error {
+	if m.Status == Ready {
+		pl := m.Pipeline
+		switch pl.Status {
+		case Uninitialized, Waiting, Reserved, Building, Deploying:
+			m.Status = Ready
+		case Opened:
+			m.Status = Publishing
+		default:
+			msg := fmt.Sprintf("Can't create and publish a job to a pipeline which is %v", pl.Status)
+			return &InvalidOperation{Msg: msg}
+		}
 	}
 
-	err := m.Create(ctx)
+	err := f(ctx)
 	if err != nil {
 		return err
 	}
