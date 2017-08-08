@@ -384,19 +384,6 @@ func (m *Pipeline) Reload(ctx context.Context) error {
 	return nil
 }
 
-func (m *Pipeline) WaitUntil(ctx context.Context, st Status, interval, timeout time.Duration) error {
-	t0 := time.Now()
-	deadline := t0.Add(timeout)
-	for deadline.After(time.Now()) {
-		m.Reload(ctx)
-		if m.Status == st {
-			return nil
-		}
-		time.Sleep(interval)
-	}
-	return ErrTimeout
-}
-
 func (m *Pipeline) JobTopicName() string {
 	return fmt.Sprintf("%s-job-topic", m.Name)
 }

@@ -22,7 +22,7 @@ func (h *JobHandler) buildActions() map[string](func(c echo.Context) error) {
 		"create":   gae_support.With(plBy("pipeline_id", PlToOrg(withAuth(h.create)))),
 		"show":     gae_support.With(jobBy("id", JobToPl(PlToOrg(withAuth(h.show))))),
 		"getready": gae_support.With(jobBy("id", JobToPl(PlToOrg(withAuth(h.getReady))))),
-		// "publish": gae_support.With(jobBy("id", JobToPl(PlToOrg(withAuth(h.WaitAndPublish))))),
+		// "publish": gae_support.With(jobBy("id", JobToPl(PlToOrg(withAuth(h.PublishTask))))),
 	}
 }
 
@@ -94,28 +94,49 @@ func (h *JobHandler) StartToWaitAndPublishIfNeeded(c echo.Context, job *models.J
 	if job.Status != models.Ready {
 		return nil
 	}
+	return h.PostJobTask(c, job, "wait_task", time.Now())
+}
+
+func (h *JobHandler) PostJobTask(c echo.Context, job *models.Job, action string, eta time.Time) error {
 	ctx := c.Get("aecontext").(context.Context)
 	req := c.Request()
-	t := taskqueue.NewPOSTTask(fmt.Sprintf("/jobs/%s/publish", job.ID), map[string][]string{})
+	t := taskqueue.NewPOSTTask(fmt.Sprintf("/jobs/%s/%v", job.ID, action), map[string][]string{})
 	t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
+	t.ETA = eta
 	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 		return err
 	}
 	return nil
 }
 
-// curl -v http://localhost:8080/jobs/1/publish
-func (h *JobHandler) WaitAndPublish(c echo.Context) error {
-	ctx := c.Get("aecontext").(context.Context)
+// curl -v http://localhost:8080/jobs/1/wait_task
+func (h *JobHandler) WaitToPublishTask(c echo.Context) error {
+	started := time.Now()
 	pl := c.Get("pipeline").(*models.Pipeline)
-	err := pl.WaitUntil(ctx, models.Opened, 10*time.Second, 5*time.Minute)
-	if err != nil {
-		return err
+	job := c.Get("job").(*models.Job)
+	switch pl.Status {
+	case models.Opened:
+		err := h.PostJobTask(c, job, "publish_task", started)
+		if err != nil {
+			return nil
+		}
+		return c.JSON(http.StatusOK, job)
+	default:
+		err := h.PostJobTask(c, job, "wait_task", started.Add(30*time.Second))
+		if err != nil {
+			return nil
+		}
+		return c.JSON(http.StatusNoContent, job)
 	}
+}
+
+// curl -v http://localhost:8080/jobs/1/publish_task
+func (h *JobHandler) PublishTask(c echo.Context) error {
+	ctx := c.Get("aecontext").(context.Context)
 	job := c.Get("job").(*models.Job)
 	job.Status = models.Publishing
 	log.Debugf(ctx, "PublishAndUpdate#1: %v\n", job)
-	err = job.Update(ctx)
+	err := job.Update(ctx)
 	if err != nil {
 		return err
 	}

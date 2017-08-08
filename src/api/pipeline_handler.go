@@ -66,7 +66,7 @@ func (h *PipelineHandler) create(c echo.Context) error {
 		if pl.Dryrun {
 			log.Debugf(ctx, "[DRYRUN] POST buildTask for %v\n", pl)
 		} else {
-			err := h.PostPipelineTaskWithoutJSON(c, "build_task", pl)
+			err := h.PostPipelineTaskWith(c, "build_task", pl, nil)
 			if err != nil {
 				return err
 			}
@@ -139,21 +139,26 @@ func (h *PipelineHandler) buildTask(c echo.Context) error {
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/wait_building_task
 func (h *PipelineHandler) waitBuildingTask(c echo.Context) error {
+	started := time.Now()
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
-	handler := pl.RefreshHandler(ctx)
 
-	for pl.Status == models.Deploying {
-		refresher := &models.Refresher{}
-		err := refresher.Process(ctx, pl, handler)
-		if err != nil {
-			log.Errorf(ctx, "Failed to refresh pipeline %v because of %v\n", pl, err)
-			return err
-		}
-		time.Sleep(30 * time.Second)
+	handler := pl.RefreshHandler(ctx)
+	refresher := &models.Refresher{}
+	err := refresher.Process(ctx, pl, handler)
+	if err != nil {
+		log.Errorf(ctx, "Failed to refresh pipeline %v because of %v\n", pl, err)
+		return err
 	}
 
-	return h.PostPipelineTask(c, "publish_task", pl, http.StatusOK)
+	switch pl.Status {
+	case models.Deploying:
+		return h.PostPipelineTaskWithETA(c, "wait_building_task", pl, http.StatusNoContent, started.Add(30*time.Second))
+	case models.Opened:
+		return h.PostPipelineTask(c, "publish_task", pl, http.StatusOK)
+	default:
+		return &models.InvalidStateTransition{Msg: fmt.Sprintf("Unexpected Status: %v for Pipeline: %v", pl.Status, pl)}
+	}
 }
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/publish_task
@@ -181,29 +186,26 @@ func (h *PipelineHandler) publishTask(c echo.Context) error {
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/subscribe_task
 func (h *PipelineHandler) subscribeTask(c echo.Context) error {
+	started := time.Now()
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
 
-	for {
-		finished, err := pl.AllJobFinished(ctx)
-		if err != nil {
-			log.Errorf(ctx, "Failed to get Pipeline#AllJobFinished() because of %v\n", err)
-			return err
-		}
-		log.Debugf(ctx, "Pipeline#AllJobFinished() returned %v\n", finished)
-		if finished {
-			log.Infof(ctx, "Pipeline jobs finished\n")
-			break
-		}
-		err = pl.PullAndUpdateJobStatus(ctx)
-		if err != nil {
-			log.Errorf(ctx, "Failed to get Pipeline#PullAndUpdateJobStatus() because of %v\n", err)
-			return err
-		}
-		time.Sleep(30 * time.Second)
+	err := pl.PullAndUpdateJobStatus(ctx)
+	if err != nil {
+		log.Errorf(ctx, "Failed to get Pipeline#PullAndUpdateJobStatus() because of %v\n", err)
+		return err
 	}
-
-	return h.PostPipelineTask(c, "start_closing_task", pl, http.StatusOK)
+	finished, err := pl.AllJobFinished(ctx)
+	if err != nil {
+		log.Errorf(ctx, "Failed to get Pipeline#AllJobFinished() because of %v\n", err)
+		return err
+	}
+	log.Debugf(ctx, "Pipeline#AllJobFinished() returned %v\n", finished)
+	if finished {
+		return h.PostPipelineTask(c, "start_closing_task", pl, http.StatusOK)
+	} else {
+		return h.PostPipelineTaskWithETA(c, "subscribe_task", pl, http.StatusNoContent, started.Add(30*time.Second))
+	}
 }
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/start_closing_task
@@ -226,23 +228,28 @@ func (h *PipelineHandler) startClosingTask(c echo.Context) error {
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/wait_closing_task
 func (h *PipelineHandler) waitClosingTask(c echo.Context) error {
+	started := time.Now()
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
 	handler := pl.RefreshHandlerWith(ctx, func(pl *models.Pipeline) error {
-		return h.PostPipelineTaskWithoutJSON(c, "build_task", pl)
+		return h.PostPipelineTaskWith(c, "build_task", pl, nil)
 	})
 
-	for pl.Status == models.Closing {
-		refresher := &models.Refresher{}
-		err := refresher.Process(ctx, pl, handler)
-		if err != nil {
-			log.Errorf(ctx, "Failed to refresh pipeline %v because of %v\n", pl, err)
-			return err
-		}
-		time.Sleep(30 * time.Second)
+	refresher := &models.Refresher{}
+	err := refresher.Process(ctx, pl, handler)
+	if err != nil {
+		log.Errorf(ctx, "Failed to refresh pipeline %v because of %v\n", pl, err)
+		return err
 	}
 
-	return c.JSON(http.StatusOK, pl)
+	switch pl.Status {
+	case models.Closing:
+		return h.PostPipelineTaskWithETA(c, "wait_closing_task", pl, http.StatusNoContent, started.Add(30*time.Second))
+	case models.Closed:
+		return c.JSON(http.StatusOK, pl)
+	default:
+		return &models.InvalidStateTransition{Msg: fmt.Sprintf("Unexpected Status: %v for Pipeline: %v", pl.Status, pl)}
+	}
 }
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/close_task
@@ -268,7 +275,7 @@ func (h *PipelineHandler) refreshTask(c echo.Context) error {
 	pl := c.Get("pipeline").(*models.Pipeline)
 	refresher := &models.Refresher{}
 	err := refresher.Process(ctx, pl, pl.RefreshHandlerWith(ctx, func(pl *models.Pipeline) error {
-		return h.PostPipelineTaskWithoutJSON(c, "build_task", pl)
+		return h.PostPipelineTaskWith(c, "build_task", pl, nil)
 	}))
 	if err != nil {
 		log.Errorf(ctx, "Failed to refresh pipeline %v because of %v\n", pl, err)
@@ -277,11 +284,17 @@ func (h *PipelineHandler) refreshTask(c echo.Context) error {
 	return c.JSON(http.StatusOK, pl)
 }
 
-func (h *PipelineHandler) PostPipelineTaskWithoutJSON(c echo.Context, action string, pl *models.Pipeline) error {
+func (h *PipelineHandler) PostPipelineTaskWith(c echo.Context, action string, pl *models.Pipeline, f func(*taskqueue.Task) error) error {
 	ctx := c.Get("aecontext").(context.Context)
 	req := c.Request()
 	t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/%s", pl.ID, action), map[string][]string{})
 	t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
+	if f != nil {
+		err := f(t)
+		if err != nil {
+			return err
+		}
+	}
 	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 		log.Errorf(ctx, "Failed to add a task %v to taskqueue because of %v\n", t, err)
 		return err
@@ -290,7 +303,14 @@ func (h *PipelineHandler) PostPipelineTaskWithoutJSON(c echo.Context, action str
 }
 
 func (h *PipelineHandler) PostPipelineTask(c echo.Context, action string, pl *models.Pipeline, status int) error {
-	err := h.PostPipelineTaskWithoutJSON(c, action, pl)
+	return h.PostPipelineTaskWithETA(c, action, pl, status, time.Now())
+}
+
+func (h *PipelineHandler) PostPipelineTaskWithETA(c echo.Context, action string, pl *models.Pipeline, status int, eta time.Time) error {
+	err := h.PostPipelineTaskWith(c, action, pl, func(t *taskqueue.Task) error {
+		t.ETA = eta
+		return nil
+	})
 	if err != nil {
 		return err
 	}
