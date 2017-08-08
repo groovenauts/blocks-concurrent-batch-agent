@@ -313,7 +313,7 @@ func (m *Job) DoAndPublishIfPossible(ctx context.Context, f func(ctx context.Con
 	if m.Status == Ready {
 		pl := m.Pipeline
 		switch pl.Status {
-		case Uninitialized, Waiting, Reserved, Building, Deploying:
+		case Uninitialized, Pending, Waiting, Reserved, Building, Deploying:
 			m.Status = Ready
 		case Opened:
 			m.Status = Publishing
