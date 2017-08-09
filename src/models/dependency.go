@@ -30,7 +30,7 @@ func (m *Dependency) Satisfied(ctx context.Context) (bool, error) {
 		case OnSuccess:
 			r = job.Status == Success
 		case OnFinish:
-			r = job.Status.IsFinished()
+			r = job.Status.Finished()
 		default:
 			r = false
 		}

@@ -27,15 +27,6 @@ func (js JobStatus) String() string {
 	return r
 }
 
-func (js JobStatus) IsFinished() bool {
-	switch js {
-	case Failure, Success:
-		return true
-	default:
-		return false
-	}
-}
-
 const (
 	Preparing JobStatus = iota
 	Ready
