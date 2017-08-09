@@ -7,7 +7,7 @@ import (
 type DependencyCondition int
 
 const (
-	OnFailure DependencyCondition = 1 + iota
+	OnFailure DependencyCondition = iota
 	OnSuccess
 	OnFinish // On Failure or Success
 )
