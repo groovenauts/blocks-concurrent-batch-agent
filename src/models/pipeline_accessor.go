@@ -173,3 +173,23 @@ func (pa *PipelineAccessor) GetActiveSubscriptions(ctx context.Context) ([]*Subs
 	}
 	return r, nil
 }
+
+func (pa *PipelineAccessor) PendingsFor(ctx context.Context, jobIDs []string) ([]*Pipeline, error) {
+	pipelines := map[string]*Pipeline{}
+	for _, jobID := range jobIDs {
+		q := datastore.NewQuery("Pipelines").Filter("Status =", Pending).Filter("Dependency.JobIDs =", jobID)
+		r, err := pa.GetByQuery(ctx, q)
+		if err != nil {
+			return nil, err
+		}
+		for _, pl := range r {
+			pipelines[pl.ID] = pl
+		}
+	}
+
+	result := []*Pipeline{}
+	for _, pl := range pipelines {
+		result = append(result, pl)
+	}
+	return result, nil
+}

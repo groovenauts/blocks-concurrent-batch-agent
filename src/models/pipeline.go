@@ -21,6 +21,7 @@ type Status int
 const (
 	Uninitialized Status = iota
 	Broken
+	Pending
 	Waiting
 	Reserved
 	Building
@@ -34,6 +35,7 @@ const (
 var StatusStrings = map[Status]string{
 	Uninitialized: "uninitialized",
 	Broken:        "broken",
+	Pending:       "pending",  // Go Waiting when all of the dependencies are satisfied
 	Waiting:       "waiting",  // Go Reserved when the pipeline has enough tokens for this TokenConsumption
 	Reserved:      "reserved", // Go Building when the pipeline is being built
 	Building:      "building",
@@ -95,6 +97,7 @@ type (
 		ClosingOperationName   string            `json:"closing_operation_name"`
 		ClosingErrors          []DeploymentError `json:"closing_errors"`
 		TokenConsumption       int               `json:"token_consumption"`
+		Dependency             Dependency        `json:"dependency,omitempty"`
 		CreatedAt              time.Time         `json:"created_at"`
 		UpdatedAt              time.Time         `json:"updated_at"`
 	}
@@ -130,35 +133,44 @@ func (m *Pipeline) CreateWith(ctx context.Context, f func(ctx context.Context) e
 func (m *Pipeline) ReserveOrWait(ctx context.Context) error {
 	return m.CreateWith(ctx, func(ctx context.Context) error {
 		err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-			org, err := GlobalOrganizationAccessor.Find(ctx, m.Organization.ID)
+			dep := &m.Dependency
+			sat, err := dep.Satisfied(ctx)
 			if err != nil {
 				return err
 			}
-
-			waiting, err := org.PipelineAccessor().WaitingQuery()
-			if err != nil {
-				return err
-			}
-
-			cnt, err := waiting.Count(ctx)
-			if err != nil {
-				return err
-			}
-
-			if cnt > 0 {
-				log.Warningf(ctx, "Insufficient tokens; %v has already %v waiting pipelines", org.Name, cnt)
-				m.Status = Waiting
+			if !sat {
+				m.Status = Pending
 			} else {
-				newAmount := org.TokenAmount - m.TokenConsumption
-				if newAmount < 0 {
-					log.Warningf(ctx, "Insufficient tokens; %v has only %v tokens but %v required %v tokens", org.Name, org.TokenAmount, m.Name, m.TokenConsumption)
+				org, err := GlobalOrganizationAccessor.Find(ctx, m.Organization.ID)
+				if err != nil {
+					return err
+				}
+
+				waiting, err := org.PipelineAccessor().WaitingQuery()
+				if err != nil {
+					return err
+				}
+
+				cnt, err := waiting.Count(ctx)
+				if err != nil {
+					return err
+				}
+
+				if cnt > 0 {
+					log.Warningf(ctx, "Insufficient tokens; %v has already %v waiting pipelines", org.Name, cnt)
 					m.Status = Waiting
 				} else {
-					m.Status = Reserved
-					org.TokenAmount = newAmount
-					err = org.Update(ctx)
-					if err != nil {
-						return err
+					newAmount := org.TokenAmount - m.TokenConsumption
+					if newAmount < 0 {
+						log.Warningf(ctx, "Insufficient tokens; %v has only %v tokens but %v required %v tokens", org.Name, org.TokenAmount, m.Name, m.TokenConsumption)
+						m.Status = Waiting
+					} else {
+						m.Status = Reserved
+						org.TokenAmount = newAmount
+						err = org.Update(ctx)
+						if err != nil {
+							return err
+						}
 					}
 				}
 			}
@@ -402,27 +414,6 @@ func (m *Pipeline) ProgressSubscriptionFqn() string {
 
 func (m *Pipeline) IDHex() string {
 	return hex.EncodeToString([]byte(m.ID))
-}
-
-func (m *Pipeline) AllJobFinished(ctx context.Context) (bool, error) {
-	jobs, err := m.JobAccessor().All(ctx)
-	if err != nil {
-		return false, err
-	}
-	log.Debugf(ctx, "Pipeline has %v jobs\n", len(jobs))
-
-	if len(jobs) == 0 {
-		return false, nil
-	}
-
-	for _, job := range jobs {
-		log.Debugf(ctx, "Job: %v\n", job)
-		if job.Status.Living() {
-			return false, nil
-		}
-	}
-
-	return true, nil
 }
 
 func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {

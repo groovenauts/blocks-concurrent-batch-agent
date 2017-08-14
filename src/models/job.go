@@ -52,7 +52,7 @@ var JobStatusToString = map[JobStatus]string{
 var (
 	WorkingJobStatuses  = []JobStatus{Ready, Publishing, Published, Executing}
 	LivingJobStatuses   = append([]JobStatus{Preparing}, WorkingJobStatuses...)
-	FinishedJobStatuses = []JobStatus{PublishError, Failure, Success}
+	FinishedJobStatuses = []JobStatus{Failure, Success}
 )
 
 func (js JobStatus) Working() bool {
@@ -61,6 +61,10 @@ func (js JobStatus) Working() bool {
 
 func (js JobStatus) Living() bool {
 	return js.IncludedIn(LivingJobStatuses)
+}
+
+func (js JobStatus) Finished() bool {
+	return js.IncludedIn(FinishedJobStatuses)
 }
 
 func (js JobStatus) IncludedIn(statuses []JobStatus) bool {
@@ -300,7 +304,7 @@ func (m *Job) DoAndPublishIfPossible(ctx context.Context, f func(ctx context.Con
 	if m.Status == Ready {
 		pl := m.Pipeline
 		switch pl.Status {
-		case Uninitialized, Waiting, Reserved, Building, Deploying:
+		case Uninitialized, Pending, Waiting, Reserved, Building, Deploying:
 			m.Status = Ready
 		case Opened:
 			m.Status = Publishing

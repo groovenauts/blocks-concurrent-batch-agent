@@ -56,6 +56,15 @@ func (h *PipelineHandler) create(c echo.Context) error {
 	}
 	org := c.Get("organization").(*models.Organization)
 	pl.Organization = org
+	err := h.PostPipelineTaskIfPossible(c, pl)
+	if err != nil {
+		return err
+	}
+	return c.JSON(http.StatusCreated, pl)
+}
+
+func (h *PipelineHandler) PostPipelineTaskIfPossible(c echo.Context, pl *models.Pipeline) error {
+	ctx := c.Get("aecontext").(context.Context)
 	err := pl.ReserveOrWait(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to reserve or wait pipeline: %v\n%v\n", pl, err)
@@ -72,7 +81,7 @@ func (h *PipelineHandler) create(c echo.Context) error {
 			}
 		}
 	}
-	return c.JSON(http.StatusCreated, pl)
+	return nil
 }
 
 // curl -v http://localhost:8080/orgs/2/pipelines/subscriptions
@@ -195,13 +204,34 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 		log.Errorf(ctx, "Failed to get Pipeline#PullAndUpdateJobStatus() because of %v\n", err)
 		return err
 	}
-	finished, err := pl.AllJobFinished(ctx)
+
+	jobs, err := pl.JobAccessor().All(ctx)
 	if err != nil {
-		log.Errorf(ctx, "Failed to get Pipeline#AllJobFinished() because of %v\n", err)
+		log.Errorf(ctx, "Failed to m.JobAccessor#All() because of %v\n", err)
 		return err
 	}
-	log.Debugf(ctx, "Pipeline#AllJobFinished() returned %v\n", finished)
-	if finished {
+	log.Debugf(ctx, "Pipeline has %v jobs\n", len(jobs))
+
+	pipelines, err := models.GlobalPipelineAccessor.PendingsFor(ctx, jobs.Finished().IDs())
+	if err != nil {
+		return err
+	}
+
+	for _, pl := range pipelines {
+		dep := &pl.Dependency
+		sat, err := dep.Satisfied(ctx)
+		if err != nil {
+			return err
+		}
+		if sat {
+			err := h.PostPipelineTaskIfPossible(c, pl)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	if jobs.AllFinished() {
 		return h.PostPipelineTask(c, "start_closing_task", pl, http.StatusOK)
 	} else {
 		return h.PostPipelineTaskWithETA(c, "subscribe_task", pl, http.StatusNoContent, started.Add(30*time.Second))
