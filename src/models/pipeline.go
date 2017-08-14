@@ -130,9 +130,8 @@ func (m *Pipeline) CreateWith(ctx context.Context, f func(ctx context.Context) e
 	return f(ctx)
 }
 
-func (m *Pipeline) CreateWithReserveOrWait(ctx context.Context) error {
-	return m.CreateWith(ctx, func(ctx context.Context) error {
-		err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+func (m *Pipeline) ReserveOrWait(ctx context.Context, f func(context.Context) error) error {
+	err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
 			dep := &m.Dependency
 			sat, err := dep.Satisfied(ctx)
 			if err != nil {
@@ -175,7 +174,7 @@ func (m *Pipeline) CreateWithReserveOrWait(ctx context.Context) error {
 				}
 			}
 
-			return m.PutWithNewKey(ctx)
+			return f(ctx)
 		}, nil)
 
 		if err != nil {
@@ -184,6 +183,13 @@ func (m *Pipeline) CreateWithReserveOrWait(ctx context.Context) error {
 		}
 
 		return nil
+}
+
+func (m *Pipeline) CreateWithReserveOrWait(ctx context.Context) error {
+	return m.CreateWith(ctx, func(ctx context.Context) error {
+		return m.ReserveOrWait(ctx, func(ctx context.Context) error {
+			return m.PutWithNewKey(ctx)
+		})
 	})
 }
 
