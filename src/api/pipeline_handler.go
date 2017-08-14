@@ -182,6 +182,7 @@ func (h *PipelineHandler) publishTask(c echo.Context) error {
 
 	for _, job := range jobs {
 		if job.Status == models.Ready {
+			job.Pipeline = pl
 			_, err := job.Publish(ctx)
 			if err != nil {
 				log.Errorf(ctx, "Failed to publish job %v because of %v\n", job, err)
