@@ -130,7 +130,7 @@ func (m *Pipeline) CreateWith(ctx context.Context, f func(ctx context.Context) e
 	return f(ctx)
 }
 
-func (m *Pipeline) ReserveOrWait(ctx context.Context) error {
+func (m *Pipeline) CreateWithReserveOrWait(ctx context.Context) error {
 	return m.CreateWith(ctx, func(ctx context.Context) error {
 		err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
 			dep := &m.Dependency

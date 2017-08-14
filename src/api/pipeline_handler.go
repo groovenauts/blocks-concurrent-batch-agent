@@ -65,7 +65,7 @@ func (h *PipelineHandler) create(c echo.Context) error {
 
 func (h *PipelineHandler) PostPipelineTaskIfPossible(c echo.Context, pl *models.Pipeline) error {
 	ctx := c.Get("aecontext").(context.Context)
-	err := pl.ReserveOrWait(ctx)
+	err := pl.CreateWithReserveOrWait(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to reserve or wait pipeline: %v\n%v\n", pl, err)
 		return err

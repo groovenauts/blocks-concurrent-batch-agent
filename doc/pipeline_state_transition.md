@@ -8,7 +8,7 @@
 
 | No. | Request path                 | Method             | (Start) | Uninitialized | Broken | Pending  | Reserved | Building  | Deploying | Opened   | Closing | ClosingError | Closed |
 |----:|-----------------------------|---------------------|:-------:|:-------------:|:------:|:--------:|:--------:|:---------:|:---------:|:-------:|:--------:|:------------:|:------:|
-|  1  | /pipelines/                 | ReserveOrWait       | Reserved/Pending | -    |     -  |    -     |     -    |    -      |    -      |    -     |    -    |     -        | -      |
+|  1  | /pipelines/                 | CreateWithReserveOrWait  | Reserved/Pending | - |   -  |    -     |     -    |    -      |    -      |    -     |    -    |     -        | -      |
 |  2  | /pipelines/:id/refresh_task | (another instance).CompleteClosing | - | N/A  | N/A    | Reserved | N/A      | N/A       | N/A       | N/A      | N/A     | N/A          | N/A    |
 |  3  | /pipelines/:id/build_task   | StartBuilding       | -       | N/A           | N/A    | N/A      | Building | Building  | N/A       | N/A     | N/A      | N/A          | N/A    |
 |  4  | /pipelines/:id/build_task   | StartDeploying      | -       | N/A           | N/A    | N/A      | N/A      | Deploying | N/A       | N/A     | N/A      | N/A          | N/A    |
