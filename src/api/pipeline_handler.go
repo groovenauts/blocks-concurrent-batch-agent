@@ -219,19 +219,19 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 	}
 
 	for _, pl := range pipelines {
-			org := c.Get("organization").(*models.Organization)
-			pl.Organization = org
-			err := pl.UpdateIfReserveOrWait(ctx)
+		org := c.Get("organization").(*models.Organization)
+		pl.Organization = org
+		err := pl.UpdateIfReserveOrWait(ctx)
+		if err != nil {
+			log.Errorf(ctx, "Failed to reserve or wait pipeline: %v\n%v\n", pl, err)
+			return err
+		}
+		if pl.Status == models.Reserved {
+			err = h.PostPipelineTaskIfPossible(c, pl)
 			if err != nil {
-				log.Errorf(ctx, "Failed to reserve or wait pipeline: %v\n%v\n", pl, err)
 				return err
 			}
-			if pl.Status == models.Reserved {
-				err = h.PostPipelineTaskIfPossible(c, pl)
-				if err != nil {
-					return err
-				}
-			}
+		}
 	}
 
 	if jobs.AllFinished() {

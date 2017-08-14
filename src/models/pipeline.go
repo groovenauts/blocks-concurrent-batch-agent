@@ -132,57 +132,57 @@ func (m *Pipeline) CreateWith(ctx context.Context, f func(ctx context.Context) e
 
 func (m *Pipeline) ReserveOrWait(ctx context.Context, f func(context.Context) error) error {
 	err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-			dep := &m.Dependency
-			sat, err := dep.Satisfied(ctx)
+		dep := &m.Dependency
+		sat, err := dep.Satisfied(ctx)
+		if err != nil {
+			return err
+		}
+		if !sat {
+			m.Status = Pending
+		} else {
+			org, err := GlobalOrganizationAccessor.Find(ctx, m.Organization.ID)
 			if err != nil {
 				return err
 			}
-			if !sat {
-				m.Status = Pending
+
+			waiting, err := org.PipelineAccessor().WaitingQuery()
+			if err != nil {
+				return err
+			}
+
+			cnt, err := waiting.Count(ctx)
+			if err != nil {
+				return err
+			}
+
+			if cnt > 0 {
+				log.Warningf(ctx, "Insufficient tokens; %v has already %v waiting pipelines", org.Name, cnt)
+				m.Status = Waiting
 			} else {
-				org, err := GlobalOrganizationAccessor.Find(ctx, m.Organization.ID)
-				if err != nil {
-					return err
-				}
-
-				waiting, err := org.PipelineAccessor().WaitingQuery()
-				if err != nil {
-					return err
-				}
-
-				cnt, err := waiting.Count(ctx)
-				if err != nil {
-					return err
-				}
-
-				if cnt > 0 {
-					log.Warningf(ctx, "Insufficient tokens; %v has already %v waiting pipelines", org.Name, cnt)
+				newAmount := org.TokenAmount - m.TokenConsumption
+				if newAmount < 0 {
+					log.Warningf(ctx, "Insufficient tokens; %v has only %v tokens but %v required %v tokens", org.Name, org.TokenAmount, m.Name, m.TokenConsumption)
 					m.Status = Waiting
 				} else {
-					newAmount := org.TokenAmount - m.TokenConsumption
-					if newAmount < 0 {
-						log.Warningf(ctx, "Insufficient tokens; %v has only %v tokens but %v required %v tokens", org.Name, org.TokenAmount, m.Name, m.TokenConsumption)
-						m.Status = Waiting
-					} else {
-						m.Status = Reserved
-						org.TokenAmount = newAmount
-						err = org.Update(ctx)
-						if err != nil {
-							return err
-						}
+					m.Status = Reserved
+					org.TokenAmount = newAmount
+					err = org.Update(ctx)
+					if err != nil {
+						return err
 					}
 				}
 			}
-
-			return f(ctx)
-		}, nil)
-
-		if err != nil {
-			log.Errorf(ctx, "Transaction failed: %v\n", err)
-			return err
 		}
 
-		return nil
+		return f(ctx)
+	}, nil)
+
+	if err != nil {
+		log.Errorf(ctx, "Transaction failed: %v\n", err)
+		return err
+	}
+
+	return nil
 }
 
 func (m *Pipeline) CreateWithReserveOrWait(ctx context.Context) error {
