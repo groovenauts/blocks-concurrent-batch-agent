@@ -224,6 +224,8 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 			return err
 		}
 		if sat {
+			org := c.Get("organization").(*models.Organization)
+			pl.Organization = org
 			err := h.PostPipelineTaskIfPossible(c, pl)
 			if err != nil {
 				return err
