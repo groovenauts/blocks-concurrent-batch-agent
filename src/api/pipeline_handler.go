@@ -218,25 +218,19 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 	}
 
 	for _, pl := range pipelines {
-		dep := &pl.Dependency
-		sat, err := dep.Satisfied(ctx)
-		if err != nil {
-			return err
-		}
-		if sat {
 			org := c.Get("organization").(*models.Organization)
 			pl.Organization = org
-			err := pl.CreateWithReserveOrWait(ctx)
+			err := pl.UpdateIfReserveOrWait(ctx)
 			if err != nil {
 				log.Errorf(ctx, "Failed to reserve or wait pipeline: %v\n%v\n", pl, err)
 				return err
 			}
-			log.Debugf(ctx, "Created pipeline: %v\n", pl)
-			err = h.PostPipelineTaskIfPossible(c, pl)
-			if err != nil {
-				return err
+			if pl.Status == models.Reserved {
+				err = h.PostPipelineTaskIfPossible(c, pl)
+				if err != nil {
+					return err
+				}
 			}
-		}
 	}
 
 	if jobs.AllFinished() {

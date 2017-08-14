@@ -193,6 +193,17 @@ func (m *Pipeline) CreateWithReserveOrWait(ctx context.Context) error {
 	})
 }
 
+func (m *Pipeline) UpdateIfReserveOrWait(ctx context.Context) error {
+	original := m.Status
+	err := m.ReserveOrWait(ctx, func(ctx context.Context) error {
+		if original == m.Status {
+			return nil
+		}
+		return m.Update(ctx)
+	})
+	return err
+}
+
 func (m *Pipeline) PutWithNewKey(ctx context.Context) error {
 	parentKey, err := datastore.DecodeKey(m.Organization.ID)
 	if err != nil {
