@@ -238,7 +238,7 @@ func TestPipelineStateTransition(t *testing.T) {
 		Broken,
 		Waiting,
 		// Reserved,
-		Building,
+		// Building,
 		Deploying,
 		Opened,
 		Closing,

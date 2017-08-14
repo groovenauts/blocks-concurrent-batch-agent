@@ -296,7 +296,7 @@ func (m *Pipeline) StateTransition(ctx context.Context, froms []Status, to Statu
 }
 
 func (m *Pipeline) StartBuilding(ctx context.Context) error {
-	return m.StateTransition(ctx, []Status{Reserved}, Building)
+	return m.StateTransition(ctx, []Status{Reserved, Building}, Building)
 }
 
 func (m *Pipeline) StartDeploying(ctx context.Context, deploymentName, operationName string) error {
@@ -316,7 +316,7 @@ func (m *Pipeline) CompleteDeploying(ctx context.Context) error {
 
 func (m *Pipeline) StartClosing(ctx context.Context, operationName string) error {
 	m.ClosingOperationName = operationName
-	return m.StateTransition(ctx, []Status{Opened}, Closing)
+	return m.StateTransition(ctx, []Status{Opened, Closing}, Closing)
 }
 
 func (m *Pipeline) FailClosing(ctx context.Context, errors *[]DeploymentError) error {
