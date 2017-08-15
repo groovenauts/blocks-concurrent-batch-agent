@@ -129,6 +129,15 @@ func (m *Job) Validate() error {
 	return err
 }
 
+func (m *Job) Key(ctx context.Context) (*datastore.Key, error) {
+	parentKey, err := datastore.DecodeKey(m.Pipeline.ID)
+	if err != nil {
+		return nil, err
+	}
+	key := datastore.NewKey(ctx, "Jobs", m.IdByClient, 0, parentKey)
+	return key, nil
+}
+
 func (m *Job) Create(ctx context.Context) error {
 	t := time.Now()
 	if m.CreatedAt.IsZero() {
@@ -150,12 +159,11 @@ func (m *Job) Create(ctx context.Context) error {
 		return err
 	}
 
-	parentKey, err := datastore.DecodeKey(m.Pipeline.ID)
+	key, err := m.Key(ctx)
 	if err != nil {
 		return err
 	}
 
-	key := datastore.NewIncompleteKey(ctx, "Jobs", parentKey)
 	res, err := datastore.Put(ctx, key, m)
 	if err != nil {
 		return err
