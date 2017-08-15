@@ -120,6 +120,17 @@ type (
 	}
 )
 
+func (m *Job) CopyFrom(src *Job) {
+	m.ID = src.ID
+	m.Pipeline = src.Pipeline
+	m.IdByClient = src.IdByClient
+	m.Status = src.Status
+	m.Message = src.Message
+	m.MessageID = src.MessageID
+	m.CreatedAt = src.CreatedAt
+	m.UpdatedAt = src.UpdatedAt
+}
+
 func (m *Job) Validate() error {
 	v := validator.New()
 	for k, val := range Validators {
@@ -170,6 +181,32 @@ func (m *Job) Create(ctx context.Context) error {
 	}
 	m.ID = res.Encode()
 	return nil
+}
+
+func (m *Job) LoadOrCreate(ctx context.Context) error {
+	return datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+		key, err := m.Key(ctx)
+		if err != nil {
+			return err
+		}
+		id := key.Encode()
+		tmp := &Job{}
+		err = datastore.Get(ctx, key, tmp)
+		if err == nil {
+			m.CopyFrom(tmp)
+			m.ID = id
+			msg := &m.Message
+			msg.EntriesToMap()
+			return nil
+		}
+		switch err {
+		case datastore.ErrNoSuchEntity:
+			return m.Create(ctx)
+		default:
+			log.Errorf(ctx, "JobAccessor#Find %v id: %q\n", err, id)
+			return err
+		}
+	}, nil)
 }
 
 func (m *Job) Update(ctx context.Context) error {
@@ -301,7 +338,7 @@ func (m *Job) PublishAndUpdate(ctx context.Context) error {
 }
 
 func (m *Job) CreateAndPublishIfPossible(ctx context.Context) error {
-	return m.DoAndPublishIfPossible(ctx, m.Create)
+	return m.DoAndPublishIfPossible(ctx, m.LoadOrCreate)
 }
 
 func (m *Job) UpdateAndPublishIfPossible(ctx context.Context) error {
