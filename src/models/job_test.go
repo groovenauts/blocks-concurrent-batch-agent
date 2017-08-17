@@ -91,6 +91,8 @@ func TestJobCRUD(t *testing.T) {
 		GlobalPublisher = originalPublisher
 	}()
 
+	test_utils.ClearDatastore(t, ctx, "Jobs")
+
 	// CreateAndPublishIfPossible
 	download_files := "gcs://bucket1/path/to/file1"
 	download_files_json, err := json.Marshal(download_files)
@@ -126,6 +128,8 @@ func TestJobCRUD(t *testing.T) {
 		assert.Equal(t, "download_files", entry1.Name)
 		assert.Equal(t, string(download_files_json), entry1.Value)
 	}
+
+	test_utils.ClearDatastore(t, ctx, "Jobs")
 
 	// Publish Job Message soon when the pipeline is Opened
 	for _, st := range []Status{Opened} {
@@ -163,6 +167,8 @@ func TestJobCRUD(t *testing.T) {
 		assert.Equal(t, saved.ID, entry1.Value)
 	}
 
+	test_utils.ClearDatastore(t, ctx, "Jobs")
+
 	// Don't publish Preparing Job Message even if the pipeline is Opened
 	for _, st := range []Status{Opened} {
 		pipeline1.Status = st
@@ -193,6 +199,8 @@ func TestJobCRUD(t *testing.T) {
 		assert.Equal(t, "download_files", entry1.Name)
 		assert.Equal(t, string(download_files_json), entry1.Value)
 	}
+
+	test_utils.ClearDatastore(t, ctx, "Jobs")
 
 	// Raise error when create Job
 	for _, st := range []Status{Broken, Closing, ClosingError, Closed} {
