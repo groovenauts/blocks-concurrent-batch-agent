@@ -150,6 +150,7 @@ func TestBuildStartupScript1(t *testing.T) {
 		"TIMEOUT=600 with_backoff docker pull groovenauts/batch_type_iot_example:0.3.1\n" +
 			"for i in {1..2}; do docker run -d" +
 			" -e PROJECT=" + pl.ProjectID +
+			" -e DOCKER_HOSTNAME=$(hostname)" +
 			" -e PIPELINE=" + pl.Name +
 			" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + pl.Name + "-job-subscription.name)" +
 			" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + pl.Name + "-progress-topic.name)" +
@@ -183,6 +184,7 @@ func TestBuildStartupScript2(t *testing.T) {
 			"TIMEOUT=600 with_backoff docker --config /home/chronos/.docker pull " + pl.ContainerName + "\n" +
 			"for i in {1..2}; do docker --config /home/chronos/.docker run -d" +
 			" -e PROJECT=" + pl.ProjectID +
+			" -e DOCKER_HOSTNAME=$(hostname)" +
 			" -e PIPELINE=" + pl.Name +
 			" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + pl.Name + "-job-subscription.name)" +
 			" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + pl.Name + "-progress-topic.name)" +
