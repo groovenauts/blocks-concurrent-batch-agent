@@ -71,7 +71,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 	err = org1.Create(ctx)
 	assert.NoError(t, err)
 
-	// CreatePipeline (ReserveOrWait) valid
+	// CreatePipeline (CreateWithReserveOrWait) valid
 	pl := &Pipeline{
 		Organization: org1,
 		Name:         "pipeline01",
@@ -87,7 +87,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 		Command:          "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
 		TokenConsumption: 2,
 	}
-	err = pl.ReserveOrWait(ctx)
+	err = pl.CreateWithReserveOrWait(ctx)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, pl.ID)
 	key, err := datastore.DecodeKey(pl.ID)
@@ -124,7 +124,7 @@ func TestWatcherCalcDifferences(t *testing.T) {
 		Command:          "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
 		TokenConsumption: org1.TokenAmount - pl.TokenConsumption + 1,
 	}
-	err = waitingPl.ReserveOrWait(ctx)
+	err = waitingPl.CreateWithReserveOrWait(ctx)
 	assert.NoError(t, err)
 	assert.Equal(t, Waiting, waitingPl.Status)
 
@@ -238,7 +238,7 @@ func TestPipelineStateTransition(t *testing.T) {
 		Broken,
 		Waiting,
 		// Reserved,
-		Building,
+		// Building,
 		Deploying,
 		Opened,
 		Closing,
@@ -375,7 +375,7 @@ func TestGetWaitingPipelines(t *testing.T) {
 			CreatedAt:        theTime,
 			UpdatedAt:        theTime,
 		}
-		assert.NoError(t, pl.ReserveOrWait(ctx))
+		assert.NoError(t, pl.CreateWithReserveOrWait(ctx))
 		pipelines = append(pipelines, pl)
 	}
 

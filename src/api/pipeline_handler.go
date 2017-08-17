@@ -56,7 +56,13 @@ func (h *PipelineHandler) create(c echo.Context) error {
 	}
 	org := c.Get("organization").(*models.Organization)
 	pl.Organization = org
-	err := h.PostPipelineTaskIfPossible(c, pl)
+	err := pl.CreateWithReserveOrWait(ctx)
+	if err != nil {
+		log.Errorf(ctx, "Failed to reserve or wait pipeline: %v\n%v\n", pl, err)
+		return err
+	}
+	log.Debugf(ctx, "Created pipeline: %v\n", pl)
+	err = h.PostPipelineTaskIfPossible(c, pl)
 	if err != nil {
 		return err
 	}
@@ -64,14 +70,8 @@ func (h *PipelineHandler) create(c echo.Context) error {
 }
 
 func (h *PipelineHandler) PostPipelineTaskIfPossible(c echo.Context, pl *models.Pipeline) error {
-	ctx := c.Get("aecontext").(context.Context)
-	err := pl.ReserveOrWait(ctx)
-	if err != nil {
-		log.Errorf(ctx, "Failed to reserve or wait pipeline: %v\n%v\n", pl, err)
-		return err
-	}
-	log.Debugf(ctx, "Created pipeline: %v\n", pl)
 	if pl.Status == models.Reserved {
+		ctx := c.Get("aecontext").(context.Context)
 		if pl.Dryrun {
 			log.Debugf(ctx, "[DRYRUN] POST buildTask for %v\n", pl)
 		} else {
@@ -182,6 +182,7 @@ func (h *PipelineHandler) publishTask(c echo.Context) error {
 
 	for _, job := range jobs {
 		if job.Status == models.Ready {
+			job.Pipeline = pl
 			_, err := job.Publish(ctx)
 			if err != nil {
 				log.Errorf(ctx, "Failed to publish job %v because of %v\n", job, err)
@@ -218,13 +219,15 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 	}
 
 	for _, pl := range pipelines {
-		dep := &pl.Dependency
-		sat, err := dep.Satisfied(ctx)
+		org := c.Get("organization").(*models.Organization)
+		pl.Organization = org
+		err := pl.UpdateIfReserveOrWait(ctx)
 		if err != nil {
+			log.Errorf(ctx, "Failed to reserve or wait pipeline: %v\n%v\n", pl, err)
 			return err
 		}
-		if sat {
-			err := h.PostPipelineTaskIfPossible(c, pl)
+		if pl.Status == models.Reserved {
+			err = h.PostPipelineTaskIfPossible(c, pl)
 			if err != nil {
 				return err
 			}

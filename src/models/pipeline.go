@@ -130,61 +130,78 @@ func (m *Pipeline) CreateWith(ctx context.Context, f func(ctx context.Context) e
 	return f(ctx)
 }
 
-func (m *Pipeline) ReserveOrWait(ctx context.Context) error {
-	return m.CreateWith(ctx, func(ctx context.Context) error {
-		err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-			dep := &m.Dependency
-			sat, err := dep.Satisfied(ctx)
+func (m *Pipeline) ReserveOrWait(ctx context.Context, f func(context.Context) error) error {
+	err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+		dep := &m.Dependency
+		sat, err := dep.Satisfied(ctx)
+		if err != nil {
+			return err
+		}
+		if !sat {
+			m.Status = Pending
+		} else {
+			org, err := GlobalOrganizationAccessor.Find(ctx, m.Organization.ID)
 			if err != nil {
 				return err
 			}
-			if !sat {
-				m.Status = Pending
+
+			waiting, err := org.PipelineAccessor().WaitingQuery()
+			if err != nil {
+				return err
+			}
+
+			cnt, err := waiting.Count(ctx)
+			if err != nil {
+				return err
+			}
+
+			if cnt > 0 {
+				log.Warningf(ctx, "Insufficient tokens; %v has already %v waiting pipelines", org.Name, cnt)
+				m.Status = Waiting
 			} else {
-				org, err := GlobalOrganizationAccessor.Find(ctx, m.Organization.ID)
-				if err != nil {
-					return err
-				}
-
-				waiting, err := org.PipelineAccessor().WaitingQuery()
-				if err != nil {
-					return err
-				}
-
-				cnt, err := waiting.Count(ctx)
-				if err != nil {
-					return err
-				}
-
-				if cnt > 0 {
-					log.Warningf(ctx, "Insufficient tokens; %v has already %v waiting pipelines", org.Name, cnt)
+				newAmount := org.TokenAmount - m.TokenConsumption
+				if newAmount < 0 {
+					log.Warningf(ctx, "Insufficient tokens; %v has only %v tokens but %v required %v tokens", org.Name, org.TokenAmount, m.Name, m.TokenConsumption)
 					m.Status = Waiting
 				} else {
-					newAmount := org.TokenAmount - m.TokenConsumption
-					if newAmount < 0 {
-						log.Warningf(ctx, "Insufficient tokens; %v has only %v tokens but %v required %v tokens", org.Name, org.TokenAmount, m.Name, m.TokenConsumption)
-						m.Status = Waiting
-					} else {
-						m.Status = Reserved
-						org.TokenAmount = newAmount
-						err = org.Update(ctx)
-						if err != nil {
-							return err
-						}
+					m.Status = Reserved
+					org.TokenAmount = newAmount
+					err = org.Update(ctx)
+					if err != nil {
+						return err
 					}
 				}
 			}
-
-			return m.PutWithNewKey(ctx)
-		}, nil)
-
-		if err != nil {
-			log.Errorf(ctx, "Transaction failed: %v\n", err)
-			return err
 		}
 
-		return nil
+		return f(ctx)
+	}, nil)
+
+	if err != nil {
+		log.Errorf(ctx, "Transaction failed: %v\n", err)
+		return err
+	}
+
+	return nil
+}
+
+func (m *Pipeline) CreateWithReserveOrWait(ctx context.Context) error {
+	return m.CreateWith(ctx, func(ctx context.Context) error {
+		return m.ReserveOrWait(ctx, func(ctx context.Context) error {
+			return m.PutWithNewKey(ctx)
+		})
 	})
+}
+
+func (m *Pipeline) UpdateIfReserveOrWait(ctx context.Context) error {
+	original := m.Status
+	err := m.ReserveOrWait(ctx, func(ctx context.Context) error {
+		if original == m.Status {
+			return nil
+		}
+		return m.Update(ctx)
+	})
+	return err
 }
 
 func (m *Pipeline) PutWithNewKey(ctx context.Context) error {
@@ -296,7 +313,7 @@ func (m *Pipeline) StateTransition(ctx context.Context, froms []Status, to Statu
 }
 
 func (m *Pipeline) StartBuilding(ctx context.Context) error {
-	return m.StateTransition(ctx, []Status{Reserved}, Building)
+	return m.StateTransition(ctx, []Status{Reserved, Building}, Building)
 }
 
 func (m *Pipeline) StartDeploying(ctx context.Context, deploymentName, operationName string) error {
@@ -316,7 +333,7 @@ func (m *Pipeline) CompleteDeploying(ctx context.Context) error {
 
 func (m *Pipeline) StartClosing(ctx context.Context, operationName string) error {
 	m.ClosingOperationName = operationName
-	return m.StateTransition(ctx, []Status{Opened}, Closing)
+	return m.StateTransition(ctx, []Status{Opened, Closing}, Closing)
 }
 
 func (m *Pipeline) FailClosing(ctx context.Context, errors *[]DeploymentError) error {
