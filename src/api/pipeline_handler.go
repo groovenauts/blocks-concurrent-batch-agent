@@ -223,12 +223,13 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 		pl.Organization = org
 		err := pl.UpdateIfReserveOrWait(ctx)
 		if err != nil {
-			log.Errorf(ctx, "Failed to reserve or wait pipeline: %v\n%v\n", pl, err)
+			log.Errorf(ctx, "Failed to UpdateIfReserveOrWait: %v\n%v\n", pl, err)
 			return err
 		}
 		if pl.Status == models.Reserved {
 			err = h.PostPipelineTaskIfPossible(c, pl)
 			if err != nil {
+				log.Errorf(ctx, "Failed to PostPipelineTaskIfPossible: %v\n%v\n", pl, err)
 				return err
 			}
 		}
