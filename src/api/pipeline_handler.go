@@ -299,7 +299,8 @@ func (h *PipelineHandler) closeTask(c echo.Context) error {
 		log.Errorf(ctx, "Failed to close pipeline because of %v\n", err)
 		return err
 	}
-	return c.JSON(http.StatusOK, pl)
+
+	return h.PostPipelineTask(c, "wait_closing_task", pl, http.StatusOK)
 }
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/refresh_task
