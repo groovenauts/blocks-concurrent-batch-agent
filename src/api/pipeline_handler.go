@@ -213,23 +213,23 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 	}
 	log.Debugf(ctx, "Pipeline has %v jobs\n", len(jobs))
 
-	pipelines, err := models.GlobalPipelineAccessor.PendingsFor(ctx, jobs.Finished().IDs())
+	pendings, err := models.GlobalPipelineAccessor.PendingsFor(ctx, jobs.Finished().IDs())
 	if err != nil {
 		return err
 	}
 
-	for _, pl := range pipelines {
+	for _, pending := range pendings {
 		org := c.Get("organization").(*models.Organization)
-		pl.Organization = org
-		err := pl.UpdateIfReserveOrWait(ctx)
+		pending.Organization = org
+		err := pending.UpdateIfReserveOrWait(ctx)
 		if err != nil {
-			log.Errorf(ctx, "Failed to UpdateIfReserveOrWait: %v\n%v\n", pl, err)
+			log.Errorf(ctx, "Failed to UpdateIfReserveOrWait pending: %v\n%v\n", pending, err)
 			return err
 		}
-		if pl.Status == models.Reserved {
-			err = h.PostPipelineTaskIfPossible(c, pl)
+		if pending.Status == models.Reserved {
+			err = h.PostPipelineTaskIfPossible(c, pending)
 			if err != nil {
-				log.Errorf(ctx, "Failed to PostPipelineTaskIfPossible: %v\n%v\n", pl, err)
+				log.Errorf(ctx, "Failed to PostPipelineTaskIfPossible pending: %v\n%v\n", pending, err)
 				return err
 			}
 		}
