@@ -236,7 +236,11 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 	}
 
 	if jobs.AllFinished() {
-		return h.PostPipelineTask(c, "start_closing_task", pl, http.StatusOK)
+		if pl.ClosePolicy.Match(jobs) {
+			return h.PostPipelineTask(c, "start_closing_task", pl, http.StatusOK)
+		} else {
+			return c.JSON(http.StatusOK, pl)
+		}
 	} else {
 		return h.PostPipelineTaskWithETA(c, "subscribe_task", pl, http.StatusNoContent, started.Add(30*time.Second))
 	}
