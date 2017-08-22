@@ -6,13 +6,15 @@ func (jobs Jobs) AllFinished() bool {
 	if len(jobs) == 0 {
 		return false
 	}
+	return jobs.All(func(job *Job) bool { return !job.Status.Living() })
+}
 
+func (jobs Jobs) All(f func(*Job) bool) bool {
 	for _, job := range jobs {
-		if job.Status.Living() {
+		if !f(job) {
 			return false
 		}
 	}
-
 	return true
 }
 
