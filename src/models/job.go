@@ -113,6 +113,8 @@ type (
 		Pipeline   *Pipeline  `json:"-"   validate:"required" datastore:"-"`
 		IdByClient string     `json:"id_by_client" validate:"required" datastore:"id_by_client"`
 		Status     JobStatus  `json:"status"       datastore:"status" `
+		Zone       string     `json:"zone" datastore:"zone"`
+		Hostname   string     `json:"hostname" datastore:"hostname"`
 		Message    JobMessage `json:"message" datastore:"message"`
 		MessageID  string     `json:"message_id"   datastore:"message_id"`
 		CreatedAt  time.Time  `json:"created_at"`
