@@ -213,29 +213,34 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 	}
 	log.Debugf(ctx, "Pipeline has %v jobs\n", len(jobs))
 
-	pipelines, err := models.GlobalPipelineAccessor.PendingsFor(ctx, jobs.Finished().IDs())
+	pendings, err := models.GlobalPipelineAccessor.PendingsFor(ctx, jobs.Finished().IDs())
 	if err != nil {
 		return err
 	}
 
-	for _, pl := range pipelines {
+	for _, pending := range pendings {
 		org := c.Get("organization").(*models.Organization)
-		pl.Organization = org
-		err := pl.UpdateIfReserveOrWait(ctx)
+		pending.Organization = org
+		err := pending.UpdateIfReserveOrWait(ctx)
 		if err != nil {
-			log.Errorf(ctx, "Failed to reserve or wait pipeline: %v\n%v\n", pl, err)
+			log.Errorf(ctx, "Failed to UpdateIfReserveOrWait pending: %v\n%v\n", pending, err)
 			return err
 		}
-		if pl.Status == models.Reserved {
-			err = h.PostPipelineTaskIfPossible(c, pl)
+		if pending.Status == models.Reserved {
+			err = h.PostPipelineTaskIfPossible(c, pending)
 			if err != nil {
+				log.Errorf(ctx, "Failed to PostPipelineTaskIfPossible pending: %v\n%v\n", pending, err)
 				return err
 			}
 		}
 	}
 
 	if jobs.AllFinished() {
-		return h.PostPipelineTask(c, "start_closing_task", pl, http.StatusOK)
+		if pl.ClosePolicy.Match(jobs) {
+			return h.PostPipelineTask(c, "start_closing_task", pl, http.StatusOK)
+		} else {
+			return c.JSON(http.StatusOK, pl)
+		}
 	} else {
 		return h.PostPipelineTaskWithETA(c, "subscribe_task", pl, http.StatusNoContent, started.Add(30*time.Second))
 	}
@@ -299,7 +304,8 @@ func (h *PipelineHandler) closeTask(c echo.Context) error {
 		log.Errorf(ctx, "Failed to close pipeline because of %v\n", err)
 		return err
 	}
-	return c.JSON(http.StatusOK, pl)
+
+	return h.PostPipelineTask(c, "wait_closing_task", pl, http.StatusOK)
 }
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/refresh_task

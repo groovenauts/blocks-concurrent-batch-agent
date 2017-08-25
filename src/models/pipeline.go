@@ -98,6 +98,7 @@ type (
 		ClosingErrors          []DeploymentError `json:"closing_errors"`
 		TokenConsumption       int               `json:"token_consumption"`
 		Dependency             Dependency        `json:"dependency,omitempty"`
+		ClosePolicy            ClosePolicy       `json:"close_policy,omitempty"`
 		CreatedAt              time.Time         `json:"created_at"`
 		UpdatedAt              time.Time         `json:"updated_at"`
 	}
@@ -131,6 +132,7 @@ func (m *Pipeline) CreateWith(ctx context.Context, f func(ctx context.Context) e
 }
 
 func (m *Pipeline) ReserveOrWait(ctx context.Context, f func(context.Context) error) error {
+	log.Debugf(ctx, "Start ReserveOrWait pipeline: %v", m)
 	err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
 		dep := &m.Dependency
 		sat, err := dep.Satisfied(ctx)
@@ -140,6 +142,7 @@ func (m *Pipeline) ReserveOrWait(ctx context.Context, f func(context.Context) er
 		if !sat {
 			m.Status = Pending
 		} else {
+			log.Debugf(ctx, "Dependency is satisfied. pipeline: %v", m)
 			org, err := GlobalOrganizationAccessor.Find(ctx, m.Organization.ID)
 			if err != nil {
 				return err
