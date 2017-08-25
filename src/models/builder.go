@@ -190,6 +190,7 @@ func (b *Builder) buildScopes() map[string]interface{} {
 			"https://www.googleapis.com/auth/pubsub",
 			"https://www.googleapis.com/auth/logging.write",
 			"https://www.googleapis.com/auth/monitoring.write",
+			"https://www.googleapis.com/auth/cloud-platform",
 		},
 	}
 }
