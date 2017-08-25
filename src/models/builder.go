@@ -253,6 +253,7 @@ func (b *Builder) buildStartupScript(pl *Pipeline) string {
 		" -e PROJECT=" + pl.ProjectID +
 		" -e DOCKER_HOSTNAME=$(hostname)" +
 		" -e PIPELINE=" + pl.Name +
+		" -e ZONE=" + pl.Zone +
 		" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + pl.Name + "-job-subscription.name)" +
 		" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + pl.Name + "-progress-topic.name)" +
 		" " + pl.ContainerName +
