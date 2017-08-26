@@ -172,6 +172,8 @@ func TestJobHandlerActions(t *testing.T) {
 			"status":       float64(st),
 			"zone":         "",
 			"hostname":     "",
+			"start_time":   "",
+			"finish_time":  "",
 			"message": map[string]interface{}{
 				"attributes": map[string]interface{}{
 					"download_files": `["gcs://bucket1/path/to/file1"]`,

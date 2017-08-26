@@ -465,6 +465,8 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 		}
 		job.Hostname = m.stringFromMapWithDefault(attrs, "host", "unknown")
 		job.Zone = m.stringFromMapWithDefault(attrs, "zone", "unknown")
+		job.StartTime = m.stringFromMapWithDefault(attrs, "job.start_time", "")
+		job.FinishTime = m.stringFromMapWithDefault(attrs, "job.finish_time", "")
 		err = job.UpdateStatusIfGreaterThanBefore(ctx, completed, step, stepStatus)
 		if err != nil {
 			return err
