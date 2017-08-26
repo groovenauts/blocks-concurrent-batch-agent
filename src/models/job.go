@@ -117,6 +117,7 @@ type (
 		Hostname   string     `json:"hostname" datastore:"hostname"`
 		Message    JobMessage `json:"message" datastore:"message"`
 		MessageID  string     `json:"message_id"   datastore:"message_id"`
+		PublishedAt time.Time `json:"published_at,omitempty"`
 		StartTime  string     `json:"start_time"`
 		FinishTime string     `json:"finish_time"`
 		CreatedAt  time.Time  `json:"created_at"`
@@ -312,6 +313,7 @@ func (m *Job) Publish(ctx context.Context) (string, error) {
 	}
 
 	m.MessageID = msgId
+	m.PublishedAt = time.Now()
 	err = m.Update(ctx)
 	if err != nil {
 		return "", err

@@ -172,6 +172,7 @@ func TestJobHandlerActions(t *testing.T) {
 			"status":       float64(st),
 			"zone":         "",
 			"hostname":     "",
+			"published_at": "0001-01-01T00:00:00Z",
 			"start_time":   "",
 			"finish_time":  "",
 			"message": map[string]interface{}{
