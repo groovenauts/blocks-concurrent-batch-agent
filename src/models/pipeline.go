@@ -423,6 +423,15 @@ func (m *Pipeline) Reload(ctx context.Context) error {
 }
 
 func (m *Pipeline) PublishJobs(ctx context.Context) error {
+	err := m.AddActionLog(ctx, "publish-started")
+	if err != nil {
+		return err
+	}
+	defer func() {
+		m.AddActionLog(ctx, "publish-finished")
+		// ignore error
+	}()
+
 	accessor := m.JobAccessor()
 	jobs, err := accessor.All(ctx)
 	if err != nil {
@@ -430,8 +439,8 @@ func (m *Pipeline) PublishJobs(ctx context.Context) error {
 	}
 
 	for _, job := range jobs {
-		if job.Status == models.Ready {
-			job.Pipeline = pl
+		if job.Status == Ready {
+			job.Pipeline = m
 			_, err := job.Publish(ctx)
 			if err != nil {
 				log.Errorf(ctx, "Failed to publish job %v because of %v\n", job, err)
