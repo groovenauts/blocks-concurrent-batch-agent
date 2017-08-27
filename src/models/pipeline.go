@@ -75,6 +75,11 @@ type (
 		SourceImage string `json:"source_image" validate:"required"`
 	}
 
+	ActionLog struct {
+		Time time.Time
+		Name string
+	}
+
 	Pipeline struct {
 		ID                     string            `json:"id"             datastore:"-"`
 		Organization           *Organization     `json:"-"              validate:"required" datastore:"-"`
@@ -101,6 +106,7 @@ type (
 		ClosePolicy            ClosePolicy       `json:"close_policy,omitempty"`
 		CreatedAt              time.Time         `json:"created_at"`
 		UpdatedAt              time.Time         `json:"updated_at"`
+		ActionLogs             []ActionLog       `json:"action_logs"`
 	}
 )
 
@@ -485,4 +491,15 @@ func (m *Pipeline) stringFromMapWithDefault(src map[string]string, key, defaultV
 		return defaultValue
 	}
 	return r
+}
+
+func (m *Pipeline) AddActionLog(ctx context.Context, name string) error {
+	if m.ActionLogs == nil {
+		m.ActionLogs = []ActionLog{}
+	}
+	m.ActionLogs = append(m.ActionLogs, ActionLog{
+		Time: time.Now(),
+		Name: name,
+	})
+	return m.Update(ctx)
 }
