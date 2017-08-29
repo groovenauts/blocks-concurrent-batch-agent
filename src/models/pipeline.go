@@ -75,6 +75,11 @@ type (
 		SourceImage string `json:"source_image" validate:"required"`
 	}
 
+	ActionLog struct {
+		Time time.Time
+		Name string
+	}
+
 	Pipeline struct {
 		ID                     string            `json:"id"             datastore:"-"`
 		Organization           *Organization     `json:"-"              validate:"required" datastore:"-"`
@@ -101,6 +106,7 @@ type (
 		ClosePolicy            ClosePolicy       `json:"close_policy,omitempty"`
 		CreatedAt              time.Time         `json:"created_at"`
 		UpdatedAt              time.Time         `json:"updated_at"`
+		ActionLogs             []ActionLog       `json:"action_logs"`
 	}
 )
 
@@ -416,6 +422,36 @@ func (m *Pipeline) Reload(ctx context.Context) error {
 	return nil
 }
 
+func (m *Pipeline) PublishJobs(ctx context.Context) error {
+	err := m.AddActionLog(ctx, "publish-started")
+	if err != nil {
+		return err
+	}
+	defer func() {
+		m.AddActionLog(ctx, "publish-finished")
+		// ignore error
+	}()
+
+	accessor := m.JobAccessor()
+	jobs, err := accessor.All(ctx)
+	if err != nil {
+		return err
+	}
+
+	for _, job := range jobs {
+		if job.Status == Ready {
+			job.Pipeline = m
+			_, err := job.Publish(ctx)
+			if err != nil {
+				log.Errorf(ctx, "Failed to publish job %v because of %v\n", job, err)
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 func (m *Pipeline) JobTopicName() string {
 	return fmt.Sprintf("%s-job-topic", m.Name)
 }
@@ -463,6 +499,10 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
+		job.Hostname = m.stringFromMapWithDefault(attrs, "host", "unknown")
+		job.Zone = m.stringFromMapWithDefault(attrs, "zone", "unknown")
+		job.StartTime = m.stringFromMapWithDefault(attrs, "job.start-time", "")
+		job.FinishTime = m.stringFromMapWithDefault(attrs, "job.finish-time", "")
 		err = job.UpdateStatusIfGreaterThanBefore(ctx, completed, step, stepStatus)
 		if err != nil {
 			return err
@@ -473,4 +513,23 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 		return err
 	}
 	return nil
+}
+
+func (m *Pipeline) stringFromMapWithDefault(src map[string]string, key, defaultValue string) string {
+	r, ok := src[key]
+	if !ok {
+		return defaultValue
+	}
+	return r
+}
+
+func (m *Pipeline) AddActionLog(ctx context.Context, name string) error {
+	if m.ActionLogs == nil {
+		m.ActionLogs = []ActionLog{}
+	}
+	m.ActionLogs = append(m.ActionLogs, ActionLog{
+		Time: time.Now(),
+		Name: name,
+	})
+	return m.Update(ctx)
 }

@@ -23,7 +23,16 @@ func NewBuilder(ctx context.Context) (*Builder, error) {
 }
 
 func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
-	err := pl.LoadOrganization(ctx)
+	err := pl.AddActionLog(ctx, "build-started")
+	if err != nil {
+		return err
+	}
+	defer func() {
+		pl.AddActionLog(ctx, "build-finished")
+		// ignore error
+	}()
+
+	err = pl.LoadOrganization(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to load Organization for Pipeline: %v\npl: %v\n", err, pl)
 		return err
@@ -253,6 +262,7 @@ func (b *Builder) buildStartupScript(pl *Pipeline) string {
 		" -e PROJECT=" + pl.ProjectID +
 		" -e DOCKER_HOSTNAME=$(hostname)" +
 		" -e PIPELINE=" + pl.Name +
+		" -e ZONE=" + pl.Zone +
 		" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + pl.Name + "-job-subscription.name)" +
 		" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + pl.Name + "-progress-topic.name)" +
 		" " + pl.ContainerName +

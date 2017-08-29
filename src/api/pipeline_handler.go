@@ -174,23 +174,10 @@ func (h *PipelineHandler) waitBuildingTask(c echo.Context) error {
 func (h *PipelineHandler) publishTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
-	accessor := pl.JobAccessor()
-	jobs, err := accessor.All(ctx)
+	err := pl.PublishJobs(ctx)
 	if err != nil {
 		return err
 	}
-
-	for _, job := range jobs {
-		if job.Status == models.Ready {
-			job.Pipeline = pl
-			_, err := job.Publish(ctx)
-			if err != nil {
-				log.Errorf(ctx, "Failed to publish job %v because of %v\n", job, err)
-				return err
-			}
-		}
-	}
-
 	return h.PostPipelineTask(c, "subscribe_task", pl, http.StatusOK)
 }
 
