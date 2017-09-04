@@ -19,16 +19,8 @@ func NewCloser(ctx context.Context) (*Closer, error) {
 
 func (b *Closer) Process(ctx context.Context, pl *Pipeline) error {
 	log.Debugf(ctx, "Closing pipeline %v\n", pl)
-	err := pl.AddActionLog(ctx, "close-started")
-	if err != nil {
-		return err
-	}
-	defer func() {
-		pl.AddActionLog(ctx, "close-finished")
-		// ignore error
-	}()
 
-	err = pl.LoadOrganization(ctx)
+	err := pl.LoadOrganization(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to load Organization for Pipeline: %v\npl: %v\n", err, pl)
 		return err

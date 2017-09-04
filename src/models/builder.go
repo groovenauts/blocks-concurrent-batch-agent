@@ -23,16 +23,7 @@ func NewBuilder(ctx context.Context) (*Builder, error) {
 }
 
 func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
-	err := pl.AddActionLog(ctx, "build-started")
-	if err != nil {
-		return err
-	}
-	defer func() {
-		pl.AddActionLog(ctx, "build-finished")
-		// ignore error
-	}()
-
-	err = pl.LoadOrganization(ctx)
+	err := pl.LoadOrganization(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to load Organization for Pipeline: %v\npl: %v\n", err, pl)
 		return err
