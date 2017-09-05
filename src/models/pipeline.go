@@ -322,7 +322,11 @@ func (m *Pipeline) StateTransition(ctx context.Context, froms []Status, to Statu
 }
 
 func (m *Pipeline) StartBuilding(ctx context.Context) error {
+	m.AddActionLog(ctx, "build-started")
 	return m.StateTransition(ctx, []Status{Reserved, Building}, Building)
+}
+
+func (m *Pipeline) FinishBuilding(ctx context.Context) {
 }
 
 func (m *Pipeline) StartDeploying(ctx context.Context, deploymentName, operationName string) error {
@@ -332,25 +336,31 @@ func (m *Pipeline) StartDeploying(ctx context.Context, deploymentName, operation
 }
 
 func (m *Pipeline) FailDeploying(ctx context.Context, errors *[]DeploymentError) error {
+	m.AddActionLog(ctx, "build-finished")
 	m.DeployingErrors = *errors
 	return m.StateTransition(ctx, []Status{Deploying}, Broken)
 }
 
 func (m *Pipeline) CompleteDeploying(ctx context.Context) error {
+	m.AddActionLog(ctx, "build-finished")
 	return m.StateTransition(ctx, []Status{Deploying}, Opened)
 }
 
 func (m *Pipeline) StartClosing(ctx context.Context, operationName string) error {
+	m.AddActionLog(ctx, "close-started")
 	m.ClosingOperationName = operationName
 	return m.StateTransition(ctx, []Status{Opened, Closing}, Closing)
 }
 
 func (m *Pipeline) FailClosing(ctx context.Context, errors *[]DeploymentError) error {
+	m.AddActionLog(ctx, "close-finished")
 	m.ClosingErrors = *errors
 	return m.StateTransition(ctx, []Status{Closing}, ClosingError)
 }
 
 func (m *Pipeline) CompleteClosing(ctx context.Context, pipelineProcesser func(*Pipeline) error) error {
+	m.AddActionLog(ctx, "close-finished")
+	m.Update(ctx)
 	return datastore.RunInTransaction(ctx, func(ctx context.Context) error {
 		org, err := GlobalOrganizationAccessor.Find(ctx, m.Organization.ID)
 		if err != nil {
@@ -423,12 +433,14 @@ func (m *Pipeline) Reload(ctx context.Context) error {
 }
 
 func (m *Pipeline) PublishJobs(ctx context.Context) error {
-	err := m.AddActionLog(ctx, "publish-started")
+	m.AddActionLog(ctx, "publish-started")
+	err := m.Update(ctx)
 	if err != nil {
 		return err
 	}
 	defer func() {
 		m.AddActionLog(ctx, "publish-finished")
+		m.Update(ctx)
 		// ignore error
 	}()
 
@@ -523,7 +535,7 @@ func (m *Pipeline) stringFromMapWithDefault(src map[string]string, key, defaultV
 	return r
 }
 
-func (m *Pipeline) AddActionLog(ctx context.Context, name string) error {
+func (m *Pipeline) AddActionLog(ctx context.Context, name string) {
 	if m.ActionLogs == nil {
 		m.ActionLogs = []ActionLog{}
 	}
@@ -531,5 +543,4 @@ func (m *Pipeline) AddActionLog(ctx context.Context, name string) error {
 		Time: time.Now(),
 		Name: name,
 	})
-	return m.Update(ctx)
 }
