@@ -211,7 +211,7 @@ func (m *Job) LoadOrCreate(ctx context.Context) error {
 			log.Errorf(ctx, "JobAccessor#Find %v id: %q\n", err, id)
 			return err
 		}
-	}, nil)
+	}, GetTransactionOptions())
 }
 
 func (m *Job) Update(ctx context.Context) error {
