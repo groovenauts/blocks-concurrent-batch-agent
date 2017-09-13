@@ -184,7 +184,7 @@ func (m *Pipeline) ReserveOrWait(ctx context.Context, f func(context.Context) er
 		}
 
 		return f(ctx)
-	}, nil)
+	}, GetTransactionOptions(ctx))
 
 	if err != nil {
 		log.Errorf(ctx, "Transaction failed: %v\n", err)
@@ -398,7 +398,7 @@ func (m *Pipeline) CompleteClosing(ctx context.Context, pipelineProcesser func(*
 		}
 
 		return m.StateTransition(ctx, []Status{Closing}, Closed)
-	}, nil)
+	}, GetTransactionOptions(ctx))
 }
 
 func (m *Pipeline) LoadOrganization(ctx context.Context) error {

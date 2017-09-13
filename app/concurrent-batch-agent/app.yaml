@@ -19,3 +19,6 @@ nobuild_files:
 
 skip_files:
 - vendor/
+
+env_variables:
+  TRANSACTION_ATTEMPTS: '10'
