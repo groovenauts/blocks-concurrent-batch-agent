@@ -189,8 +189,19 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 
 	err := pl.PullAndUpdateJobStatus(ctx)
 	if err != nil {
-		log.Errorf(ctx, "Failed to get Pipeline#PullAndUpdateJobStatus() because of %v\n", err)
-		return err
+		switch err.(type) {
+		case *models.SubscriprionNotFound:
+			switch pl.Status {
+			case models.Closing, models.Closed:
+				log.Infof(ctx, "Pipeline is already closed\n")
+				return c.JSON(http.StatusNoContent, pl)
+			default:
+				log.Infof(ctx, "Subscription is not found but the pipeline isn't closed because of %v\n", err)
+			}
+		default:
+			log.Errorf(ctx, "Failed to get Pipeline#PullAndUpdateJobStatus() because of %v\n", err)
+			return err
+		}
 	}
 
 	jobs, err := pl.JobAccessor().All(ctx)
