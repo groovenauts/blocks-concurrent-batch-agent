@@ -4,7 +4,9 @@ import (
 	"os"
 	"strconv"
 
+	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
+	"google.golang.org/appengine/log"
 )
 
 const (
@@ -23,9 +25,11 @@ func GetTransactionAttemptsFromEnv() int {
 	return DefaultTransactionAttempts
 }
 
-func GetTransactionOptions() *datastore.TransactionOptions {
-	return &datastore.TransactionOptions{
+func GetTransactionOptions(ctx context.Context) *datastore.TransactionOptions {
+	opts := datastore.TransactionOptions{
 		XG:       false,
 		Attempts: GetTransactionAttemptsFromEnv(),
 	}
+	log.Debugf(ctx, "TransactionOptions: %v\n", opts)
+	return &opts
 }
