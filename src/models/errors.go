@@ -30,3 +30,11 @@ type InvalidStateTransition struct {
 func (e *InvalidStateTransition) Error() string {
 	return e.Msg
 }
+
+type SubscriprionNotFound struct {
+	Subscription string
+}
+
+func (e *SubscriprionNotFound) Error() string {
+	return fmt.Sprintf("%q not found", e.Subscription)
+}
