@@ -6,6 +6,7 @@ import (
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2/google"
 
+	"google.golang.org/api/googleapi"
 	"google.golang.org/appengine/log"
 )
 
@@ -63,6 +64,13 @@ func (ps *PubsubSubscriber) subscribe(ctx context.Context, subscription string, 
 	log.Debugf(ctx, "%v Pulling subscription\n", subscription)
 	res, err := ps.puller.Pull(subscription, pullRequest)
 	if err != nil {
+		switch err.(type) {
+		case *googleapi.Error:
+			apiError := err.(*googleapi.Error)
+			if apiError.Code == 404 {
+				return &SubscriprionNotFound{Subscription: subscription}
+			}
+		}
 		log.Errorf(ctx, "%v Failed to pull: [%T] %v\n", subscription, err, err)
 		return err
 	}
