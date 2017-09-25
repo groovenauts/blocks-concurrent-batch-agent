@@ -95,6 +95,7 @@ type (
 		ContainerName          string            `json:"container_name" validate:"required"`
 		Command                string            `json:"command"` // allow blank
 		Status                 Status            `json:"status"`
+		Cancelled              bool              `json:"cancelled"`
 		Dryrun                 bool              `json:"dryrun"`
 		DeploymentName         string            `json:"deployment_name"`
 		DeployingOperationName string            `json:"deploying_operation_name"`
@@ -399,6 +400,12 @@ func (m *Pipeline) CompleteClosing(ctx context.Context, pipelineProcesser func(*
 
 		return m.StateTransition(ctx, []Status{Closing}, Closed)
 	}, GetTransactionOptions(ctx))
+}
+
+func (m *Pipeline) Cancel(ctx context.Context) error {
+	m.Cancelled = true
+	m.AddActionLog(ctx, "cancelled")
+	return m.Update(ctx)
 }
 
 func (m *Pipeline) LoadOrganization(ctx context.Context) error {

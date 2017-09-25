@@ -105,7 +105,9 @@ func (h *PipelineHandler) show(c echo.Context) error {
 // curl -v -X PUT http://localhost:8080/pipelines/1/cancel
 // curl -v -X PUT http://localhost:8080/pipelines/1/close
 func (h *PipelineHandler) cancel(c echo.Context) error {
+	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
+	pl.Cancel(ctx)
 	return h.PostPipelineTask(c, "close_task", pl, http.StatusOK)
 }
 
