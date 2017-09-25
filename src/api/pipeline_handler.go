@@ -108,7 +108,22 @@ func (h *PipelineHandler) cancel(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
 	pl.Cancel(ctx)
-	return h.PostPipelineTask(c, "close_task", pl, http.StatusOK)
+	switch pl.Status {
+	case models.Uninitialized, models.Pending, models.Waiting, models.Reserved:
+		pl.Status = models.Closed
+		pl.Update(ctx)
+	case models.Building, models.Deploying:
+		// Wait until deploying is finished
+	case models.Opened:
+		return h.PostPipelineTask(c, "close_task", pl, http.StatusOK)
+	case models.Closing, models.ClosingError, models.Closed:
+		// Do nothing because it's already closed or being closed
+	default:
+		return &models.InvalidStateTransition{
+			Msg: fmt.Sprintf("Invalid Pipeline#Status %v to cancel", pl.Status),
+		}
+	}
+	return nil
 }
 
 // curl -v -X DELETE http://localhost:8080/pipelines/1
@@ -196,7 +211,16 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 	pl := c.Get("pipeline").(*models.Pipeline)
 
 	if pl.Cancelled {
-		// Just quit this task because close_task is registered on /close
+		switch pl.Status {
+		case models.Opened:
+			return h.PostPipelineTask(c, "close_task", pl, http.StatusOK)
+		case models.Closing, models.ClosingError, models.Closed:
+			// Do nothing because it's already closed or being closed
+		default:
+			return &models.InvalidStateTransition{
+				Msg: fmt.Sprintf("Invalid Pipeline#Status %v to subscribe a Pipeline cancelled", pl.Status),
+			}
+		}
 		return nil
 	}
 
