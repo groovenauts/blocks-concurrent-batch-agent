@@ -168,7 +168,11 @@ func (h *PipelineHandler) waitBuildingTask(c echo.Context) error {
 	case models.Deploying:
 		return h.PostPipelineTaskWithETA(c, "wait_building_task", pl, http.StatusNoContent, started.Add(30*time.Second))
 	case models.Opened:
-		return h.PostPipelineTask(c, "publish_task", pl, http.StatusOK)
+		if pl.Cancelled {
+			return h.PostPipelineTask(c, "start_closing_task", pl, http.StatusOK)
+		} else {
+			return h.PostPipelineTask(c, "publish_task", pl, http.StatusOK)
+		}
 	default:
 		return &models.InvalidStateTransition{Msg: fmt.Sprintf("Unexpected Status: %v for Pipeline: %v", pl.Status, pl)}
 	}
@@ -190,6 +194,11 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 	started := time.Now()
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
+
+	if pl.Cancelled {
+		// Just quit this task because close_task is registered on /close
+		return nil
+	}
 
 	err := pl.PullAndUpdateJobStatus(ctx)
 	if err != nil {
