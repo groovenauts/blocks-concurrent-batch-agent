@@ -24,7 +24,8 @@ func (h *PipelineHandler) buildActions() {
 		"create":        gae_support.With(orgBy("org_id", withAuth(h.create))),
 		"subscriptions": gae_support.With(orgBy("org_id", withAuth(h.subscriptions))),
 		"show":          gae_support.With(plBy("id", PlToOrg(withAuth(h.show)))),
-		"close":         gae_support.With(plBy("id", PlToOrg(withAuth(h.close)))),
+		"close":         gae_support.With(plBy("id", PlToOrg(withAuth(h.cancel)))),
+		"cancel":        gae_support.With(plBy("id", PlToOrg(withAuth(h.cancel)))),
 		"destroy":       gae_support.With(plBy("id", PlToOrg(withAuth(h.destroy)))),
 		"refresh":       gae_support.With(plBy("id", PlToOrg(withAuth(h.refresh)))),
 		// "refresh_task":  gae_support.With(plBy("id", h.refreshTask)),
@@ -101,8 +102,9 @@ func (h *PipelineHandler) show(c echo.Context) error {
 	return c.JSON(http.StatusOK, pl)
 }
 
+// curl -v -X PUT http://localhost:8080/pipelines/1/cancel
 // curl -v -X PUT http://localhost:8080/pipelines/1/close
-func (h *PipelineHandler) close(c echo.Context) error {
+func (h *PipelineHandler) cancel(c echo.Context) error {
 	pl := c.Get("pipeline").(*models.Pipeline)
 	return h.PostPipelineTask(c, "close_task", pl, http.StatusOK)
 }
