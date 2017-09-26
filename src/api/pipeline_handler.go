@@ -113,18 +113,20 @@ func (h *PipelineHandler) cancel(c echo.Context) error {
 	case models.Uninitialized, models.Pending, models.Waiting, models.Reserved:
 		pl.Status = models.Closed
 		pl.Update(ctx)
+		return c.JSON(http.StatusOK, pl)
 	case models.Building, models.Deploying:
 		// Wait until deploying is finished
+		return c.JSON(http.StatusAccepted, pl)
 	case models.Opened:
 		return h.PostPipelineTask(c, "close_task", pl, http.StatusOK)
 	case models.Closing, models.ClosingError, models.Closed:
 		// Do nothing because it's already closed or being closed
+		return c.JSON(http.StatusNoContent, pl)
 	default:
 		return &models.InvalidStateTransition{
 			Msg: fmt.Sprintf("Invalid Pipeline#Status %v to cancel", pl.Status),
 		}
 	}
-	return nil
 }
 
 // curl -v -X DELETE http://localhost:8080/pipelines/1
@@ -231,7 +233,6 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 				Msg: fmt.Sprintf("Invalid Pipeline#Status %v to subscribe a Pipeline cancelled", pl.Status),
 			}
 		}
-		return nil
 	}
 
 	err := pl.PullAndUpdateJobStatus(ctx)
