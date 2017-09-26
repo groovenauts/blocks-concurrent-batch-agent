@@ -36,6 +36,7 @@ const (
 	Executing
 	Failure
 	Success
+	Cancelled
 )
 
 var JobStatusToString = map[JobStatus]string{
@@ -47,6 +48,7 @@ var JobStatusToString = map[JobStatus]string{
 	Executing:    "Executing",
 	Failure:      "Failure",
 	Success:      "Success",
+	Cancelled:    "Cancelled",
 }
 
 var (

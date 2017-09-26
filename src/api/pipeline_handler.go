@@ -24,7 +24,8 @@ func (h *PipelineHandler) buildActions() {
 		"create":        gae_support.With(orgBy("org_id", withAuth(h.create))),
 		"subscriptions": gae_support.With(orgBy("org_id", withAuth(h.subscriptions))),
 		"show":          gae_support.With(plBy("id", PlToOrg(withAuth(h.show)))),
-		"close":         gae_support.With(plBy("id", PlToOrg(withAuth(h.close)))),
+		"close":         gae_support.With(plBy("id", PlToOrg(withAuth(h.cancel)))),
+		"cancel":        gae_support.With(plBy("id", PlToOrg(withAuth(h.cancel)))),
 		"destroy":       gae_support.With(plBy("id", PlToOrg(withAuth(h.destroy)))),
 		"refresh":       gae_support.With(plBy("id", PlToOrg(withAuth(h.refresh)))),
 		// "refresh_task":  gae_support.With(plBy("id", h.refreshTask)),
@@ -101,10 +102,28 @@ func (h *PipelineHandler) show(c echo.Context) error {
 	return c.JSON(http.StatusOK, pl)
 }
 
+// curl -v -X PUT http://localhost:8080/pipelines/1/cancel
 // curl -v -X PUT http://localhost:8080/pipelines/1/close
-func (h *PipelineHandler) close(c echo.Context) error {
+func (h *PipelineHandler) cancel(c echo.Context) error {
+	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
-	return h.PostPipelineTask(c, "close_task", pl, http.StatusOK)
+	pl.Cancel(ctx)
+	switch pl.Status {
+	case models.Uninitialized, models.Pending, models.Waiting, models.Reserved:
+		pl.Status = models.Closed
+		pl.Update(ctx)
+	case models.Building, models.Deploying:
+		// Wait until deploying is finished
+	case models.Opened:
+		return h.PostPipelineTask(c, "close_task", pl, http.StatusOK)
+	case models.Closing, models.ClosingError, models.Closed:
+		// Do nothing because it's already closed or being closed
+	default:
+		return &models.InvalidStateTransition{
+			Msg: fmt.Sprintf("Invalid Pipeline#Status %v to cancel", pl.Status),
+		}
+	}
+	return nil
 }
 
 // curl -v -X DELETE http://localhost:8080/pipelines/1
@@ -164,7 +183,11 @@ func (h *PipelineHandler) waitBuildingTask(c echo.Context) error {
 	case models.Deploying:
 		return h.PostPipelineTaskWithETA(c, "wait_building_task", pl, http.StatusNoContent, started.Add(30*time.Second))
 	case models.Opened:
-		return h.PostPipelineTask(c, "publish_task", pl, http.StatusOK)
+		if pl.Cancelled {
+			return h.PostPipelineTask(c, "start_closing_task", pl, http.StatusOK)
+		} else {
+			return h.PostPipelineTask(c, "publish_task", pl, http.StatusOK)
+		}
 	default:
 		return &models.InvalidStateTransition{Msg: fmt.Sprintf("Unexpected Status: %v for Pipeline: %v", pl.Status, pl)}
 	}
@@ -186,6 +209,20 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 	started := time.Now()
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
+
+	if pl.Cancelled {
+		switch pl.Status {
+		case models.Opened:
+			return h.PostPipelineTask(c, "close_task", pl, http.StatusOK)
+		case models.Closing, models.ClosingError, models.Closed:
+			// Do nothing because it's already closed or being closed
+		default:
+			return &models.InvalidStateTransition{
+				Msg: fmt.Sprintf("Invalid Pipeline#Status %v to subscribe a Pipeline cancelled", pl.Status),
+			}
+		}
+		return nil
+	}
 
 	err := pl.PullAndUpdateJobStatus(ctx)
 	if err != nil {
