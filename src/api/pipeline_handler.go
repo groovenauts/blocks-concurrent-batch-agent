@@ -10,6 +10,7 @@ import (
 
 	"github.com/labstack/echo"
 	"golang.org/x/net/context"
+	"google.golang.org/api/googleapi"
 	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/taskqueue"
 )
@@ -158,6 +159,15 @@ func (h *PipelineHandler) buildTask(c echo.Context) error {
 	}
 	err = builder.Process(ctx, pl)
 	if err != nil {
+		switch err.(type) {
+		case *googleapi.Error:
+			e2 := err.(*googleapi.Error)
+			switch e2.Code {
+			case http.StatusConflict: // googleapi: Error 409: 'projects/optical-hangar-158902/global/deployments/pipeline-mjr-59-20170926-163820' already exists and cannot be created., duplicate
+				log.Warningf(ctx, "Skip building because of %v", e2.Message)
+				return h.PostPipelineTask(c, "wait_building_task", pl, http.StatusOK)
+			}
+		}
 		log.Errorf(ctx, "Failed to build a pipeline %v because of %v\n", pl, err)
 		return err
 	}
