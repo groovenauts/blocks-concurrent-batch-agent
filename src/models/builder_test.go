@@ -1,7 +1,7 @@
 package models
 
 import (
-	// "fmt"
+	"fmt"
 	"regexp"
 	"testing"
 	// "golang.org/x/net/context"
@@ -10,6 +10,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	// "google.golang.org/api/deploymentmanager/v2"
+	"google.golang.org/api/googleapi"
 )
 
 func TestGenerateContent(t *testing.T) {
@@ -229,4 +230,15 @@ func TestBuildBootDisk(t *testing.T) {
 	assert.Contains(t, p2, "sourceImage")
 	assert.Contains(t, p2, "diskSizeGb")
 	assert.Contains(t, p2, "diskType")
+}
+
+func TestGoogleapiError(t *testing.T) {
+	// See https://github.com/google/google-api-go-client/blob/master/googleapi/googleapi.go#L114-L135
+	msg := "'projects/optical-hangar-158902/global/deployments/pipeline-mjr-59-20170926-163820' already exists and cannot be created., duplicate"
+	err := &googleapi.Error{
+		Code:    409,
+		Message: msg,
+	}
+	expected := fmt.Sprintf("googleapi: Error %d: %s", err.Code, msg)
+	assert.Equal(t, expected, fmt.Sprintf("%v", err))
 }

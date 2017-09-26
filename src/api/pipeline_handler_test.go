@@ -206,7 +206,7 @@ func TestActions(t *testing.T) {
 				return func() { assert.NoError(t, err) }
 			}
 			if http.StatusOK != rec.Code {
-				return func() { assert.Equal(t, http.StatusOK, rec.Code) }
+				return func() { assert.Equal(t, http.StatusCreated, rec.Code) }
 			}
 			s := rec.Body.String()
 			res := &models.Pipeline{}

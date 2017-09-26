@@ -10,6 +10,7 @@ import (
 
 	"github.com/labstack/echo"
 	"golang.org/x/net/context"
+	"google.golang.org/api/googleapi"
 	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/taskqueue"
 )
@@ -112,18 +113,20 @@ func (h *PipelineHandler) cancel(c echo.Context) error {
 	case models.Uninitialized, models.Pending, models.Waiting, models.Reserved:
 		pl.Status = models.Closed
 		pl.Update(ctx)
+		return c.JSON(http.StatusOK, pl)
 	case models.Building, models.Deploying:
 		// Wait until deploying is finished
+		return c.JSON(http.StatusAccepted, pl)
 	case models.Opened:
-		return h.PostPipelineTask(c, "close_task", pl, http.StatusOK)
+		return h.PostPipelineTask(c, "close_task", pl, http.StatusCreated)
 	case models.Closing, models.ClosingError, models.Closed:
 		// Do nothing because it's already closed or being closed
+		return c.JSON(http.StatusNoContent, pl)
 	default:
 		return &models.InvalidStateTransition{
 			Msg: fmt.Sprintf("Invalid Pipeline#Status %v to cancel", pl.Status),
 		}
 	}
-	return nil
 }
 
 // curl -v -X DELETE http://localhost:8080/pipelines/1
@@ -145,7 +148,7 @@ func (h *PipelineHandler) destroy(c echo.Context) error {
 // curl -v -X POST http://localhost:8080/pipelines/:id/refresh
 func (h *PipelineHandler) refresh(c echo.Context) error {
 	pl := c.Get("pipeline").(*models.Pipeline)
-	return h.PostPipelineTask(c, "refresh_task", pl, http.StatusOK)
+	return h.PostPipelineTask(c, "refresh_task", pl, http.StatusCreated)
 }
 
 // curl -v -X POST http://localhost:8080/pipelines/1/build_task
@@ -158,11 +161,20 @@ func (h *PipelineHandler) buildTask(c echo.Context) error {
 	}
 	err = builder.Process(ctx, pl)
 	if err != nil {
+		switch err.(type) {
+		case *googleapi.Error:
+			e2 := err.(*googleapi.Error)
+			switch e2.Code {
+			case http.StatusConflict: // googleapi: Error 409: 'projects/optical-hangar-158902/global/deployments/pipeline-mjr-59-20170926-163820' already exists and cannot be created., duplicate
+				log.Warningf(ctx, "Skip building because of %v", e2.Message)
+				return h.PostPipelineTask(c, "wait_building_task", pl, http.StatusNoContent)
+			}
+		}
 		log.Errorf(ctx, "Failed to build a pipeline %v because of %v\n", pl, err)
 		return err
 	}
 
-	return h.PostPipelineTask(c, "wait_building_task", pl, http.StatusOK)
+	return h.PostPipelineTask(c, "wait_building_task", pl, http.StatusCreated)
 }
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/wait_building_task
@@ -181,12 +193,12 @@ func (h *PipelineHandler) waitBuildingTask(c echo.Context) error {
 
 	switch pl.Status {
 	case models.Deploying:
-		return h.PostPipelineTaskWithETA(c, "wait_building_task", pl, http.StatusNoContent, started.Add(30*time.Second))
+		return h.PostPipelineTaskWithETA(c, "wait_building_task", pl, http.StatusAccepted, started.Add(30*time.Second))
 	case models.Opened:
 		if pl.Cancelled {
-			return h.PostPipelineTask(c, "start_closing_task", pl, http.StatusOK)
+			return h.PostPipelineTask(c, "start_closing_task", pl, http.StatusNoContent)
 		} else {
-			return h.PostPipelineTask(c, "publish_task", pl, http.StatusOK)
+			return h.PostPipelineTask(c, "publish_task", pl, http.StatusCreated)
 		}
 	default:
 		return &models.InvalidStateTransition{Msg: fmt.Sprintf("Unexpected Status: %v for Pipeline: %v", pl.Status, pl)}
@@ -201,7 +213,7 @@ func (h *PipelineHandler) publishTask(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return h.PostPipelineTask(c, "subscribe_task", pl, http.StatusOK)
+	return h.PostPipelineTask(c, "subscribe_task", pl, http.StatusCreated)
 }
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/subscribe_task
@@ -213,15 +225,16 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 	if pl.Cancelled {
 		switch pl.Status {
 		case models.Opened:
-			return h.PostPipelineTask(c, "close_task", pl, http.StatusOK)
+			log.Infof(ctx, "Pipeline is cancelled.\n")
+			return h.PostPipelineTask(c, "close_task", pl, http.StatusNoContent)
 		case models.Closing, models.ClosingError, models.Closed:
-			// Do nothing because it's already closed or being closed
+			log.Warningf(ctx, "Pipeline is cancelled but do nothing because it's already closed or being closed.\n")
+			return c.JSON(http.StatusOK, pl)
 		default:
 			return &models.InvalidStateTransition{
 				Msg: fmt.Sprintf("Invalid Pipeline#Status %v to subscribe a Pipeline cancelled", pl.Status),
 			}
 		}
-		return nil
 	}
 
 	err := pl.PullAndUpdateJobStatus(ctx)
@@ -231,7 +244,7 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 			switch pl.Status {
 			case models.Closing, models.Closed:
 				log.Infof(ctx, "Pipeline is already closed\n")
-				return c.JSON(http.StatusNoContent, pl)
+				return c.JSON(http.StatusOK, pl)
 			default:
 				log.Infof(ctx, "Subscription is not found but the pipeline isn't closed because of %v\n", err)
 			}
@@ -272,12 +285,12 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 
 	if jobs.AllFinished() {
 		if pl.ClosePolicy.Match(jobs) {
-			return h.PostPipelineTask(c, "start_closing_task", pl, http.StatusOK)
+			return h.PostPipelineTask(c, "start_closing_task", pl, http.StatusCreated)
 		} else {
 			return c.JSON(http.StatusOK, pl)
 		}
 	} else {
-		return h.PostPipelineTaskWithETA(c, "subscribe_task", pl, http.StatusNoContent, started.Add(30*time.Second))
+		return h.PostPipelineTaskWithETA(c, "subscribe_task", pl, http.StatusAccepted, started.Add(30*time.Second))
 	}
 }
 
@@ -296,7 +309,7 @@ func (h *PipelineHandler) startClosingTask(c echo.Context) error {
 		return err
 	}
 
-	return h.PostPipelineTask(c, "wait_closing_task", pl, http.StatusOK)
+	return h.PostPipelineTask(c, "wait_closing_task", pl, http.StatusCreated)
 }
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/wait_closing_task
@@ -317,7 +330,7 @@ func (h *PipelineHandler) waitClosingTask(c echo.Context) error {
 
 	switch pl.Status {
 	case models.Closing:
-		return h.PostPipelineTaskWithETA(c, "wait_closing_task", pl, http.StatusNoContent, started.Add(30*time.Second))
+		return h.PostPipelineTaskWithETA(c, "wait_closing_task", pl, http.StatusAccepted, started.Add(30*time.Second))
 	case models.Closed:
 		return c.JSON(http.StatusOK, pl)
 	default:
@@ -340,7 +353,7 @@ func (h *PipelineHandler) closeTask(c echo.Context) error {
 		return err
 	}
 
-	return h.PostPipelineTask(c, "wait_closing_task", pl, http.StatusOK)
+	return h.PostPipelineTask(c, "wait_closing_task", pl, http.StatusCreated)
 }
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/refresh_task
