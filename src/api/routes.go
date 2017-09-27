@@ -1,8 +1,6 @@
 package api
 
 import (
-	"gae_support"
-
 	"github.com/labstack/echo"
 )
 
@@ -23,17 +21,17 @@ func SetupRoutes(echo *echo.Echo) map[string]interface{} {
 	g.GET("/:id", h.Actions["show"])
 	g.PUT("/:id/cancel", h.Actions["cancel"])
 	g.PUT("/:id/close", h.Actions["close"])
-	g.POST("/:id/close_task", gae_support.With(plBy("id", PlToOrg(withAuth(h.closeTask)))))
+	g.POST("/:id/close_task", h.member("id", h.closeTask))
 	g.DELETE("/:id", h.Actions["destroy"])
 
-	g.POST("/:id/build_task", gae_support.With(plBy("id", PlToOrg(withAuth(h.buildTask)))))
-	g.POST("/:id/wait_building_task", gae_support.With(plBy("id", PlToOrg(withAuth(h.waitBuildingTask)))))
-	g.POST("/:id/publish_task", gae_support.With(plBy("id", PlToOrg(withAuth(h.publishTask)))))
-	g.POST("/:id/subscribe_task", gae_support.With(plBy("id", PlToOrg(withAuth(h.subscribeTask)))))
-	g.POST("/:id/wait_closing_task", gae_support.With(plBy("id", PlToOrg(withAuth(h.waitClosingTask)))))
+	g.POST("/:id/build_task", h.member("id", h.buildTask))
+	g.POST("/:id/wait_building_task", h.member("id", h.waitBuildingTask))
+	g.POST("/:id/publish_task", h.member("id", h.publishTask))
+	g.POST("/:id/subscribe_task", h.member("id", h.subscribeTask))
+	g.POST("/:id/wait_closing_task", h.member("id", h.waitClosingTask))
 
 	g.POST("/:id/refresh", h.Actions["refresh"])
-	g.POST("/:id/refresh_task", gae_support.With(plBy("id", PlToOrg(withAuth(h.refreshTask)))))
+	g.POST("/:id/refresh_task", h.member("id", h.refreshTask))
 
 	jh := &JobHandler{}
 	jhActions := jh.buildActions()
@@ -45,8 +43,8 @@ func SetupRoutes(echo *echo.Echo) map[string]interface{} {
 	g = e.Group("/jobs")
 	g.GET("/:id", jhActions["show"])
 	g.POST("/:id/getready", jhActions["getready"])
-	g.POST("/:id/wait_task", gae_support.With(jobBy("id", JobToPl(PlToOrg(withAuth(jh.WaitToPublishTask))))))
-	g.POST("/:id/publish_task", gae_support.With(jobBy("id", JobToPl(PlToOrg(withAuth(jh.PublishTask))))))
+	g.POST("/:id/wait_task", jh.member("id", jh.WaitToPublishTask))
+	g.POST("/:id/publish_task", jh.member("id", jh.PublishTask))
 
 	return map[string]interface{}{
 		"pipelines": h,
