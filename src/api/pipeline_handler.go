@@ -305,6 +305,15 @@ func (h *PipelineHandler) closeTask(c echo.Context) error {
 	}
 	err = closer.Process(ctx, pl)
 	if err != nil {
+		switch err.(type) {
+		case *googleapi.Error:
+			e2 := err.(*googleapi.Error)
+			switch e2.Code {
+			case http.StatusNotFound: // googleapi: Error 404: The object 'projects/optical-hangar-158902/global/deployments/pipeline-mjr-89-20170926-223541' is not found., notFound
+				log.Warningf(ctx, "Skip closing because of %v", e2.Message)
+				return c.JSON(http.StatusOK, pl)
+			}
+		}
 		log.Errorf(ctx, "Failed to close pipeline because of %v\n", err)
 		return err
 	}
