@@ -18,12 +18,20 @@ type JobHandler struct{}
 
 func (h *JobHandler) buildActions() map[string](func(c echo.Context) error) {
 	return map[string](func(c echo.Context) error){
-		"index":    gae_support.With(plBy("pipeline_id", PlToOrg(withAuth(h.index)))),
-		"create":   gae_support.With(plBy("pipeline_id", PlToOrg(withAuth(h.create)))),
-		"show":     gae_support.With(jobBy("id", JobToPl(PlToOrg(withAuth(h.show))))),
-		"getready": gae_support.With(jobBy("id", JobToPl(PlToOrg(withAuth(h.getReady))))),
+		"index":    h.collection("pipeline_id", h.index),
+		"create":   h.collection("pipeline_id", h.create),
+		"show":     h.member("id", h.show),
+		"getready": h.member("id", h.getReady),
 		// "publish": gae_support.With(jobBy("id", JobToPl(PlToOrg(withAuth(h.PublishTask))))),
 	}
+}
+
+func (h *JobHandler) collection(pipeline_id_name string, action func(c echo.Context) error) (func(c echo.Context) error) {
+	return gae_support.With(plBy(pipeline_id_name, PlToOrg(withAuth(action))))
+}
+
+func (h *JobHandler) member(job_id_name string, action func(c echo.Context) error) (func(c echo.Context) error) {
+	return gae_support.With(jobBy(job_id_name, JobToPl(PlToOrg(withAuth(action)))))
 }
 
 // curl -v -X POST http://localhost:8080/pipelines/3/jobs --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'

@@ -21,18 +21,26 @@ type PipelineHandler struct {
 
 func (h *PipelineHandler) buildActions() {
 	h.Actions = map[string](func(c echo.Context) error){
-		"index":         gae_support.With(orgBy("org_id", withAuth(h.index))),
-		"create":        gae_support.With(orgBy("org_id", withAuth(h.create))),
-		"subscriptions": gae_support.With(orgBy("org_id", withAuth(h.subscriptions))),
-		"show":          gae_support.With(plBy("id", PlToOrg(withAuth(h.show)))),
-		"close":         gae_support.With(plBy("id", PlToOrg(withAuth(h.cancel)))),
-		"cancel":        gae_support.With(plBy("id", PlToOrg(withAuth(h.cancel)))),
-		"destroy":       gae_support.With(plBy("id", PlToOrg(withAuth(h.destroy)))),
-		"refresh":       gae_support.With(plBy("id", PlToOrg(withAuth(h.refresh)))),
+		"index":         h.collection("org_id", h.index),
+		"create":        h.collection("org_id", h.create),
+		"subscriptions": h.collection("org_id", h.subscriptions),
+		"show":          h.member("id", h.show),
+		"close":				 h.member("id", h.cancel),
+		"cancel":				 h.member("id", h.cancel),
+		"destroy":			 h.member("id", h.destroy),
+		"refresh":			 h.member("id", h.refresh),
 		// "refresh_task":  gae_support.With(plBy("id", h.refreshTask)),
 		// "build_task": gae_support.With(plBy("id", PlToOrg(withAuth(h.pipelineTask("build"))))),
 		// "close_task": gae_support.With(plBy("id", PlToOrg(withAuth(h.pipelineTask("close"))))),
 	}
+}
+
+func (h *PipelineHandler) collection(org_id_name string, action func(c echo.Context) error) (func(c echo.Context) error) {
+	return gae_support.With(orgBy(org_id_name, withAuth(action)))
+}
+
+func (h *PipelineHandler) member(pipeline_id_name string, action func(c echo.Context) error) (func(c echo.Context) error) {
+	return gae_support.With(plBy(pipeline_id_name, PlToOrg(withAuth(action))))
 }
 
 // curl -v http://localhost:8080/orgs/2/pipelines
