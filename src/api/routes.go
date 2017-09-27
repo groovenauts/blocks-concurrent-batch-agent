@@ -21,6 +21,7 @@ func SetupRoutes(echo *echo.Echo) map[string]interface{} {
 
 	g = e.Group("/pipelines")
 	g.GET("/:id", h.Actions["show"])
+	g.PUT("/:id/cancel", h.Actions["cancel"])
 	g.PUT("/:id/close", h.Actions["close"])
 	g.POST("/:id/close_task", gae_support.With(plBy("id", PlToOrg(withAuth(h.closeTask)))))
 	g.DELETE("/:id", h.Actions["destroy"])
