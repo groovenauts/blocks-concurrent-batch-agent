@@ -196,7 +196,7 @@ func (h *PipelineHandler) waitBuildingTask(c echo.Context) error {
 		return h.PostPipelineTaskWithETA(c, "wait_building_task", pl, http.StatusAccepted, started.Add(30*time.Second))
 	case models.Opened:
 		if pl.Cancelled {
-			return h.PostPipelineTask(c, "start_closing_task", pl, http.StatusNoContent)
+			return h.PostPipelineTask(c, "close_task", pl, http.StatusNoContent)
 		} else {
 			return h.PostPipelineTask(c, "publish_task", pl, http.StatusCreated)
 		}
@@ -285,7 +285,7 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 
 	if jobs.AllFinished() {
 		if pl.ClosePolicy.Match(jobs) {
-			return h.PostPipelineTask(c, "start_closing_task", pl, http.StatusCreated)
+			return h.PostPipelineTask(c, "close_task", pl, http.StatusCreated)
 		} else {
 			return c.JSON(http.StatusOK, pl)
 		}
@@ -294,8 +294,8 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 	}
 }
 
-// curl -v -X	POST http://localhost:8080/pipelines/1/start_closing_task
-func (h *PipelineHandler) startClosingTask(c echo.Context) error {
+// curl -v -X	POST http://localhost:8080/pipelines/1/close_task
+func (h *PipelineHandler) closeTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
 	closer, err := models.NewCloser(ctx)
@@ -305,6 +305,15 @@ func (h *PipelineHandler) startClosingTask(c echo.Context) error {
 	}
 	err = closer.Process(ctx, pl)
 	if err != nil {
+		switch err.(type) {
+		case *googleapi.Error:
+			e2 := err.(*googleapi.Error)
+			switch e2.Code {
+			case http.StatusNotFound: // googleapi: Error 404: The object 'projects/optical-hangar-158902/global/deployments/pipeline-mjr-89-20170926-223541' is not found., notFound
+				log.Warningf(ctx, "Skip closing because of %v", e2.Message)
+				return c.JSON(http.StatusOK, pl)
+			}
+		}
 		log.Errorf(ctx, "Failed to close pipeline because of %v\n", err)
 		return err
 	}
@@ -336,24 +345,6 @@ func (h *PipelineHandler) waitClosingTask(c echo.Context) error {
 	default:
 		return &models.InvalidStateTransition{Msg: fmt.Sprintf("Unexpected Status: %v for Pipeline: %v", pl.Status, pl)}
 	}
-}
-
-// curl -v -X	POST http://localhost:8080/pipelines/1/close_task
-func (h *PipelineHandler) closeTask(c echo.Context) error {
-	ctx := c.Get("aecontext").(context.Context)
-	pl := c.Get("pipeline").(*models.Pipeline)
-	closer, err := models.NewCloser(ctx)
-	if err != nil {
-		log.Errorf(ctx, "Failed to create new closer because of %v\n", err)
-		return err
-	}
-	err = closer.Process(ctx, pl)
-	if err != nil {
-		log.Errorf(ctx, "Failed to close pipeline because of %v\n", err)
-		return err
-	}
-
-	return h.PostPipelineTask(c, "wait_closing_task", pl, http.StatusCreated)
 }
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/refresh_task
