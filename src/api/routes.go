@@ -46,22 +46,22 @@ func SetupRoutesOfPipelines(e *echo.Echo) *PipelineHandler {
 }
 
 func SetupRoutesOfJobs(e *echo.Echo) *JobHandler {
-	jh := &JobHandler{
+	h := &JobHandler{
 		pipeline_id_name: "pipeline_id",
 		job_id_name:      "id",
 	}
 
-	cActions := jh.buildCollectionActions()
+	cActions := h.buildCollectionActions()
 	g := e.Group("/pipelines/:pipeline_id/jobs")
 	g.GET("", cActions["index"])
 	g.POST("", cActions["create"])
 
-	mActions := jh.buildMemberActions()
+	mActions := h.buildMemberActions()
 	g = e.Group("/jobs")
 	g.GET("/:id", mActions["show"])
 	g.POST("/:id/getready", mActions["getready"])
 	g.POST("/:id/wait_task", mActions["wait_task"])
 	g.POST("/:id/publish_task", mActions["publish_task"])
 
-	return jh
+	return h
 }
