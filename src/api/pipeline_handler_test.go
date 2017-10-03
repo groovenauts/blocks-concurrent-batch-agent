@@ -33,8 +33,8 @@ func TestActions(t *testing.T) {
 	h, ok := handlers["pipelines"].(*PipelineHandler)
 	assert.True(t, ok)
 
-	cActions := h.buildCollectionActions("org_id")
-	mActions := h.buildMemberActions("id")
+	cActions := h.buildCollectionActions()
+	mActions := h.buildMemberActions()
 
 	req, err := inst.NewRequest(echo.GET, "/orgs", nil)
 	assert.NoError(t, err)

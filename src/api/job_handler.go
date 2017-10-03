@@ -14,30 +14,33 @@ import (
 	"google.golang.org/appengine/taskqueue"
 )
 
-type JobHandler struct{}
+type JobHandler struct {
+	pipeline_id_name string
+	job_id_name      string
+}
 
-func (h *JobHandler) buildCollectionActions(key string) map[string](echo.HandlerFunc) {
+func (h *JobHandler) buildCollectionActions() map[string](echo.HandlerFunc) {
 	return map[string](echo.HandlerFunc){
-		"index":  h.collection(key, h.index),
-		"create": h.collection(key, h.create),
+		"index":  h.collection(h.index),
+		"create": h.collection(h.create),
 	}
 }
 
-func (h *JobHandler) buildMemberActions(key string) map[string](echo.HandlerFunc) {
+func (h *JobHandler) buildMemberActions() map[string](echo.HandlerFunc) {
 	return map[string](echo.HandlerFunc){
-		"show":         h.member(key, h.show),
-		"getready":     h.member(key, h.getReady),
-		"wait_task":    h.member(key, h.WaitToPublishTask),
-		"publish_task": h.member(key, h.PublishTask),
+		"show":         h.member(h.show),
+		"getready":     h.member(h.getReady),
+		"wait_task":    h.member(h.WaitToPublishTask),
+		"publish_task": h.member(h.PublishTask),
 	}
 }
 
-func (h *JobHandler) collection(pipeline_id_name string, action echo.HandlerFunc) echo.HandlerFunc {
-	return gae_support.With(plBy(pipeline_id_name, PlToOrg(withAuth(action))))
+func (h *JobHandler) collection(action echo.HandlerFunc) echo.HandlerFunc {
+	return gae_support.With(plBy(h.pipeline_id_name, PlToOrg(withAuth(action))))
 }
 
-func (h *JobHandler) member(job_id_name string, action echo.HandlerFunc) echo.HandlerFunc {
-	return gae_support.With(jobBy(job_id_name, JobToPl(PlToOrg(withAuth(action)))))
+func (h *JobHandler) member(action echo.HandlerFunc) echo.HandlerFunc {
+	return gae_support.With(jobBy(h.job_id_name, JobToPl(PlToOrg(withAuth(action)))))
 }
 
 // curl -v -X POST http://localhost:8080/pipelines/3/jobs --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'

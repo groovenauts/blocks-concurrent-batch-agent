@@ -15,41 +15,44 @@ import (
 	"google.golang.org/appengine/taskqueue"
 )
 
-type PipelineHandler struct{}
+type PipelineHandler struct {
+	org_id_name      string
+	pipeline_id_name string
+}
 
-func (h *PipelineHandler) buildCollectionActions(key string) map[string](echo.HandlerFunc) {
+func (h *PipelineHandler) buildCollectionActions() map[string](echo.HandlerFunc) {
 	return map[string](echo.HandlerFunc){
-		"index":         h.collection(key, h.index),
-		"create":        h.collection(key, h.create),
-		"subscriptions": h.collection(key, h.subscriptions),
+		"index":         h.collection(h.index),
+		"create":        h.collection(h.create),
+		"subscriptions": h.collection(h.subscriptions),
 	}
 }
 
-func (h *PipelineHandler) buildMemberActions(key string) map[string](echo.HandlerFunc) {
+func (h *PipelineHandler) buildMemberActions() map[string](echo.HandlerFunc) {
 	return map[string](echo.HandlerFunc){
 		// Normal steps
-		"build_task":         h.member(key, h.buildTask),
-		"wait_building_task": h.member(key, h.waitBuildingTask),
-		"publish_task":       h.member(key, h.publishTask),
-		"subscribe_task":     h.member(key, h.subscribeTask),
-		"close_task":         h.member(key, h.closeTask),
-		"wait_closing_task":  h.member(key, h.waitClosingTask),
+		"build_task":         h.member(h.buildTask),
+		"wait_building_task": h.member(h.waitBuildingTask),
+		"publish_task":       h.member(h.publishTask),
+		"subscribe_task":     h.member(h.subscribeTask),
+		"close_task":         h.member(h.closeTask),
+		"wait_closing_task":  h.member(h.waitClosingTask),
 		// User actions
-		"show":         h.member(key, h.show),
-		"close":        h.member(key, h.cancel),
-		"cancel":       h.member(key, h.cancel),
-		"destroy":      h.member(key, h.destroy),
-		"refresh":      h.member(key, h.refresh),
-		"refresh_task": h.member(key, h.refreshTask),
+		"show":         h.member(h.show),
+		"close":        h.member(h.cancel),
+		"cancel":       h.member(h.cancel),
+		"destroy":      h.member(h.destroy),
+		"refresh":      h.member(h.refresh),
+		"refresh_task": h.member(h.refreshTask),
 	}
 }
 
-func (h *PipelineHandler) collection(org_id_name string, action echo.HandlerFunc) echo.HandlerFunc {
-	return gae_support.With(orgBy(org_id_name, withAuth(action)))
+func (h *PipelineHandler) collection(action echo.HandlerFunc) echo.HandlerFunc {
+	return gae_support.With(orgBy(h.org_id_name, withAuth(action)))
 }
 
-func (h *PipelineHandler) member(pipeline_id_name string, action echo.HandlerFunc) echo.HandlerFunc {
-	return gae_support.With(plBy(pipeline_id_name, PlToOrg(withAuth(action))))
+func (h *PipelineHandler) member(action echo.HandlerFunc) echo.HandlerFunc {
+	return gae_support.With(plBy(h.pipeline_id_name, PlToOrg(withAuth(action))))
 }
 
 // curl -v http://localhost:8080/orgs/2/pipelines

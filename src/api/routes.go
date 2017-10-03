@@ -15,15 +15,18 @@ func SetupRoutes(echo *echo.Echo) map[string]interface{} {
 }
 
 func SetupRoutesOfPipelines(e *echo.Echo) *PipelineHandler {
-	h := &PipelineHandler{}
+	h := &PipelineHandler{
+		org_id_name:      "org_id",
+		pipeline_id_name: "id",
+	}
 
-	cActions := h.buildCollectionActions("org_id")
+	cActions := h.buildCollectionActions()
 	g := e.Group("/orgs/:org_id/pipelines")
 	g.GET("", cActions["index"])
 	g.POST("", cActions["create"])
 	g.GET("/subscriptions", cActions["subscriptions"])
 
-	mActions := h.buildMemberActions("id")
+	mActions := h.buildMemberActions()
 	g = e.Group("/pipelines")
 	g.GET("/:id", mActions["show"])
 	g.PUT("/:id/cancel", mActions["cancel"])
@@ -43,14 +46,17 @@ func SetupRoutesOfPipelines(e *echo.Echo) *PipelineHandler {
 }
 
 func SetupRoutesOfJobs(e *echo.Echo) *JobHandler {
-	jh := &JobHandler{}
+	jh := &JobHandler{
+		pipeline_id_name: "pipeline_id",
+		job_id_name:      "id",
+	}
 
-	cActions := jh.buildCollectionActions("pipeline_id")
+	cActions := jh.buildCollectionActions()
 	g := e.Group("/pipelines/:pipeline_id/jobs")
 	g.GET("", cActions["index"])
 	g.POST("", cActions["create"])
 
-	mActions := jh.buildMemberActions("id")
+	mActions := jh.buildMemberActions()
 	g = e.Group("/jobs")
 	g.GET("/:id", mActions["show"])
 	g.POST("/:id/getready", mActions["getready"])

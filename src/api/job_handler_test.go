@@ -28,8 +28,8 @@ func TestJobHandlerActions(t *testing.T) {
 
 	h, ok := handlers["jobs"].(*JobHandler)
 	assert.True(t, ok)
-	cActions := h.buildCollectionActions("pipeline_id")
-	mActions := h.buildMemberActions("id")
+	cActions := h.buildCollectionActions()
+	mActions := h.buildMemberActions()
 
 	req, err := inst.NewRequest(echo.GET, "/", nil)
 	assert.NoError(t, err)
