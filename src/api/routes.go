@@ -9,12 +9,12 @@ var e *echo.Echo
 func SetupRoutes(echo *echo.Echo) map[string]interface{} {
 	e = echo // e is the global variable defined aborve.
 	return map[string]interface{}{
-		"pipelines": SetupRoutesOfPipelines(echo),
-		"jobs":      SetupRoutesOfJobs(echo),
+		"pipelines": SetupRoutesOfPipelines(),
+		"jobs":      SetupRoutesOfJobs(),
 	}
 }
 
-func SetupRoutesOfPipelines(e *echo.Echo) *PipelineHandler {
+func SetupRoutesOfPipelines() *PipelineHandler {
 	h := &PipelineHandler{
 		org_id_name:      "org_id",
 		pipeline_id_name: "id",
@@ -43,7 +43,7 @@ func SetupRoutesOfPipelines(e *echo.Echo) *PipelineHandler {
 	return h
 }
 
-func SetupRoutesOfJobs(e *echo.Echo) *JobHandler {
+func SetupRoutesOfJobs() *JobHandler {
 	h := &JobHandler{
 		pipeline_id_name: "pipeline_id",
 		job_id_name:      "id",
