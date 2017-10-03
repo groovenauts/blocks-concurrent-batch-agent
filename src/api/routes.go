@@ -20,25 +20,25 @@ func SetupRoutesOfPipelines(e *echo.Echo) *PipelineHandler {
 		pipeline_id_name: "id",
 	}
 
-	g := e.Group("/orgs/:org_id/pipelines")
-	g.GET("", h.collection(h.index))
-	g.POST("", h.collection(h.create))
-	g.GET("/subscriptions", h.collection(h.subscriptions))
+	g := e.Group("/orgs/:org_id/pipelines", h.collection)
+	g.GET("", h.index)
+	g.POST("", h.create)
+	g.GET("/subscriptions", h.subscriptions)
 
-	g = e.Group("/pipelines")
-	g.GET("/:id", h.member(h.show))
-	g.PUT("/:id/cancel", h.member(h.cancel))
-	g.PUT("/:id/close", h.member(h.cancel))
-	g.POST("/:id/close_task", h.member(h.closeTask))
-	g.DELETE("/:id", h.member(h.destroy))
+	g = e.Group("/pipelines", h.member)
+	g.GET("/:id", h.show)
+	g.PUT("/:id/cancel", h.cancel)
+	g.PUT("/:id/close", h.cancel)
+	g.POST("/:id/close_task", h.closeTask)
+	g.DELETE("/:id", h.destroy)
 
-	g.POST("/:id/build_task", h.member(h.buildTask))
-	g.POST("/:id/wait_building_task", h.member(h.waitBuildingTask))
-	g.POST("/:id/publish_task", h.member(h.publishTask))
-	g.POST("/:id/subscribe_task", h.member(h.subscribeTask))
-	g.POST("/:id/wait_closing_task", h.member(h.waitClosingTask))
-	g.POST("/:id/refresh", h.member(h.refresh))
-	g.POST("/:id/refresh_task", h.member(h.refreshTask))
+	g.POST("/:id/build_task", h.buildTask)
+	g.POST("/:id/wait_building_task", h.waitBuildingTask)
+	g.POST("/:id/publish_task", h.publishTask)
+	g.POST("/:id/subscribe_task", h.subscribeTask)
+	g.POST("/:id/wait_closing_task", h.waitClosingTask)
+	g.POST("/:id/refresh", h.refresh)
+	g.POST("/:id/refresh_task", h.refreshTask)
 
 	return h
 }
@@ -49,15 +49,15 @@ func SetupRoutesOfJobs(e *echo.Echo) *JobHandler {
 		job_id_name:      "id",
 	}
 
-	g := e.Group("/pipelines/:pipeline_id/jobs")
-	g.GET("", h.collection(h.index))
-	g.POST("", h.collection(h.create))
+	g := e.Group("/pipelines/:pipeline_id/jobs", h.collection)
+	g.GET("", h.index)
+	g.POST("", h.create)
 
-	g = e.Group("/jobs")
-	g.GET("/:id", h.member(h.show))
-	g.POST("/:id/getready", h.member(h.getReady))
-	g.POST("/:id/wait_task", h.member(h.WaitToPublishTask))
-	g.POST("/:id/publish_task", h.member(h.PublishTask))
+	g = e.Group("/jobs", h.member)
+	g.GET("/:id", h.show)
+	g.POST("/:id/getready", h.getReady)
+	g.POST("/:id/wait_task", h.WaitToPublishTask)
+	g.POST("/:id/publish_task", h.PublishTask)
 
 	return h
 }
