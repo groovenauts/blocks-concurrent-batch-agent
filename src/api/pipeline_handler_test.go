@@ -32,7 +32,9 @@ func TestActions(t *testing.T) {
 
 	h, ok := handlers["pipelines"].(*PipelineHandler)
 	assert.True(t, ok)
-	h.buildActions()
+
+	cActions := h.buildCollectionActions("org_id")
+	mActions := h.buildMemberActions("id")
 
 	req, err := inst.NewRequest(echo.GET, "/orgs", nil)
 	assert.NoError(t, err)
@@ -54,7 +56,7 @@ func TestActions(t *testing.T) {
 		c.SetParamNames("org_id")
 		c.SetParamValues(org.ID)
 
-		if assert.NoError(t, h.Actions["index"](c)) {
+		if assert.NoError(t, cActions["index"](c)) {
 			assert.Equal(t, http.StatusUnauthorized, rec.Code)
 		}
 	}
@@ -109,7 +111,7 @@ func TestActions(t *testing.T) {
 	c.SetParamNames("org_id")
 	c.SetParamValues(org.ID)
 
-	assert.NoError(t, h.Actions["create"](c))
+	assert.NoError(t, cActions["create"](c))
 	assert.Equal(t, http.StatusCreated, rec.Code)
 
 	s := rec.Body.String()
@@ -133,7 +135,7 @@ func TestActions(t *testing.T) {
 	c.SetParamNames("org_id", "id")
 	c.SetParamValues(org.ID, pl.ID)
 
-	if assert.NoError(t, h.Actions["show"](c)) {
+	if assert.NoError(t, mActions["show"](c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		s := rec.Body.String()
@@ -201,7 +203,7 @@ func TestActions(t *testing.T) {
 			c.SetParamNames("id")
 			c.SetParamValues(pl.ID)
 
-			err := h.Actions["refresh"](c)
+			err := mActions["refresh"](c)
 			if err != nil {
 				return func() { assert.NoError(t, err) }
 			}
@@ -230,7 +232,7 @@ func TestActions(t *testing.T) {
 	c.SetParamNames("org_id")
 	c.SetParamValues(org.ID)
 
-	if assert.NoError(t, h.Actions["index"](c)) {
+	if assert.NoError(t, cActions["index"](c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		s := rec.Body.String()
@@ -260,7 +262,7 @@ func TestActions(t *testing.T) {
 	c.SetParamNames("org_id")
 	c.SetParamValues(org.ID)
 
-	if assert.NoError(t, h.Actions["subscriptions"](c)) {
+	if assert.NoError(t, cActions["subscriptions"](c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		s := rec.Body.String()
@@ -286,7 +288,7 @@ func TestActions(t *testing.T) {
 	c.SetParamNames("org_id", "id")
 	c.SetParamValues(org.ID, pl.ID)
 
-	if assert.NoError(t, h.Actions["destroy"](c)) {
+	if assert.NoError(t, mActions["destroy"](c)) {
 		assert.Equal(t, http.StatusNotAcceptable, rec.Code) // http.StatusUnprocessableEntity
 		s := rec.Body.String()
 		assert.Regexp(t, "(?i)can't destroy", s)
@@ -311,7 +313,7 @@ func TestActions(t *testing.T) {
 	c.SetParamNames("org_id", "id")
 	c.SetParamValues(org.ID, pl.ID)
 
-	if assert.NoError(t, h.Actions["destroy"](c)) {
+	if assert.NoError(t, mActions["destroy"](c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		s := rec.Body.String()
@@ -333,7 +335,7 @@ func TestActions(t *testing.T) {
 	c.SetParamNames("org_id", "id")
 	c.SetParamValues(org.ID, pl.ID)
 
-	if assert.NoError(t, h.Actions["show"](c)) {
+	if assert.NoError(t, mActions["show"](c)) {
 		assert.Equal(t, http.StatusNotFound, rec.Code)
 	}
 }

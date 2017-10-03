@@ -17,26 +17,27 @@ func SetupRoutes(echo *echo.Echo) map[string]interface{} {
 func SetupRoutesOfPipelines(e *echo.Echo) *PipelineHandler {
 	h := &PipelineHandler{}
 
+	cActions := h.buildCollectionActions("org_id")
 	g := e.Group("/orgs/:org_id/pipelines")
-	g.GET("", h.collection("org_id", h.index))
-	g.POST("", h.collection("org_id", h.create))
-	g.GET("/subscriptions", h.collection("org_id", h.subscriptions))
+	g.GET("", cActions["index"])
+	g.POST("", cActions["create"])
+	g.GET("/subscriptions", cActions["subscriptions"])
 
+	mActions := h.buildMemberActions("id")
 	g = e.Group("/pipelines")
-	g.GET("/:id", h.member("id", h.show))
-	g.PUT("/:id/cancel", h.member("id", h.cancel))
-	g.PUT("/:id/close", h.member("id", h.cancel))
-	g.POST("/:id/close_task", h.member("id", h.closeTask))
-	g.DELETE("/:id", h.member("id", h.destroy))
+	g.GET("/:id", mActions["show"])
+	g.PUT("/:id/cancel", mActions["cancel"])
+	g.PUT("/:id/close", mActions["cancel"])
+	g.POST("/:id/close_task", mActions["closeTask"])
+	g.DELETE("/:id", mActions["destroy"])
 
-	g.POST("/:id/build_task", h.member("id", h.buildTask))
-	g.POST("/:id/wait_building_task", h.member("id", h.waitBuildingTask))
-	g.POST("/:id/publish_task", h.member("id", h.publishTask))
-	g.POST("/:id/subscribe_task", h.member("id", h.subscribeTask))
-	g.POST("/:id/wait_closing_task", h.member("id", h.waitClosingTask))
-
-	g.POST("/:id/refresh", h.member("id", h.refresh))
-	g.POST("/:id/refresh_task", h.member("id", h.refreshTask))
+	g.POST("/:id/build_task", mActions["buildTask"])
+	g.POST("/:id/wait_building_task", mActions["waitBuildingTask"])
+	g.POST("/:id/publish_task", mActions["publishTask"])
+	g.POST("/:id/subscribe_task", mActions["subscribeTask"])
+	g.POST("/:id/wait_closing_task", mActions["waitClosingTask"])
+	g.POST("/:id/refresh", mActions["refresh"])
+	g.POST("/:id/refresh_task", mActions["refreshTask"])
 
 	return h
 }
@@ -44,15 +45,17 @@ func SetupRoutesOfPipelines(e *echo.Echo) *PipelineHandler {
 func SetupRoutesOfJobs(e *echo.Echo) *JobHandler {
 	jh := &JobHandler{}
 
+	cActions := jh.buildCollectionActions("pipeline_id")
 	g := e.Group("/pipelines/:pipeline_id/jobs")
-	g.GET("", jh.collection("pipeline_id", jh.index))
-	g.POST("", jh.collection("pipeline_id", jh.create))
+	g.GET("", cActions["index"])
+	g.POST("", cActions["create"])
 
+	mActions := jh.buildMemberActions("id")
 	g = e.Group("/jobs")
-	g.GET("/:id", jh.member("id", jh.show))
-	g.POST("/:id/getready", jh.member("id", jh.getReady))
-	g.POST("/:id/wait_task", jh.member("id", jh.WaitToPublishTask))
-	g.POST("/:id/publish_task", jh.member("id", jh.PublishTask))
+	g.GET("/:id", mActions["show"])
+	g.POST("/:id/getready", mActions["getready"])
+	g.POST("/:id/wait_task", mActions["wait_task"])
+	g.POST("/:id/publish_task", mActions["publish_task"])
 
 	return jh
 }

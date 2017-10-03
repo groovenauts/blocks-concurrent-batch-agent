@@ -28,7 +28,8 @@ func TestJobHandlerActions(t *testing.T) {
 
 	h, ok := handlers["jobs"].(*JobHandler)
 	assert.True(t, ok)
-	actions := h.buildActions()
+	cActions := h.buildCollectionActions("pipeline_id")
+	mActions := h.buildMemberActions("id")
 
 	req, err := inst.NewRequest(echo.GET, "/", nil)
 	assert.NoError(t, err)
@@ -94,7 +95,7 @@ func TestJobHandlerActions(t *testing.T) {
 		c.SetParamNames("pipeline_id")
 		c.SetParamValues(pl1.ID)
 
-		if assert.NoError(t, actions["index"](c)) {
+		if assert.NoError(t, cActions["index"](c)) {
 			assert.Equal(t, http.StatusUnauthorized, rec.Code)
 		}
 	}
@@ -153,7 +154,7 @@ func TestJobHandlerActions(t *testing.T) {
 		c.SetParamNames("pipeline_id")
 		c.SetParamValues(pl1.ID)
 
-		assert.NoError(t, actions["create"](c))
+		assert.NoError(t, cActions["create"](c))
 		assert.Equal(t, http.StatusCreated, rec.Code)
 
 		s := rec.Body.String()
@@ -214,7 +215,7 @@ func TestJobHandlerActions(t *testing.T) {
 			c.SetParamNames("pipeline_id")
 			c.SetParamValues(pl1.ID)
 
-			assert.NoError(t, actions["create"](c))
+			assert.NoError(t, cActions["create"](c))
 			assert.Equal(t, http.StatusBadRequest, rec.Code)
 
 			var res map[string]interface{}
@@ -235,7 +236,7 @@ func TestJobHandlerActions(t *testing.T) {
 		c.SetParamNames("id")
 		c.SetParamValues(job.ID)
 
-		if assert.NoError(t, actions["show"](c)) {
+		if assert.NoError(t, mActions["show"](c)) {
 			assert.Equal(t, http.StatusOK, rec.Code)
 
 			s := rec.Body.String()
@@ -257,7 +258,7 @@ func TestJobHandlerActions(t *testing.T) {
 		c.SetParamNames("id")
 		c.SetParamValues(job.ID)
 
-		assert.NoError(t, actions["getready"](c))
+		assert.NoError(t, mActions["getready"](c))
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		loaded, err := models.GlobalJobAccessor.Find(ctx, job.ID)

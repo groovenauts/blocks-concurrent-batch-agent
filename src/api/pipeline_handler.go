@@ -15,31 +15,40 @@ import (
 	"google.golang.org/appengine/taskqueue"
 )
 
-type PipelineHandler struct {
-	Actions map[string](func(c echo.Context) error)
-}
+type PipelineHandler struct{}
 
-func (h *PipelineHandler) buildActions() {
-	h.Actions = map[string](func(c echo.Context) error){
-		"index":         h.collection("org_id", h.index),
-		"create":        h.collection("org_id", h.create),
-		"subscriptions": h.collection("org_id", h.subscriptions),
-		"show":          h.member("id", h.show),
-		"close":				 h.member("id", h.cancel),
-		"cancel":				 h.member("id", h.cancel),
-		"destroy":			 h.member("id", h.destroy),
-		"refresh":			 h.member("id", h.refresh),
-		// "refresh_task":  gae_support.With(plBy("id", h.refreshTask)),
-		// "build_task": gae_support.With(plBy("id", PlToOrg(withAuth(h.pipelineTask("build"))))),
-		// "close_task": gae_support.With(plBy("id", PlToOrg(withAuth(h.pipelineTask("close"))))),
+func (h *PipelineHandler) buildCollectionActions(key string) map[string](func(c echo.Context) error) {
+	return map[string](func(c echo.Context) error){
+		"index":         h.collection(key, h.index),
+		"create":        h.collection(key, h.create),
+		"subscriptions": h.collection(key, h.subscriptions),
 	}
 }
 
-func (h *PipelineHandler) collection(org_id_name string, action func(c echo.Context) error) (func(c echo.Context) error) {
+func (h *PipelineHandler) buildMemberActions(key string) map[string](func(c echo.Context) error) {
+	return map[string](func(c echo.Context) error){
+		// Normal steps
+		"build_task":         h.member(key, h.buildTask),
+		"wait_building_task": h.member(key, h.waitBuildingTask),
+		"publish_task":       h.member(key, h.publishTask),
+		"subscribe_task":     h.member(key, h.subscribeTask),
+		"close_task":         h.member(key, h.closeTask),
+		"wait_closing_task":  h.member(key, h.waitClosingTask),
+		// User actions
+		"show":         h.member(key, h.show),
+		"close":        h.member(key, h.cancel),
+		"cancel":       h.member(key, h.cancel),
+		"destroy":      h.member(key, h.destroy),
+		"refresh":      h.member(key, h.refresh),
+		"refresh_task": h.member(key, h.refreshTask),
+	}
+}
+
+func (h *PipelineHandler) collection(org_id_name string, action func(c echo.Context) error) func(c echo.Context) error {
 	return gae_support.With(orgBy(org_id_name, withAuth(action)))
 }
 
-func (h *PipelineHandler) member(pipeline_id_name string, action func(c echo.Context) error) (func(c echo.Context) error) {
+func (h *PipelineHandler) member(pipeline_id_name string, action func(c echo.Context) error) func(c echo.Context) error {
 	return gae_support.With(plBy(pipeline_id_name, PlToOrg(withAuth(action))))
 }
 
