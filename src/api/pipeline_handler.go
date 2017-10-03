@@ -20,33 +20,6 @@ type PipelineHandler struct {
 	pipeline_id_name string
 }
 
-func (h *PipelineHandler) buildCollectionActions() map[string](echo.HandlerFunc) {
-	return map[string](echo.HandlerFunc){
-		"index":         h.collection(h.index),
-		"create":        h.collection(h.create),
-		"subscriptions": h.collection(h.subscriptions),
-	}
-}
-
-func (h *PipelineHandler) buildMemberActions() map[string](echo.HandlerFunc) {
-	return map[string](echo.HandlerFunc){
-		// Normal steps
-		"build_task":         h.member(h.buildTask),
-		"wait_building_task": h.member(h.waitBuildingTask),
-		"publish_task":       h.member(h.publishTask),
-		"subscribe_task":     h.member(h.subscribeTask),
-		"close_task":         h.member(h.closeTask),
-		"wait_closing_task":  h.member(h.waitClosingTask),
-		// User actions
-		"show":         h.member(h.show),
-		"close":        h.member(h.cancel),
-		"cancel":       h.member(h.cancel),
-		"destroy":      h.member(h.destroy),
-		"refresh":      h.member(h.refresh),
-		"refresh_task": h.member(h.refreshTask),
-	}
-}
-
 func (h *PipelineHandler) collection(action echo.HandlerFunc) echo.HandlerFunc {
 	return gae_support.With(orgBy(h.org_id_name, withAuth(action)))
 }

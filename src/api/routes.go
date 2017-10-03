@@ -20,27 +20,25 @@ func SetupRoutesOfPipelines(e *echo.Echo) *PipelineHandler {
 		pipeline_id_name: "id",
 	}
 
-	cActions := h.buildCollectionActions()
 	g := e.Group("/orgs/:org_id/pipelines")
-	g.GET("", cActions["index"])
-	g.POST("", cActions["create"])
-	g.GET("/subscriptions", cActions["subscriptions"])
+	g.GET("", h.collection(h.index))
+	g.POST("", h.collection(h.create))
+	g.GET("/subscriptions", h.collection(h.subscriptions))
 
-	mActions := h.buildMemberActions()
 	g = e.Group("/pipelines")
-	g.GET("/:id", mActions["show"])
-	g.PUT("/:id/cancel", mActions["cancel"])
-	g.PUT("/:id/close", mActions["cancel"])
-	g.POST("/:id/close_task", mActions["closeTask"])
-	g.DELETE("/:id", mActions["destroy"])
+	g.GET("/:id", h.member(h.show))
+	g.PUT("/:id/cancel", h.member(h.cancel))
+	g.PUT("/:id/close", h.member(h.cancel))
+	g.POST("/:id/close_task", h.member(h.closeTask))
+	g.DELETE("/:id", h.member(h.destroy))
 
-	g.POST("/:id/build_task", mActions["buildTask"])
-	g.POST("/:id/wait_building_task", mActions["waitBuildingTask"])
-	g.POST("/:id/publish_task", mActions["publishTask"])
-	g.POST("/:id/subscribe_task", mActions["subscribeTask"])
-	g.POST("/:id/wait_closing_task", mActions["waitClosingTask"])
-	g.POST("/:id/refresh", mActions["refresh"])
-	g.POST("/:id/refresh_task", mActions["refreshTask"])
+	g.POST("/:id/build_task", h.member(h.buildTask))
+	g.POST("/:id/wait_building_task", h.member(h.waitBuildingTask))
+	g.POST("/:id/publish_task", h.member(h.publishTask))
+	g.POST("/:id/subscribe_task", h.member(h.subscribeTask))
+	g.POST("/:id/wait_closing_task", h.member(h.waitClosingTask))
+	g.POST("/:id/refresh", h.member(h.refresh))
+	g.POST("/:id/refresh_task", h.member(h.refreshTask))
 
 	return h
 }
@@ -51,17 +49,15 @@ func SetupRoutesOfJobs(e *echo.Echo) *JobHandler {
 		job_id_name:      "id",
 	}
 
-	cActions := h.buildCollectionActions()
 	g := e.Group("/pipelines/:pipeline_id/jobs")
-	g.GET("", cActions["index"])
-	g.POST("", cActions["create"])
+	g.GET("", h.collection(h.index))
+	g.POST("", h.collection(h.create))
 
-	mActions := h.buildMemberActions()
 	g = e.Group("/jobs")
-	g.GET("/:id", mActions["show"])
-	g.POST("/:id/getready", mActions["getready"])
-	g.POST("/:id/wait_task", mActions["wait_task"])
-	g.POST("/:id/publish_task", mActions["publish_task"])
+	g.GET("/:id", h.member(h.show))
+	g.POST("/:id/getready", h.member(h.getReady))
+	g.POST("/:id/wait_task", h.member(h.WaitToPublishTask))
+	g.POST("/:id/publish_task", h.member(h.PublishTask))
 
 	return h
 }

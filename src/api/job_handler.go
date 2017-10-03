@@ -19,22 +19,6 @@ type JobHandler struct {
 	job_id_name      string
 }
 
-func (h *JobHandler) buildCollectionActions() map[string](echo.HandlerFunc) {
-	return map[string](echo.HandlerFunc){
-		"index":  h.collection(h.index),
-		"create": h.collection(h.create),
-	}
-}
-
-func (h *JobHandler) buildMemberActions() map[string](echo.HandlerFunc) {
-	return map[string](echo.HandlerFunc){
-		"show":         h.member(h.show),
-		"getready":     h.member(h.getReady),
-		"wait_task":    h.member(h.WaitToPublishTask),
-		"publish_task": h.member(h.PublishTask),
-	}
-}
-
 func (h *JobHandler) collection(action echo.HandlerFunc) echo.HandlerFunc {
 	return gae_support.With(plBy(h.pipeline_id_name, PlToOrg(withAuth(action))))
 }
