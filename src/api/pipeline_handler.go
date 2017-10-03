@@ -17,16 +17,16 @@ import (
 
 type PipelineHandler struct{}
 
-func (h *PipelineHandler) buildCollectionActions(key string) map[string](func(c echo.Context) error) {
-	return map[string](func(c echo.Context) error){
+func (h *PipelineHandler) buildCollectionActions(key string) map[string](echo.HandlerFunc) {
+	return map[string](echo.HandlerFunc){
 		"index":         h.collection(key, h.index),
 		"create":        h.collection(key, h.create),
 		"subscriptions": h.collection(key, h.subscriptions),
 	}
 }
 
-func (h *PipelineHandler) buildMemberActions(key string) map[string](func(c echo.Context) error) {
-	return map[string](func(c echo.Context) error){
+func (h *PipelineHandler) buildMemberActions(key string) map[string](echo.HandlerFunc) {
+	return map[string](echo.HandlerFunc){
 		// Normal steps
 		"build_task":         h.member(key, h.buildTask),
 		"wait_building_task": h.member(key, h.waitBuildingTask),
@@ -44,11 +44,11 @@ func (h *PipelineHandler) buildMemberActions(key string) map[string](func(c echo
 	}
 }
 
-func (h *PipelineHandler) collection(org_id_name string, action func(c echo.Context) error) func(c echo.Context) error {
+func (h *PipelineHandler) collection(org_id_name string, action echo.HandlerFunc) echo.HandlerFunc {
 	return gae_support.With(orgBy(org_id_name, withAuth(action)))
 }
 
-func (h *PipelineHandler) member(pipeline_id_name string, action func(c echo.Context) error) func(c echo.Context) error {
+func (h *PipelineHandler) member(pipeline_id_name string, action echo.HandlerFunc) echo.HandlerFunc {
 	return gae_support.With(plBy(pipeline_id_name, PlToOrg(withAuth(action))))
 }
 

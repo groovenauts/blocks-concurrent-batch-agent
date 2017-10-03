@@ -16,15 +16,15 @@ import (
 
 type JobHandler struct{}
 
-func (h *JobHandler) buildCollectionActions(key string) map[string](func(c echo.Context) error) {
-	return map[string](func(c echo.Context) error){
+func (h *JobHandler) buildCollectionActions(key string) map[string](echo.HandlerFunc) {
+	return map[string](echo.HandlerFunc){
 		"index":  h.collection(key, h.index),
 		"create": h.collection(key, h.create),
 	}
 }
 
-func (h *JobHandler) buildMemberActions(key string) map[string](func(c echo.Context) error) {
-	return map[string](func(c echo.Context) error){
+func (h *JobHandler) buildMemberActions(key string) map[string](echo.HandlerFunc) {
+	return map[string](echo.HandlerFunc){
 		"show":         h.member(key, h.show),
 		"getready":     h.member(key, h.getReady),
 		"wait_task":    h.member(key, h.WaitToPublishTask),
@@ -32,11 +32,11 @@ func (h *JobHandler) buildMemberActions(key string) map[string](func(c echo.Cont
 	}
 }
 
-func (h *JobHandler) collection(pipeline_id_name string, action func(c echo.Context) error) func(c echo.Context) error {
+func (h *JobHandler) collection(pipeline_id_name string, action echo.HandlerFunc) echo.HandlerFunc {
 	return gae_support.With(plBy(pipeline_id_name, PlToOrg(withAuth(action))))
 }
 
-func (h *JobHandler) member(job_id_name string, action func(c echo.Context) error) func(c echo.Context) error {
+func (h *JobHandler) member(job_id_name string, action echo.HandlerFunc) echo.HandlerFunc {
 	return gae_support.With(jobBy(job_id_name, JobToPl(PlToOrg(withAuth(action)))))
 }
 
