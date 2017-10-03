@@ -7,8 +7,14 @@ import (
 var e *echo.Echo
 
 func SetupRoutes(echo *echo.Echo) map[string]interface{} {
-	e = echo
+	e = echo // e is the global variable defined aborve.
+	return map[string]interface{}{
+		"pipelines": SetupRoutesOfPipelines(echo),
+		"jobs":      SetupRoutesOfJobs(echo),
+	}
+}
 
+func SetupRoutesOfPipelines(e *echo.Echo) *PipelineHandler {
 	h := &PipelineHandler{}
 
 	g := e.Group("/orgs/:org_id/pipelines")
@@ -32,20 +38,21 @@ func SetupRoutes(echo *echo.Echo) map[string]interface{} {
 	g.POST("/:id/refresh", h.member("id", h.refresh))
 	g.POST("/:id/refresh_task", h.member("id", h.refreshTask))
 
+	return h
+}
+
+func SetupRoutesOfJobs(e *echo.Echo) *JobHandler {
 	jh := &JobHandler{}
 
-	g = e.Group("/pipelines/:pipeline_id/jobs")
+	g := e.Group("/pipelines/:pipeline_id/jobs")
 	g.GET("", jh.collection("pipeline_id", jh.index))
 	g.POST("", jh.collection("pipeline_id", jh.create))
 
 	g = e.Group("/jobs")
-	g.GET("/:id", jh.member("id", h.show))
+	g.GET("/:id", jh.member("id", jh.show))
 	g.POST("/:id/getready", jh.member("id", jh.getReady))
 	g.POST("/:id/wait_task", jh.member("id", jh.WaitToPublishTask))
 	g.POST("/:id/publish_task", jh.member("id", jh.PublishTask))
 
-	return map[string]interface{}{
-		"pipelines": h,
-		"jobs":      jh,
-	}
+	return jh
 }
