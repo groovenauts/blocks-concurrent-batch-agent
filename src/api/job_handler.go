@@ -14,16 +14,17 @@ import (
 	"google.golang.org/appengine/taskqueue"
 )
 
-type JobHandler struct{}
+type JobHandler struct {
+	pipeline_id_name string
+	job_id_name      string
+}
 
-func (h *JobHandler) buildActions() map[string](func(c echo.Context) error) {
-	return map[string](func(c echo.Context) error){
-		"index":    gae_support.With(plBy("pipeline_id", PlToOrg(withAuth(h.index)))),
-		"create":   gae_support.With(plBy("pipeline_id", PlToOrg(withAuth(h.create)))),
-		"show":     gae_support.With(jobBy("id", JobToPl(PlToOrg(withAuth(h.show))))),
-		"getready": gae_support.With(jobBy("id", JobToPl(PlToOrg(withAuth(h.getReady))))),
-		// "publish": gae_support.With(jobBy("id", JobToPl(PlToOrg(withAuth(h.PublishTask))))),
-	}
+func (h *JobHandler) collection(action echo.HandlerFunc) echo.HandlerFunc {
+	return gae_support.With(plBy(h.pipeline_id_name, PlToOrg(withAuth(action))))
+}
+
+func (h *JobHandler) member(action echo.HandlerFunc) echo.HandlerFunc {
+	return gae_support.With(jobBy(h.job_id_name, JobToPl(PlToOrg(withAuth(action)))))
 }
 
 // curl -v -X POST http://localhost:8080/pipelines/3/jobs --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
