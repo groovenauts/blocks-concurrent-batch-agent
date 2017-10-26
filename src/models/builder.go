@@ -129,7 +129,6 @@ func (b *Builder) GenerateDeploymentResources(pl *Pipeline) *Resources {
 }
 
 func (b *Builder) buildItResource(pl *Pipeline) Resource {
-
 	return Resource{
 		Type: "compute.v1.instanceTemplate",
 		Name: pl.Name + "-it",
@@ -164,8 +163,24 @@ func (b *Builder) buildItProperties(pl *Pipeline) map[string]interface{} {
 		},
 	}
 
+	if (pl.GpuAccelerators.Count > 0) {
+		scheduling["onHostMaintenance"] = "terminate"
+		it_properties["guestAccelerators"] = []interface{}{
+			b.buildGuestAccelerators(pl),
+		}
+	}
+
 	return it_properties
 }
+
+func (b *Builder) buildGuestAccelerators(pl *Pipeline) map[string]interface{} {
+	ga := pl.GpuAccelerators
+	return map[string]interface{}{
+		"acceleratorCount": float64(ga.Count),
+		"acceleratorType": "https://www.googleapis.com/compute/beta/projects/" + pl.ProjectID + "/zones/" + pl.Zone +"/acceleratorTypes/" + ga.Type,
+	}
+}
+
 
 func (b *Builder) buildIgmResource(pl *Pipeline) Resource {
 	return Resource{

@@ -75,6 +75,11 @@ type (
 		SourceImage string `json:"source_image" validate:"required"`
 	}
 
+	Accelerators struct {
+		Count int		`json:"count"`
+		Type string `json:"type"`
+	}
+
 	ActionLog struct {
 		Time time.Time
 		Name string
@@ -88,6 +93,7 @@ type (
 		Zone                   string            `json:"zone"           validate:"required"`
 		BootDisk               PipelineVmDisk    `json:"boot_disk"`
 		MachineType            string            `json:"machine_type"   validate:"required"`
+		GpuAccelerators        Accelerators      `json:"gpu_accelerators,omitempty"`
 		Preemptible            bool              `json:"preemptible,omitempty"`
 		StackdriverAgent       bool              `json:"stackdriver_agent,omitempty"`
 		TargetSize             int               `json:"target_size"    validate:"required"`
