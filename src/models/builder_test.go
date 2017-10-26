@@ -73,13 +73,9 @@ func TestGenerateContent(t *testing.T) {
 	assert.Equal(t, true, props2["preemptible"])
 }
 
-func TestBuildDeployment(t *testing.T) {
+func setupForBuildDeployment() (*Builder, *Pipeline) {
 	b := &Builder{}
-	expected_data, err := ioutil.ReadFile(`builder_test/pipeline01.json`)
-	expected := Resources{}
-	err = json.Unmarshal([]byte(expected_data), &expected)
-	assert.NoError(t, err)
-	pl := Pipeline{
+	pl := &Pipeline{
 		Name:      "pipeline01",
 		ProjectID: "dummy-proj-999",
 		Zone:      "us-central1-f",
@@ -92,7 +88,16 @@ func TestBuildDeployment(t *testing.T) {
 		ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
 		Command:       "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
 	}
-	d, err := b.BuildDeployment(&pl)
+	return b, pl
+}
+
+func TestBuildDeployment(t *testing.T) {
+	b, pl := setupForBuildDeployment()
+	expected_data, err := ioutil.ReadFile(`builder_test/pipeline01.json`)
+	expected := Resources{}
+	err = json.Unmarshal([]byte(expected_data), &expected)
+	assert.NoError(t, err)
+	d, err := b.BuildDeployment(pl)
 	assert.NoError(t, err)
 	// https://github.com/google/google-api-go-client/blob/master/deploymentmanager/v2/deploymentmanager-gen.go#L348-L434
 	assert.Empty(t, d.Description)
