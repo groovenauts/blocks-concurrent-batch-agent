@@ -125,30 +125,32 @@ func (b *Builder) GenerateDeploymentResources(pl *Pipeline) *Resources {
 		"preemptible": pl.Preemptible,
 	}
 
+	it_properties := map[string]interface{}{
+		"machineType": pl.MachineType,
+		"metadata": map[string]interface{}{
+			"items": []interface{}{
+				b.buildStartupScriptMetadataItem(pl),
+			},
+		},
+		"networkInterfaces": []interface{}{
+			b.buildDefaultNetwork(pl),
+		},
+		"scheduling": scheduling,
+		"serviceAccounts": []interface{}{
+			b.buildScopes(),
+		},
+		"disks": []interface{}{
+			b.buildBootDisk(&pl.BootDisk),
+		},
+	}
+
 	t = append(t,
 		Resource{
 			Type: "compute.v1.instanceTemplate",
 			Name: pl.Name + "-it",
 			Properties: map[string]interface{}{
 				"zone": pl.Zone,
-				"properties": map[string]interface{}{
-					"machineType": pl.MachineType,
-					"metadata": map[string]interface{}{
-						"items": []interface{}{
-							b.buildStartupScriptMetadataItem(pl),
-						},
-					},
-					"networkInterfaces": []interface{}{
-						b.buildDefaultNetwork(pl),
-					},
-					"scheduling": scheduling,
-					"serviceAccounts": []interface{}{
-						b.buildScopes(),
-					},
-					"disks": []interface{}{
-						b.buildBootDisk(&pl.BootDisk),
-					},
-				},
+				"properties": it_properties,
 			},
 		},
 		Resource{
