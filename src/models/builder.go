@@ -153,18 +153,22 @@ func (b *Builder) GenerateDeploymentResources(pl *Pipeline) *Resources {
 				"properties": it_properties,
 			},
 		},
-		Resource{
-			Type: "compute.v1.instanceGroupManagers",
-			Name: pl.Name + "-igm",
-			Properties: map[string]interface{}{
-				"baseInstanceName": pl.Name + "-instance",
-				"instanceTemplate": "$(ref." + pl.Name + "-it.selfLink)",
-				"targetSize":       pl.TargetSize,
-				"zone":             pl.Zone,
-			},
-		},
+		b.buildIgmResource(pl),
 	)
 	return &Resources{Resources: t}
+}
+
+func (b *Builder) buildIgmResource(pl *Pipeline) Resource {
+	return Resource{
+		Type: "compute.v1.instanceGroupManagers",
+		Name: pl.Name + "-igm",
+		Properties: map[string]interface{}{
+			"baseInstanceName": pl.Name + "-instance",
+			"instanceTemplate": "$(ref." + pl.Name + "-it.selfLink)",
+			"targetSize":       pl.TargetSize,
+			"zone":             pl.Zone,
+		},
+	}
 }
 
 func (b *Builder) buildStartupScriptMetadataItem(pl *Pipeline) map[string]interface{} {
