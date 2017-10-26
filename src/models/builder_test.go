@@ -131,6 +131,21 @@ func TestBuildDeployment(t *testing.T) {
 	assert.Equal(t, &expected, &actual)
 }
 
+func TestBuildDeploymentWithGPU(t *testing.T) {
+	b, pl := setupForBuildDeployment()
+	pl.GpuAccelerators = Accelerators{
+		Count: 2,
+		Type: "nvidia-tesla-p100",
+	}
+	expected_data, err := ioutil.ReadFile(`builder_test/pipeline02.json`)
+	expected := Resources{}
+	err = json.Unmarshal([]byte(expected_data), &expected)
+	assert.NoError(t, err)
+	actual := b.buildItProperties(pl)
+	assert.NoError(t, err)
+	assert.Equal(t, expected.Resources[4].Properties["properties"], actual)
+}
+
 func setupTestBuildStartupScript() (*Builder, *Pipeline) {
 	b := Builder{}
 	pl := Pipeline{
