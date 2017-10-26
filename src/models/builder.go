@@ -129,6 +129,18 @@ func (b *Builder) GenerateDeploymentResources(pl *Pipeline) *Resources {
 }
 
 func (b *Builder) buildItResource(pl *Pipeline) Resource {
+
+	return Resource{
+		Type: "compute.v1.instanceTemplate",
+		Name: pl.Name + "-it",
+		Properties: map[string]interface{}{
+			"zone": pl.Zone,
+			"properties": b.buildItProperties(pl),
+		},
+	}
+}
+
+func (b *Builder) buildItProperties(pl *Pipeline) map[string]interface{} {
 	scheduling := map[string]interface{}{
 		"preemptible": pl.Preemptible,
 	}
@@ -152,14 +164,7 @@ func (b *Builder) buildItResource(pl *Pipeline) Resource {
 		},
 	}
 
-	return Resource{
-		Type: "compute.v1.instanceTemplate",
-		Name: pl.Name + "-it",
-		Properties: map[string]interface{}{
-			"zone": pl.Zone,
-			"properties": it_properties,
-		},
-	}
+	return it_properties
 }
 
 func (b *Builder) buildIgmResource(pl *Pipeline) Resource {
