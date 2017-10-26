@@ -121,6 +121,10 @@ func (b *Builder) GenerateDeploymentResources(pl *Pipeline) *Resources {
 		)
 	}
 
+	scheduling := map[string]interface{}{
+		"preemptible": pl.Preemptible,
+	}
+
 	t = append(t,
 		Resource{
 			Type: "compute.v1.instanceTemplate",
@@ -137,9 +141,7 @@ func (b *Builder) GenerateDeploymentResources(pl *Pipeline) *Resources {
 					"networkInterfaces": []interface{}{
 						b.buildDefaultNetwork(pl),
 					},
-					"scheduling": map[string]interface{}{
-						"preemptible": pl.Preemptible,
-					},
+					"scheduling": scheduling,
 					"serviceAccounts": []interface{}{
 						b.buildScopes(),
 					},
