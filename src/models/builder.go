@@ -257,6 +257,14 @@ const StackdriverAgentCommand = "docker run -d -e MONITOR_HOST=true -v /proc:/mn
 
 func (b *Builder) buildStartupScript(pl *Pipeline) string {
 	r := StartupScriptHeader + "\n"
+
+	if pl.GpuAccelerators.Count > 0 {
+		r = r +
+			b.buildInstallCuda(pl) +
+			b.buildInstallDocker(pl) +
+		  b.buildInstallNvidiaDocker(pl)
+	}
+
 	usingGcr :=
 		CosCloudProjectRegexp.MatchString(pl.BootDisk.SourceImage) &&
 			GcrContainerImageRegexp.MatchString(pl.ContainerName)
@@ -291,4 +299,41 @@ func (b *Builder) buildStartupScript(pl *Pipeline) string {
 		" " + pl.Command +
 		" ; done"
 	return r
+}
+
+func (b *Builder) buildInstallCuda(pl *Pipeline) string {
+	return `
+if ! dpkg-query -W cuda; then
+   curl -O http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_8.0.61-1_amd64.deb
+   dpkg -i ./cuda-repo-ubuntu1604_8.0.61-1_amd64.deb
+   apt-get update
+   apt-get -y install cuda
+fi
+nvidia-smi
+`
+}
+
+func (b *Builder) buildInstallDocker(pl *Pipeline) string {
+	return `
+apt-get update
+apt-get -y install \
+     apt-transport-https \
+     ca-certificates \
+     curl \
+     software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+apt-key fingerprint 0EBFCD88
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+apt-get update
+apt-get -y install docker-ce
+docker run hello-world
+`
+}
+
+func (b *Builder) buildInstallNvidiaDocker(pl *Pipeline) string {
+	return `
+wget -P /tmp https://github.com/NVIDIA/nvidia-docker/releases/download/v1.0.1/nvidia-docker_1.0.1-1_amd64.deb
+dpkg -i /tmp/nvidia-docker*.deb && rm /tmp/nvidia-docker*.deb
+nvidia-docker run --rm nvidia/cuda nvidia-smi
+`
 }
