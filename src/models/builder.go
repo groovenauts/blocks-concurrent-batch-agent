@@ -272,8 +272,6 @@ func (b *Builder) buildStartupScript(pl *Pipeline) string {
 			GcrContainerImageRegexp.MatchString(pl.ContainerName)
 	if usingGcr {
 		docker = docker + " --config /home/chronos/.docker"
-	}
-	if usingGcr {
 		host := GcrImageHostRegexp.FindString(pl.ContainerName)
 		r = r +
 			"METADATA=http://metadata.google.internal/computeMetadata/v1\n" +
