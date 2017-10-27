@@ -258,17 +258,18 @@ const StackdriverAgentCommand = "docker run -d -e MONITOR_HOST=true -v /proc:/mn
 func (b *Builder) buildStartupScript(pl *Pipeline) string {
 	r := StartupScriptHeader + "\n"
 
+	docker := "docker"
 	if pl.GpuAccelerators.Count > 0 {
 		r = r +
 			b.buildInstallCuda(pl) +
 			b.buildInstallDocker(pl) +
 		  b.buildInstallNvidiaDocker(pl)
+		docker = "nvidia-docker"
 	}
 
 	usingGcr :=
 		CosCloudProjectRegexp.MatchString(pl.BootDisk.SourceImage) &&
 			GcrContainerImageRegexp.MatchString(pl.ContainerName)
-	docker := "docker"
 	if usingGcr {
 		docker = docker + " --config /home/chronos/.docker"
 	}
