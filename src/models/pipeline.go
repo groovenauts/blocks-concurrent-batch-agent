@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/hex"
 	"fmt"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -117,8 +118,28 @@ type (
 	}
 )
 
+const (
+	Ubuntu16ImageFamily = "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts"
+)
+
+var ImagesRecommendedForGpu = []string{
+	Ubuntu16ImageFamily,
+}
+var Ubuntu1604Regexp = regexp.MustCompile(`ubuntu.*1604`)
+
+func PipelineStructLevelValidation(sl validator.StructLevel) {
+	pl := sl.Current().Interface().(Pipeline)
+	bd := pl.BootDisk
+	if pl.GpuAccelerators.Count > 0 {
+		if ! Ubuntu1604Regexp.MatchString(bd.SourceImage) {
+			sl.ReportError(bd.SourceImage, "SourceImage", "", "source_image", "Invalid Image for GPU")
+		}
+	}
+}
+
 func (m *Pipeline) Validate() error {
 	validator := validator.New()
+	validator.RegisterStructValidation(PipelineStructLevelValidation, Pipeline{})
 	err := validator.Struct(m)
 	return err
 }

@@ -8,6 +8,8 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
+	"gopkg.in/go-playground/validator.v9"
+
 	"github.com/stretchr/testify/assert"
 	// "google.golang.org/api/deploymentmanager/v2"
 	"google.golang.org/api/googleapi"
@@ -74,8 +76,14 @@ func TestGenerateContent(t *testing.T) {
 }
 
 func setupForBuildDeployment() (*Builder, *Pipeline) {
+	org1 := &Organization{
+		Name:        "org01",
+		TokenAmount: 10,
+	}
+
 	b := &Builder{}
 	pl := &Pipeline{
+		Organization: org1,
 		Name:      "pipeline01",
 		ProjectID: "dummy-proj-999",
 		Zone:      "us-central1-f",
@@ -137,6 +145,19 @@ func TestBuildDeploymentWithGPU(t *testing.T) {
 		Count: 2,
 		Type:  "nvidia-tesla-p100",
 	}
+	err := pl.Validate()
+	assert.Error(t, err)
+	errors := err.(validator.ValidationErrors)
+	fmt.Printf("pl.BootDisk.SourceImage: %v\n", pl.BootDisk.SourceImage)
+	fmt.Printf("errors: %v\n", errors)
+	assert.Equal(t, len(errors), 1)
+
+	// bd := &pl.BootDisk
+	// bd.SourceImage = Ubuntu16ImageFamily
+	pl.BootDisk.SourceImage = Ubuntu16ImageFamily
+	err = pl.Validate()
+	assert.NoError(t, err)
+
 	expected_data, err := ioutil.ReadFile(`builder_test/pipeline02.json`)
 	expected := Resources{}
 	err = json.Unmarshal([]byte(expected_data), &expected)

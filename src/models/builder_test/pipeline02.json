@@ -57,7 +57,7 @@
               "boot": true,
               "autoDelete": true,
               "initializeParams": {
-                "sourceImage": "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0"
+                "sourceImage": "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts"
               }
             }
           ],
