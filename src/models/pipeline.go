@@ -76,8 +76,8 @@ type (
 	}
 
 	Accelerators struct {
-		Count int		`json:"count"`
-		Type string `json:"type"`
+		Count int    `json:"count"`
+		Type  string `json:"type"`
 	}
 
 	ActionLog struct {

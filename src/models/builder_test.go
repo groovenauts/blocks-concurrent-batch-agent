@@ -135,7 +135,7 @@ func TestBuildDeploymentWithGPU(t *testing.T) {
 	b, pl := setupForBuildDeployment()
 	pl.GpuAccelerators = Accelerators{
 		Count: 2,
-		Type: "nvidia-tesla-p100",
+		Type:  "nvidia-tesla-p100",
 	}
 	expected_data, err := ioutil.ReadFile(`builder_test/pipeline02.json`)
 	expected := Resources{}
