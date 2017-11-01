@@ -177,7 +177,7 @@ func (b *Builder) buildGuestAccelerators(pl *Pipeline) map[string]interface{} {
 	ga := pl.GpuAccelerators
 	return map[string]interface{}{
 		"acceleratorCount": float64(ga.Count),
-		"acceleratorType":  "https://www.googleapis.com/compute/beta/projects/" + pl.ProjectID + "/zones/" + pl.Zone + "/acceleratorTypes/" + ga.Type,
+		"acceleratorType":  ga.Type,
 	}
 }
 

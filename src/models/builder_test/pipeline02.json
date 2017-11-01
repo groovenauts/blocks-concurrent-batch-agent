@@ -65,7 +65,7 @@
           [
             {
               "acceleratorCount": 2,
-              "acceleratorType": "https://www.googleapis.com/compute/beta/projects/dummy-proj-999/zones/us-central1-f/acceleratorTypes/nvidia-tesla-p100"
+              "acceleratorType": "nvidia-tesla-p100"
             }
           ],
 	        "scheduling": {
