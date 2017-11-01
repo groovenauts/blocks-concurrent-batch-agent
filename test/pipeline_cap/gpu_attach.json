@@ -1,0 +1,18 @@
+{
+  "name":"akm-pipeline04",
+  "project_id":"scenic-doodad-617",
+  "zone":"asia-east1-b",
+  "boot_disk": {
+    "source_image":"https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts"
+  },
+  "gpu_accelerators": {
+    "count": 1,
+    "type": "nvidia-tesla-k80"
+  },
+  "machine_type":"n1-standard-1",
+  "target_size":1,
+  "container_size":1,
+  "container_name":"nvidia/cuda",
+  "command":"nvidia-smi",
+  "token_consumption": 1
+}
