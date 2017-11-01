@@ -164,7 +164,7 @@ func (b *Builder) buildItProperties(pl *Pipeline) map[string]interface{} {
 	}
 
 	if pl.GpuAccelerators.Count > 0 {
-		scheduling["onHostMaintenance"] = "terminate"
+		scheduling["onHostMaintenance"] = "TERMINATE"
 		it_properties["guestAccelerators"] = []interface{}{
 			b.buildGuestAccelerators(pl),
 		}
@@ -263,7 +263,7 @@ func (b *Builder) buildStartupScript(pl *Pipeline) string {
 		r = r +
 			b.buildInstallCuda(pl) +
 			b.buildInstallDocker(pl) +
-		  b.buildInstallNvidiaDocker(pl)
+			b.buildInstallNvidiaDocker(pl)
 		docker = "nvidia-docker"
 	}
 
