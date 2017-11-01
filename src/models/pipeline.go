@@ -131,7 +131,7 @@ func PipelineStructLevelValidation(sl validator.StructLevel) {
 	pl := sl.Current().Interface().(Pipeline)
 	bd := pl.BootDisk
 	if pl.GpuAccelerators.Count > 0 {
-		if ! Ubuntu1604Regexp.MatchString(bd.SourceImage) {
+		if !Ubuntu1604Regexp.MatchString(bd.SourceImage) {
 			sl.ReportError(bd.SourceImage, "SourceImage", "", "source_image", "Invalid Image for GPU")
 		}
 	}
