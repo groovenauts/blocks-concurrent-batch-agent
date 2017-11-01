@@ -39,7 +39,7 @@ $ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' 
 Then `pipeline1` starts working but `pipeline2` and `pipeline3` don't start working.
 
 ```bash
-$ pubsub-devsub --project scenic-doodad-617 --subscription akm-pipeline01-progress-subscription
+$ pubsub-devsub --project dummy-project-999 --subscription akm-pipeline01-progress-subscription
 ```
 
 After `pipeline1` jobs finish, close and delete `pipeline1`.
@@ -58,7 +58,7 @@ $ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' 
 And check if pipeline2 is starting and `pipeline3` isn't starting.
 
 ```bash
-$ pubsub-devsub --project scenic-doodad-617 --subscription akm-pipeline02-progress-subscription
+$ pubsub-devsub --project dummy-project-999 --subscription akm-pipeline02-progress-subscription
 ```
 
 
@@ -86,7 +86,7 @@ $ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' 
 And check if pipeline3 is starting.
 
 ```bash
-$ pubsub-devsub --project scenic-doodad-617 --subscription akm-pipeline03-progress-subscription
+$ pubsub-devsub --project dummy-project-999 --subscription akm-pipeline03-progress-subscription
 ```
 
 And delete pipeline2.
