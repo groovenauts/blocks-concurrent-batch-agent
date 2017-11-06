@@ -8,6 +8,8 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
+	"gopkg.in/go-playground/validator.v9"
+
 	"github.com/stretchr/testify/assert"
 	// "google.golang.org/api/deploymentmanager/v2"
 	"google.golang.org/api/googleapi"
@@ -73,16 +75,18 @@ func TestGenerateContent(t *testing.T) {
 	assert.Equal(t, true, props2["preemptible"])
 }
 
-func TestBuildDeployment(t *testing.T) {
+func setupForBuildDeployment() (*Builder, *Pipeline) {
+	org1 := &Organization{
+		Name:        "org01",
+		TokenAmount: 10,
+	}
+
 	b := &Builder{}
-	expected_data, err := ioutil.ReadFile(`builder_test/pipeline01.json`)
-	expected := Resources{}
-	err = json.Unmarshal([]byte(expected_data), &expected)
-	assert.NoError(t, err)
-	pl := Pipeline{
-		Name:      "pipeline01",
-		ProjectID: "dummy-proj-999",
-		Zone:      "us-central1-f",
+	pl := &Pipeline{
+		Organization: org1,
+		Name:         "pipeline01",
+		ProjectID:    "dummy-proj-999",
+		Zone:         "us-central1-f",
 		BootDisk: PipelineVmDisk{
 			SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
 		},
@@ -92,7 +96,16 @@ func TestBuildDeployment(t *testing.T) {
 		ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
 		Command:       "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
 	}
-	d, err := b.BuildDeployment(&pl)
+	return b, pl
+}
+
+func TestBuildDeployment(t *testing.T) {
+	b, pl := setupForBuildDeployment()
+	expected_data, err := ioutil.ReadFile(`builder_test/pipeline01.json`)
+	expected := Resources{}
+	err = json.Unmarshal([]byte(expected_data), &expected)
+	assert.NoError(t, err)
+	d, err := b.BuildDeployment(pl)
 	assert.NoError(t, err)
 	// https://github.com/google/google-api-go-client/blob/master/deploymentmanager/v2/deploymentmanager-gen.go#L348-L434
 	assert.Empty(t, d.Description)
@@ -124,6 +137,34 @@ func TestBuildDeployment(t *testing.T) {
 	err = json.Unmarshal([]byte(c.Content), &actual)
 	assert.NoError(t, err)
 	assert.Equal(t, &expected, &actual)
+}
+
+func TestBuildDeploymentWithGPU(t *testing.T) {
+	b, pl := setupForBuildDeployment()
+	pl.GpuAccelerators = Accelerators{
+		Count: 2,
+		Type:  "nvidia-tesla-p100",
+	}
+	err := pl.Validate()
+	assert.Error(t, err)
+	errors := err.(validator.ValidationErrors)
+	fmt.Printf("pl.BootDisk.SourceImage: %v\n", pl.BootDisk.SourceImage)
+	fmt.Printf("errors: %v\n", errors)
+	assert.Equal(t, len(errors), 1)
+
+	// bd := &pl.BootDisk
+	// bd.SourceImage = Ubuntu16ImageFamily
+	pl.BootDisk.SourceImage = Ubuntu16ImageFamily
+	err = pl.Validate()
+	assert.NoError(t, err)
+
+	expected_data, err := ioutil.ReadFile(`builder_test/pipeline02.json`)
+	expected := Resources{}
+	err = json.Unmarshal([]byte(expected_data), &expected)
+	assert.NoError(t, err)
+	actual := b.buildItProperties(pl)
+	assert.NoError(t, err)
+	assert.Equal(t, expected.Resources[4].Properties["properties"], actual)
 }
 
 func setupTestBuildStartupScript() (*Builder, *Pipeline) {

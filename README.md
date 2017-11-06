@@ -169,3 +169,50 @@ $ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' 
 $ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X DELETE http://$AEHOST/pipelines/$ID
 ```
 
+## Message
+
+### pipeline.json
+
+| Name                    | Type     | Required | Description   |
+|-------------------------|----------|:--------:|---------------|
+| boot_disk               | object   | true     | Boot disk for VM  |
+| boot_disk.disk_size_gb  | int      | false    | Boot disk size in GB|
+| boot_disk.disk_type     | string   | false    | Boot disk type: "pd-standard", "pd-ssd" |
+| boot_disk.source_image  | string   | true     | Boot disk source image URL |
+| close_policy            | int      | false    | Close policy at the end of jobs: 0: CloseAnyway, 1: CloseOnAllSuccess, 2: CloseNever |
+| command                 | string   | false    | Command given to container |
+| container_size          | int      | true     | The number of containers on each VM |
+| container_name          | string   | true     | Container name to pull |
+| dependency              | object   | false    | Dependency to jobs |
+| dependency.condition    | int      | false    | Job's Condition to start the pipeline: 0:OnSuccess, 1:OnFailure, 2: OnFinish |
+| dependency.job_ids      | []string | true     | Job IDs which the pipeline waits to finish |
+| gpu_accelerators        | object   | false    | GPU accelerator settings |
+| gpu_accelerators.Count  | int      | true     | The number of GPU accelerators to use |
+| gpu_accelerators.Type   | string   | true     | GPU accelerator type name (not URL). Run `gcloud compute accelerator-types list` |
+| machine_type            | string   | true     | VM Machine type: Run `gcloud compute machine-types list` |
+| name                    | string   | true     | Name of the pipeline |
+| preemptible             | bool     | false    | If true, use preemptible VMs |
+| project_id              | string   | true     | GCP Project ID to run |
+| stackdriver_agent       | bool     | false    | If true, use stackdriver agent |
+| target_size             | int      | true     | The number of VMs |
+| token_consumption       | int      | false    | The number of Organization tokens to consume |
+| zone                    | string   | true     | GCP zone to run |
+
+### job.json
+
+| Name                    | Type              | Required | Description   |
+|-------------------------|-------------------|:--------:|---------------|
+| id_by_client            | string            | true     | The ID which client app generate for the job |
+| message                 | map               | false    | The message to publish to pipeline-job-topic |
+| message.attributes      | map[string]string | false    | The attributes of the message |
+| message.data            | string            | false    | The data of the message |
+
+#### Max size
+
+The max size of key of `message.attributes` is 256 bytes.
+The max size of value of `message.attributes` is 1,024 bytes.
+
+#### use-data-as-attributes
+
+If the data for `message.attributes` has the key or value which is more than each max size,
+You can pass the data to `message.data` in JSON format by setting an attribute `use-data-as-attributes` `"true"`.

@@ -122,45 +122,76 @@ func (b *Builder) GenerateDeploymentResources(pl *Pipeline) *Resources {
 	}
 
 	t = append(t,
-		Resource{
-			Type: "compute.v1.instanceTemplate",
-			Name: pl.Name + "-it",
-			Properties: map[string]interface{}{
-				"zone": pl.Zone,
-				"properties": map[string]interface{}{
-					"machineType": pl.MachineType,
-					"metadata": map[string]interface{}{
-						"items": []interface{}{
-							b.buildStartupScriptMetadataItem(pl),
-						},
-					},
-					"networkInterfaces": []interface{}{
-						b.buildDefaultNetwork(pl),
-					},
-					"scheduling": map[string]interface{}{
-						"preemptible": pl.Preemptible,
-					},
-					"serviceAccounts": []interface{}{
-						b.buildScopes(),
-					},
-					"disks": []interface{}{
-						b.buildBootDisk(&pl.BootDisk),
-					},
-				},
-			},
-		},
-		Resource{
-			Type: "compute.v1.instanceGroupManagers",
-			Name: pl.Name + "-igm",
-			Properties: map[string]interface{}{
-				"baseInstanceName": pl.Name + "-instance",
-				"instanceTemplate": "$(ref." + pl.Name + "-it.selfLink)",
-				"targetSize":       pl.TargetSize,
-				"zone":             pl.Zone,
-			},
-		},
+		b.buildItResource(pl),
+		b.buildIgmResource(pl),
 	)
 	return &Resources{Resources: t}
+}
+
+func (b *Builder) buildItResource(pl *Pipeline) Resource {
+	return Resource{
+		Type: "compute.v1.instanceTemplate",
+		Name: pl.Name + "-it",
+		Properties: map[string]interface{}{
+			"zone":       pl.Zone,
+			"properties": b.buildItProperties(pl),
+		},
+	}
+}
+
+func (b *Builder) buildItProperties(pl *Pipeline) map[string]interface{} {
+	scheduling := map[string]interface{}{
+		"preemptible": pl.Preemptible,
+	}
+
+	it_properties := map[string]interface{}{
+		"machineType": pl.MachineType,
+		"metadata": map[string]interface{}{
+			"items": []interface{}{
+				b.buildStartupScriptMetadataItem(pl),
+			},
+		},
+		"networkInterfaces": []interface{}{
+			b.buildDefaultNetwork(pl),
+		},
+		"scheduling": scheduling,
+		"serviceAccounts": []interface{}{
+			b.buildScopes(),
+		},
+		"disks": []interface{}{
+			b.buildBootDisk(&pl.BootDisk),
+		},
+	}
+
+	if pl.GpuAccelerators.Count > 0 {
+		scheduling["onHostMaintenance"] = "TERMINATE"
+		it_properties["guestAccelerators"] = []interface{}{
+			b.buildGuestAccelerators(pl),
+		}
+	}
+
+	return it_properties
+}
+
+func (b *Builder) buildGuestAccelerators(pl *Pipeline) map[string]interface{} {
+	ga := pl.GpuAccelerators
+	return map[string]interface{}{
+		"acceleratorCount": float64(ga.Count),
+		"acceleratorType":  ga.Type,
+	}
+}
+
+func (b *Builder) buildIgmResource(pl *Pipeline) Resource {
+	return Resource{
+		Type: "compute.v1.instanceGroupManagers",
+		Name: pl.Name + "-igm",
+		Properties: map[string]interface{}{
+			"baseInstanceName": pl.Name + "-instance",
+			"instanceTemplate": "$(ref." + pl.Name + "-it.selfLink)",
+			"targetSize":       pl.TargetSize,
+			"zone":             pl.Zone,
+		},
+	}
 }
 
 func (b *Builder) buildStartupScriptMetadataItem(pl *Pipeline) map[string]interface{} {
@@ -226,14 +257,21 @@ const StackdriverAgentCommand = "docker run -d -e MONITOR_HOST=true -v /proc:/mn
 
 func (b *Builder) buildStartupScript(pl *Pipeline) string {
 	r := StartupScriptHeader + "\n"
+
+	docker := "docker"
+	if pl.GpuAccelerators.Count > 0 {
+		r = r +
+			b.buildInstallCuda(pl) +
+			b.buildInstallDocker(pl) +
+			b.buildInstallNvidiaDocker(pl)
+		docker = "nvidia-docker"
+	}
+
 	usingGcr :=
 		CosCloudProjectRegexp.MatchString(pl.BootDisk.SourceImage) &&
 			GcrContainerImageRegexp.MatchString(pl.ContainerName)
-	docker := "docker"
 	if usingGcr {
 		docker = docker + " --config /home/chronos/.docker"
-	}
-	if usingGcr {
 		host := GcrImageHostRegexp.FindString(pl.ContainerName)
 		r = r +
 			"METADATA=http://metadata.google.internal/computeMetadata/v1\n" +
@@ -260,4 +298,41 @@ func (b *Builder) buildStartupScript(pl *Pipeline) string {
 		" " + pl.Command +
 		" ; done"
 	return r
+}
+
+func (b *Builder) buildInstallCuda(pl *Pipeline) string {
+	return `
+if ! dpkg-query -W cuda; then
+   curl -O http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_8.0.61-1_amd64.deb
+   dpkg -i ./cuda-repo-ubuntu1604_8.0.61-1_amd64.deb
+   apt-get update
+   apt-get -y install cuda
+fi
+nvidia-smi
+`
+}
+
+func (b *Builder) buildInstallDocker(pl *Pipeline) string {
+	return `
+apt-get update
+apt-get -y install \
+     apt-transport-https \
+     ca-certificates \
+     curl \
+     software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+apt-key fingerprint 0EBFCD88
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+apt-get update
+apt-get -y install docker-ce
+docker run hello-world
+`
+}
+
+func (b *Builder) buildInstallNvidiaDocker(pl *Pipeline) string {
+	return `
+wget -P /tmp https://github.com/NVIDIA/nvidia-docker/releases/download/v1.0.1/nvidia-docker_1.0.1-1_amd64.deb
+dpkg -i /tmp/nvidia-docker*.deb && rm /tmp/nvidia-docker*.deb
+nvidia-docker run --rm nvidia/cuda nvidia-smi
+`
 }
