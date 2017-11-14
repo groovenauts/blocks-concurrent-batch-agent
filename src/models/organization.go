@@ -85,3 +85,19 @@ func (m *Organization) AuthAccessor() *AuthAccessor {
 func (m *Organization) PipelineAccessor() *PipelineAccessor {
 	return &PipelineAccessor{Parent: m}
 }
+
+func (m *Organization) GetBackToken(ctx context.Context, pl Pipeline, handler func() error) error {
+	newTokenAmount := m.TokenAmount + pl.TokenConsumption
+	if handler != nil {
+		err := handler()
+		if err != nil {
+			return err
+		}
+	}
+	m.TokenAmount = newTokenAmount
+	err = m.Update(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
+}
