@@ -86,18 +86,43 @@ func (m *Organization) PipelineAccessor() *PipelineAccessor {
 	return &PipelineAccessor{Parent: m}
 }
 
-func (m *Organization) GetBackToken(ctx context.Context, pl Pipeline, handler func() error) error {
-	newTokenAmount := m.TokenAmount + pl.TokenConsumption
+func (m *Organization) GetBackToken(ctx context.Context, pl *Pipeline, handler func() error) error {
+	m.TokenAmount = m.TokenAmount + pl.TokenConsumption
 	if handler != nil {
 		err := handler()
 		if err != nil {
 			return err
 		}
 	}
-	m.TokenAmount = newTokenAmount
-	err = m.Update(ctx)
+	err := m.Update(ctx)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func (m *Organization) StartWaitingPipelines(ctx context.Context, handler func(*Pipeline) error) error {
+	waitings, err := m.PipelineAccessor().GetWaitings(ctx)
+	if err != nil {
+		return err
+	}
+
+	for _, waiting := range waitings {
+		if m.TokenAmount < waiting.TokenConsumption {
+			return nil
+		}
+		m.TokenAmount = m.TokenAmount - waiting.TokenConsumption
+		waiting.Status = Reserved
+		err := waiting.Update(ctx)
+		if err != nil {
+			return err
+		}
+		if handler != nil {
+			err := handler(waiting)
+			if err != nil {
+				return err
+			}
+		}
 	}
 	return nil
 }
