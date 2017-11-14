@@ -390,19 +390,9 @@ func (m *Pipeline) CompleteClosing(ctx context.Context, pipelineProcesser func(*
 	m.AddActionLog(ctx, "close-finished")
 	m.Update(ctx)
 	return datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-		accessor := m.JobAccessor()
-		jobs, err := accessor.All(ctx)
+		err := m.CancelLivingJobs(ctx)
 		if err != nil {
 			return err
-		}
-		for _, job := range jobs {
-			if job.Status.Living() {
-				job.Status = Cancelled
-				err = job.Update(ctx)
-				if err != nil {
-					return err
-				}
-			}
 		}
 
 		org, err := GlobalOrganizationAccessor.Find(ctx, m.Organization.ID)
@@ -416,6 +406,24 @@ func (m *Pipeline) CompleteClosing(ctx context.Context, pipelineProcesser func(*
 
 		return m.StateTransition(ctx, []Status{Closing}, Closed)
 	}, GetTransactionOptions(ctx))
+}
+
+func (m *Pipeline) CancelLivingJobs(ctx context.Context) error {
+	accessor := m.JobAccessor()
+	jobs, err := accessor.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, job := range jobs {
+		if job.Status.Living() {
+			job.Status = Cancelled
+			err = job.Update(ctx)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func (m *Pipeline) Cancel(ctx context.Context) error {
