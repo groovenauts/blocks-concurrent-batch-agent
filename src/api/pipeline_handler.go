@@ -400,11 +400,15 @@ func (h *PipelineHandler) PostPipelineTaskWith(c echo.Context, action string, pl
 	return nil
 }
 
-func (h *PipelineHandler) PostPipelineTaskWithETA(c echo.Context, action string, pl *models.Pipeline, eta time.Time) error {
-	err := h.PostPipelineTaskWith(c, action, pl, url.Values{}, func(t *taskqueue.Task) error {
+func (h *PipelineHandler) SetETAFunc(eta time.Time) func(t *taskqueue.Task) error {
+	return func(t *taskqueue.Task) error {
 		t.ETA = eta
 		return nil
-	})
+	}
+}
+
+func (h *PipelineHandler) PostPipelineTaskWithETA(c echo.Context, action string, pl *models.Pipeline, eta time.Time) error {
+	err := h.PostPipelineTaskWith(c, action, pl, url.Values{}, h.SetETAFunc(eta))
 	if err != nil {
 		return err
 	}
