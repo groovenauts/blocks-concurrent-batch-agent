@@ -583,3 +583,17 @@ func (m *Pipeline) AddActionLog(ctx context.Context, name string) {
 		Name: name,
 	})
 }
+
+func (m *Pipeline) HasNewTaskSince(ctx context.Context, t time.Time) (bool, error) {
+	accessor := m.JobAccessor()
+	q, err := accessor.Query()
+	if err != nil {
+		return false, err
+	}
+	q = q.Filter("CreatedAt >", t)
+	c, err := q.Count(ctx)
+	if err != nil {
+		return false, err
+	}
+	return (c > 0), nil
+}
