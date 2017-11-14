@@ -186,7 +186,7 @@ func (h *PipelineHandler) waitBuildingTask(c echo.Context) error {
 
 	switch pl.Status {
 	case models.Deploying:
-		return h.PostPipelineTaskWithETA(c, "wait_building_task", pl, http.StatusAccepted, started.Add(30*time.Second))
+		return h.PostPipelineTaskWithETAReturnJSON(c, "wait_building_task", pl, http.StatusAccepted, started.Add(30*time.Second))
 	case models.Opened:
 		if pl.Cancelled {
 			return h.PostPipelineTask(c, "close_task", pl, http.StatusNoContent)
@@ -332,7 +332,7 @@ func (h *PipelineHandler) waitClosingTask(c echo.Context) error {
 
 	switch pl.Status {
 	case models.Closing:
-		return h.PostPipelineTaskWithETA(c, "wait_closing_task", pl, http.StatusAccepted, started.Add(30*time.Second))
+		return h.PostPipelineTaskWithETAReturnJSON(c, "wait_closing_task", pl, http.StatusAccepted, started.Add(30*time.Second))
 	case models.Closed:
 		return c.JSON(http.StatusOK, pl)
 	default:
@@ -374,10 +374,10 @@ func (h *PipelineHandler) PostPipelineTaskWith(c echo.Context, action string, pl
 }
 
 func (h *PipelineHandler) PostPipelineTask(c echo.Context, action string, pl *models.Pipeline, status int) error {
-	return h.PostPipelineTaskWithETA(c, action, pl, status, time.Now())
+	return h.PostPipelineTaskWithETAReturnJSON(c, action, pl, status, time.Now())
 }
 
-func (h *PipelineHandler) PostPipelineTaskWithETA(c echo.Context, action string, pl *models.Pipeline, status int, eta time.Time) error {
+func (h *PipelineHandler) PostPipelineTaskWithETAReturnJSON(c echo.Context, action string, pl *models.Pipeline, status int, eta time.Time) error {
 	err := h.PostPipelineTaskWith(c, action, pl, func(t *taskqueue.Task) error {
 		t.ETA = eta
 		return nil
