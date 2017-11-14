@@ -411,28 +411,7 @@ func (m *Pipeline) CompleteClosing(ctx context.Context, pipelineProcesser func(*
 		}
 
 		org.GetBackToken(ctx, m, func() error {
-			waitings, err := org.PipelineAccessor().GetWaitings(ctx)
-			if err != nil {
-				return err
-			}
-
-			for _, waiting := range waitings {
-				if newTokenAmount < waiting.TokenConsumption {
-					break
-				}
-				newTokenAmount = newTokenAmount - waiting.TokenConsumption
-				waiting.Status = Reserved
-				err := waiting.Update(ctx)
-				if err != nil {
-					return err
-				}
-				if pipelineProcesser != nil {
-					err := pipelineProcesser(waiting)
-					if err != nil {
-						return err
-					}
-				}
-			}
+			return org.StartWaitingPipelines(ctx, pipelineProcesser)
 		})
 
 		return m.StateTransition(ctx, []Status{Closing}, Closed)
