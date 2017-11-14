@@ -28,23 +28,29 @@ const (
 	Building
 	Deploying
 	Opened
+	HibernationStarting
+	HibernationError
+	Hibernating
 	Closing
 	ClosingError
 	Closed
 )
 
 var StatusStrings = map[Status]string{
-	Uninitialized: "uninitialized",
-	Broken:        "broken",
-	Pending:       "pending",  // Go Waiting when all of the dependencies are satisfied
-	Waiting:       "waiting",  // Go Reserved when the pipeline has enough tokens for this TokenConsumption
-	Reserved:      "reserved", // Go Building when the pipeline is being built
-	Building:      "building",
-	Deploying:     "deploying",
-	Opened:        "opened",
-	Closing:       "closing",
-	ClosingError:  "closing_error",
-	Closed:        "closed",
+	Uninitialized:       "uninitialized",
+	Broken:              "broken",
+	Pending:             "pending",  // Go Waiting when all of the dependencies are satisfied
+	Waiting:             "waiting",  // Go Reserved when the pipeline has enough tokens for this TokenConsumption
+	Reserved:            "reserved", // Go Building when the pipeline is being built
+	Building:            "building",
+	Deploying:           "deploying",
+	Opened:              "opened",
+	HibernationStarting: "hibernation_starting",
+	HibernationError:    "hibernation_error",
+	Hibernating:         "hibernating",
+	Closing:             "closing",
+	ClosingError:        "closing_error",
+	Closed:              "closed",
 }
 
 func (st Status) String() string {
