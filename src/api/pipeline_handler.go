@@ -298,7 +298,16 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 	if jobs.AllFinished() {
 		if pl.ClosePolicy.Match(jobs) {
 			return h.ReturnJsonWith(c, pl, http.StatusCreated, func() error {
-				return h.PostPipelineTask(c, "close_task", pl)
+				if pl.HibernationDelay == 0 {
+					return h.PostPipelineTask(c, "close_task", pl)
+				} else {
+					now := time.Now()
+					eta := now.Add(time.Duration(pl.HibernationDelay) * time.Second)
+					params := url.Values{
+						"since": []string{now.Format(time.RFC3339)},
+					}
+					return h.PostPipelineTaskWith(c, "check_hibernation_task", pl, params, h.SetETAFunc(eta))
+				}
 			})
 		} else {
 			return c.JSON(http.StatusOK, pl)
@@ -306,6 +315,30 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 	} else {
 		return h.ReturnJsonWith(c, pl, http.StatusAccepted, func() error {
 			return h.PostPipelineTaskWithETA(c, "subscribe_task", pl, started.Add(30*time.Second))
+		})
+	}
+}
+
+// curl -v -X	POST http://localhost:8080/pipelines/1/check_hibernation_task
+func (h *PipelineHandler) checkHibernationTask(c echo.Context) error {
+	ctx := c.Get("aecontext").(context.Context)
+	pl := c.Get("pipeline").(*models.Pipeline)
+	t, err := time.Parse(time.RFC3339, c.Param("since"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": err.Error(),
+		})
+	}
+	newTask, err := pl.HasNewTaskSince(ctx, t)
+	if err != nil {
+		log.Errorf(ctx, "Failed to check new tasks because of %v\n", err)
+		return err
+	}
+	if newTask {
+		return c.JSON(http.StatusOK, pl)
+	} else {
+		return h.ReturnJsonWith(c, pl, http.StatusCreated, func() error {
+			return h.PostPipelineTask(c, "hibernate_task", pl)
 		})
 	}
 }
