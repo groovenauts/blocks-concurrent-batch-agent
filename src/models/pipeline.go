@@ -121,7 +121,7 @@ type (
 		Dependency             Dependency        `json:"dependency,omitempty"`
 		ClosePolicy            ClosePolicy       `json:"close_policy,omitempty"`
 		HibernationDelay       int               `json:"hibernation_delay,omitempty"` // seconds
-		HibernationStartedAt   time.Time         `json:"hibernation_started_at,omitempty`
+		HibernationStartedAt   time.Time         `json:"hibernation_started_at,omitempty"`
 		CreatedAt              time.Time         `json:"created_at"`
 		UpdatedAt              time.Time         `json:"updated_at"`
 		ActionLogs             []ActionLog       `json:"action_logs"`
