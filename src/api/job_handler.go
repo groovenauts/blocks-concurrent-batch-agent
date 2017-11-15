@@ -30,14 +30,13 @@ func (h *JobHandler) member(action echo.HandlerFunc) echo.HandlerFunc {
 // curl -v -X POST http://localhost:8080/pipelines/3/jobs --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
 func (h *JobHandler) create(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
-	req := c.Request()
+	pl := c.Get("pipeline").(*models.Pipeline)
 	job := &models.Job{}
 	if err := c.Bind(job); err != nil {
 		log.Errorf(ctx, "err: %v\n", err)
-		log.Errorf(ctx, "req: %v\n", req)
+		log.Errorf(ctx, "req: %v\n", c.Request())
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 	}
-	pl := c.Get("pipeline").(*models.Pipeline)
 	job.Pipeline = pl
 	job.InitStatus(c.QueryParam("ready") == "true")
 	err := job.CreateAndPublishIfPossible(ctx)
