@@ -189,6 +189,7 @@ $ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' 
 | gpu_accelerators        | object   | false    | GPU accelerator settings |
 | gpu_accelerators.Count  | int      | true     | The number of GPU accelerators to use |
 | gpu_accelerators.Type   | string   | true     | GPU accelerator type name (not URL). Run `gcloud compute accelerator-types list` |
+| hibernation_delay       | int      | false    | The number of second to start hibernation after all of the jobs finished |
 | machine_type            | string   | true     | VM Machine type: Run `gcloud compute machine-types list` |
 | name                    | string   | true     | Name of the pipeline |
 | preemptible             | bool     | false    | If true, use preemptible VMs |
