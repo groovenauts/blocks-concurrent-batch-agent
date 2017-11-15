@@ -68,7 +68,7 @@ func (h *PipelineHandler) PostPipelineTaskIfPossible(c echo.Context, pl *models.
 		if pl.Dryrun {
 			log.Debugf(ctx, "[DRYRUN] POST buildTask for %v\n", pl)
 		} else {
-			err := h.PostPipelineTaskWith(c, "build_task", pl, url.Values{}, nil)
+			err := PostPipelineTaskWith(c, "build_task", pl, url.Values{}, nil)
 			if err != nil {
 				return err
 			}
@@ -109,8 +109,8 @@ func (h *PipelineHandler) cancel(c echo.Context) error {
 		// Wait until deploying is finished
 		return c.JSON(http.StatusAccepted, pl)
 	case models.Opened:
-		return h.ReturnJsonWith(c, pl, http.StatusCreated, func() error {
-			return h.PostPipelineTask(c, "close_task", pl)
+		return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
+			return PostPipelineTask(c, "close_task", pl)
 		})
 	case models.Closing, models.ClosingError, models.Closed:
 		// Do nothing because it's already closed or being closed
@@ -141,8 +141,8 @@ func (h *PipelineHandler) destroy(c echo.Context) error {
 // curl -v -X POST http://localhost:8080/pipelines/:id/refresh
 func (h *PipelineHandler) refresh(c echo.Context) error {
 	pl := c.Get("pipeline").(*models.Pipeline)
-	return h.ReturnJsonWith(c, pl, http.StatusCreated, func() error {
-		return h.PostPipelineTask(c, "refresh_task", pl)
+	return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
+		return PostPipelineTask(c, "refresh_task", pl)
 	})
 }
 
@@ -154,8 +154,8 @@ func (h *PipelineHandler) publishTask(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return h.ReturnJsonWith(c, pl, http.StatusCreated, func() error {
-		return h.PostPipelineTask(c, "subscribe_task", pl)
+	return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
+		return PostPipelineTask(c, "subscribe_task", pl)
 	})
 }
 
@@ -165,7 +165,7 @@ func (h *PipelineHandler) refreshTask(c echo.Context) error {
 	pl := c.Get("pipeline").(*models.Pipeline)
 	refresher := &models.Refresher{}
 	err := refresher.Process(ctx, pl, pl.RefreshHandler(ctx, func(pl *models.Pipeline) error {
-		return h.PostPipelineTaskWith(c, "build_task", pl, url.Values{}, nil)
+		return PostPipelineTaskWith(c, "build_task", pl, url.Values{}, nil)
 	}))
 	if err != nil {
 		log.Errorf(ctx, "Failed to refresh pipeline %v because of %v\n", pl, err)

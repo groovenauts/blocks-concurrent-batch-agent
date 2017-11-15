@@ -36,8 +36,8 @@ func (h *PipelineHandler) checkHibernationTask(c echo.Context) error {
 			log.Errorf(ctx, "Failed to StartHibernation because of %v\n", err)
 			return err
 		}
-		return h.ReturnJsonWith(c, pl, http.StatusCreated, func() error {
-			return h.PostPipelineTask(c, "hibernate_task", pl)
+		return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
+			return PostPipelineTask(c, "hibernate_task", pl)
 		})
 	}
 }
@@ -66,8 +66,8 @@ func (h *PipelineHandler) hibernateTask(c echo.Context) error {
 		return err
 	}
 
-	return h.ReturnJsonWith(c, pl, http.StatusCreated, func() error {
-		return h.PostPipelineTask(c, "wait_hibernation_task", pl)
+	return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
+		return PostPipelineTask(c, "wait_hibernation_task", pl)
 	})
 }
 
@@ -87,8 +87,8 @@ func (h *PipelineHandler) waitHibernationTask(c echo.Context) error {
 
 	switch pl.Status {
 	case models.HibernationStarting:
-		return h.ReturnJsonWith(c, pl, http.StatusAccepted, func() error {
-			return h.PostPipelineTaskWithETA(c, "wait_hibernation_task", pl, started.Add(30*time.Second))
+		return ReturnJsonWith(c, pl, http.StatusAccepted, func() error {
+			return PostPipelineTaskWithETA(c, "wait_hibernation_task", pl, started.Add(30*time.Second))
 		})
 	case models.Hibernating:
 		newTask, err := pl.HasNewTaskSince(ctx, pl.HibernationStartedAt)
@@ -102,8 +102,8 @@ func (h *PipelineHandler) waitHibernationTask(c echo.Context) error {
 				log.Errorf(ctx, "Failed to BackToReady because of %v\n", err)
 				return err
 			}
-			return h.ReturnJsonWith(c, pl, http.StatusCreated, func() error {
-				return h.PostPipelineTask(c, "build_task", pl)
+			return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
+				return PostPipelineTask(c, "build_task", pl)
 			})
 		} else {
 			return c.JSON(http.StatusOK, pl)
