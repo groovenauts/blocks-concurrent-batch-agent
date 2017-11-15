@@ -329,26 +329,6 @@ func (m *Pipeline) RefreshHandler(ctx context.Context, pipelineProcesser func(*P
 	}
 }
 
-func (m *Pipeline) DeployingHandler(ctx context.Context) func(*[]DeploymentError) error {
-	return func(errors *[]DeploymentError) error {
-		if errors != nil {
-			return m.FailDeploying(ctx, errors)
-		} else {
-			return m.CompleteDeploying(ctx)
-		}
-	}
-}
-
-func (m *Pipeline) ClosingHandler(ctx context.Context, pipelineProcesser func(*Pipeline) error) func(*[]DeploymentError) error {
-	return func(errors *[]DeploymentError) error {
-		if errors != nil {
-			return m.FailClosing(ctx, errors)
-		} else {
-			return m.CompleteClosing(ctx, pipelineProcesser)
-		}
-	}
-}
-
 func (m *Pipeline) StateTransition(ctx context.Context, froms []Status, to Status) error {
 	allowed := false
 	for _, from := range froms {
@@ -384,6 +364,16 @@ func (m *Pipeline) FailDeploying(ctx context.Context, errors *[]DeploymentError)
 func (m *Pipeline) CompleteDeploying(ctx context.Context) error {
 	m.AddActionLog(ctx, "build-finished")
 	return m.StateTransition(ctx, []Status{Deploying}, Opened)
+}
+
+func (m *Pipeline) DeployingHandler(ctx context.Context) func(*[]DeploymentError) error {
+	return func(errors *[]DeploymentError) error {
+		if errors != nil {
+			return m.FailDeploying(ctx, errors)
+		} else {
+			return m.CompleteDeploying(ctx)
+		}
+	}
 }
 
 func (m *Pipeline) StartHibernation(ctx context.Context, operationName string) error {
@@ -440,6 +430,16 @@ func (m *Pipeline) CompleteClosing(ctx context.Context, pipelineProcesser func(*
 
 		return m.StateTransition(ctx, []Status{Closing}, Closed)
 	}, GetTransactionOptions(ctx))
+}
+
+func (m *Pipeline) ClosingHandler(ctx context.Context, pipelineProcesser func(*Pipeline) error) func(*[]DeploymentError) error {
+	return func(errors *[]DeploymentError) error {
+		if errors != nil {
+			return m.FailClosing(ctx, errors)
+		} else {
+			return m.CompleteClosing(ctx, pipelineProcesser)
+		}
+	}
 }
 
 func (m *Pipeline) CancelLivingJobs(ctx context.Context) error {
