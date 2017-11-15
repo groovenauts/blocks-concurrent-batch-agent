@@ -388,7 +388,7 @@ func (m *Pipeline) FailHibernation(ctx context.Context, errors *[]DeploymentErro
 	return m.StateTransition(ctx, []Status{HibernationStarting}, HibernationError)
 }
 
-func (m *Pipeline) CompleteHibernation(ctx context.Context, pipelineProcesser func(*Pipeline) error) error {
+func (m *Pipeline) CompleteHibernation(ctx context.Context) error {
 	m.AddActionLog(ctx, "hibernation-finished")
 	m.Update(ctx)
 	err := m.CancelLivingJobs(ctx)
@@ -396,6 +396,16 @@ func (m *Pipeline) CompleteHibernation(ctx context.Context, pipelineProcesser fu
 		return err
 	}
 	return m.StateTransition(ctx, []Status{HibernationStarting}, Hibernating)
+}
+
+func (m *Pipeline) HibernationHandler(ctx context.Context) func(*[]DeploymentError) error {
+	return func(errors *[]DeploymentError) error {
+		if errors != nil {
+			return m.FailHibernation(ctx, errors)
+		} else {
+			return m.CompleteHibernation(ctx)
+		}
+	}
 }
 
 func (m *Pipeline) StartClosing(ctx context.Context, operationName string) error {
