@@ -31,6 +31,11 @@ func (h *PipelineHandler) checkHibernationTask(c echo.Context) error {
 	if newTask {
 		return c.JSON(http.StatusOK, pl)
 	} else {
+		err := pl.StartHibernation(ctx)
+		if err != nil {
+			log.Errorf(ctx, "Failed to StartHibernation because of %v\n", err)
+			return err
+		}
 		return h.ReturnJsonWith(c, pl, http.StatusCreated, func() error {
 			return h.PostPipelineTask(c, "hibernate_task", pl)
 		})
@@ -41,7 +46,7 @@ func (h *PipelineHandler) checkHibernationTask(c echo.Context) error {
 func (h *PipelineHandler) hibernateTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
-	closer, err := models.NewCloser(ctx, pl.StartHibernation)
+	closer, err := models.NewCloser(ctx, pl.ProcessHibernation)
 	if err != nil {
 		log.Errorf(ctx, "Failed to create new closer because of %v\n", err)
 		return err
