@@ -164,7 +164,7 @@ func (h *PipelineHandler) refreshTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
 	refresher := &models.Refresher{}
-	err := refresher.Process(ctx, pl, pl.RefreshHandlerWith(ctx, func(pl *models.Pipeline) error {
+	err := refresher.Process(ctx, pl, pl.RefreshHandler(ctx, func(pl *models.Pipeline) error {
 		return h.PostPipelineTaskWith(c, "build_task", pl, url.Values{}, nil)
 	}))
 	if err != nil {

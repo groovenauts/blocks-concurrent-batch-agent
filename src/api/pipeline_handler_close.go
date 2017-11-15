@@ -48,7 +48,7 @@ func (h *PipelineHandler) waitClosingTask(c echo.Context) error {
 	started := time.Now()
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
-	handler := pl.RefreshHandlerWith(ctx, func(pl *models.Pipeline) error {
+	handler := pl.ClosingHandler(ctx, func(pl *models.Pipeline) error {
 		return h.PostPipelineTaskWith(c, "build_task", pl, url.Values{}, nil)
 	})
 

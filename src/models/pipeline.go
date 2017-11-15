@@ -309,27 +309,35 @@ func (m *Pipeline) Update(ctx context.Context) error {
 	return nil
 }
 
-func (m *Pipeline) RefreshHandler(ctx context.Context) func(*[]DeploymentError) error {
-	return m.RefreshHandlerWith(ctx, nil)
+func (m *Pipeline) RefreshHandler(ctx context.Context, pipelineProcesser func(*Pipeline) error) func(*[]DeploymentError) error {
+	switch m.Status {
+	case Deploying:
+		return m.DeployingHandler(ctx)
+	case Closing:
+		return m.ClosingHandler(ctx, pipelineProcesser)
+	default:
+		return func(*[]DeploymentError) error {
+			return &InvalidOperation{Msg: fmt.Sprintf("Invalid Status %v to handle refreshing Pipline %q\n", m.Status, m.ID)}
+		}
+	}
 }
 
-func (m *Pipeline) RefreshHandlerWith(ctx context.Context, pipelineProcesser func(*Pipeline) error) func(*[]DeploymentError) error {
+func (m *Pipeline) DeployingHandler(ctx context.Context) func(*[]DeploymentError) error {
 	return func(errors *[]DeploymentError) error {
-		switch m.Status {
-		case Deploying:
-			if errors != nil {
-				return m.FailDeploying(ctx, errors)
-			} else {
-				return m.CompleteDeploying(ctx)
-			}
-		case Closing:
-			if errors != nil {
-				return m.FailClosing(ctx, errors)
-			} else {
-				return m.CompleteClosing(ctx, pipelineProcesser)
-			}
-		default:
-			return &InvalidOperation{Msg: fmt.Sprintf("Invalid Status %v to handle refreshing Pipline %q\n", m.Status, m.ID)}
+		if errors != nil {
+			return m.FailDeploying(ctx, errors)
+		} else {
+			return m.CompleteDeploying(ctx)
+		}
+	}
+}
+
+func (m *Pipeline) ClosingHandler(ctx context.Context, pipelineProcesser func(*Pipeline) error) func(*[]DeploymentError) error {
+	return func(errors *[]DeploymentError) error {
+		if errors != nil {
+			return m.FailClosing(ctx, errors)
+		} else {
+			return m.CompleteClosing(ctx, pipelineProcesser)
 		}
 	}
 }

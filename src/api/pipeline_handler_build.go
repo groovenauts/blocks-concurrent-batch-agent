@@ -49,7 +49,7 @@ func (h *PipelineHandler) waitBuildingTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
 
-	handler := pl.RefreshHandler(ctx)
+	handler := pl.DeployingHandler(ctx)
 	refresher := &models.Refresher{}
 	err := refresher.Process(ctx, pl, handler)
 	if err != nil {
