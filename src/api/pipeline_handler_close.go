@@ -38,8 +38,8 @@ func (h *PipelineHandler) closeTask(c echo.Context) error {
 		return err
 	}
 
-	return h.ReturnJsonWith(c, pl, http.StatusCreated, func() error {
-		return h.PostPipelineTask(c, "wait_closing_task", pl)
+	return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
+		return PostPipelineTask(c, "wait_closing_task", pl)
 	})
 }
 
@@ -49,7 +49,7 @@ func (h *PipelineHandler) waitClosingTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
 	handler := pl.ClosingHandler(ctx, func(pl *models.Pipeline) error {
-		return h.PostPipelineTaskWith(c, "build_task", pl, url.Values{}, nil)
+		return PostPipelineTaskWith(c, "build_task", pl, url.Values{}, nil)
 	})
 
 	refresher := &models.Refresher{}
@@ -61,8 +61,8 @@ func (h *PipelineHandler) waitClosingTask(c echo.Context) error {
 
 	switch pl.Status {
 	case models.Closing:
-		return h.ReturnJsonWith(c, pl, http.StatusAccepted, func() error {
-			return h.PostPipelineTaskWithETA(c, "wait_closing_task", pl, started.Add(30*time.Second))
+		return ReturnJsonWith(c, pl, http.StatusAccepted, func() error {
+			return PostPipelineTaskWithETA(c, "wait_closing_task", pl, started.Add(30*time.Second))
 		})
 	case models.Closed:
 		return c.JSON(http.StatusOK, pl)

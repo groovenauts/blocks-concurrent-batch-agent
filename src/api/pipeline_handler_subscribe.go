@@ -22,8 +22,8 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 		switch pl.Status {
 		case models.Opened:
 			log.Infof(ctx, "Pipeline is cancelled.\n")
-			return h.ReturnJsonWith(c, pl, http.StatusNoContent, func() error {
-				return h.PostPipelineTask(c, "close_task", pl)
+			return ReturnJsonWith(c, pl, http.StatusNoContent, func() error {
+				return PostPipelineTask(c, "close_task", pl)
 			})
 		case models.Closing, models.ClosingError, models.Closed:
 			log.Warningf(ctx, "Pipeline is cancelled but do nothing because it's already closed or being closed.\n")
@@ -83,15 +83,15 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 
 	if jobs.AllFinished() {
 		if pl.ClosePolicy.Match(jobs) {
-			return h.ReturnJsonWith(c, pl, http.StatusCreated, func() error {
-				return h.PostPipelineTask(c, "close_task", pl)
+			return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
+				return PostPipelineTask(c, "close_task", pl)
 			})
 		} else {
 			return c.JSON(http.StatusOK, pl)
 		}
 	} else {
-		return h.ReturnJsonWith(c, pl, http.StatusAccepted, func() error {
-			return h.PostPipelineTaskWithETA(c, "subscribe_task", pl, started.Add(30*time.Second))
+		return ReturnJsonWith(c, pl, http.StatusAccepted, func() error {
+			return PostPipelineTaskWithETA(c, "subscribe_task", pl, started.Add(30*time.Second))
 		})
 	}
 }
