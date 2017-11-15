@@ -29,6 +29,7 @@ const (
 	Deploying
 	Opened
 	HibernationStarting
+	HibernationProcessing
 	HibernationError
 	Hibernating
 	Closing
@@ -37,20 +38,21 @@ const (
 )
 
 var StatusStrings = map[Status]string{
-	Uninitialized:       "uninitialized",
-	Broken:              "broken",
-	Pending:             "pending",  // Go Waiting when all of the dependencies are satisfied
-	Waiting:             "waiting",  // Go Reserved when the pipeline has enough tokens for this TokenConsumption
-	Reserved:            "reserved", // Go Building when the pipeline is being built
-	Building:            "building",
-	Deploying:           "deploying",
-	Opened:              "opened",
-	HibernationStarting: "hibernation_starting",
-	HibernationError:    "hibernation_error",
-	Hibernating:         "hibernating",
-	Closing:             "closing",
-	ClosingError:        "closing_error",
-	Closed:              "closed",
+	Uninitialized:         "uninitialized",
+	Broken:                "broken",
+	Pending:               "pending",  // Go Waiting when all of the dependencies are satisfied
+	Waiting:               "waiting",  // Go Reserved when the pipeline has enough tokens for this TokenConsumption
+	Reserved:              "reserved", // Go Building when the pipeline is being built
+	Building:              "building",
+	Deploying:             "deploying",
+	Opened:                "opened",
+	HibernationStarting:   "hibernation_starting",
+	HibernationProcessing: "hibernation_processing",
+	HibernationError:      "hibernation_error",
+	Hibernating:           "hibernating",
+	Closing:               "closing",
+	ClosingError:          "closing_error",
+	Closed:                "closed",
 }
 
 func (st Status) String() string {
@@ -377,17 +379,22 @@ func (m *Pipeline) DeployingHandler(ctx context.Context) func(*[]DeploymentError
 	}
 }
 
-func (m *Pipeline) StartHibernation(ctx context.Context, operationName string) error {
+func (m *Pipeline) StartHibernation(ctx context.Context) error {
 	m.AddActionLog(ctx, "hibernation-started")
-	m.ClosingOperationName = operationName
 	m.HibernationStartedAt = time.Now()
 	return m.StateTransition(ctx, []Status{Opened, HibernationStarting}, HibernationStarting)
+}
+
+func (m *Pipeline) ProcessHibernation(ctx context.Context, operationName string) error {
+	m.AddActionLog(ctx, "hibernation-processing")
+	m.ClosingOperationName = operationName
+	return m.StateTransition(ctx, []Status{HibernationStarting, HibernationProcessing}, HibernationProcessing)
 }
 
 func (m *Pipeline) FailHibernation(ctx context.Context, errors *[]DeploymentError) error {
 	m.AddActionLog(ctx, "hibernation-finished")
 	m.ClosingErrors = *errors
-	return m.StateTransition(ctx, []Status{HibernationStarting}, HibernationError)
+	return m.StateTransition(ctx, []Status{HibernationProcessing}, HibernationError)
 }
 
 func (m *Pipeline) CompleteHibernation(ctx context.Context) error {
@@ -397,7 +404,7 @@ func (m *Pipeline) CompleteHibernation(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	return m.StateTransition(ctx, []Status{HibernationStarting}, Hibernating)
+	return m.StateTransition(ctx, []Status{HibernationProcessing}, Hibernating)
 }
 
 func (m *Pipeline) HibernationHandler(ctx context.Context) func(*[]DeploymentError) error {

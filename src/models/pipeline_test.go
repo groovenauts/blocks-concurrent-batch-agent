@@ -217,6 +217,7 @@ func TestStatusTypeAndValue(t *testing.T) {
 	assert.Equal(t, st, fmt.Sprintf(ft, Deploying))
 	assert.Equal(t, st, fmt.Sprintf(ft, Opened))
 	assert.Equal(t, st, fmt.Sprintf(ft, HibernationStarting))
+	assert.Equal(t, st, fmt.Sprintf(ft, HibernationProcessing))
 	assert.Equal(t, st, fmt.Sprintf(ft, HibernationError))
 	assert.Equal(t, st, fmt.Sprintf(ft, Hibernating))
 	assert.Equal(t, st, fmt.Sprintf(ft, Closing))
@@ -232,11 +233,12 @@ func TestStatusTypeAndValue(t *testing.T) {
 	assert.Equal(t, "6", fmt.Sprintf(fv, Deploying))
 	assert.Equal(t, "7", fmt.Sprintf(fv, Opened))
 	assert.Equal(t, "8", fmt.Sprintf(fv, HibernationStarting))
-	assert.Equal(t, "9", fmt.Sprintf(fv, HibernationError))
-	assert.Equal(t, "10", fmt.Sprintf(fv, Hibernating))
-	assert.Equal(t, "11", fmt.Sprintf(fv, Closing))
-	assert.Equal(t, "12", fmt.Sprintf(fv, ClosingError))
-	assert.Equal(t, "13", fmt.Sprintf(fv, Closed))
+	assert.Equal(t, "9", fmt.Sprintf(fv, HibernationProcessing))
+	assert.Equal(t, "10", fmt.Sprintf(fv, HibernationError))
+	assert.Equal(t, "11", fmt.Sprintf(fv, Hibernating))
+	assert.Equal(t, "12", fmt.Sprintf(fv, Closing))
+	assert.Equal(t, "13", fmt.Sprintf(fv, ClosingError))
+	assert.Equal(t, "14", fmt.Sprintf(fv, Closed))
 }
 
 func TestPipelineStateTransition(t *testing.T) {
