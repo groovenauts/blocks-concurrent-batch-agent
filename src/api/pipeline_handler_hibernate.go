@@ -97,7 +97,7 @@ func (h *PipelineHandler) waitHibernationTask(c echo.Context) error {
 			return err
 		}
 		if newTask {
-			err := pl.BackToReady(ctx)
+			err := pl.BackToBeReserved(ctx)
 			if err != nil {
 				log.Errorf(ctx, "Failed to BackToReady because of %v\n", err)
 				return err
