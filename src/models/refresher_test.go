@@ -133,7 +133,7 @@ func TestRefresherProcessForDeploying(t *testing.T) {
 		err = pl.Create(ctx)
 
 		r := &Refresher{deployer: expection.deployer}
-		err = r.Process(ctx, pl, pl.RefreshHandler(ctx))
+		err = r.Process(ctx, pl, pl.RefreshHandler(ctx, nil))
 		assert.NoError(t, err)
 		pl2, err := GlobalPipelineAccessor.Find(ctx, pl.ID)
 		assert.NoError(t, err)
@@ -214,7 +214,7 @@ func TestRefresherProcessForClosing(t *testing.T) {
 		assert.NoError(t, err)
 
 		r := &Refresher{deployer: expection.deployer}
-		err = r.Process(ctx, pl, pl.RefreshHandler(ctx))
+		err = r.Process(ctx, pl, pl.RefreshHandler(ctx, nil))
 		assert.NoError(t, err)
 		pl2, err := GlobalPipelineAccessor.Find(ctx, pl.ID)
 		assert.NoError(t, err)
