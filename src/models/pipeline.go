@@ -362,9 +362,6 @@ func (m *Pipeline) StartBuilding(ctx context.Context) error {
 	return m.StateTransition(ctx, []Status{Reserved, Building}, Building)
 }
 
-func (m *Pipeline) FinishBuilding(ctx context.Context) {
-}
-
 func (m *Pipeline) StartDeploying(ctx context.Context, deploymentName, operationName string) error {
 	m.DeploymentName = deploymentName
 	m.DeployingOperationName = operationName
