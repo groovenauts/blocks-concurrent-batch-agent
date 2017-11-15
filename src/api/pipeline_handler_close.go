@@ -18,7 +18,7 @@ import (
 func (h *PipelineHandler) closeTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
-	closer, err := models.NewCloser(ctx)
+	closer, err := models.NewCloser(ctx, pl.StartClosing)
 	if err != nil {
 		log.Errorf(ctx, "Failed to create new closer because of %v\n", err)
 		return err
