@@ -31,6 +31,16 @@ func (h *JobHandler) member(action echo.HandlerFunc) echo.HandlerFunc {
 func (h *JobHandler) create(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
+	if pl.Status == models.Hibernating {
+		err := pl.BackToBeReserved(ctx)
+		if err != nil {
+			return err
+		}
+		err = PostPipelineTask(c, "build_task", pl)
+		if err != nil {
+			return err
+		}
+	}
 	job := &models.Job{}
 	if err := c.Bind(job); err != nil {
 		log.Errorf(ctx, "err: %v\n", err)

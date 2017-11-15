@@ -417,10 +417,10 @@ func (m *Pipeline) HibernationHandler(ctx context.Context) func(*[]DeploymentErr
 	}
 }
 
-func (m *Pipeline) BackToReady(ctx context.Context) error {
+func (m *Pipeline) BackToBeReserved(ctx context.Context) error {
 	m.AddActionLog(ctx, "awaked")
 	m.Update(ctx)
-	return m.StateTransition(ctx, []Status{Hibernating}, Ready)
+	return m.StateTransition(ctx, []Status{Hibernating}, Reserved)
 }
 
 func (m *Pipeline) StartClosing(ctx context.Context, operationName string) error {
