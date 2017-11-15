@@ -91,7 +91,23 @@ func (h *PipelineHandler) waitHibernationTask(c echo.Context) error {
 			return PostPipelineTaskWithETA(c, "wait_hibernation_task", pl, started.Add(30*time.Second))
 		})
 	case models.Hibernating:
-		return c.JSON(http.StatusOK, pl)
+		newTask, err := pl.HasNewTaskSince(ctx, pl.HibernationStartedAt)
+		if err != nil {
+			log.Errorf(ctx, "Failed to check new tasks because of %v\n", err)
+			return err
+		}
+		if newTask {
+			err := pl.BackToReady(ctx)
+			if err != nil {
+				log.Errorf(ctx, "Failed to BackToReady because of %v\n", err)
+				return err
+			}
+			return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
+				return PostPipelineTask(c, "build_task", pl)
+			})
+		} else {
+			return c.JSON(http.StatusOK, pl)
+		}
 	default:
 		return &models.InvalidStateTransition{Msg: fmt.Sprintf("Unexpected Status: %v for Pipeline: %v", pl.Status, pl)}
 	}

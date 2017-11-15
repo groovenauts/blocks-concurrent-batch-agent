@@ -417,6 +417,12 @@ func (m *Pipeline) HibernationHandler(ctx context.Context) func(*[]DeploymentErr
 	}
 }
 
+func (m *Pipeline) BackToReady(ctx context.Context) error {
+	m.AddActionLog(ctx, "awaked")
+	m.Update(ctx)
+	return m.StateTransition(ctx, []Status{Hibernating}, Ready)
+}
+
 func (m *Pipeline) StartClosing(ctx context.Context, operationName string) error {
 	m.AddActionLog(ctx, "close-started")
 	m.ClosingOperationName = operationName
