@@ -4,16 +4,13 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"time"
 
 	"gae_support"
 	"models"
 
 	"github.com/labstack/echo"
 	"golang.org/x/net/context"
-	"google.golang.org/api/googleapi"
 	"google.golang.org/appengine/log"
-	"google.golang.org/appengine/taskqueue"
 )
 
 type PipelineHandler struct {
@@ -149,70 +146,6 @@ func (h *PipelineHandler) refresh(c echo.Context) error {
 	})
 }
 
-// curl -v -X POST http://localhost:8080/pipelines/1/build_task
-func (h *PipelineHandler) buildTask(c echo.Context) error {
-	ctx := c.Get("aecontext").(context.Context)
-	pl := c.Get("pipeline").(*models.Pipeline)
-	builder, err := models.NewBuilder(ctx)
-	if err != nil {
-		return err
-	}
-	err = builder.Process(ctx, pl)
-	if err != nil {
-		switch err.(type) {
-		case *googleapi.Error:
-			e2 := err.(*googleapi.Error)
-			switch e2.Code {
-			case http.StatusConflict: // googleapi: Error 409: 'projects/optical-hangar-158902/global/deployments/pipeline-mjr-59-20170926-163820' already exists and cannot be created., duplicate
-				log.Warningf(ctx, "Skip building because of %v", e2.Message)
-				return h.ReturnJsonWith(c, pl, http.StatusNoContent, func() error {
-					return h.PostPipelineTask(c, "wait_building_task", pl)
-				})
-			}
-		}
-		log.Errorf(ctx, "Failed to build a pipeline %v because of %v\n", pl, err)
-		return err
-	}
-
-	return h.ReturnJsonWith(c, pl, http.StatusCreated, func() error {
-		return h.PostPipelineTask(c, "wait_building_task", pl)
-	})
-}
-
-// curl -v -X	POST http://localhost:8080/pipelines/1/wait_building_task
-func (h *PipelineHandler) waitBuildingTask(c echo.Context) error {
-	started := time.Now()
-	ctx := c.Get("aecontext").(context.Context)
-	pl := c.Get("pipeline").(*models.Pipeline)
-
-	handler := pl.RefreshHandler(ctx)
-	refresher := &models.Refresher{}
-	err := refresher.Process(ctx, pl, handler)
-	if err != nil {
-		log.Errorf(ctx, "Failed to refresh pipeline %v because of %v\n", pl, err)
-		return err
-	}
-
-	switch pl.Status {
-	case models.Deploying:
-		return h.ReturnJsonWith(c, pl, http.StatusAccepted, func() error {
-			return h.PostPipelineTaskWithETA(c, "wait_building_task", pl, started.Add(30*time.Second))
-		})
-	case models.Opened:
-		if pl.Cancelled {
-			return h.ReturnJsonWith(c, pl, http.StatusNoContent, func() error {
-				return h.PostPipelineTask(c, "close_task", pl)
-			})
-		} else {
-			return h.ReturnJsonWith(c, pl, http.StatusCreated, func() error {
-				return h.PostPipelineTask(c, "publish_task", pl)
-			})
-		}
-	default:
-		return &models.InvalidStateTransition{Msg: fmt.Sprintf("Unexpected Status: %v for Pipeline: %v", pl.Status, pl)}
-	}
-}
-
 // curl -v -X	POST http://localhost:8080/pipelines/1/publish_task
 func (h *PipelineHandler) publishTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
@@ -224,180 +157,6 @@ func (h *PipelineHandler) publishTask(c echo.Context) error {
 	return h.ReturnJsonWith(c, pl, http.StatusCreated, func() error {
 		return h.PostPipelineTask(c, "subscribe_task", pl)
 	})
-}
-
-// curl -v -X	POST http://localhost:8080/pipelines/1/subscribe_task
-func (h *PipelineHandler) subscribeTask(c echo.Context) error {
-	started := time.Now()
-	ctx := c.Get("aecontext").(context.Context)
-	pl := c.Get("pipeline").(*models.Pipeline)
-
-	if pl.Cancelled {
-		switch pl.Status {
-		case models.Opened:
-			log.Infof(ctx, "Pipeline is cancelled.\n")
-			return h.ReturnJsonWith(c, pl, http.StatusNoContent, func() error {
-				return h.PostPipelineTask(c, "close_task", pl)
-			})
-		case models.Closing, models.ClosingError, models.Closed:
-			log.Warningf(ctx, "Pipeline is cancelled but do nothing because it's already closed or being closed.\n")
-			return c.JSON(http.StatusOK, pl)
-		default:
-			return &models.InvalidStateTransition{
-				Msg: fmt.Sprintf("Invalid Pipeline#Status %v to subscribe a Pipeline cancelled", pl.Status),
-			}
-		}
-	}
-
-	err := pl.PullAndUpdateJobStatus(ctx)
-	if err != nil {
-		switch err.(type) {
-		case *models.SubscriprionNotFound:
-			switch pl.Status {
-			case models.Closing, models.Closed:
-				log.Infof(ctx, "Pipeline is already closed\n")
-				return c.JSON(http.StatusOK, pl)
-			default:
-				log.Infof(ctx, "Subscription is not found but the pipeline isn't closed because of %v\n", err)
-			}
-		default:
-			log.Errorf(ctx, "Failed to get Pipeline#PullAndUpdateJobStatus() because of %v\n", err)
-			return err
-		}
-	}
-
-	jobs, err := pl.JobAccessor().All(ctx)
-	if err != nil {
-		log.Errorf(ctx, "Failed to m.JobAccessor#All() because of %v\n", err)
-		return err
-	}
-	log.Debugf(ctx, "Pipeline has %v jobs\n", len(jobs))
-
-	pendings, err := models.GlobalPipelineAccessor.PendingsFor(ctx, jobs.Finished().IDs())
-	if err != nil {
-		return err
-	}
-
-	for _, pending := range pendings {
-		org := c.Get("organization").(*models.Organization)
-		pending.Organization = org
-		err := pending.UpdateIfReserveOrWait(ctx)
-		if err != nil {
-			log.Errorf(ctx, "Failed to UpdateIfReserveOrWait pending: %v\n%v\n", pending, err)
-			return err
-		}
-		if pending.Status == models.Reserved {
-			err = h.PostPipelineTaskIfPossible(c, pending)
-			if err != nil {
-				log.Errorf(ctx, "Failed to PostPipelineTaskIfPossible pending: %v\n%v\n", pending, err)
-				return err
-			}
-		}
-	}
-
-	if jobs.AllFinished() {
-		if pl.ClosePolicy.Match(jobs) {
-			return h.ReturnJsonWith(c, pl, http.StatusCreated, func() error {
-				if pl.HibernationDelay == 0 {
-					return h.PostPipelineTask(c, "close_task", pl)
-				} else {
-					now := time.Now()
-					eta := now.Add(time.Duration(pl.HibernationDelay) * time.Second)
-					params := url.Values{
-						"since": []string{now.Format(time.RFC3339)},
-					}
-					return h.PostPipelineTaskWith(c, "check_hibernation_task", pl, params, h.SetETAFunc(eta))
-				}
-			})
-		} else {
-			return c.JSON(http.StatusOK, pl)
-		}
-	} else {
-		return h.ReturnJsonWith(c, pl, http.StatusAccepted, func() error {
-			return h.PostPipelineTaskWithETA(c, "subscribe_task", pl, started.Add(30*time.Second))
-		})
-	}
-}
-
-// curl -v -X	POST http://localhost:8080/pipelines/1/check_hibernation_task
-func (h *PipelineHandler) checkHibernationTask(c echo.Context) error {
-	ctx := c.Get("aecontext").(context.Context)
-	pl := c.Get("pipeline").(*models.Pipeline)
-	t, err := time.Parse(time.RFC3339, c.Param("since"))
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{
-			"error": err.Error(),
-		})
-	}
-	newTask, err := pl.HasNewTaskSince(ctx, t)
-	if err != nil {
-		log.Errorf(ctx, "Failed to check new tasks because of %v\n", err)
-		return err
-	}
-	if newTask {
-		return c.JSON(http.StatusOK, pl)
-	} else {
-		return h.ReturnJsonWith(c, pl, http.StatusCreated, func() error {
-			return h.PostPipelineTask(c, "hibernate_task", pl)
-		})
-	}
-}
-
-// curl -v -X	POST http://localhost:8080/pipelines/1/close_task
-func (h *PipelineHandler) closeTask(c echo.Context) error {
-	ctx := c.Get("aecontext").(context.Context)
-	pl := c.Get("pipeline").(*models.Pipeline)
-	closer, err := models.NewCloser(ctx)
-	if err != nil {
-		log.Errorf(ctx, "Failed to create new closer because of %v\n", err)
-		return err
-	}
-	err = closer.Process(ctx, pl)
-	if err != nil {
-		switch err.(type) {
-		case *googleapi.Error:
-			e2 := err.(*googleapi.Error)
-			switch e2.Code {
-			case http.StatusNotFound: // googleapi: Error 404: The object 'projects/optical-hangar-158902/global/deployments/pipeline-mjr-89-20170926-223541' is not found., notFound
-				log.Warningf(ctx, "Skip closing because of %v", e2.Message)
-				return c.JSON(http.StatusOK, pl)
-			}
-		}
-		log.Errorf(ctx, "Failed to close pipeline because of %v\n", err)
-		return err
-	}
-
-	return h.ReturnJsonWith(c, pl, http.StatusCreated, func() error {
-		return h.PostPipelineTask(c, "wait_closing_task", pl)
-	})
-}
-
-// curl -v -X	POST http://localhost:8080/pipelines/1/wait_closing_task
-func (h *PipelineHandler) waitClosingTask(c echo.Context) error {
-	started := time.Now()
-	ctx := c.Get("aecontext").(context.Context)
-	pl := c.Get("pipeline").(*models.Pipeline)
-	handler := pl.RefreshHandlerWith(ctx, func(pl *models.Pipeline) error {
-		return h.PostPipelineTaskWith(c, "build_task", pl, url.Values{}, nil)
-	})
-
-	refresher := &models.Refresher{}
-	err := refresher.Process(ctx, pl, handler)
-	if err != nil {
-		log.Errorf(ctx, "Failed to refresh pipeline %v because of %v\n", pl, err)
-		return err
-	}
-
-	switch pl.Status {
-	case models.Closing:
-		return h.ReturnJsonWith(c, pl, http.StatusAccepted, func() error {
-			return h.PostPipelineTaskWithETA(c, "wait_closing_task", pl, started.Add(30*time.Second))
-		})
-	case models.Closed:
-		return c.JSON(http.StatusOK, pl)
-	default:
-		return &models.InvalidStateTransition{Msg: fmt.Sprintf("Unexpected Status: %v for Pipeline: %v", pl.Status, pl)}
-	}
 }
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/refresh_task
@@ -413,49 +172,4 @@ func (h *PipelineHandler) refreshTask(c echo.Context) error {
 		return err
 	}
 	return c.JSON(http.StatusOK, pl)
-}
-
-func (h *PipelineHandler) PostPipelineTaskWith(c echo.Context, action string, pl *models.Pipeline, params url.Values, f func(*taskqueue.Task) error) error {
-	ctx := c.Get("aecontext").(context.Context)
-	req := c.Request()
-	t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/%s", pl.ID, action), params)
-	t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
-	if f != nil {
-		err := f(t)
-		if err != nil {
-			return err
-		}
-	}
-	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
-		log.Errorf(ctx, "Failed to add a task %v to taskqueue because of %v\n", t, err)
-		return err
-	}
-	return nil
-}
-
-func (h *PipelineHandler) SetETAFunc(eta time.Time) func(t *taskqueue.Task) error {
-	return func(t *taskqueue.Task) error {
-		t.ETA = eta
-		return nil
-	}
-}
-
-func (h *PipelineHandler) PostPipelineTaskWithETA(c echo.Context, action string, pl *models.Pipeline, eta time.Time) error {
-	err := h.PostPipelineTaskWith(c, action, pl, url.Values{}, h.SetETAFunc(eta))
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (h *PipelineHandler) PostPipelineTask(c echo.Context, action string, pl *models.Pipeline) error {
-	return h.PostPipelineTaskWithETA(c, action, pl, time.Now())
-}
-
-func (h *PipelineHandler) ReturnJsonWith(c echo.Context, pl *models.Pipeline, status int, f func() error) error {
-	err := f()
-	if err != nil {
-		return err
-	}
-	return c.JSON(status, pl)
 }
