@@ -39,6 +39,7 @@ func (h *JobHandler) create(c echo.Context) error {
 	}
 	pl := c.Get("pipeline").(*models.Pipeline)
 	job.Pipeline = pl
+	job.InitStatus(c.QueryParam("ready") == "true")
 	err := job.CreateAndPublishIfPossible(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to create Job: %v\n%v\n", job, err)
