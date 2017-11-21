@@ -128,9 +128,10 @@ func TestJobHandlerActions(t *testing.T) {
 	download_files_json, err := json.Marshal(download_files)
 	assert.NoError(t, err)
 
-	for _, st := range []models.JobStatus{models.Preparing, models.Ready} {
+	for num, st := range []models.JobStatus{models.Preparing, models.Ready} {
+		job_id_base := fmt.Sprintf("%s-job-new-%d-1", pl1.Name, num)
 		obj1 := map[string]interface{}{
-			"id_by_client": pl1.Name + `-job-new1`,
+			"id_by_client": fmt.Sprintf("%s-1", job_id_base, num),
 			"status":       int(st),
 			"message": map[string]interface{}{
 				"attributes": map[string]string{
@@ -167,7 +168,7 @@ func TestJobHandlerActions(t *testing.T) {
 		assert.NoError(t, json.Unmarshal([]byte(s), &jobRes))
 		assert.Equal(t, map[string]interface{}{
 			"id":           job.ID,
-			"id_by_client": "pipeline1-job-new1",
+			"id_by_client": fmt.Sprintf("%s-1", job_id_base, num),
 			"status":       float64(st),
 			"zone":         "",
 			"hostname":     "",
@@ -193,7 +194,7 @@ func TestJobHandlerActions(t *testing.T) {
 		}
 		for _, ptn := range invalidAttrsPatterns {
 			obj := map[string]interface{}{
-				"id_by_client": pl1.Name + `-job-new1"`,
+				"id_by_client": fmt.Sprintf("%s-2", job_id_base, num),
 				"status":       int(st),
 				"message": map[string]interface{}{
 					"attributes": ptn,
