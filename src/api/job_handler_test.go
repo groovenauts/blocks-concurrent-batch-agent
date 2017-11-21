@@ -132,7 +132,6 @@ func TestJobHandlerActions(t *testing.T) {
 		job_id_base := fmt.Sprintf("%s-job-new-%d-1", pl1.Name, num)
 		obj1 := map[string]interface{}{
 			"id_by_client": fmt.Sprintf("%s-1", job_id_base, num),
-			"status":       int(st),
 			"message": map[string]interface{}{
 				"attributes": map[string]string{
 					"download_files": string(download_files_json),
@@ -143,7 +142,11 @@ func TestJobHandlerActions(t *testing.T) {
 		json1, err := json.Marshal(obj1)
 		assert.NoError(t, err)
 
-		req, err = inst.NewRequest(echo.POST, "/pipelines/"+pl1.ID+"/jobs", strings.NewReader(string(json1)))
+		url := "/pipelines/" + pl1.ID + "/jobs"
+		if st == models.Ready {
+			url = url + "?ready=true"
+		}
+		req, err = inst.NewRequest(echo.POST, url, strings.NewReader(string(json1)))
 		assert.NoError(t, err)
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		req.Header.Set(auth_header, token)
@@ -195,7 +198,6 @@ func TestJobHandlerActions(t *testing.T) {
 		for _, ptn := range invalidAttrsPatterns {
 			obj := map[string]interface{}{
 				"id_by_client": fmt.Sprintf("%s-2", job_id_base, num),
-				"status":       int(st),
 				"message": map[string]interface{}{
 					"attributes": ptn,
 				},
@@ -204,7 +206,12 @@ func TestJobHandlerActions(t *testing.T) {
 			json2, err := json.Marshal(obj)
 			assert.NoError(t, err)
 
-			req, err = inst.NewRequest(echo.POST, "/pipelines/"+pl1.ID+"/jobs", strings.NewReader(string(json2)))
+			url := "/pipelines/" + pl1.ID + "/jobs"
+			if st == models.Ready {
+				url = url + "?ready=true"
+			}
+
+			req, err = inst.NewRequest(echo.POST, url, strings.NewReader(string(json2)))
 			assert.NoError(t, err)
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			req.Header.Set(auth_header, token)
