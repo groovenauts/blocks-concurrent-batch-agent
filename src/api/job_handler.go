@@ -44,7 +44,7 @@ func (h *JobHandler) create(c echo.Context) error {
 		log.Errorf(ctx, "Failed to create Job: %v\n%v\n", job, err)
 		return err
 	}
-	log.Debugf(ctx, "Created Job: %v\n", pl)
+	log.Debugf(ctx, "Created Job: %v\n", job)
 
 	err = h.StartToWaitAndPublishIfNeeded(c, job)
 	if err != nil {
