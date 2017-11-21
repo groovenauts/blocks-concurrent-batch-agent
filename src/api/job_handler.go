@@ -70,7 +70,7 @@ func (h *JobHandler) show(c echo.Context) error {
 	return c.JSON(http.StatusOK, job)
 }
 
-// curl -v http://localhost:8080/jobs/1
+// curl -v http://localhost:8080/jobs/1/getready
 func (h *JobHandler) getReady(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	job := c.Get("job").(*models.Job)
