@@ -16,14 +16,17 @@ import (
 func PostPipelineTaskWith(c echo.Context, action string, pl *models.Pipeline, params url.Values, f func(*taskqueue.Task) error) error {
 	ctx := c.Get("aecontext").(context.Context)
 	req := c.Request()
-	t := taskqueue.NewPOSTTask(fmt.Sprintf("/pipelines/%s/%s", pl.ID, action), params)
+	path := fmt.Sprintf("/pipelines/%s/%s", pl.ID, action)
+	t := taskqueue.NewPOSTTask(path, params)
 	t.Header.Add(AUTH_HEADER, req.Header.Get(AUTH_HEADER))
 	if f != nil {
 		err := f(t)
 		if err != nil {
+			log.Errorf(ctx, "Failed to callback because of \v\n", err)
 			return err
 		}
 	}
+	log.Debugf(ctx, "taskqueue.Add pipeline task %v\n", path)
 	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
 		log.Errorf(ctx, "Failed to add a task %v to taskqueue because of %v\n", t, err)
 		return err
