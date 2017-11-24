@@ -389,7 +389,7 @@ func (m *Pipeline) WaitHibernation(ctx context.Context) error {
 func (m *Pipeline) StartHibernation(ctx context.Context) error {
 	m.AddActionLog(ctx, "hibernation-started")
 	m.HibernationStartedAt = time.Now()
-	return m.StateTransition(ctx, []Status{Opened, HibernationStarting}, HibernationStarting)
+	return m.StateTransition(ctx, []Status{HibernationChecking}, HibernationStarting)
 }
 
 func (m *Pipeline) ProcessHibernation(ctx context.Context, operationName string) error {
