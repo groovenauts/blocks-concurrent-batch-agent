@@ -36,6 +36,12 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 		}
 	}
 
+	switch pl.Status {
+	case models.HibernationStarting, models.HibernationProcessing, models.HibernationError, models.Hibernating:
+		log.Infof(ctx, "Pipeline is %v so now stopping subscribe_task. \n", pl.Status)
+		return c.JSON(http.StatusOK, pl)
+	}
+
 	err := pl.PullAndUpdateJobStatus(ctx)
 	if err != nil {
 		switch err.(type) {
