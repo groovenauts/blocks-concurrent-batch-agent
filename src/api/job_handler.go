@@ -35,6 +35,12 @@ func (h *JobHandler) create(c echo.Context) error {
 	case models.HibernationChecking:
 		err := pl.BackToBeOpened(ctx)
 		if err != nil {
+			log.Errorf(ctx, "Failed to go back to be opened because of %v\n", err)
+			return err
+		}
+		err = PostPipelineTask(c, "subscribe_task", pl)
+		if err != nil {
+			log.Errorf(ctx, "Failed PostPipelineTask subscribe_task because of %v\n", err)
 			return err
 		}
 	case models.Hibernating:
