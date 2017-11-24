@@ -17,6 +17,10 @@ import (
 func (h *PipelineHandler) checkHibernationTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
+	if pl.Status != models.HibernationChecking {
+		log.Debugf(ctx, "Quit checkHibernationTask because of the pipeline is %v\n", pl.Status)
+		return c.JSON(http.StatusOK, pl)
+	}
 	t, err := time.Parse(time.RFC3339, c.Param("since"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
