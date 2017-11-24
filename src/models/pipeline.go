@@ -327,6 +327,8 @@ func (m *Pipeline) RefreshHandler(ctx context.Context, pipelineProcesser func(*P
 		return m.DeployingHandler(ctx)
 	case Closing:
 		return m.ClosingHandler(ctx, pipelineProcesser)
+	case HibernationProcessing:
+		return m.HibernationHandler(ctx)
 	default:
 		return func(*[]DeploymentError) error {
 			return &InvalidOperation{Msg: fmt.Sprintf("Invalid Status %v to handle refreshing Pipline %q\n", m.Status, m.ID)}
