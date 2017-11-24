@@ -572,7 +572,9 @@ func (m *Pipeline) stringFromMapWithDefault(src map[string]string, key, defaultV
 }
 
 func (m *Pipeline) AddActionLog(ctx context.Context, name string) {
-	log.Debugf(ctx, "pipeline is %v\n", name)
+	if ctx != nil {
+		log.Debugf(ctx, "pipeline is %v\n", name)
+	}
 	if m.ActionLogs == nil {
 		m.ActionLogs = []ActionLog{}
 	}
