@@ -94,6 +94,10 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 				if pl.HibernationDelay == 0 {
 					return PostPipelineTask(c, "close_task", pl)
 				} else {
+					err := pl.WaitHibernation(ctx)
+					if err != nil {
+						return err
+					}
 					now := time.Now()
 					eta := now.Add(time.Duration(pl.HibernationDelay) * time.Second)
 					params := url.Values{

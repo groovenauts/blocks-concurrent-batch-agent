@@ -381,6 +381,11 @@ func (m *Pipeline) DeployingHandler(ctx context.Context) func(*[]DeploymentError
 	}
 }
 
+func (m *Pipeline) WaitHibernation(ctx context.Context) error {
+	m.AddActionLog(ctx, "hibernation-waiting")
+	return m.StateTransition(ctx, []Status{Opened}, HibernationChecking)
+}
+
 func (m *Pipeline) StartHibernation(ctx context.Context) error {
 	m.AddActionLog(ctx, "hibernation-started")
 	m.HibernationStartedAt = time.Now()
@@ -417,6 +422,12 @@ func (m *Pipeline) HibernationHandler(ctx context.Context) func(*[]DeploymentErr
 			return m.CompleteHibernation(ctx)
 		}
 	}
+}
+
+func (m *Pipeline) BackToBeOpened(ctx context.Context) error {
+	m.AddActionLog(ctx, "stop-waiting")
+	m.Update(ctx)
+	return m.StateTransition(ctx, []Status{HibernationChecking}, Opened)
 }
 
 func (m *Pipeline) BackToBeReserved(ctx context.Context) error {

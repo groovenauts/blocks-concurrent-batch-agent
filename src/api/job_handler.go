@@ -31,7 +31,13 @@ func (h *JobHandler) member(action echo.HandlerFunc) echo.HandlerFunc {
 func (h *JobHandler) create(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
-	if pl.Status == models.Hibernating {
+	switch pl.Status {
+	case models.HibernationChecking:
+		err := pl.BackToBeOpened(ctx)
+		if err != nil {
+			return err
+		}
+	case models.Hibernating:
 		err := pl.BackToBeReserved(ctx)
 		if err != nil {
 			return err
