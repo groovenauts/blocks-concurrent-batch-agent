@@ -89,7 +89,7 @@ func (h *PipelineHandler) waitHibernationTask(c echo.Context) error {
 	}
 
 	switch pl.Status {
-	case models.HibernationStarting:
+	case models.HibernationProcessing:
 		return ReturnJsonWith(c, pl, http.StatusAccepted, func() error {
 			return PostPipelineTaskWithETA(c, "wait_hibernation_task", pl, started.Add(30*time.Second))
 		})
@@ -111,7 +111,12 @@ func (h *PipelineHandler) waitHibernationTask(c echo.Context) error {
 		} else {
 			return c.JSON(http.StatusOK, pl)
 		}
+	case models.HibernationError:
+		log.Infof(ctx, "Pipeline is already %v so quit wait_hibernation_task\n", pl.Status)
+		return c.JSON(http.StatusOK, pl)
 	default:
-		return &models.InvalidStateTransition{Msg: fmt.Sprintf("Unexpected Status: %v for Pipeline: %v", pl.Status, pl)}
+		msg := fmt.Sprintf("Unexpected Status: %v for Pipeline: %v", pl.Status, pl)
+		log.Errorf(ctx, msg)
+		return &models.InvalidStateTransition{Msg: msg}
 	}
 }
