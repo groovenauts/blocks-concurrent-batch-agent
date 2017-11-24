@@ -17,13 +17,7 @@ import (
 func (h *PipelineHandler) checkHibernationTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
-	t, err := time.Parse(time.RFC3339, c.Param("since"))
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{
-			"error": err.Error(),
-		})
-	}
-	newTask, err := pl.HasNewTaskSince(ctx, t)
+	newTask, err := pl.HasNewTaskSince(ctx, pl.HibernationStartedAt)
 	if err != nil {
 		log.Errorf(ctx, "Failed to check new tasks because of %v\n", err)
 		return err
