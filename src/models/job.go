@@ -224,7 +224,7 @@ func (m *Job) LoadOrCreate(ctx context.Context) error {
 		case datastore.ErrNoSuchEntity:
 			return m.Create(ctx)
 		default:
-			log.Errorf(ctx, "JobAccessor#Find %v id: %q\n", err, id)
+			log.Errorf(ctx, "Failed at LoadOrCreate %v id: %q\n", err, id)
 			return err
 		}
 	}, GetTransactionOptions(ctx))
