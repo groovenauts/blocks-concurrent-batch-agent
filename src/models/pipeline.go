@@ -431,6 +431,7 @@ func (m *Pipeline) BackToBeOpened(ctx context.Context) error {
 }
 
 func (m *Pipeline) BackToBeReserved(ctx context.Context) error {
+	m.HibernationStartedAt = time.Time{}
 	m.AddActionLog(ctx, "awaked")
 	m.Update(ctx)
 	return m.StateTransition(ctx, []Status{Hibernating}, Reserved)
