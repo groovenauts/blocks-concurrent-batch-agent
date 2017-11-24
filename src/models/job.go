@@ -204,29 +204,39 @@ func (m *Job) Create(ctx context.Context) error {
 	return nil
 }
 
+func (m *Job) LoadBy(ctx context.Context, key *datastore.Key) error {
+	tmp := &Job{}
+	err := datastore.Get(ctx, key, tmp)
+	if err == nil {
+		m.CopyFrom(tmp)
+		m.ID = key.Encode()
+		msg := &m.Message
+		msg.EntriesToMap()
+		return nil
+	}
+	return err
+}
+
 func (m *Job) LoadOrCreate(ctx context.Context) error {
 	return datastore.RunInTransaction(ctx, func(ctx context.Context) error {
 		key, err := m.Key(ctx)
 		if err != nil {
 			return err
 		}
-		id := key.Encode()
-		tmp := &Job{}
-		err = datastore.Get(ctx, key, tmp)
-		if err == nil {
-			m.CopyFrom(tmp)
-			m.ID = id
-			msg := &m.Message
-			msg.EntriesToMap()
-			return nil
+		if !key.Incomplete() {
+			err := m.LoadBy(ctx, key)
+			if err == nil {
+				return nil
+			}
+			switch err {
+			case datastore.ErrNoSuchEntity:
+				// Create later
+			default:
+				log.Errorf(ctx, "Failed at LoadBy %v id: %q\n", err, key.Encode())
+				return err
+			}
 		}
-		switch err {
-		case datastore.ErrNoSuchEntity:
-			return m.Create(ctx)
-		default:
-			log.Errorf(ctx, "Failed at LoadOrCreate %v id: %q\n", err, id)
-			return err
-		}
+		return m.Create(ctx)
 	}, GetTransactionOptions(ctx))
 }
 
