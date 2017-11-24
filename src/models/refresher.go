@@ -34,9 +34,14 @@ func (b *Refresher) Process(ctx context.Context, pl *Pipeline, handler func(*[]D
 	log.Debugf(ctx, "Refreshing pipeline %v\n", pl)
 
 	switch pl.Status {
-	case Deploying, Closing:
+	case Deploying, Closing, HibernationProcessing:
 		b.Setup(ctx, pl)
-		return b.Refresh(ctx, pl, handler)
+		err := b.Refresh(ctx, pl, handler)
+		if err != nil {
+			log.Errorf(ctx, "Failed to refresh %v pipeline: %v because of%v\n", pl.Status, pl.Name, err)
+			return err
+		}
+		return nil
 	default:
 		return nil
 	}
@@ -49,7 +54,7 @@ func (b *Refresher) Refresh(ctx context.Context, pl *Pipeline, handler func(*[]D
 	switch pl.Status {
 	case Deploying:
 		ope_name = pl.DeployingOperationName
-	case Closing:
+	case Closing, HibernationProcessing:
 		ope_name = pl.ClosingOperationName
 	default:
 		return &InvalidOperation{Msg: fmt.Sprintf("Invalid Status %v to refresh Pipline %q\n", pl.Status, pl.ID)}
