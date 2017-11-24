@@ -5,3 +5,7 @@ indexes:
   properties:
   - name: Status
   - name: CreatedAt
+- kind: Jobs
+  ancestor: yes
+  properties:
+  - name: CreatedAt

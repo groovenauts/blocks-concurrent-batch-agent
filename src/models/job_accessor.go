@@ -20,7 +20,7 @@ func (aa *JobAccessor) Find(ctx context.Context, id string) (*Job, error) {
 	// log.Debugf(ctx, "JobAccessor#Find id: %q\n", id)
 	key, err := datastore.DecodeKey(id)
 	if err != nil {
-		log.Errorf(ctx, "JobAccessor#Find %v id: %q\n", err, id)
+		log.Errorf(ctx, "Failed to DecodeKey at JobAccessor#Find %v id: %q\n", err, id)
 		return nil, err
 	}
 	if aa.Parent != nil {
@@ -39,7 +39,7 @@ func (aa *JobAccessor) Find(ctx context.Context, id string) (*Job, error) {
 	case err == datastore.ErrNoSuchEntity:
 		return nil, ErrNoSuchJob
 	case err != nil:
-		log.Errorf(ctx, "JobAccessor#Find %v id: %q\n", err, id)
+		log.Errorf(ctx, "Failed to Get at JobAccessor#Find %v id: %q\n", err, id)
 		return nil, err
 	}
 	msg := &m.Message

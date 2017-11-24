@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 	"time"
@@ -215,6 +216,11 @@ func TestStatusTypeAndValue(t *testing.T) {
 	assert.Equal(t, st, fmt.Sprintf(ft, Building))
 	assert.Equal(t, st, fmt.Sprintf(ft, Deploying))
 	assert.Equal(t, st, fmt.Sprintf(ft, Opened))
+	assert.Equal(t, st, fmt.Sprintf(ft, HibernationChecking))
+	assert.Equal(t, st, fmt.Sprintf(ft, HibernationStarting))
+	assert.Equal(t, st, fmt.Sprintf(ft, HibernationProcessing))
+	assert.Equal(t, st, fmt.Sprintf(ft, HibernationError))
+	assert.Equal(t, st, fmt.Sprintf(ft, Hibernating))
 	assert.Equal(t, st, fmt.Sprintf(ft, Closing))
 	assert.Equal(t, st, fmt.Sprintf(ft, ClosingError))
 	assert.Equal(t, st, fmt.Sprintf(ft, Closed))
@@ -227,9 +233,14 @@ func TestStatusTypeAndValue(t *testing.T) {
 	assert.Equal(t, "5", fmt.Sprintf(fv, Building))
 	assert.Equal(t, "6", fmt.Sprintf(fv, Deploying))
 	assert.Equal(t, "7", fmt.Sprintf(fv, Opened))
-	assert.Equal(t, "8", fmt.Sprintf(fv, Closing))
-	assert.Equal(t, "9", fmt.Sprintf(fv, ClosingError))
-	assert.Equal(t, "10", fmt.Sprintf(fv, Closed))
+	assert.Equal(t, "8", fmt.Sprintf(fv, HibernationChecking))
+	assert.Equal(t, "9", fmt.Sprintf(fv, HibernationStarting))
+	assert.Equal(t, "10", fmt.Sprintf(fv, HibernationProcessing))
+	assert.Equal(t, "11", fmt.Sprintf(fv, HibernationError))
+	assert.Equal(t, "12", fmt.Sprintf(fv, Hibernating))
+	assert.Equal(t, "13", fmt.Sprintf(fv, Closing))
+	assert.Equal(t, "14", fmt.Sprintf(fv, ClosingError))
+	assert.Equal(t, "15", fmt.Sprintf(fv, Closed))
 }
 
 func TestPipelineStateTransition(t *testing.T) {
@@ -400,4 +411,81 @@ func TestGetWaitingPipelines(t *testing.T) {
 		names = append(names, pl.Name)
 	}
 	assert.Equal(t, []string{"pipeline-3", "pipeline-4", "pipeline-5"}, names)
+}
+
+func TestPipelineHasNewTaskSince(t *testing.T) {
+	opt := &aetest.Options{StronglyConsistentDatastore: true}
+	inst, err := aetest.NewInstance(opt)
+	assert.NoError(t, err)
+	defer inst.Close()
+
+	req, err := inst.NewRequest("GET", "/", nil)
+	if !assert.NoError(t, err) {
+		inst.Close()
+		return
+	}
+	ctx := appengine.NewContext(req)
+
+	org1 := &Organization{Name: "org1"}
+	err = org1.Create(ctx)
+	assert.NoError(t, err)
+
+	pipeline := &Pipeline{
+		Organization: org1,
+		Name:         "dummy-pipeline1",
+		ProjectID:    "dummy-proj-111",
+		Zone:         "asia-northeast1-a",
+		BootDisk: PipelineVmDisk{
+			SourceImage: "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable",
+		},
+		MachineType:   "f1-micro",
+		TargetSize:    1,
+		ContainerSize: 1,
+		ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
+	}
+	err = pipeline.Create(ctx)
+	assert.NoError(t, err)
+
+	download_files := "gcs://bucket1/path/to/file1"
+	download_files_json, err := json.Marshal(download_files)
+	assert.NoError(t, err)
+
+	loc, err := time.LoadLocation("Local")
+	assert.NoError(t, err)
+
+	times := []time.Time{
+		time.Date(2017, 11, 14, 0, 0, 0, 0, loc),
+		time.Date(2017, 11, 14, 6, 0, 0, 0, loc),
+		time.Date(2017, 11, 14, 12, 0, 0, 0, loc),
+	}
+
+	for idx, tt := range times {
+		job := &Job{
+			Pipeline:   pipeline,
+			CreatedAt:  tt,
+			Status:     Ready,
+			IdByClient: fmt.Sprintf("%s-job%d", pipeline.Name, idx),
+			Message: JobMessage{
+				AttributeMap: map[string]string{
+					"download_files": string(download_files_json),
+				},
+			},
+		}
+		err = job.Create(ctx)
+		assert.NoError(t, err)
+		assert.NotEmpty(t, job.ID)
+	}
+
+	patterns := map[time.Time]bool{
+		times[0]:                      true,
+		times[1]:                      true,
+		times[2]:                      false,
+		times[2].Add(1 * time.Second): false,
+	}
+
+	for tt, expected := range patterns {
+		actual, err := pipeline.HasNewTaskSince(ctx, tt)
+		assert.NoError(t, err)
+		assert.Equal(t, expected, actual)
+	}
 }

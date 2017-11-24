@@ -30,14 +30,35 @@ func (h *JobHandler) member(action echo.HandlerFunc) echo.HandlerFunc {
 // curl -v -X POST http://localhost:8080/pipelines/3/jobs --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'
 func (h *JobHandler) create(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
-	req := c.Request()
+	pl := c.Get("pipeline").(*models.Pipeline)
+	switch pl.Status {
+	case models.HibernationChecking:
+		err := pl.BackToBeOpened(ctx)
+		if err != nil {
+			log.Errorf(ctx, "Failed to go back to be opened because of %v\n", err)
+			return err
+		}
+		err = PostPipelineTask(c, "subscribe_task", pl)
+		if err != nil {
+			log.Errorf(ctx, "Failed PostPipelineTask subscribe_task because of %v\n", err)
+			return err
+		}
+	case models.Hibernating:
+		err := pl.BackToBeReserved(ctx)
+		if err != nil {
+			return err
+		}
+		err = PostPipelineTask(c, "build_task", pl)
+		if err != nil {
+			return err
+		}
+	}
 	job := &models.Job{}
 	if err := c.Bind(job); err != nil {
 		log.Errorf(ctx, "err: %v\n", err)
-		log.Errorf(ctx, "req: %v\n", req)
+		log.Errorf(ctx, "req: %v\n", c.Request())
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 	}
-	pl := c.Get("pipeline").(*models.Pipeline)
 	job.Pipeline = pl
 	job.InitStatus(c.QueryParam("ready") == "true")
 	err := job.CreateAndPublishIfPossible(ctx)
