@@ -28,6 +28,7 @@ const (
 	Building
 	Deploying
 	Opened
+	HibernationChecking
 	HibernationStarting
 	HibernationProcessing
 	HibernationError
@@ -46,6 +47,7 @@ var StatusStrings = map[Status]string{
 	Building:              "building",
 	Deploying:             "deploying",
 	Opened:                "opened",
+	HibernationChecking:   "hibernation_waiting",
 	HibernationStarting:   "hibernation_starting",
 	HibernationProcessing: "hibernation_processing",
 	HibernationError:      "hibernation_error",
