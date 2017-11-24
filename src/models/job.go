@@ -147,6 +147,14 @@ func (m *Job) Validate() error {
 	return err
 }
 
+func (m *Job) InitStatus(ready bool) {
+	if ready {
+		m.Status = Ready
+	} else {
+		m.Status = Preparing
+	}
+}
+
 func (m *Job) Key(ctx context.Context) (*datastore.Key, error) {
 	parentKey, err := datastore.DecodeKey(m.Pipeline.ID)
 	if err != nil {

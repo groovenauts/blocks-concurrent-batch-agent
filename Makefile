@@ -52,10 +52,16 @@ build:
 							./src/api \
 							./src/admin
 
-test:
-	goapp test	./src/models \
-							./src/api \
-							./src/admin
+test_models:
+	goapp test	./src/models
+
+test_api:
+	goapp test ./src/api
+
+test_admin:
+	goapp test ./src/admin
+
+test: test_models test_api test_admin
 
 ci: check test
 
