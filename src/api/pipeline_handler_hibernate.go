@@ -21,7 +21,11 @@ func (h *PipelineHandler) checkHibernationTask(c echo.Context) error {
 		log.Debugf(ctx, "Quit checkHibernationTask because of the pipeline is %v\n", pl.Status)
 		return c.JSON(http.StatusOK, pl)
 	}
-	newTask, err := pl.HasNewTaskSince(ctx, pl.HibernationStartedAt)
+	since, err := time.Parse(time.RFC3339, c.FormValue("since"))
+	if err != nil {
+		return c.JSON(http.BadRequest, pl)
+	}
+	newTask, err := pl.HasNewTaskSince(ctx, since)
 	if err != nil {
 		log.Errorf(ctx, "Failed to check new tasks because of %v\n", err)
 		return err
