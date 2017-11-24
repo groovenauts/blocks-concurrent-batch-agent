@@ -160,7 +160,13 @@ func (m *Job) Key(ctx context.Context) (*datastore.Key, error) {
 	if err != nil {
 		return nil, err
 	}
-	key := datastore.NewKey(ctx, "Jobs", m.IdByClient, 0, parentKey)
+	var key *datastore.Key
+	if m.IdByClient == "" {
+		key = datastore.NewIncompleteKey(ctx, "Jobs", parentKey)
+		m.IdByClient = "Generated:" + key.Encode()
+	} else {
+		key = datastore.NewKey(ctx, "Jobs", m.IdByClient, 0, parentKey)
+	}
 	return key, nil
 }
 
