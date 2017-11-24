@@ -23,7 +23,8 @@ func (h *PipelineHandler) checkHibernationTask(c echo.Context) error {
 	}
 	since, err := time.Parse(time.RFC3339, c.FormValue("since"))
 	if err != nil {
-		return c.JSON(http.BadRequest, pl)
+		log.Errorf(ctx, "Failed to parse since %v because of %v\n", c.Param("since"), err)
+		return c.JSON(http.StatusBadRequest, pl)
 	}
 	newTask, err := pl.HasNewTaskSince(ctx, since)
 	if err != nil {
