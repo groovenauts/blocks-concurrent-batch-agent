@@ -309,26 +309,14 @@ func (m *Pipeline) Update(ctx context.Context) error {
 	return nil
 }
 
-func (m *Pipeline) RefreshHandler(ctx context.Context) func(*[]DeploymentError) error {
-	return m.RefreshHandlerWith(ctx, nil)
-}
-
-func (m *Pipeline) RefreshHandlerWith(ctx context.Context, pipelineProcesser func(*Pipeline) error) func(*[]DeploymentError) error {
-	return func(errors *[]DeploymentError) error {
-		switch m.Status {
-		case Deploying:
-			if errors != nil {
-				return m.FailDeploying(ctx, errors)
-			} else {
-				return m.CompleteDeploying(ctx)
-			}
-		case Closing:
-			if errors != nil {
-				return m.FailClosing(ctx, errors)
-			} else {
-				return m.CompleteClosing(ctx, pipelineProcesser)
-			}
-		default:
+func (m *Pipeline) RefreshHandler(ctx context.Context, pipelineProcesser func(*Pipeline) error) func(*[]DeploymentError) error {
+	switch m.Status {
+	case Deploying:
+		return m.DeployingHandler(ctx)
+	case Closing:
+		return m.ClosingHandler(ctx, pipelineProcesser)
+	default:
+		return func(*[]DeploymentError) error {
 			return &InvalidOperation{Msg: fmt.Sprintf("Invalid Status %v to handle refreshing Pipline %q\n", m.Status, m.ID)}
 		}
 	}
@@ -354,9 +342,6 @@ func (m *Pipeline) StartBuilding(ctx context.Context) error {
 	return m.StateTransition(ctx, []Status{Reserved, Building}, Building)
 }
 
-func (m *Pipeline) FinishBuilding(ctx context.Context) {
-}
-
 func (m *Pipeline) StartDeploying(ctx context.Context, deploymentName, operationName string) error {
 	m.DeploymentName = deploymentName
 	m.DeployingOperationName = operationName
@@ -372,6 +357,16 @@ func (m *Pipeline) FailDeploying(ctx context.Context, errors *[]DeploymentError)
 func (m *Pipeline) CompleteDeploying(ctx context.Context) error {
 	m.AddActionLog(ctx, "build-finished")
 	return m.StateTransition(ctx, []Status{Deploying}, Opened)
+}
+
+func (m *Pipeline) DeployingHandler(ctx context.Context) func(*[]DeploymentError) error {
+	return func(errors *[]DeploymentError) error {
+		if errors != nil {
+			return m.FailDeploying(ctx, errors)
+		} else {
+			return m.CompleteDeploying(ctx)
+		}
+	}
 }
 
 func (m *Pipeline) StartClosing(ctx context.Context, operationName string) error {
@@ -390,58 +385,50 @@ func (m *Pipeline) CompleteClosing(ctx context.Context, pipelineProcesser func(*
 	m.AddActionLog(ctx, "close-finished")
 	m.Update(ctx)
 	return datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-		accessor := m.JobAccessor()
-		jobs, err := accessor.All(ctx)
+		err := m.CancelLivingJobs(ctx)
 		if err != nil {
 			return err
-		}
-		for _, job := range jobs {
-			if job.Status.Living() {
-				job.Status = Cancelled
-				err = job.Update(ctx)
-				if err != nil {
-					return err
-				}
-			}
 		}
 
 		org, err := GlobalOrganizationAccessor.Find(ctx, m.Organization.ID)
 		if err != nil {
 			return err
 		}
-		newTokenAmount := org.TokenAmount + m.TokenConsumption
 
-		waitings, err := org.PipelineAccessor().GetWaitings(ctx)
-		if err != nil {
-			return err
-		}
-
-		for _, waiting := range waitings {
-			if newTokenAmount < waiting.TokenConsumption {
-				break
-			}
-			newTokenAmount = newTokenAmount - waiting.TokenConsumption
-			waiting.Status = Reserved
-			err := waiting.Update(ctx)
-			if err != nil {
-				return err
-			}
-			if pipelineProcesser != nil {
-				err := pipelineProcesser(waiting)
-				if err != nil {
-					return err
-				}
-			}
-		}
-
-		org.TokenAmount = newTokenAmount
-		err = org.Update(ctx)
-		if err != nil {
-			return err
-		}
+		org.GetBackToken(ctx, m, func() error {
+			return org.StartWaitingPipelines(ctx, pipelineProcesser)
+		})
 
 		return m.StateTransition(ctx, []Status{Closing}, Closed)
 	}, GetTransactionOptions(ctx))
+}
+
+func (m *Pipeline) ClosingHandler(ctx context.Context, pipelineProcesser func(*Pipeline) error) func(*[]DeploymentError) error {
+	return func(errors *[]DeploymentError) error {
+		if errors != nil {
+			return m.FailClosing(ctx, errors)
+		} else {
+			return m.CompleteClosing(ctx, pipelineProcesser)
+		}
+	}
+}
+
+func (m *Pipeline) CancelLivingJobs(ctx context.Context) error {
+	accessor := m.JobAccessor()
+	jobs, err := accessor.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, job := range jobs {
+		if job.Status.Living() {
+			job.Status = Cancelled
+			err = job.Update(ctx)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func (m *Pipeline) Cancel(ctx context.Context) error {
@@ -585,6 +572,9 @@ func (m *Pipeline) stringFromMapWithDefault(src map[string]string, key, defaultV
 }
 
 func (m *Pipeline) AddActionLog(ctx context.Context, name string) {
+	if ctx != nil {
+		log.Debugf(ctx, "pipeline is %v\n", name)
+	}
 	if m.ActionLogs == nil {
 		m.ActionLogs = []ActionLog{}
 	}

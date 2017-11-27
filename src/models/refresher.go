@@ -31,7 +31,7 @@ func (b *Refresher) Setup(ctx context.Context, pl *Pipeline) error {
 }
 
 func (b *Refresher) Process(ctx context.Context, pl *Pipeline, handler func(*[]DeploymentError) error) error {
-	log.Debugf(ctx, "Refreshing pipeline %v\n", pl)
+	log.Debugf(ctx, "Refreshing %v pipeline %v \n", pl.Status, pl.Name)
 
 	switch pl.Status {
 	case Deploying, Closing:

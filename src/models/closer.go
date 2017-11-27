@@ -7,14 +7,18 @@ import (
 
 type Closer struct {
 	deployer DeploymentServicer
+	Handler  func(context.Context, string) error
 }
 
-func NewCloser(ctx context.Context) (*Closer, error) {
+func NewCloser(ctx context.Context, handler func(context.Context, string) error) (*Closer, error) {
 	deployer, err := DefaultDeploymentServicer(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &Closer{deployer: deployer}, nil
+	return &Closer{
+		deployer: deployer,
+		Handler:  handler,
+	}, nil
 }
 
 func (b *Closer) Process(ctx context.Context, pl *Pipeline) error {
@@ -33,7 +37,7 @@ func (b *Closer) Process(ctx context.Context, pl *Pipeline) error {
 		return err
 	}
 
-	err = pl.StartClosing(ctx, ope.Name)
+	err = b.Handler(ctx, ope.Name)
 	if err != nil {
 		log.Errorf(ctx, "Failed to update Pipeline status to 'closing': %v\npl: %v\n", err, pl)
 		return err
