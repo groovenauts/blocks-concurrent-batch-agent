@@ -30,6 +30,9 @@ func SetupRoutesOfPipelines() *PipelineHandler {
 	g.PUT("/:id/cancel", h.cancel)
 	g.PUT("/:id/close", h.cancel)
 	g.POST("/:id/close_task", h.closeTask)
+	g.POST("/:id/check_hibernation_task", h.checkHibernationTask)
+	g.POST("/:id/hibernate_task", h.hibernateTask)
+	g.POST("/:id/wait_hibernation_task", h.waitHibernationTask)
 	g.DELETE("/:id", h.destroy)
 
 	g.POST("/:id/build_task", h.buildTask)

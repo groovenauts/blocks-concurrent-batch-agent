@@ -28,23 +28,33 @@ const (
 	Building
 	Deploying
 	Opened
+	HibernationChecking
+	HibernationStarting
+	HibernationProcessing
+	HibernationError
+	Hibernating
 	Closing
 	ClosingError
 	Closed
 )
 
 var StatusStrings = map[Status]string{
-	Uninitialized: "uninitialized",
-	Broken:        "broken",
-	Pending:       "pending",  // Go Waiting when all of the dependencies are satisfied
-	Waiting:       "waiting",  // Go Reserved when the pipeline has enough tokens for this TokenConsumption
-	Reserved:      "reserved", // Go Building when the pipeline is being built
-	Building:      "building",
-	Deploying:     "deploying",
-	Opened:        "opened",
-	Closing:       "closing",
-	ClosingError:  "closing_error",
-	Closed:        "closed",
+	Uninitialized:         "uninitialized",
+	Broken:                "broken",
+	Pending:               "pending",  // Go Waiting when all of the dependencies are satisfied
+	Waiting:               "waiting",  // Go Reserved when the pipeline has enough tokens for this TokenConsumption
+	Reserved:              "reserved", // Go Building when the pipeline is being built
+	Building:              "building",
+	Deploying:             "deploying",
+	Opened:                "opened",
+	HibernationChecking:   "hibernation_waiting",
+	HibernationStarting:   "hibernation_starting",
+	HibernationProcessing: "hibernation_processing",
+	HibernationError:      "hibernation_error",
+	Hibernating:           "hibernating",
+	Closing:               "closing",
+	ClosingError:          "closing_error",
+	Closed:                "closed",
 }
 
 func (st Status) String() string {
@@ -112,6 +122,8 @@ type (
 		TokenConsumption       int               `json:"token_consumption"`
 		Dependency             Dependency        `json:"dependency,omitempty"`
 		ClosePolicy            ClosePolicy       `json:"close_policy,omitempty"`
+		HibernationDelay       int               `json:"hibernation_delay,omitempty"` // seconds
+		HibernationStartedAt   time.Time         `json:"hibernation_started_at,omitempty"`
 		CreatedAt              time.Time         `json:"created_at"`
 		UpdatedAt              time.Time         `json:"updated_at"`
 		ActionLogs             []ActionLog       `json:"action_logs"`
@@ -315,6 +327,8 @@ func (m *Pipeline) RefreshHandler(ctx context.Context, pipelineProcesser func(*P
 		return m.DeployingHandler(ctx)
 	case Closing:
 		return m.ClosingHandler(ctx, pipelineProcesser)
+	case HibernationProcessing:
+		return m.HibernationHandler(ctx)
 	default:
 		return func(*[]DeploymentError) error {
 			return &InvalidOperation{Msg: fmt.Sprintf("Invalid Status %v to handle refreshing Pipline %q\n", m.Status, m.ID)}
@@ -367,6 +381,62 @@ func (m *Pipeline) DeployingHandler(ctx context.Context) func(*[]DeploymentError
 			return m.CompleteDeploying(ctx)
 		}
 	}
+}
+
+func (m *Pipeline) WaitHibernation(ctx context.Context) error {
+	m.AddActionLog(ctx, "hibernation-waiting")
+	return m.StateTransition(ctx, []Status{Opened}, HibernationChecking)
+}
+
+func (m *Pipeline) StartHibernation(ctx context.Context) error {
+	m.AddActionLog(ctx, "hibernation-started")
+	m.HibernationStartedAt = time.Now()
+	return m.StateTransition(ctx, []Status{HibernationChecking}, HibernationStarting)
+}
+
+func (m *Pipeline) ProcessHibernation(ctx context.Context, operationName string) error {
+	m.AddActionLog(ctx, "hibernation-processing")
+	m.ClosingOperationName = operationName
+	return m.StateTransition(ctx, []Status{HibernationStarting, HibernationProcessing}, HibernationProcessing)
+}
+
+func (m *Pipeline) FailHibernation(ctx context.Context, errors *[]DeploymentError) error {
+	m.AddActionLog(ctx, "hibernation-finished")
+	m.ClosingErrors = *errors
+	return m.StateTransition(ctx, []Status{HibernationProcessing}, HibernationError)
+}
+
+func (m *Pipeline) CompleteHibernation(ctx context.Context) error {
+	m.AddActionLog(ctx, "hibernation-finished")
+	m.Update(ctx)
+	err := m.CancelLivingJobs(ctx)
+	if err != nil {
+		return err
+	}
+	return m.StateTransition(ctx, []Status{HibernationProcessing}, Hibernating)
+}
+
+func (m *Pipeline) HibernationHandler(ctx context.Context) func(*[]DeploymentError) error {
+	return func(errors *[]DeploymentError) error {
+		if errors != nil {
+			return m.FailHibernation(ctx, errors)
+		} else {
+			return m.CompleteHibernation(ctx)
+		}
+	}
+}
+
+func (m *Pipeline) BackToBeOpened(ctx context.Context) error {
+	m.AddActionLog(ctx, "stop-waiting")
+	m.Update(ctx)
+	return m.StateTransition(ctx, []Status{HibernationChecking}, Opened)
+}
+
+func (m *Pipeline) BackToBeReserved(ctx context.Context) error {
+	m.HibernationStartedAt = time.Time{}
+	m.AddActionLog(ctx, "awaked")
+	m.Update(ctx)
+	return m.StateTransition(ctx, []Status{Hibernating}, Reserved)
 }
 
 func (m *Pipeline) StartClosing(ctx context.Context, operationName string) error {
@@ -582,4 +652,18 @@ func (m *Pipeline) AddActionLog(ctx context.Context, name string) {
 		Time: time.Now(),
 		Name: name,
 	})
+}
+
+func (m *Pipeline) HasNewTaskSince(ctx context.Context, t time.Time) (bool, error) {
+	accessor := m.JobAccessor()
+	q, err := accessor.Query()
+	if err != nil {
+		return false, err
+	}
+	q = q.Filter("CreatedAt >", t)
+	c, err := q.Count(ctx)
+	if err != nil {
+		return false, err
+	}
+	return (c > 0), nil
 }

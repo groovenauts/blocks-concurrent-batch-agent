@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"time"
 
 	"models"
@@ -33,6 +34,12 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 				Msg: fmt.Sprintf("Invalid Pipeline#Status %v to subscribe a Pipeline cancelled", pl.Status),
 			}
 		}
+	}
+
+	switch pl.Status {
+	case models.HibernationStarting, models.HibernationProcessing, models.HibernationError, models.Hibernating:
+		log.Infof(ctx, "Pipeline is %v so now stopping subscribe_task. \n", pl.Status)
+		return c.JSON(http.StatusOK, pl)
 	}
 
 	err := pl.PullAndUpdateJobStatus(ctx)
@@ -83,9 +90,22 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 
 	if jobs.AllFinished() {
 		if pl.ClosePolicy.Match(jobs) {
-			return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
-				return PostPipelineTask(c, "close_task", pl)
-			})
+			if pl.HibernationDelay == 0 {
+				return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
+					return PostPipelineTask(c, "close_task", pl)
+				})
+			} else {
+				err := pl.WaitHibernation(ctx)
+				if err != nil {
+					return err
+				}
+				now := time.Now()
+				eta := now.Add(time.Duration(pl.HibernationDelay) * time.Second)
+				params := url.Values{
+					"since": []string{now.Format(time.RFC3339)},
+				}
+				return PostPipelineTaskWith(c, "check_hibernation_task", pl, params, SetETAFunc(eta))
+			}
 		} else {
 			return c.JSON(http.StatusOK, pl)
 		}
