@@ -86,16 +86,15 @@ run: fmt vendor | $(BASE) ; $(info $(M) Running dev server…) @ ## Running dev_
 
 # Tests
 
-TEST_TARGETS := test-default test-bench test-short test-verbose test-race
-.PHONY: $(TEST_TARGETS) test-xml check test tests
-test-bench:   ARGS=-run=__absolutelynothing__ -bench=. ## Run benchmarks
-test-short:   ARGS=-short        ## Run only short tests
-test-verbose: ARGS=-v            ## Run tests in verbose mode with coverage reporting
-test-race:    ARGS=-race         ## Run tests with race detector
+TEST_TARGETS := test-models test-api test-admin
+.PHONY: $(TEST_TARGETS) test _test
 $(TEST_TARGETS): NAME=$(MAKECMDGOALS:test-%=%)
-$(TEST_TARGETS): test
-check test tests: fmt vendor | $(BASE) ; $(info $(M) running $(NAME:%=% )tests…) @ ## Run tests
-	$Q cd $(BASE) && $(GO) test -timeout $(TIMEOUT)s $(ARGS) $(TESTPKGS)
+$(TEST_TARGETS): ARGS=$(NAME)
+$(TEST_TARGETS): _test
+test: ARGS=models api admin
+test:	_test
+_test: fmt vendor | $(BASE) ; $(info $(M) running $(NAME:%=% )tests…) @ ## Run tests
+		$Q cd $(BASE) && $(GOAPP) test $(ARGS)
 
 test-xml: fmt vendor | $(BASE) $(GO2XUNIT) ; $(info $(M) running $(NAME:%=% )tests…) @ ## Run tests with xUnit output
 	$Q cd $(BASE) && 2>&1 $(GO) test -timeout 20s -v $(TESTPKGS) | tee test/tests.output
