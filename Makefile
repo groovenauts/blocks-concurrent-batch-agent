@@ -1,7 +1,7 @@
 # See https://github.com/vincentbernat/hellogopher/blob/master/Makefile
 GITHUB_ORG  = groovenauts
 GITHUB_REPO = blocks-concurrent-batch-agent
-PACKAGE  = blocks-concurrent-batch-agent
+PACKAGE  = concurrent-batch-agent
 DATE    ?= $(shell date +%FT%T%z)
 VERSION ?= `grep VERSION version.go | cut -f2 -d\"`
 GOPATH   = $(CURDIR)/.gopath~
