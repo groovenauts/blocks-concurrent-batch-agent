@@ -17,20 +17,18 @@ increases or descreases, `blocks-concurrent-batch-agent` detects it and scale yo
     - You can install goenv by [anyenv](https://github.com/riywo/anyenv)
 1. [Install the App Engine SDK for Go](https://cloud.google.com/appengine/docs/go/download?hl=ja)
 1. `git clone git@github.com:groovenauts/blocks-concurrent-batch-agent.git`
-1. [Install glide](https://github.com/Masterminds/glide#install)
-1. `make glide_install`
 
 ## Run test
 
 ```
-goapp test
+make test
 ```
 
 ### With coverage
 
 ```
-goapp test -coverprofile coverage.out
-go tool cover -html=coverage.out
+make test-coverage
+open test/coverage.yyyy-mm-ddThh:mm:ssZ/index.html
 ```
 
 ## Run server locally
