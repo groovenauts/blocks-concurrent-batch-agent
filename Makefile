@@ -12,6 +12,7 @@ PKGS     = $(or $(PKG),$(shell cd $(BASE) && env GOPATH=$(GOPATH) $(GO) list ./.
 TESTPKGS = $(shell env GOPATH=$(GOPATH) $(GO) list -f '{{ if or .TestGoFiles .XTestGoFiles }}{{ .ImportPath }}{{ end }}' $(PKGS))
 PKGDIR   = $(CURDIR)/pkg
 SRC_DIRS = $(subst /,, $(subst src/,,$(sort $(dir $(wildcard src/*/)))))
+MAIN_PACKAGES=models api admin
 
 .PHONY: envs
 envs:
@@ -29,10 +30,7 @@ Q = $(if $(filter 1,$V),,@)
 M = $(shell printf "\033[34;1m▶\033[0m")
 
 .PHONY: all
-all: fmt vendor | $(BASE) ; $(info $(M) building executable…) @ ## Build program binary
-	$Q cd $(BASE) && $(GO) build \
-		-tags release \
-		-o bin/$(PACKAGE) *.go
+all: build
 
 $(GOPATH_SRC): ; $(info $(M) setting GOPATH…)
 	@mkdir -p $@
@@ -79,6 +77,11 @@ $(BIN)/ghr: REPOSITORY=github.com/tcnksm/ghr
 
 ## Server
 
+.PHONY: build
+build: fmt vendor | $(BASE) ; $(info $(M) building executable…) @ ## Build program binary
+	$Q cd $(BASE) && $(GO) build $(MAIN_PACKAGES)
+
+
 .PHONY: run
 run: fmt vendor | $(BASE) ; $(info $(M) Running dev server…) @ ## Running dev_appserver
 	$Q dev_appserver.py $(CURDIR)/app/concurrent-batch-agent/app.yaml
@@ -91,7 +94,7 @@ TEST_TARGETS := test-models test-api test-admin
 $(TEST_TARGETS): NAME=$(MAKECMDGOALS:test-%=%)
 $(TEST_TARGETS): ARGS=$(NAME)
 $(TEST_TARGETS): _test
-test: ARGS=models api admin
+test: ARGS=$(MAIN_PACKAGES)
 test:	_test
 _test: fmt vendor | $(BASE) ; $(info $(M) running $(NAME:%=% )tests…) @ ## Run tests
 		$Q cd $(BASE) && $(GOAPP) test $(ARGS)
