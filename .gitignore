@@ -3,3 +3,4 @@
 /tmp
 /pipeline.json
 /job.json
+/test/coverage.*
