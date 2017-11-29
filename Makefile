@@ -6,14 +6,21 @@ DATE    ?= $(shell date +%FT%T%z)
 VERSION ?= `grep VERSION version.go | cut -f2 -d\"`
 GOPATH   = $(CURDIR)/.gopath~
 BIN      = $(GOPATH)/bin
+GOPATH_SRC=$(GOPATH)/src
 BASE     = $(GOPATH)/src/$(PACKAGE)
 PKGS     = $(or $(PKG),$(shell cd $(BASE) && env GOPATH=$(GOPATH) $(GO) list ./... | grep -v "^$(PACKAGE)/vendor/"))
 TESTPKGS = $(shell env GOPATH=$(GOPATH) $(GO) list -f '{{ if or .TestGoFiles .XTestGoFiles }}{{ .ImportPath }}{{ end }}' $(PKGS))
 PKGDIR   = $(CURDIR)/pkg
+SRC_DIRS = $(subst /,, $(subst src/,,$(sort $(dir $(wildcard src/*/)))))
+
+.PHONY: envs
+envs:
+	@echo "SRC_DIRS: $(SRC_DIRS)"
 
 export GOPATH
 
 GO      = go
+GOAPP   = goapp
 GODOC   = godoc
 GOFMT   = gofmt
 TIMEOUT = 15
@@ -27,7 +34,13 @@ all: fmt vendor | $(BASE) ; $(info $(M) building executable…) @ ## Build progr
 		-tags release \
 		-o bin/$(PACKAGE) *.go
 
-$(BASE): ; $(info $(M) setting GOPATH…)
+$(GOPATH_SRC): ; $(info $(M) setting GOPATH…)
+	@mkdir -p $@
+	for sd in $(SRC_DIRS); do \
+		ln -sf $(CURDIR)/src/$$sd $@/$$sd ;\
+	done
+
+$(BASE): $(GOPATH_SRC)
 	@mkdir -p $(dir $@)
 	@ln -sf $(CURDIR) $@
 
@@ -63,6 +76,12 @@ $(BIN)/gox: REPOSITORY=github.com/mitchellh/gox
 
 GHR = $(BIN)/ghr
 $(BIN)/ghr: REPOSITORY=github.com/tcnksm/ghr
+
+## Server
+
+.PHONY: run
+run: fmt vendor | $(BASE) ; $(info $(M) Running dev server…) @ ## Running dev_appserver
+	$Q dev_appserver.py $(CURDIR)/app/concurrent-batch-agent/app.yaml
 
 
 # Tests
@@ -116,9 +135,16 @@ fmt: ; $(info $(M) running gofmt…) @ ## Run gofmt on all source files
 	 done ; exit $$ret
 
 # Dependency management
+.PHONY: dep_ensure
+dep_ensure: ; $(info $(M) retrieving dependencies…)
+	@cd $(BASE) && $(GODEP) ensure
 
-vendor: Gopkg.toml Gopkg.lock | $(BASE) $(GODEP) ; $(info $(M) retrieving dependencies…)
-	$Q cd $(BASE) && $(GODEP) ensure
+vendor: Gopkg.toml Gopkg.lock | $(BASE) $(GODEP) dep_ensure
+	@rm -rf $(CURDIR)/vendor/src
+	@cd $(BASE) && $(GODEP) ensure
+	$Q for d in $(subst /,, $(subst vendor/,, $(sort $(dir $(wildcard vendor/*/))))); do \
+	  cd $(GOPATH_SRC) && ln -sf $(CURDIR)/vendor/$$d $$d ;\
+	done
 	@ln -nsf . vendor/src
 	@touch $@
 .PHONY: vendor-init
