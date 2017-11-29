@@ -65,23 +65,6 @@ GHR = $(BIN)/ghr
 $(BIN)/ghr: REPOSITORY=github.com/tcnksm/ghr
 
 
-.PHONY: packages packages-tools
-packages-tools: | $(GOX)
-packages: OS_LIST := linux darwin
-packages: ARCH := amd64
-packages: PARALLEL := 2
-packages: fmt vendor packages-tools | $(BASE) ; $(info $(M) Building packages…) @ ## Run gox
-	mkdir -p ${PKGDIR} && \
-	cd $(BASE) && \
-		$(GOX) -output="${PKGDIR}/{{.Dir}}_{{.OS}}_{{.Arch}}" -os="${OS_LIST}" -arch="${ARCH}" -parallel=${PARALLEL}
-
-.PHONY: prerelease release release-tools
-release-tools: | $(GHR)
-release: git_guard packages release-tools | $(BASE) ; $(info $(M) Making a Release on github…) @ ## Run ghr
-	$(GHR) -u $(GITHUB_ORG) -r $(GITHUB_REPO) --replace --draft ${VERSION} pkg
-prerelease: git_guard packages release-tools | $(BASE) ; $(info $(M) Making a Pre-Release on github…) @ ## Run ghr
-	$(GHR) -u $(GITHUB_ORG) -r $(GITHUB_REPO) --replace --draft --prerelease ${VERSION} pkg
-
 # Tests
 
 TEST_TARGETS := test-default test-bench test-short test-verbose test-race
