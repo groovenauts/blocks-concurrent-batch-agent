@@ -3,7 +3,7 @@ GITHUB_ORG  = groovenauts
 GITHUB_REPO = blocks-concurrent-batch-agent
 PACKAGE  = concurrent-batch-agent
 DATE    ?= $(shell date +%FT%T%z)
-VERSION ?= `grep VERSION version.go | cut -f2 -d\"`
+VERSION ?= $(shell cat ./VERSION)
 GOPATH   = $(CURDIR)/.gopath~
 BIN      = $(GOPATH)/bin
 GOPATH_SRC=$(GOPATH)/src
@@ -193,3 +193,11 @@ tag: git_tag git_push_tag
 
 .PHONY: ci
 ci:	fmt git_guard test
+
+.PHONY: deploy
+deploy: build
+	appcfg.py -A $${PROJECT} -V ${VERSION} update ./app/concurrent-batch-agent
+
+.PHONY: update-traffic
+update-traffic:
+	gcloud --project ${PROJECT} app services set-traffic concurrent-batch-agent --splits=${VERSION}=1 -q
