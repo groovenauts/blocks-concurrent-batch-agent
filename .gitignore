@@ -1,5 +1,6 @@
 /coverage.out
-/vendor/src
+/vendor
 /tmp
 /pipeline.json
 /job.json
+/test/coverage.*
