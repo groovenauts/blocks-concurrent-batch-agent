@@ -68,10 +68,12 @@ func (st Status) String() string {
 type Statuses []Status
 
 var (
-	StatusesNotDeployedYet = Statuses{Uninitialized, Pending, Waiting, Reserved}
-	StatusesNowDeploying   = Statuses{Building, Deploying}
-	StatusesOpened         = Statuses{Opened}
-	StatusesAlreadyClosing = Statuses{Closing, ClosingError, Closed}
+	StatusesNotDeployedYet         = Statuses{Uninitialized, Pending, Waiting, Reserved}
+	StatusesNowDeploying           = Statuses{Building, Deploying}
+	StatusesOpened                 = Statuses{Opened, HibernationChecking}
+	StatusesAlreadyClosing         = Statuses{Closing, ClosingError, Closed}
+	StatusesHibernationInProgresss = Statuses{HibernationStarting, HibernationProcessing, HibernationError}
+	StatusesHibernating            = Statuses{Hibernating}
 )
 
 func (sts Statuses) Include(t Status) bool {
@@ -499,6 +501,11 @@ func (m *Pipeline) ClosingHandler(ctx context.Context, pipelineProcesser func(*P
 			return m.CompleteClosing(ctx, pipelineProcesser)
 		}
 	}
+}
+
+func (m *Pipeline) CloseIfHibernating(ctx context.Context) error {
+	m.AddActionLog(ctx, "close-after-hibernation")
+	return m.StateTransition(ctx, StatusesHibernating, ClosingError)
 }
 
 func (m *Pipeline) CancelLivingJobs(ctx context.Context) error {
