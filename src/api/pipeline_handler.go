@@ -99,11 +99,10 @@ func (h *PipelineHandler) show(c echo.Context) error {
 func (h *PipelineHandler) cancel(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
+	oldStatus := pl.Status
 	pl.Cancel(ctx)
-	switch pl.Status {
+	switch oldStatus {
 	case models.Uninitialized, models.Pending, models.Waiting, models.Reserved:
-		pl.Status = models.Closed
-		pl.Update(ctx)
 		return c.JSON(http.StatusOK, pl)
 	case models.Building, models.Deploying:
 		// Wait until deploying is finished

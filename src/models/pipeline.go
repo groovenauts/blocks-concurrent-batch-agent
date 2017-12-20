@@ -503,6 +503,10 @@ func (m *Pipeline) CancelLivingJobs(ctx context.Context) error {
 func (m *Pipeline) Cancel(ctx context.Context) error {
 	m.Cancelled = true
 	m.AddActionLog(ctx, "cancelled")
+	switch m.Status {
+	case Uninitialized, Pending, Waiting, Reserved:
+		m.Status = Closed
+	}
 	return m.Update(ctx)
 }
 
