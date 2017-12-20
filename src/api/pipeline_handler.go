@@ -114,6 +114,11 @@ func (h *PipelineHandler) cancel(c echo.Context) error {
 	case models.StatusesAlreadyClosing.Include(st):
 		// Do nothing because it's already closed or being closed
 		return c.JSON(http.StatusNoContent, pl)
+	case models.StatusesHibernationInProgresss.Include(st):
+		// Do nothing because it's already started hibernation
+		return c.JSON(http.StatusNoContent, pl)
+	case models.StatusesHibernating.Include(st):
+		return c.JSON(http.StatusOK, pl)
 	default:
 		return &models.InvalidStateTransition{
 			Msg: fmt.Sprintf("Invalid Pipeline#Status %v to cancel", pl.Status),
