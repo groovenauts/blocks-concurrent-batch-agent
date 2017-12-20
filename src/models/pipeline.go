@@ -491,8 +491,7 @@ func (m *Pipeline) CancelLivingJobs(ctx context.Context) error {
 	}
 	for _, job := range jobs {
 		if job.Status.Living() {
-			job.Status = Cancelled
-			err = job.Update(ctx)
+			err = job.Cancel(ctx)
 			if err != nil {
 				return err
 			}

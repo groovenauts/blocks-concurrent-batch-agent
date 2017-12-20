@@ -450,3 +450,8 @@ func (m *Job) UpdateStatusIfGreaterThanBefore(ctx context.Context, completed boo
 	}
 	return nil
 }
+
+func (m *Job) Cancel(ctx context.Context) error {
+	m.Status = Cancelled
+	return m.Update(ctx)
+}
