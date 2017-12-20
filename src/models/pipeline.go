@@ -556,7 +556,10 @@ func (m *Pipeline) PublishJobs(ctx context.Context) error {
 	}
 
 	for _, job := range jobs {
-		if job.Status == Ready {
+		switch job.Status {
+		case Preparing:
+			log.Debugf(ctx, "The job isn't published because it's preparing now: %v\n", job)
+		case Ready:
 			job.Pipeline = m
 			_, err := job.Publish(ctx)
 			if err != nil {
