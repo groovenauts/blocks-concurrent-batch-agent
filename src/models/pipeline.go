@@ -529,7 +529,7 @@ func (m *Pipeline) Cancel(ctx context.Context) error {
 	m.Cancelled = true
 	m.AddActionLog(ctx, "cancelled")
 	switch {
-	case StatusesNotDeployedYet.Include(m.Status):
+	case StatusesNotDeployedYet.Include(m.Status) || StatusesHibernating.Include(m.Status):
 		m.Status = Closed
 	}
 	return m.Update(ctx)
