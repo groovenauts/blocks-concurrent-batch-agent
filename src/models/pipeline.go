@@ -65,6 +65,24 @@ func (st Status) String() string {
 	return res
 }
 
+type Statuses []Status
+
+var (
+	StatusesNotDeployedYet = Statuses{Uninitialized, Pending, Waiting, Reserved}
+	StatusesNowDeploying   = Statuses{Building, Deploying}
+	StatusesOpened         = Statuses{Opened}
+	StatusesAlreadyClosing = Statuses{Closing, ClosingError, Closed}
+)
+
+func (sts Statuses) Include(t Status) bool {
+	for _, st := range sts {
+		if st == t {
+			return true
+		}
+	}
+	return false
+}
+
 type (
 	// See https://godoc.org/google.golang.org/api/deploymentmanager/v2#OperationErrorErrors
 	DeploymentError struct {
@@ -503,8 +521,8 @@ func (m *Pipeline) CancelLivingJobs(ctx context.Context) error {
 func (m *Pipeline) Cancel(ctx context.Context) error {
 	m.Cancelled = true
 	m.AddActionLog(ctx, "cancelled")
-	switch m.Status {
-	case Uninitialized, Pending, Waiting, Reserved:
+	switch {
+	case StatusesNotDeployedYet.Include(m.Status):
 		m.Status = Closed
 	}
 	return m.Update(ctx)
