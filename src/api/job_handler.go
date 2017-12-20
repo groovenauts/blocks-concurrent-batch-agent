@@ -170,7 +170,7 @@ func (h *JobHandler) PublishTask(c echo.Context) error {
 	return c.JSON(http.StatusOK, job)
 }
 
-// curl -v http://localhost:8080/jobs/1/calcel
+// curl -v http://localhost:8080/jobs/1/cancel
 func (h *JobHandler) Cancel(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	job := c.Get("job").(*models.Job)
