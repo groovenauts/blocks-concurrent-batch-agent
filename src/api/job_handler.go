@@ -137,8 +137,8 @@ func (h *JobHandler) WaitToPublishTask(c echo.Context) error {
 	started := time.Now()
 	pl := c.Get("pipeline").(*models.Pipeline)
 	job := c.Get("job").(*models.Job)
-	switch pl.Status {
-	case models.Opened:
+	switch {
+	case models.StatusesOpened.Include(pl.Status):
 		err := h.PostJobTask(c, job, "publish_task", started)
 		if err != nil {
 			return nil

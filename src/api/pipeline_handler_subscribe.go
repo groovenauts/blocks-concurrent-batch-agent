@@ -20,13 +20,13 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 	pl := c.Get("pipeline").(*models.Pipeline)
 
 	if pl.Cancelled {
-		switch pl.Status {
-		case models.Opened:
+		switch {
+		case models.StatusesOpened.Include(pl.Status):
 			log.Infof(ctx, "Pipeline is cancelled.\n")
 			return ReturnJsonWith(c, pl, http.StatusNoContent, func() error {
 				return PostPipelineTask(c, "close_task", pl)
 			})
-		case models.Closing, models.ClosingError, models.Closed:
+		case models.StatusesAlreadyClosing.Include(pl.Status):
 			log.Warningf(ctx, "Pipeline is cancelled but do nothing because it's already closed or being closed.\n")
 			return c.JSON(http.StatusOK, pl)
 		default:
@@ -36,8 +36,9 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 		}
 	}
 
-	switch pl.Status {
-	case models.HibernationStarting, models.HibernationProcessing, models.HibernationError, models.Hibernating:
+	switch {
+	case models.StatusesHibernationInProgresss.Include(pl.Status) ||
+		models.StatusesHibernating.Include(pl.Status):
 		log.Infof(ctx, "Pipeline is %v so now stopping subscribe_task. \n", pl.Status)
 		return c.JSON(http.StatusOK, pl)
 	}
@@ -46,9 +47,9 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 	if err != nil {
 		switch err.(type) {
 		case *models.SubscriprionNotFound:
-			switch pl.Status {
-			case models.Closing, models.Closed:
-				log.Infof(ctx, "Pipeline is already closed\n")
+			switch {
+			case models.StatusesAlreadyClosing.Include(pl.Status):
+				log.Infof(ctx, "Pipeline is already %v\n", pl.Status)
 				return c.JSON(http.StatusOK, pl)
 			default:
 				log.Infof(ctx, "Subscription is not found but the pipeline isn't closed because of %v\n", err)
