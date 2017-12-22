@@ -380,10 +380,13 @@ func (m *Job) UpdateAndPublishIfPossible(ctx context.Context) error {
 func (m *Job) DoAndPublishIfPossible(ctx context.Context, f func(ctx context.Context) error) error {
 	if m.Status == Ready {
 		pl := m.Pipeline
-		switch pl.Status {
-		case Uninitialized, Pending, Waiting, Reserved, Building, Deploying:
+		switch {
+		case StatusesNotDeployedYet.Include(pl.Status) ||
+			StatusesNowDeploying.Include(pl.Status) ||
+			StatusesHibernationInProgresss.Include(pl.Status) ||
+			StatusesHibernating.Include(pl.Status):
 			m.Status = Ready
-		case Opened:
+		case StatusesOpened.Include(pl.Status):
 			m.Status = Publishing
 		default:
 			msg := fmt.Sprintf("Can't create and publish a job to a pipeline which is %v", pl.Status)
