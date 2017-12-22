@@ -99,22 +99,26 @@ func (h *PipelineHandler) show(c echo.Context) error {
 func (h *PipelineHandler) cancel(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
+	st := pl.Status
 	pl.Cancel(ctx)
-	switch pl.Status {
-	case models.Uninitialized, models.Pending, models.Waiting, models.Reserved:
-		pl.Status = models.Closed
-		pl.Update(ctx)
+	switch {
+	case models.StatusesNotDeployedYet.Include(st):
 		return c.JSON(http.StatusOK, pl)
-	case models.Building, models.Deploying:
+	case models.StatusesNowDeploying.Include(st):
 		// Wait until deploying is finished
 		return c.JSON(http.StatusAccepted, pl)
-	case models.Opened:
+	case models.StatusesOpened.Include(st):
 		return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
 			return PostPipelineTask(c, "close_task", pl)
 		})
-	case models.Closing, models.ClosingError, models.Closed:
+	case models.StatusesAlreadyClosing.Include(st):
 		// Do nothing because it's already closed or being closed
 		return c.JSON(http.StatusNoContent, pl)
+	case models.StatusesHibernationInProgresss.Include(st):
+		// Do nothing because it's already started hibernation
+		return c.JSON(http.StatusNoContent, pl)
+	case models.StatusesHibernating.Include(st):
+		return c.JSON(http.StatusOK, pl)
 	default:
 		return &models.InvalidStateTransition{
 			Msg: fmt.Sprintf("Invalid Pipeline#Status %v to cancel", pl.Status),

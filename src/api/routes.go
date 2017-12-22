@@ -61,6 +61,7 @@ func SetupRoutesOfJobs() *JobHandler {
 	g.POST("/:id/getready", h.getReady)
 	g.POST("/:id/wait_task", h.WaitToPublishTask)
 	g.POST("/:id/publish_task", h.PublishTask)
+	g.POST("/:id/cancel", h.Cancel)
 
 	return h
 }

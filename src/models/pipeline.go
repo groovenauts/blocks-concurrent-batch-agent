@@ -65,6 +65,26 @@ func (st Status) String() string {
 	return res
 }
 
+type Statuses []Status
+
+var (
+	StatusesNotDeployedYet         = Statuses{Uninitialized, Pending, Waiting, Reserved}
+	StatusesNowDeploying           = Statuses{Building, Deploying}
+	StatusesOpened                 = Statuses{Opened, HibernationChecking}
+	StatusesAlreadyClosing         = Statuses{Closing, ClosingError, Closed}
+	StatusesHibernationInProgresss = Statuses{HibernationStarting, HibernationProcessing, HibernationError}
+	StatusesHibernating            = Statuses{Hibernating}
+)
+
+func (sts Statuses) Include(t Status) bool {
+	for _, st := range sts {
+		if st == t {
+			return true
+		}
+	}
+	return false
+}
+
 type (
 	// See https://godoc.org/google.golang.org/api/deploymentmanager/v2#OperationErrorErrors
 	DeploymentError struct {
@@ -483,6 +503,11 @@ func (m *Pipeline) ClosingHandler(ctx context.Context, pipelineProcesser func(*P
 	}
 }
 
+func (m *Pipeline) CloseIfHibernating(ctx context.Context) error {
+	m.AddActionLog(ctx, "close-after-hibernation")
+	return m.StateTransition(ctx, StatusesHibernating, ClosingError)
+}
+
 func (m *Pipeline) CancelLivingJobs(ctx context.Context) error {
 	accessor := m.JobAccessor()
 	jobs, err := accessor.All(ctx)
@@ -491,8 +516,7 @@ func (m *Pipeline) CancelLivingJobs(ctx context.Context) error {
 	}
 	for _, job := range jobs {
 		if job.Status.Living() {
-			job.Status = Cancelled
-			err = job.Update(ctx)
+			err = job.Cancel(ctx)
 			if err != nil {
 				return err
 			}
@@ -504,6 +528,10 @@ func (m *Pipeline) CancelLivingJobs(ctx context.Context) error {
 func (m *Pipeline) Cancel(ctx context.Context) error {
 	m.Cancelled = true
 	m.AddActionLog(ctx, "cancelled")
+	switch {
+	case StatusesNotDeployedYet.Include(m.Status) || StatusesHibernating.Include(m.Status):
+		m.Status = Closed
+	}
 	return m.Update(ctx)
 }
 
@@ -557,7 +585,10 @@ func (m *Pipeline) PublishJobs(ctx context.Context) error {
 	}
 
 	for _, job := range jobs {
-		if job.Status == Ready {
+		switch job.Status {
+		case Preparing:
+			log.Debugf(ctx, "The job isn't published because it's preparing now: %v\n", job)
+		case Ready:
 			job.Pipeline = m
 			_, err := job.Publish(ctx)
 			if err != nil {
