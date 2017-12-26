@@ -163,7 +163,7 @@ func (m *Job) Key(ctx context.Context) (*datastore.Key, error) {
 	var key *datastore.Key
 	if m.IdByClient == "" {
 		key = datastore.NewIncompleteKey(ctx, "Jobs", parentKey)
-		m.IdByClient = "Generated:" + key.Encode()
+		m.IdByClient = fmt.Sprintf("Generated-%s", time.Now().Format(time.RFC3339))
 	} else {
 		key = datastore.NewKey(ctx, "Jobs", m.IdByClient, 0, parentKey)
 	}
