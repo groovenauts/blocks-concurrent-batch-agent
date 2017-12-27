@@ -429,10 +429,6 @@ func (m *Pipeline) FailHibernation(ctx context.Context, errors *[]DeploymentErro
 func (m *Pipeline) CompleteHibernation(ctx context.Context) error {
 	m.AddActionLog(ctx, "hibernation-finished")
 	m.Update(ctx)
-	err := m.CancelLivingJobs(ctx)
-	if err != nil {
-		return err
-	}
 	return m.StateTransition(ctx, []Status{HibernationProcessing}, Hibernating)
 }
 
