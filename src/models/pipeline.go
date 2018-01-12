@@ -116,6 +116,14 @@ type (
 		Name string
 	}
 
+	AutoScaling struct {
+		Enabled              bool    `json:"enabled"`
+		MinNumReplicas       int     `json:"min_num_replicas"`
+		MaxNumReplicas       int     `json:"max_num_replicas"`
+		CoolDownPeriodSec    int     `json:"cool_down_period_sec"`
+		CpuUtilizationTarget float64 `json:"cpu_utilization_target"`
+	}
+
 	Pipeline struct {
 		ID                     string            `json:"id"             datastore:"-"`
 		Organization           *Organization     `json:"-"              validate:"required" datastore:"-"`
@@ -147,6 +155,7 @@ type (
 		CreatedAt              time.Time         `json:"created_at"`
 		UpdatedAt              time.Time         `json:"updated_at"`
 		ActionLogs             []ActionLog       `json:"action_logs"`
+		AutoScaling            AutoScaling       `json:"auto_scaling,omitempty"`
 	}
 )
 
