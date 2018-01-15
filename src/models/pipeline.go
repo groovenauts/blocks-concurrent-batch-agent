@@ -86,19 +86,6 @@ func (sts Statuses) Include(t Status) bool {
 }
 
 type (
-	// See https://godoc.org/google.golang.org/api/deploymentmanager/v2#OperationErrorErrors
-	DeploymentError struct {
-		// Code: [Output Only] The error type identifier for this error.
-		Code string `json:"code,omitempty"`
-
-		// Location: [Output Only] Indicates the field in the request that
-		// caused the error. This property is optional.
-		Location string `json:"location,omitempty"`
-
-		// Message: [Output Only] An optional, human-readable error message.
-		Message string `json:"message,omitempty"`
-	}
-
 	PipelineVmDisk struct {
 		// DiskName    string `json:"disk_name,omitempty"` // Don't support diskName to keep simple naming rule
 		DiskSizeGb  int    `json:"disk_size_gb,omitempty"`
@@ -111,42 +98,34 @@ type (
 		Type  string `json:"type"`
 	}
 
-	ActionLog struct {
-		Time time.Time
-		Name string
-	}
-
 	Pipeline struct {
-		ID                     string            `json:"id"             datastore:"-"`
-		Organization           *Organization     `json:"-"              validate:"required" datastore:"-"`
-		Name                   string            `json:"name"           validate:"required"`
-		ProjectID              string            `json:"project_id"     validate:"required"`
-		Zone                   string            `json:"zone"           validate:"required"`
-		BootDisk               PipelineVmDisk    `json:"boot_disk"`
-		MachineType            string            `json:"machine_type"   validate:"required"`
-		GpuAccelerators        Accelerators      `json:"gpu_accelerators,omitempty"`
-		Preemptible            bool              `json:"preemptible,omitempty"`
-		StackdriverAgent       bool              `json:"stackdriver_agent,omitempty"`
-		TargetSize             int               `json:"target_size"    validate:"required"`
-		ContainerSize          int               `json:"container_size" validate:"required"`
-		ContainerName          string            `json:"container_name" validate:"required"`
-		Command                string            `json:"command"` // allow blank
-		Status                 Status            `json:"status"`
-		Cancelled              bool              `json:"cancelled"`
-		Dryrun                 bool              `json:"dryrun"`
-		DeploymentName         string            `json:"deployment_name"`
-		DeployingOperationName string            `json:"deploying_operation_name"`
-		DeployingErrors        []DeploymentError `json:"deploying_errors"`
-		ClosingOperationName   string            `json:"closing_operation_name"`
-		ClosingErrors          []DeploymentError `json:"closing_errors"`
-		TokenConsumption       int               `json:"token_consumption"`
-		Dependency             Dependency        `json:"dependency,omitempty"`
-		ClosePolicy            ClosePolicy       `json:"close_policy,omitempty"`
-		HibernationDelay       int               `json:"hibernation_delay,omitempty"` // seconds
-		HibernationStartedAt   time.Time         `json:"hibernation_started_at,omitempty"`
-		CreatedAt              time.Time         `json:"created_at"`
-		UpdatedAt              time.Time         `json:"updated_at"`
-		ActionLogs             []ActionLog       `json:"action_logs"`
+		ID                     string         `json:"id"             datastore:"-"`
+		Organization           *Organization  `json:"-"              validate:"required" datastore:"-"`
+		Name                   string         `json:"name"           validate:"required"`
+		ProjectID              string         `json:"project_id"     validate:"required"`
+		Zone                   string         `json:"zone"           validate:"required"`
+		BootDisk               PipelineVmDisk `json:"boot_disk"`
+		MachineType            string         `json:"machine_type"   validate:"required"`
+		GpuAccelerators        Accelerators   `json:"gpu_accelerators,omitempty"`
+		Preemptible            bool           `json:"preemptible,omitempty"`
+		StackdriverAgent       bool           `json:"stackdriver_agent,omitempty"`
+		TargetSize             int            `json:"target_size"    validate:"required"`
+		ContainerSize          int            `json:"container_size" validate:"required"`
+		ContainerName          string         `json:"container_name" validate:"required"`
+		Command                string         `json:"command"` // allow blank
+		Status                 Status         `json:"status"`
+		Cancelled              bool           `json:"cancelled"`
+		Dryrun                 bool           `json:"dryrun"`
+		DeploymentName         string         `json:"deployment_name"`
+		DeployingOperationName string         `json:"deploying_operation_name"`
+		ClosingOperationName   string         `json:"closing_operation_name"`
+		TokenConsumption       int            `json:"token_consumption"`
+		Dependency             Dependency     `json:"dependency,omitempty"`
+		ClosePolicy            ClosePolicy    `json:"close_policy,omitempty"`
+		HibernationDelay       int            `json:"hibernation_delay,omitempty"` // seconds
+		HibernationStartedAt   time.Time      `json:"hibernation_started_at,omitempty"`
+		CreatedAt              time.Time      `json:"created_at"`
+		UpdatedAt              time.Time      `json:"updated_at"`
 	}
 )
 
