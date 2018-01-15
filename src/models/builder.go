@@ -125,6 +125,11 @@ func (b *Builder) GenerateDeploymentResources(pl *Pipeline) *Resources {
 		b.buildItResource(pl),
 		b.buildIgmResource(pl),
 	)
+
+	if pl.AutoScaling.Enabled {
+		t = append(t, b.buildAutoscaler(pl))
+	}
+
 	return &Resources{Resources: t}
 }
 
@@ -190,6 +195,26 @@ func (b *Builder) buildIgmResource(pl *Pipeline) Resource {
 			"instanceTemplate": "$(ref." + pl.Name + "-it.selfLink)",
 			"targetSize":       pl.TargetSize,
 			"zone":             pl.Zone,
+		},
+	}
+}
+
+func (b *Builder) buildAutoscaler(pl *Pipeline) Resource {
+	// https://cloud.google.com/compute/docs/reference/latest/autoscalers#resource
+	return Resource{
+		Type: "compute.v1.autoscaler",
+		Name: pl.Name + "-as",
+		Properties: map[string]interface{}{
+			"autoscalingPolicy": map[string]interface{}{
+				"minNumReplicas":    pl.AutoScaling.MinNumReplicas,
+				"maxNumReplicas":    pl.AutoScaling.MaxNumReplicas,
+				"coolDownPeriodSec": pl.AutoScaling.CoolDownPeriodSec,
+				"cpuUtilization": map[string]interface{}{
+					"utilizationTarget": pl.AutoScaling.CpuUtilizationTarget,
+				},
+			},
+			"target": "$(ref." + pl.Name + "-igm.selfLink)",
+			"zone":   pl.Zone,
 		},
 	}
 }

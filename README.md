@@ -173,6 +173,12 @@ $ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' 
 
 | Name                    | Type     | Required | Description   |
 |-------------------------|----------|:--------:|---------------|
+| auto_scaling            | object   | false    | Auto Scaling settings |
+| auto_scaling.enabled                | bool  | true  | Set true to use Auto Scaling |
+| auto_scaling.max_num_replicas       | int   | true  | Maximum number of instance replicas |
+| auto_scaling.min_num_replicas       | int   | true  | Minimum number of instance replicas |
+| auto_scaling.cool_down_period_sec   | int   | false | The number of seconds to wait for collecting information from a new instance. |
+| auto_scaling.cpu_utilization_target | float | false | The target CPU utilization to be maintained (0 < n =< 1) |
 | boot_disk               | object   | true     | Boot disk for VM  |
 | boot_disk.disk_size_gb  | int      | false    | Boot disk size in GB|
 | boot_disk.disk_type     | string   | false    | Boot disk type: "pd-standard", "pd-ssd" |
