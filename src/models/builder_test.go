@@ -167,6 +167,47 @@ func TestBuildDeploymentWithGPU(t *testing.T) {
 	assert.Equal(t, expected.Resources[4].Properties["properties"], actual)
 }
 
+func TestBuildDeploymentWithAutoScaling(t *testing.T) {
+	b, pl := setupForBuildDeployment()
+	pl.AutoScaling = AutoScaling{
+		Enabled:              true,
+		MinNumReplicas:       0,
+		MaxNumReplicas:       5,
+		CoolDownPeriodSec:    30,
+		CpuUtilizationTarget: 0.5,
+	}
+	err := pl.Validate()
+	assert.NoError(t, err)
+
+	actual := b.GenerateDeploymentResources(pl)
+
+	var autoscaler Resource
+	for _, res := range actual.Resources {
+		if res.Type == "compute.v1.autoscaler" {
+			autoscaler = res
+		}
+	}
+	assert.NotNil(t, autoscaler)
+	assert.Equal(t, "compute.v1.autoscaler", autoscaler.Type)
+	assert.Equal(t, "pipeline01-as", autoscaler.Name)
+	if assert.NotNil(t, autoscaler.Properties["autoscalingPolicy"]) {
+		policy, ok := autoscaler.Properties["autoscalingPolicy"].(map[string]interface{})
+		if assert.True(t, ok) {
+			assert.Equal(t, 0, policy["minNumReplicas"])
+			assert.Equal(t, 5, policy["maxNumReplicas"])
+			assert.Equal(t, 30, policy["coolDownPeriodSec"])
+			if assert.NotNil(t, policy["cpuUtilization"]) {
+				cpuUtilization, ok := policy["cpuUtilization"].(map[string]interface{})
+				if assert.True(t, ok) {
+					assert.Equal(t, 0.5, cpuUtilization["utilizationTarget"])
+				}
+			}
+		}
+	}
+	assert.Equal(t, "$(ref.pipeline01-igm.selfLink)", autoscaler.Properties["target"])
+	assert.Equal(t, "us-central1-f", autoscaler.Properties["zone"])
+}
+
 func setupTestBuildStartupScript() (*Builder, *Pipeline) {
 	b := Builder{}
 	pl := Pipeline{
