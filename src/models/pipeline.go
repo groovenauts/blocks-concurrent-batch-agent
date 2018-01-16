@@ -366,30 +366,30 @@ func (m *Pipeline) CompleteDeploying(ctx context.Context) error {
 }
 
 func (m *Pipeline) WaitHibernation(ctx context.Context) error {
-	m.AddActionLog(ctx, "hibernation-waiting")
+	// m.AddActionLog(ctx, "hibernation-waiting")
 	return m.StateTransition(ctx, []Status{Opened}, HibernationChecking)
 }
 
 func (m *Pipeline) StartHibernation(ctx context.Context) error {
-	m.AddActionLog(ctx, "hibernation-started")
+	// m.AddActionLog(ctx, "hibernation-started")
 	m.HibernationStartedAt = time.Now()
 	return m.StateTransition(ctx, []Status{HibernationChecking}, HibernationStarting)
 }
 
 func (m *Pipeline) ProcessHibernation(ctx context.Context, operationName string) error {
-	m.AddActionLog(ctx, "hibernation-processing")
+	// m.AddActionLog(ctx, "hibernation-processing")
 	m.ClosingOperationName = operationName
 	return m.StateTransition(ctx, []Status{HibernationStarting, HibernationProcessing}, HibernationProcessing)
 }
 
 func (m *Pipeline) FailHibernation(ctx context.Context, errors *[]OperationError) error {
-	m.AddActionLog(ctx, "hibernation-finished")
+	// m.AddActionLog(ctx, "hibernation-finished")
 	m.ClosingErrors = *errors
 	return m.StateTransition(ctx, []Status{HibernationProcessing}, HibernationError)
 }
 
 func (m *Pipeline) CompleteHibernation(ctx context.Context) error {
-	m.AddActionLog(ctx, "hibernation-finished")
+	// m.AddActionLog(ctx, "hibernation-finished")
 	m.Update(ctx)
 	return m.StateTransition(ctx, []Status{HibernationProcessing}, Hibernating)
 }
@@ -405,32 +405,32 @@ func (m *Pipeline) HibernationHandler(ctx context.Context) func(*[]OperationErro
 }
 
 func (m *Pipeline) BackToBeOpened(ctx context.Context) error {
-	m.AddActionLog(ctx, "stop-waiting")
+	// m.AddActionLog(ctx, "stop-waiting")
 	m.Update(ctx)
 	return m.StateTransition(ctx, []Status{HibernationChecking}, Opened)
 }
 
 func (m *Pipeline) BackToBeReserved(ctx context.Context) error {
 	m.HibernationStartedAt = time.Time{}
-	m.AddActionLog(ctx, "awaked")
+	// m.AddActionLog(ctx, "awaked")
 	m.Update(ctx)
 	return m.StateTransition(ctx, []Status{Hibernating}, Reserved)
 }
 
 func (m *Pipeline) StartClosing(ctx context.Context, operationName string) error {
-	m.AddActionLog(ctx, "close-started")
+	// m.AddActionLog(ctx, "close-started")
 	m.ClosingOperationName = operationName
 	return m.StateTransition(ctx, []Status{Opened, Closing}, Closing)
 }
 
 func (m *Pipeline) FailClosing(ctx context.Context, errors *[]OperationError) error {
-	m.AddActionLog(ctx, "close-finished")
+	// m.AddActionLog(ctx, "close-finished")
 	m.ClosingErrors = *errors
 	return m.StateTransition(ctx, []Status{Closing}, ClosingError)
 }
 
 func (m *Pipeline) CompleteClosing(ctx context.Context, pipelineProcesser func(*Pipeline) error) error {
-	m.AddActionLog(ctx, "close-finished")
+	// m.AddActionLog(ctx, "close-finished")
 	m.Update(ctx)
 	return datastore.RunInTransaction(ctx, func(ctx context.Context) error {
 		err := m.CancelLivingJobs(ctx)
@@ -462,7 +462,7 @@ func (m *Pipeline) ClosingHandler(ctx context.Context, pipelineProcesser func(*P
 }
 
 func (m *Pipeline) CloseIfHibernating(ctx context.Context) error {
-	m.AddActionLog(ctx, "close-after-hibernation")
+	// m.AddActionLog(ctx, "close-after-hibernation")
 	return m.StateTransition(ctx, StatusesHibernating, ClosingError)
 }
 
@@ -485,7 +485,7 @@ func (m *Pipeline) CancelLivingJobs(ctx context.Context) error {
 
 func (m *Pipeline) Cancel(ctx context.Context) error {
 	m.Cancelled = true
-	m.AddActionLog(ctx, "cancelled")
+	// m.AddActionLog(ctx, "cancelled")
 	switch {
 	case StatusesNotDeployedYet.Include(m.Status) || StatusesHibernating.Include(m.Status):
 		m.Status = Closed
@@ -525,13 +525,13 @@ func (m *Pipeline) Reload(ctx context.Context) error {
 }
 
 func (m *Pipeline) PublishJobs(ctx context.Context) error {
-	m.AddActionLog(ctx, "publish-started")
+	// m.AddActionLog(ctx, "publish-started")
 	err := m.Update(ctx)
 	if err != nil {
 		return err
 	}
 	defer func() {
-		m.AddActionLog(ctx, "publish-finished")
+		// m.AddActionLog(ctx, "publish-finished")
 		m.Update(ctx)
 		// ignore error
 	}()
@@ -628,19 +628,6 @@ func (m *Pipeline) stringFromMapWithDefault(src map[string]string, key, defaultV
 		return defaultValue
 	}
 	return r
-}
-
-func (m *Pipeline) AddActionLog(ctx context.Context, name string) {
-	if ctx != nil {
-		log.Debugf(ctx, "pipeline is %v\n", name)
-	}
-	if m.ActionLogs == nil {
-		m.ActionLogs = []ActionLog{}
-	}
-	m.ActionLogs = append(m.ActionLogs, ActionLog{
-		Time: time.Now(),
-		Name: name,
-	})
 }
 
 func (m *Pipeline) HasNewTaskSince(ctx context.Context, t time.Time) (bool, error) {
