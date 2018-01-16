@@ -376,9 +376,9 @@ func (m *Pipeline) StartHibernation(ctx context.Context) error {
 	return m.StateTransition(ctx, []Status{HibernationChecking}, HibernationStarting)
 }
 
-func (m *Pipeline) ProcessHibernation(ctx context.Context, operationName string) error {
+func (m *Pipeline) ProcessHibernation(ctx context.Context) error {
 	// m.AddActionLog(ctx, "hibernation-processing")
-	m.ClosingOperationName = operationName
+	// m.ClosingOperationName = operationName
 	return m.StateTransition(ctx, []Status{HibernationStarting, HibernationProcessing}, HibernationProcessing)
 }
 
@@ -392,16 +392,6 @@ func (m *Pipeline) CompleteHibernation(ctx context.Context) error {
 	// m.AddActionLog(ctx, "hibernation-finished")
 	// m.Update(ctx)
 	return m.StateTransition(ctx, []Status{HibernationProcessing}, Hibernating)
-}
-
-func (m *Pipeline) HibernationHandler(ctx context.Context) func(*[]OperationError) error {
-	return func(errors *[]OperationError) error {
-		if errors != nil {
-			return m.FailHibernation(ctx, errors)
-		} else {
-			return m.CompleteHibernation(ctx)
-		}
-	}
 }
 
 func (m *Pipeline) BackToBeOpened(ctx context.Context) error {
