@@ -462,6 +462,10 @@ func (m *Pipeline) JobAccessor() *JobAccessor {
 	return &JobAccessor{Parent: m}
 }
 
+func (m *Pipeline) OperationAccessor() *PipelineOperationAccessor {
+	return &PipelineOperationAccessor{Parent: m}
+}
+
 func (m *Pipeline) Reload(ctx context.Context) error {
 	err := GlobalPipelineAccessor.LoadByID(ctx, m)
 	if err != nil {
