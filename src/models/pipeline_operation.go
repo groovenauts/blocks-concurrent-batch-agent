@@ -107,3 +107,26 @@ func (m *PipelineOperation) ValidateAndPut(ctx context.Context, key *datastore.K
 func (m *PipelineOperation) AppendLog(msg string) {
 	m.Logs = append(m.Logs, OperationLog{CreatedAt: time.Now(), Message: msg})
 }
+
+func (m *PipelineOperation) ProcessDeploy(ctx context.Context, updater *DeploymentUpdater) error {
+	return updater.Update(ctx, m,
+		func() error {
+			return m.LoadPipelineWith(ctx, func(pl *Pipeline) error {
+				return pl.CompleteDeploying(ctx)
+			})
+		},
+		func() error {
+			return m.LoadPipelineWith(ctx, func(pl *Pipeline) error {
+				return pl.FailDeploying(ctx)
+			})
+		},
+	)
+}
+
+func (m *PipelineOperation) Done() bool {
+	return m.Status == "DONE"
+}
+
+func (m *PipelineOperation) HasError() bool {
+	return len(m.Errors) > 0
+}

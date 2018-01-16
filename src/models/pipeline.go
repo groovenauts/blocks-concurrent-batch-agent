@@ -318,20 +318,20 @@ func (m *Pipeline) Update(ctx context.Context) error {
 	return nil
 }
 
-func (m *Pipeline) RefreshHandler(ctx context.Context, pipelineProcesser func(*Pipeline) error) func(*[]OperationError) error {
-	switch m.Status {
-	case Deploying:
-		return m.DeployingHandler(ctx)
-	case Closing:
-		return m.ClosingHandler(ctx, pipelineProcesser)
-	case HibernationProcessing:
-		return m.HibernationHandler(ctx)
-	default:
-		return func(*[]OperationError) error {
-			return &InvalidOperation{Msg: fmt.Sprintf("Invalid Status %v to handle refreshing Pipline %q\n", m.Status, m.ID)}
-		}
-	}
-}
+// func (m *Pipeline) RefreshHandler(ctx context.Context, pipelineProcesser func(*Pipeline) error) func(*[]OperationError) error {
+// 	switch m.Status {
+// 	case Deploying:
+// 		return m.DeployingHandler(ctx)
+// 	case Closing:
+// 		return m.ClosingHandler(ctx, pipelineProcesser)
+// 	case HibernationProcessing:
+// 		return m.HibernationHandler(ctx)
+// 	default:
+// 		return func(*[]OperationError) error {
+// 			return &InvalidOperation{Msg: fmt.Sprintf("Invalid Status %v to handle refreshing Pipline %q\n", m.Status, m.ID)}
+// 		}
+// 	}
+// }
 
 func (m *Pipeline) StateTransition(ctx context.Context, froms []Status, to Status) error {
 	allowed := false
@@ -349,7 +349,6 @@ func (m *Pipeline) StateTransition(ctx context.Context, froms []Status, to Statu
 }
 
 func (m *Pipeline) StartBuilding(ctx context.Context) error {
-	m.AddActionLog(ctx, "build-started")
 	return m.StateTransition(ctx, []Status{Reserved, Building}, Building)
 }
 
@@ -358,25 +357,12 @@ func (m *Pipeline) StartDeploying(ctx context.Context, deploymentName string) er
 	return m.StateTransition(ctx, []Status{Building}, Deploying)
 }
 
-func (m *Pipeline) FailDeploying(ctx context.Context, errors *[]OperationError) error {
-	m.AddActionLog(ctx, "build-finished")
-	m.DeployingErrors = *errors
+func (m *Pipeline) FailDeploying(ctx context.Context) error {
 	return m.StateTransition(ctx, []Status{Deploying}, Broken)
 }
 
 func (m *Pipeline) CompleteDeploying(ctx context.Context) error {
-	m.AddActionLog(ctx, "build-finished")
 	return m.StateTransition(ctx, []Status{Deploying}, Opened)
-}
-
-func (m *Pipeline) DeployingHandler(ctx context.Context) func(*[]OperationError) error {
-	return func(errors *[]OperationError) error {
-		if errors != nil {
-			return m.FailDeploying(ctx, errors)
-		} else {
-			return m.CompleteDeploying(ctx)
-		}
-	}
 }
 
 func (m *Pipeline) WaitHibernation(ctx context.Context) error {
