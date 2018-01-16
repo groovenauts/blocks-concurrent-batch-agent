@@ -1,9 +1,7 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
-	"time"
 
 	"models"
 
@@ -21,7 +19,7 @@ func (h *PipelineHandler) buildTask(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	err = builder.Process(ctx, pl)
+	operation, err := builder.Process(ctx, pl)
 	if err != nil {
 		switch err.(type) {
 		case *googleapi.Error:
@@ -39,40 +37,6 @@ func (h *PipelineHandler) buildTask(c echo.Context) error {
 	}
 
 	return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
-		return PostPipelineTask(c, "wait_building_task", pl)
+		return PostOperationTask(c, "wait_building_task", operation)
 	})
-}
-
-// curl -v -X	POST http://localhost:8080/pipelines/1/wait_building_task
-func (h *PipelineHandler) waitBuildingTask(c echo.Context) error {
-	started := time.Now()
-	ctx := c.Get("aecontext").(context.Context)
-	pl := c.Get("pipeline").(*models.Pipeline)
-
-	handler := pl.DeployingHandler(ctx)
-	refresher := &models.Refresher{}
-	err := refresher.Process(ctx, pl, handler)
-	if err != nil {
-		log.Errorf(ctx, "Failed to refresh pipeline %v because of %v\n", pl, err)
-		return err
-	}
-
-	switch pl.Status {
-	case models.Deploying:
-		return ReturnJsonWith(c, pl, http.StatusAccepted, func() error {
-			return PostPipelineTaskWithETA(c, "wait_building_task", pl, started.Add(30*time.Second))
-		})
-	case models.Opened:
-		if pl.Cancelled {
-			return ReturnJsonWith(c, pl, http.StatusNoContent, func() error {
-				return PostPipelineTask(c, "close_task", pl)
-			})
-		} else {
-			return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
-				return PostPipelineTask(c, "publish_task", pl)
-			})
-		}
-	default:
-		return &models.InvalidStateTransition{Msg: fmt.Sprintf("Unexpected Status: %v for Pipeline: %v", pl.Status, pl)}
-	}
 }
