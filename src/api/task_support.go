@@ -31,6 +31,24 @@ func PostPipelineTaskWith(c echo.Context, action string, pl *models.Pipeline, pa
 	return PostTaskWith(c, PipelineTaskPath(action, pl), params, f)
 }
 
+// Methods For PipelineOperation
+
+func OperationTaskPath(action string, pl *models.PipelineOperation) string {
+	return fmt.Sprintf("/operations/%s/%s", pl.ID, action)
+}
+
+func PostOperationTask(c echo.Context, action string, pl *models.PipelineOperation) error {
+	return PostTask(c, OperationTaskPath(action, pl))
+}
+
+func PostOperationTaskWithETA(c echo.Context, action string, pl *models.PipelineOperation, eta time.Time) error {
+	return PostTaskWithETA(c, OperationTaskPath(action, pl), eta)
+}
+
+func PostOperationTaskWith(c echo.Context, action string, pl *models.PipelineOperation, params url.Values, f func(*taskqueue.Task) error) error {
+	return PostTaskWith(c, OperationTaskPath(action, pl), params, f)
+}
+
 // Base methods for tasks
 
 func PostTask(c echo.Context, path string) error {
