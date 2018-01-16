@@ -407,9 +407,9 @@ func (m *Pipeline) BackToBeReserved(ctx context.Context) error {
 	return m.StateTransition(ctx, []Status{Hibernating}, Reserved)
 }
 
-func (m *Pipeline) StartClosing(ctx context.Context, operationName string) error {
+func (m *Pipeline) StartClosing(ctx context.Context) error {
 	// m.AddActionLog(ctx, "close-started")
-	m.ClosingOperationName = operationName
+	// m.ClosingOperationName = operationName
 	return m.StateTransition(ctx, []Status{Opened, Closing}, Closing)
 }
 

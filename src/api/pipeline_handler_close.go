@@ -1,10 +1,7 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
-	"net/url"
-	"time"
 
 	"models"
 
@@ -18,12 +15,12 @@ import (
 func (h *PipelineHandler) closeTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
-	closer, err := models.NewCloser(ctx, pl.StartClosing)
+	closer, err := models.NewCloser(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to create new closer because of %v\n", err)
 		return err
 	}
-	err = closer.Process(ctx, pl)
+	operation, err := closer.Process(ctx, pl)
 	if err != nil {
 		switch err.(type) {
 		case *googleapi.Error:
@@ -38,7 +35,12 @@ func (h *PipelineHandler) closeTask(c echo.Context) error {
 		return err
 	}
 
+	err = pl.StartClosing(ctx)
+	if err != nil {
+		return err
+	}
+
 	return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
-		return PostPipelineTask(c, "wait_closing_task", pl)
+		return PostOperationTask(c, "wait_closing_task", operation)
 	})
 }
