@@ -38,8 +38,6 @@ func SetupRoutesOfPipelines() *PipelineHandler {
 	g.POST("/:id/build_task", h.buildTask)
 	g.POST("/:id/publish_task", h.publishTask)
 	g.POST("/:id/subscribe_task", h.subscribeTask)
-	g.POST("/:id/refresh", h.refresh)
-	g.POST("/:id/refresh_task", h.refreshTask)
 
 	return h
 }
