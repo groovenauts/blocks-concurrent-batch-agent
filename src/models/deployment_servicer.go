@@ -32,6 +32,14 @@ func DefaultDeploymentServicer(ctx context.Context) (DeploymentServicer, error) 
 	return &DeploymentServiceWrapper{service: c.Deployments, opeService: c.Operations}, nil
 }
 
+func WithDefaultDeploymentServicer(ctx context.Context, f func(DeploymentServicer) error) error {
+	servicer, err := DefaultDeploymentServicer(ctx)
+	if err != nil {
+		return err
+	}
+	return f(servicer)
+}
+
 type DeploymentServiceWrapper struct {
 	service    *deploymentmanager.DeploymentsService
 	opeService *deploymentmanager.OperationsService
