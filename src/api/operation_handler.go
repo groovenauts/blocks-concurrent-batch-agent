@@ -72,21 +72,28 @@ func (h *OperationHandler) waitBuildingTask(c echo.Context) error {
 func (h *OperationHandler) waitHibernationTask(c echo.Context) error {
 	started := time.Now()
 	ctx := c.Get("aecontext").(context.Context)
-	pl := c.Get("pipeline").(*models.Pipeline)
-	handler := pl.HibernationHandler(ctx)
+	operation := c.Get("operation").(*models.PipelineOperation)
 
-	refresher := &models.Refresher{}
-	err := refresher.Process(ctx, pl, handler)
+	err := WithDefaultDeploymentServicer(func(servicer DeploymentServicer) error {
+		updater := &DeploymentUpdater{servicer: servicer}
+		return operation.ProcessHibernation(ctx, updater)
+	})
 	if err != nil {
-		log.Errorf(ctx, "Failed to refresh pipeline %v because of %v\n", pl, err)
+		return err
+	}
+
+	if !operation.Done() {
+		return ReturnJsonWith(c, operation, http.StatusAccepted, func() error {
+			return PostOperationTaskWithETA(c, "wait_hibernation_task", operation, started.Add(30*time.Second))
+		})
+	}
+
+	pl, err := operation.LoadPipeline()
+	if err != nil {
 		return err
 	}
 
 	switch pl.Status {
-	case models.HibernationProcessing:
-		return ReturnJsonWith(c, pl, http.StatusAccepted, func() error {
-			return PostPipelineTaskWithETA(c, "wait_hibernation_task", pl, started.Add(30*time.Second))
-		})
 	case models.Hibernating:
 		if pl.Cancelled {
 			err := pl.CloseIfHibernating(ctx)
@@ -96,6 +103,7 @@ func (h *OperationHandler) waitHibernationTask(c echo.Context) error {
 			}
 			return c.JSON(http.StatusOK, pl)
 		}
+
 		newTask, err := pl.HasNewTaskSince(ctx, pl.HibernationStartedAt)
 		if err != nil {
 			log.Errorf(ctx, "Failed to check new tasks because of %v\n", err)
@@ -117,8 +125,8 @@ func (h *OperationHandler) waitHibernationTask(c echo.Context) error {
 		log.Infof(ctx, "Pipeline is already %v so quit wait_hibernation_task\n", pl.Status)
 		return c.JSON(http.StatusOK, pl)
 	default:
-		msg := fmt.Sprintf("Unexpected Status: %v for Pipeline: %v", pl.Status, pl)
-		log.Errorf(ctx, msg)
-		return &models.InvalidStateTransition{Msg: msg}
+		return &models.InvalidStateTransition{
+			Msg: fmt.Sprintf("Unexpected Status: %v for Pipeline: %v", pl.Status, pl),
+		}
 	}
 }
