@@ -99,33 +99,31 @@ type (
 	}
 
 	Pipeline struct {
-		ID                     string         `json:"id"             datastore:"-"`
-		Organization           *Organization  `json:"-"              validate:"required" datastore:"-"`
-		Name                   string         `json:"name"           validate:"required"`
-		ProjectID              string         `json:"project_id"     validate:"required"`
-		Zone                   string         `json:"zone"           validate:"required"`
-		BootDisk               PipelineVmDisk `json:"boot_disk"`
-		MachineType            string         `json:"machine_type"   validate:"required"`
-		GpuAccelerators        Accelerators   `json:"gpu_accelerators,omitempty"`
-		Preemptible            bool           `json:"preemptible,omitempty"`
-		StackdriverAgent       bool           `json:"stackdriver_agent,omitempty"`
-		TargetSize             int            `json:"target_size"    validate:"required"`
-		ContainerSize          int            `json:"container_size" validate:"required"`
-		ContainerName          string         `json:"container_name" validate:"required"`
-		Command                string         `json:"command"` // allow blank
-		Status                 Status         `json:"status"`
-		Cancelled              bool           `json:"cancelled"`
-		Dryrun                 bool           `json:"dryrun"`
-		DeploymentName         string         `json:"deployment_name"`
-		DeployingOperationName string         `json:"deploying_operation_name"`
-		ClosingOperationName   string         `json:"closing_operation_name"`
-		TokenConsumption       int            `json:"token_consumption"`
-		Dependency             Dependency     `json:"dependency,omitempty"`
-		ClosePolicy            ClosePolicy    `json:"close_policy,omitempty"`
-		HibernationDelay       int            `json:"hibernation_delay,omitempty"` // seconds
-		HibernationStartedAt   time.Time      `json:"hibernation_started_at,omitempty"`
-		CreatedAt              time.Time      `json:"created_at"`
-		UpdatedAt              time.Time      `json:"updated_at"`
+		ID                   string         `json:"id"             datastore:"-"`
+		Organization         *Organization  `json:"-"              validate:"required" datastore:"-"`
+		Name                 string         `json:"name"           validate:"required"`
+		ProjectID            string         `json:"project_id"     validate:"required"`
+		Zone                 string         `json:"zone"           validate:"required"`
+		BootDisk             PipelineVmDisk `json:"boot_disk"`
+		MachineType          string         `json:"machine_type"   validate:"required"`
+		GpuAccelerators      Accelerators   `json:"gpu_accelerators,omitempty"`
+		Preemptible          bool           `json:"preemptible,omitempty"`
+		StackdriverAgent     bool           `json:"stackdriver_agent,omitempty"`
+		TargetSize           int            `json:"target_size"    validate:"required"`
+		ContainerSize        int            `json:"container_size" validate:"required"`
+		ContainerName        string         `json:"container_name" validate:"required"`
+		Command              string         `json:"command"` // allow blank
+		Status               Status         `json:"status"`
+		Cancelled            bool           `json:"cancelled"`
+		Dryrun               bool           `json:"dryrun"`
+		DeploymentName       string         `json:"deployment_name"`
+		TokenConsumption     int            `json:"token_consumption"`
+		Dependency           Dependency     `json:"dependency,omitempty"`
+		ClosePolicy          ClosePolicy    `json:"close_policy,omitempty"`
+		HibernationDelay     int            `json:"hibernation_delay,omitempty"` // seconds
+		HibernationStartedAt time.Time      `json:"hibernation_started_at,omitempty"`
+		CreatedAt            time.Time      `json:"created_at"`
+		UpdatedAt            time.Time      `json:"updated_at"`
 	}
 )
 
@@ -320,7 +318,7 @@ func (m *Pipeline) Update(ctx context.Context) error {
 	return nil
 }
 
-func (m *Pipeline) RefreshHandler(ctx context.Context, pipelineProcesser func(*Pipeline) error) func(*[]DeploymentError) error {
+func (m *Pipeline) RefreshHandler(ctx context.Context, pipelineProcesser func(*Pipeline) error) func(*[]OperationError) error {
 	switch m.Status {
 	case Deploying:
 		return m.DeployingHandler(ctx)
@@ -329,7 +327,7 @@ func (m *Pipeline) RefreshHandler(ctx context.Context, pipelineProcesser func(*P
 	case HibernationProcessing:
 		return m.HibernationHandler(ctx)
 	default:
-		return func(*[]DeploymentError) error {
+		return func(*[]OperationError) error {
 			return &InvalidOperation{Msg: fmt.Sprintf("Invalid Status %v to handle refreshing Pipline %q\n", m.Status, m.ID)}
 		}
 	}
@@ -355,13 +353,12 @@ func (m *Pipeline) StartBuilding(ctx context.Context) error {
 	return m.StateTransition(ctx, []Status{Reserved, Building}, Building)
 }
 
-func (m *Pipeline) StartDeploying(ctx context.Context, deploymentName, operationName string) error {
+func (m *Pipeline) StartDeploying(ctx context.Context, deploymentName string) error {
 	m.DeploymentName = deploymentName
-	m.DeployingOperationName = operationName
 	return m.StateTransition(ctx, []Status{Building}, Deploying)
 }
 
-func (m *Pipeline) FailDeploying(ctx context.Context, errors *[]DeploymentError) error {
+func (m *Pipeline) FailDeploying(ctx context.Context, errors *[]OperationError) error {
 	m.AddActionLog(ctx, "build-finished")
 	m.DeployingErrors = *errors
 	return m.StateTransition(ctx, []Status{Deploying}, Broken)
@@ -372,8 +369,8 @@ func (m *Pipeline) CompleteDeploying(ctx context.Context) error {
 	return m.StateTransition(ctx, []Status{Deploying}, Opened)
 }
 
-func (m *Pipeline) DeployingHandler(ctx context.Context) func(*[]DeploymentError) error {
-	return func(errors *[]DeploymentError) error {
+func (m *Pipeline) DeployingHandler(ctx context.Context) func(*[]OperationError) error {
+	return func(errors *[]OperationError) error {
 		if errors != nil {
 			return m.FailDeploying(ctx, errors)
 		} else {
@@ -399,7 +396,7 @@ func (m *Pipeline) ProcessHibernation(ctx context.Context, operationName string)
 	return m.StateTransition(ctx, []Status{HibernationStarting, HibernationProcessing}, HibernationProcessing)
 }
 
-func (m *Pipeline) FailHibernation(ctx context.Context, errors *[]DeploymentError) error {
+func (m *Pipeline) FailHibernation(ctx context.Context, errors *[]OperationError) error {
 	m.AddActionLog(ctx, "hibernation-finished")
 	m.ClosingErrors = *errors
 	return m.StateTransition(ctx, []Status{HibernationProcessing}, HibernationError)
@@ -411,8 +408,8 @@ func (m *Pipeline) CompleteHibernation(ctx context.Context) error {
 	return m.StateTransition(ctx, []Status{HibernationProcessing}, Hibernating)
 }
 
-func (m *Pipeline) HibernationHandler(ctx context.Context) func(*[]DeploymentError) error {
-	return func(errors *[]DeploymentError) error {
+func (m *Pipeline) HibernationHandler(ctx context.Context) func(*[]OperationError) error {
+	return func(errors *[]OperationError) error {
 		if errors != nil {
 			return m.FailHibernation(ctx, errors)
 		} else {
@@ -440,7 +437,7 @@ func (m *Pipeline) StartClosing(ctx context.Context, operationName string) error
 	return m.StateTransition(ctx, []Status{Opened, Closing}, Closing)
 }
 
-func (m *Pipeline) FailClosing(ctx context.Context, errors *[]DeploymentError) error {
+func (m *Pipeline) FailClosing(ctx context.Context, errors *[]OperationError) error {
 	m.AddActionLog(ctx, "close-finished")
 	m.ClosingErrors = *errors
 	return m.StateTransition(ctx, []Status{Closing}, ClosingError)
@@ -468,8 +465,8 @@ func (m *Pipeline) CompleteClosing(ctx context.Context, pipelineProcesser func(*
 	}, GetTransactionOptions(ctx))
 }
 
-func (m *Pipeline) ClosingHandler(ctx context.Context, pipelineProcesser func(*Pipeline) error) func(*[]DeploymentError) error {
-	return func(errors *[]DeploymentError) error {
+func (m *Pipeline) ClosingHandler(ctx context.Context, pipelineProcesser func(*Pipeline) error) func(*[]OperationError) error {
+	return func(errors *[]OperationError) error {
 		if errors != nil {
 			return m.FailClosing(ctx, errors)
 		} else {
