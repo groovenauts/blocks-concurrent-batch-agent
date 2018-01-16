@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"time"
 
 	"gae_support"
@@ -11,7 +12,6 @@ import (
 	"github.com/labstack/echo"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/log"
-	"google.golang.org/appengine/taskqueue"
 )
 
 type OperationHandler struct {
@@ -33,8 +33,8 @@ func (h *OperationHandler) waitBuildingTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	operation := c.Get("operation").(*models.PipelineOperation)
 
-	err := WithDefaultDeploymentServicer(func(servicer DeploymentServicer) error {
-		updater := &DeploymentUpdater{servicer: servicer}
+	err := models.WithDefaultDeploymentServicer(ctx, func(servicer models.DeploymentServicer) error {
+		updater := &models.DeploymentUpdater{Servicer: servicer}
 		return operation.ProcessDeploy(ctx, updater)
 	})
 	if err != nil {
@@ -47,7 +47,7 @@ func (h *OperationHandler) waitBuildingTask(c echo.Context) error {
 		})
 	}
 
-	pl, err := operation.LoadPipeline()
+	pl, err := operation.LoadPipeline(ctx)
 	if err != nil {
 		return err
 	}
@@ -74,8 +74,8 @@ func (h *OperationHandler) waitHibernationTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	operation := c.Get("operation").(*models.PipelineOperation)
 
-	err := WithDefaultDeploymentServicer(func(servicer DeploymentServicer) error {
-		updater := &DeploymentUpdater{servicer: servicer}
+	err := models.WithDefaultDeploymentServicer(ctx, func(servicer models.DeploymentServicer) error {
+		updater := &models.DeploymentUpdater{Servicer: servicer}
 		return operation.ProcessHibernation(ctx, updater)
 	})
 	if err != nil {
@@ -88,7 +88,7 @@ func (h *OperationHandler) waitHibernationTask(c echo.Context) error {
 		})
 	}
 
-	pl, err := operation.LoadPipeline()
+	pl, err := operation.LoadPipeline(ctx)
 	if err != nil {
 		return err
 	}
@@ -137,9 +137,9 @@ func (h *OperationHandler) waitClosingTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	operation := c.Get("operation").(*models.PipelineOperation)
 
-	err := WithDefaultDeploymentServicer(func(servicer DeploymentServicer) error {
-		updater := &DeploymentUpdater{servicer: servicer}
-		return operation.ProcessClosing(ctx, updater, func(pl *Pipeline) error {
+	err := models.WithDefaultDeploymentServicer(ctx, func(servicer models.DeploymentServicer) error {
+		updater := &models.DeploymentUpdater{Servicer: servicer}
+		return operation.ProcessClosing(ctx, updater, func(pl *models.Pipeline) error {
 			return PostPipelineTaskWith(c, "build_task", pl, url.Values{}, nil)
 		})
 	})
@@ -153,7 +153,7 @@ func (h *OperationHandler) waitClosingTask(c echo.Context) error {
 		})
 	}
 
-	pl, err := operation.LoadPipeline()
+	pl, err := operation.LoadPipeline(ctx)
 	if err != nil {
 		return err
 	}
