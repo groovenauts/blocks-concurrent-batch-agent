@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/context"
 	"google.golang.org/api/deploymentmanager/v2"
+	"google.golang.org/appengine"
 	"google.golang.org/appengine/aetest"
 	//"google.golang.org/appengine/log"
 )
@@ -73,14 +74,22 @@ func (d *TestDeployerError) GetOperation(ctx context.Context, project string, op
 }
 
 func TestRefresherProcessForDeploying(t *testing.T) {
-	ctx, done, err := aetest.NewContext()
+	opt := &aetest.Options{StronglyConsistentDatastore: true}
+	inst, err := aetest.NewInstance(opt)
 	assert.NoError(t, err)
-	defer done()
+	defer inst.Close()
+
+	req, err := inst.NewRequest("GET", "/", nil)
+	if !assert.NoError(t, err) {
+		inst.Close()
+		return
+	}
+	ctx := appengine.NewContext(req)
 
 	type Expection struct {
 		status   Status
 		deployer DeploymentServicer
-		errors   []DeploymentError
+		errors   []OperationError
 	}
 
 	expections := []Expection{
@@ -97,8 +106,8 @@ func TestRefresherProcessForDeploying(t *testing.T) {
 		Expection{
 			status:   Broken,
 			deployer: &TestDeployerError{},
-			errors: []DeploymentError{
-				DeploymentError{
+			errors: []OperationError{
+				OperationError{
 					Code:     "999",
 					Location: "Somewhere",
 					Message:  "Something wrong",
@@ -130,28 +139,49 @@ func TestRefresherProcessForDeploying(t *testing.T) {
 			DeploymentName: "pipeline01",
 			Status:         Deploying,
 		}
-		err = pl.Create(ctx)
+		assert.NoError(t, pl.Create(ctx))
 
-		r := &Refresher{deployer: expection.deployer}
-		err = r.Process(ctx, pl, pl.RefreshHandler(ctx, nil))
-		assert.NoError(t, err)
+		ope := &PipelineOperation{
+			Pipeline:      pl,
+			ProjectID:     pl.ProjectID,
+			Zone:          pl.Zone,
+			Service:       "deploymentmanager",
+			Name:          "deployOp",
+			OperationType: "insert",
+			Status:        "RUNNING",
+		}
+		assert.NoError(t, ope.Create(ctx))
+
+		updater := &DeploymentUpdater{
+			Servicer: expection.deployer,
+		}
+		assert.NoError(t, ope.ProcessDeploy(ctx, updater))
+
 		pl2, err := GlobalPipelineAccessor.Find(ctx, pl.ID)
 		assert.NoError(t, err)
 		assert.Equal(t, expection.status, pl2.Status)
-		assert.Equal(t, expection.errors, pl2.DeployingErrors)
+		assert.Equal(t, expection.errors, ope.Errors)
 	}
 
 }
 
 func TestRefresherProcessForClosing(t *testing.T) {
-	ctx, done, err := aetest.NewContext()
+	opt := &aetest.Options{StronglyConsistentDatastore: true}
+	inst, err := aetest.NewInstance(opt)
 	assert.NoError(t, err)
-	defer done()
+	defer inst.Close()
+
+	req, err := inst.NewRequest("GET", "/", nil)
+	if !assert.NoError(t, err) {
+		inst.Close()
+		return
+	}
+	ctx := appengine.NewContext(req)
 
 	type Expection struct {
 		status   Status
 		deployer DeploymentServicer
-		errors   []DeploymentError
+		errors   []OperationError
 	}
 
 	expections := []Expection{
@@ -168,8 +198,8 @@ func TestRefresherProcessForClosing(t *testing.T) {
 		Expection{
 			status:   ClosingError,
 			deployer: &TestDeployerError{},
-			errors: []DeploymentError{
-				DeploymentError{
+			errors: []OperationError{
+				OperationError{
 					Code:     "999",
 					Location: "Somewhere",
 					Message:  "Something wrong",
@@ -203,23 +233,40 @@ func TestRefresherProcessForClosing(t *testing.T) {
 			Status:           Closing,
 			TokenConsumption: 0,
 		}
-		err = pl.Create(ctx)
-		assert.NoError(t, err)
+		assert.NoError(t, pl.Create(ctx))
 
+		// Update TokenConsumption to avoid decreasing organization's token
 		pl.TokenConsumption = 2
-		err = pl.Update(ctx)
-		assert.NoError(t, err)
+		assert.NoError(t, pl.Update(ctx))
+
+		ope := &PipelineOperation{
+			Pipeline:      pl,
+			ProjectID:     pl.ProjectID,
+			Zone:          pl.Zone,
+			Service:       "deploymentmanager",
+			Name:          "closeOp",
+			OperationType: "delete",
+			Status:        "RUNNING",
+		}
+		assert.NoError(t, ope.Create(ctx))
+
+		updater := &DeploymentUpdater{
+			Servicer: expection.deployer,
+		}
 
 		orgBefore, err := GlobalOrganizationAccessor.Find(ctx, org1.ID)
 		assert.NoError(t, err)
 
-		r := &Refresher{deployer: expection.deployer}
-		err = r.Process(ctx, pl, pl.RefreshHandler(ctx, nil))
-		assert.NoError(t, err)
+		called := false
+		assert.NoError(t, ope.ProcessClosing(ctx, updater, func(*Pipeline) error {
+			called = true
+			return nil
+		}))
+
 		pl2, err := GlobalPipelineAccessor.Find(ctx, pl.ID)
 		assert.NoError(t, err)
 		assert.Equal(t, expection.status, pl2.Status)
-		assert.Equal(t, expection.errors, pl2.ClosingErrors)
+		assert.Equal(t, expection.errors, ope.Errors)
 
 		orgAfter, err := GlobalOrganizationAccessor.Find(ctx, org1.ID)
 		assert.NoError(t, err)
@@ -227,8 +274,12 @@ func TestRefresherProcessForClosing(t *testing.T) {
 		switch expection.status {
 		case Closed:
 			assert.Equal(t, orgBefore.TokenAmount+pl.TokenConsumption, orgAfter.TokenAmount)
-		default:
+			assert.False(t, called) // Handler isn't called because there are no waiting pipeline
+		case Closing, ClosingError:
 			assert.Equal(t, orgBefore.TokenAmount, orgAfter.TokenAmount)
+			assert.False(t, called)
+		default:
+			assert.Fail(t, "Unexpected status: %v exception: %v\n", expection.status, expection)
 		}
 	}
 }
