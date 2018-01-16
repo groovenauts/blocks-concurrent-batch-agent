@@ -26,24 +26,25 @@ type OperationError struct {
 }
 
 type OperationLog struct {
-	CreatedAt time.Time        `json:"created_at"`
-	Message   string           `json:"message"`
-	Errors    []OperationError `json:"errors"`
+	CreatedAt time.Time `json:"created_at"`
+	Message   string    `json:"message"`
 }
 
 // See https://godoc.org/google.golang.org/api/deploymentmanager/v2#Operation
 //     https://godoc.org/google.golang.org/api/compute/v1#Operation
 type PipelineOperation struct {
-	ID        string         `json:"id"                             datastore:"-"`
-	Pipeline  *Pipeline      `json:"-"          validate:"required" datastore:"-"`
-	ProjectID string         `json:"project_id" validate:"required"`
-	Zone      string         `json:"zone"				validate:"required"`
-	Service   string         `json:"service"		validate:"required"`
-	Name      string         `json:"name"       validate:"required"`
-	Status    string         `json:"status"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	Logs      []OperationLog `json:"logs"`
+	ID            string           `json:"id"                             datastore:"-"`
+	Pipeline      *Pipeline        `json:"-"          validate:"required" datastore:"-"`
+	ProjectID     string           `json:"project_id" validate:"required"`
+	Zone          string           `json:"zone"				validate:"required"`
+	Service       string           `json:"service"		validate:"required"`
+	Name          string           `json:"name"       validate:"required"`
+	OperationType string           `json:"operation_type" validate:"required"`
+	Status        string           `json:"status"`
+	Errors        []OperationError `json:"errors"`
+	Logs          []OperationLog   `json:"logs"`
+	CreatedAt     time.Time        `json:"created_at"`
+	UpdatedAt     time.Time        `json:"updated_at"`
 }
 
 func (m *PipelineOperation) Validate() error {
@@ -101,4 +102,8 @@ func (m *PipelineOperation) ValidateAndPut(ctx context.Context, key *datastore.K
 		return nil, err
 	}
 	return key, nil
+}
+
+func (m *PipelineOperation) AppendLog(msg string) {
+	m.Logs = append(m.Logs, OperationLog{CreatedAt: time.Now(), Message: msg})
 }
