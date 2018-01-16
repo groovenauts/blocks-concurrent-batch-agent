@@ -135,26 +135,35 @@ func (h *OperationHandler) waitHibernationTask(c echo.Context) error {
 func (h *OperationHandler) waitClosingTask(c echo.Context) error {
 	started := time.Now()
 	ctx := c.Get("aecontext").(context.Context)
-	pl := c.Get("pipeline").(*models.Pipeline)
-	handler := pl.ClosingHandler(ctx, func(pl *models.Pipeline) error {
-		return PostPipelineTaskWith(c, "build_task", pl, url.Values{}, nil)
-	})
+	operation := c.Get("operation").(*models.PipelineOperation)
 
-	refresher := &models.Refresher{}
-	err := refresher.Process(ctx, pl, handler)
+	err := WithDefaultDeploymentServicer(func(servicer DeploymentServicer) error {
+		updater := &DeploymentUpdater{servicer: servicer}
+		return operation.ProcessClosing(ctx, updater, func(pl *Pipeline) error {
+			return PostPipelineTaskWith(c, "build_task", pl, url.Values{}, nil)
+		})
+	})
 	if err != nil {
-		log.Errorf(ctx, "Failed to refresh pipeline %v because of %v\n", pl, err)
+		return err
+	}
+
+	if !operation.Done() {
+		return ReturnJsonWith(c, operation, http.StatusAccepted, func() error {
+			return PostOperationTaskWithETA(c, "wait_closing_task", operation, started.Add(30*time.Second))
+		})
+	}
+
+	pl, err := operation.LoadPipeline()
+	if err != nil {
 		return err
 	}
 
 	switch pl.Status {
-	case models.Closing:
-		return ReturnJsonWith(c, pl, http.StatusAccepted, func() error {
-			return PostPipelineTaskWithETA(c, "wait_closing_task", pl, started.Add(30*time.Second))
-		})
 	case models.Closed:
 		return c.JSON(http.StatusOK, pl)
 	default:
-		return &models.InvalidStateTransition{Msg: fmt.Sprintf("Unexpected Status: %v for Pipeline: %v", pl.Status, pl)}
+		return &models.InvalidStateTransition{
+			Msg: fmt.Sprintf("Unexpected Status: %v for Pipeline: %v", pl.Status, pl),
+		}
 	}
 }

@@ -413,9 +413,9 @@ func (m *Pipeline) StartClosing(ctx context.Context, operationName string) error
 	return m.StateTransition(ctx, []Status{Opened, Closing}, Closing)
 }
 
-func (m *Pipeline) FailClosing(ctx context.Context, errors *[]OperationError) error {
+func (m *Pipeline) FailClosing(ctx context.Context) error {
 	// m.AddActionLog(ctx, "close-finished")
-	m.ClosingErrors = *errors
+	// m.ClosingErrors = *errors
 	return m.StateTransition(ctx, []Status{Closing}, ClosingError)
 }
 
@@ -439,16 +439,6 @@ func (m *Pipeline) CompleteClosing(ctx context.Context, pipelineProcesser func(*
 
 		return m.StateTransition(ctx, []Status{Closing}, Closed)
 	}, GetTransactionOptions(ctx))
-}
-
-func (m *Pipeline) ClosingHandler(ctx context.Context, pipelineProcesser func(*Pipeline) error) func(*[]OperationError) error {
-	return func(errors *[]OperationError) error {
-		if errors != nil {
-			return m.FailClosing(ctx, errors)
-		} else {
-			return m.CompleteClosing(ctx, pipelineProcesser)
-		}
-	}
 }
 
 func (m *Pipeline) CloseIfHibernating(ctx context.Context) error {

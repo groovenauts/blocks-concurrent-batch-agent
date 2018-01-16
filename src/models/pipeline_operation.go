@@ -138,6 +138,21 @@ func (m *PipelineOperation) ProcessHibernation(ctx context.Context, updater *Dep
 	)
 }
 
+func (m *PipelineOperation) ProcessClosing(ctx context.Context, updater *DeploymentUpdater, completeHandler func(*Pipeline) error) error {
+	return updater.Update(ctx, m,
+		func() error {
+			return m.LoadPipelineWith(ctx, func(pl *Pipeline) error {
+				return pl.CompleteClosing(ctx, completeHandler)
+			})
+		},
+		func() error {
+			return m.LoadPipelineWith(ctx, func(pl *Pipeline) error {
+				return pl.FailClosing(ctx)
+			})
+		},
+	)
+}
+
 func (m *PipelineOperation) Done() bool {
 	return m.Status == "DONE"
 }
