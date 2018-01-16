@@ -123,6 +123,21 @@ func (m *PipelineOperation) ProcessDeploy(ctx context.Context, updater *Deployme
 	)
 }
 
+func (m *PipelineOperation) ProcessHibernation(ctx context.Context, updater *DeploymentUpdater) error {
+	return updater.Update(ctx, m,
+		func() error {
+			return m.LoadPipelineWith(ctx, func(pl *Pipeline) error {
+				return pl.CompleteHibernation(ctx)
+			})
+		},
+		func() error {
+			return m.LoadPipelineWith(ctx, func(pl *Pipeline) error {
+				return pl.FailHibernation(ctx)
+			})
+		},
+	)
+}
+
 func (m *PipelineOperation) Done() bool {
 	return m.Status == "DONE"
 }

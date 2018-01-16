@@ -382,15 +382,15 @@ func (m *Pipeline) ProcessHibernation(ctx context.Context, operationName string)
 	return m.StateTransition(ctx, []Status{HibernationStarting, HibernationProcessing}, HibernationProcessing)
 }
 
-func (m *Pipeline) FailHibernation(ctx context.Context, errors *[]OperationError) error {
+func (m *Pipeline) FailHibernation(ctx context.Context) error {
 	// m.AddActionLog(ctx, "hibernation-finished")
-	m.ClosingErrors = *errors
+	// m.ClosingErrors = *errors
 	return m.StateTransition(ctx, []Status{HibernationProcessing}, HibernationError)
 }
 
 func (m *Pipeline) CompleteHibernation(ctx context.Context) error {
 	// m.AddActionLog(ctx, "hibernation-finished")
-	m.Update(ctx)
+	// m.Update(ctx)
 	return m.StateTransition(ctx, []Status{HibernationProcessing}, Hibernating)
 }
 
