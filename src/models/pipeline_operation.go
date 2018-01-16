@@ -130,3 +130,25 @@ func (m *PipelineOperation) Done() bool {
 func (m *PipelineOperation) HasError() bool {
 	return len(m.Errors) > 0
 }
+
+func (m *PipelineOperation) LoadPipeline(ctx context.Context) (*Pipeline, error) {
+	key, err := datastore.DecodeKey(m.ID)
+	if err != nil {
+		return nil, err
+	}
+	parentKey := key.Parent()
+	pl, err := GlobalPipelineAccessor.FindByKey(ctx, parentKey)
+	if err != nil {
+		return nil, err
+	}
+	m.Pipeline = pl
+	return pl, nil
+}
+
+func (m *PipelineOperation) LoadPipelineWith(ctx context.Context, f func(*Pipeline) error) error {
+	pl, err := m.LoadPipeline(ctx)
+	if err != nil {
+		return err
+	}
+	return f(pl)
+}
