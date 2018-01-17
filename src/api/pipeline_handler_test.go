@@ -180,43 +180,6 @@ func TestActions(t *testing.T) {
 		},
 	})
 
-	for _, expection := range expections {
-		// Test for refresh
-		pl.Status = expection.status
-		// https://github.com/golang/appengine/blob/master/aetest/instance.go#L32-L46
-		ctx = appengine.NewContext(req)
-		err = pl.Update(ctx)
-		assert.NoError(t, err)
-
-		test_utils.RetryWith(10, func() func() {
-			req, err = inst.NewRequest(echo.GET, "/pipelines/"+pl.ID+"/refresh", nil)
-			assert.NoError(t, err)
-			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-			req.Header.Set(auth_header, token)
-
-			rec = httptest.NewRecorder()
-			c = e.NewContext(req, rec)
-			c.SetPath("/pipelines/" + pl.ID + "/refresh")
-			c.SetParamNames("id")
-			c.SetParamValues(pl.ID)
-
-			err := h.member(h.refresh)(c)
-			if err != nil {
-				return func() { assert.NoError(t, err) }
-			}
-			if http.StatusOK != rec.Code {
-				return func() { assert.Equal(t, http.StatusCreated, rec.Code) }
-			}
-			s := rec.Body.String()
-			res := &models.Pipeline{}
-			err = json.Unmarshal([]byte(s), res)
-			if err != nil {
-				return func() { assert.NoError(t, err) }
-			}
-			return nil
-		})
-	}
-
 	// Test for index
 	req, err = inst.NewRequest(echo.GET, "/orgs"+org.ID+"/pipelines", nil)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
