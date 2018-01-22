@@ -31,6 +31,16 @@ func (h *JobHandler) member(action echo.HandlerFunc) echo.HandlerFunc {
 func (h *JobHandler) create(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
+
+	job := &models.Job{}
+	if err := c.Bind(job); err != nil {
+		log.Errorf(ctx, "err: %v\n", err)
+		log.Errorf(ctx, "req: %v\n", c.Request())
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+	}
+	job.Pipeline = pl
+	job.InitStatus(c.QueryParam("ready") == "true")
+
 	switch pl.Status {
 	case models.HibernationChecking:
 		err := pl.BackToBeOpened(ctx)
@@ -53,14 +63,7 @@ func (h *JobHandler) create(c echo.Context) error {
 			return err
 		}
 	}
-	job := &models.Job{}
-	if err := c.Bind(job); err != nil {
-		log.Errorf(ctx, "err: %v\n", err)
-		log.Errorf(ctx, "req: %v\n", c.Request())
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
-	}
-	job.Pipeline = pl
-	job.InitStatus(c.QueryParam("ready") == "true")
+
 	err := job.CreateAndPublishIfPossible(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to create Job: %v\n%v\n", job, err)
