@@ -276,14 +276,15 @@ var (
 const StackdriverAgentCommand = "docker run -d -e MONITOR_HOST=true -v /proc:/mnt/proc:ro --privileged wikiwi/stackdriver-agent"
 
 func (b *Builder) buildStartupScript(pl *Pipeline) string {
-	r := StartupScriptHeader + "\n"
+	r := []string{StartupScriptHeader}
 
 	docker := "docker"
 	if pl.GpuAccelerators.Count > 0 {
-		r = r +
-			b.buildInstallCuda(pl) +
-			b.buildInstallDocker(pl) +
-			b.buildInstallNvidiaDocker(pl)
+		r = append(r,
+			b.buildInstallCuda(pl),
+			b.buildInstallDocker(pl),
+			b.buildInstallNvidiaDocker(pl),
+		)
 		docker = "nvidia-docker"
 	}
 
@@ -293,15 +294,16 @@ func (b *Builder) buildStartupScript(pl *Pipeline) string {
 	if usingGcr {
 		docker = docker + " --config /home/chronos/.docker"
 		host := GcrImageHostRegexp.FindString(pl.ContainerName)
-		r = r +
-			"METADATA=http://metadata.google.internal/computeMetadata/v1\n" +
-			"SVC_ACCT=$METADATA/instance/service-accounts/default\n" +
-			"ACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'\"' -f 4)\n" +
-			"TIMEOUT=60 with_backoff " + docker + " login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://" + host + "\n"
+		r = append(r,
+			"METADATA=http://metadata.google.internal/computeMetadata/v1",
+			"SVC_ACCT=$METADATA/instance/service-accounts/default",
+			"ACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'\"' -f 4)",
+			"TIMEOUT=60 with_backoff "+docker+" login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://"+host,
+		)
 	}
 
 	if pl.StackdriverAgent {
-		r = r + StackdriverAgentCommand + "\n"
+		r = append(r, StackdriverAgentCommand)
 	}
 
 	docker_run_parts := []string{
@@ -316,12 +318,13 @@ func (b *Builder) buildStartupScript(pl *Pipeline) string {
 		pl.Command,
 	}
 
-	r = r +
-		"TIMEOUT=600 with_backoff " + docker + " pull " + pl.ContainerName +
-		"\n" + fmt.Sprintf("for i in {1..%v}; do", pl.ContainerSize) +
-		"\n  " + strings.Join(docker_run_parts, " \\\n    ") +
-		"\ndone"
-	return r
+	r = append(r,
+		"TIMEOUT=600 with_backoff "+docker+" pull "+pl.ContainerName,
+		fmt.Sprintf("for i in {1..%v}; do", pl.ContainerSize),
+		"  "+strings.Join(docker_run_parts, " \\\n    "),
+		"done",
+	)
+	return strings.Join(r, "\n")
 }
 
 func (b *Builder) buildInstallCuda(pl *Pipeline) string {
