@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+	"strings"
 	"time"
 
 	"golang.org/x/net/context"
@@ -303,19 +304,23 @@ func (b *Builder) buildStartupScript(pl *Pipeline) string {
 		r = r + StackdriverAgentCommand + "\n"
 	}
 
+	docker_run_parts := []string{
+		docker + " run -d",
+		"-e PROJECT=" + pl.ProjectID,
+		"-e DOCKER_HOSTNAME=$(hostname)",
+		"-e PIPELINE=" + pl.Name,
+		"-e ZONE=" + pl.Zone,
+		"-e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + pl.Name + "-job-subscription.name)",
+		"-e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + pl.Name + "-progress-topic.name)",
+		pl.ContainerName,
+		pl.Command,
+	}
+
 	r = r +
-		"TIMEOUT=600 with_backoff " + docker + " pull " + pl.ContainerName + "\n" +
-		fmt.Sprintf("for i in {1..%v}; do", pl.ContainerSize) +
-		" " + docker + " run -d" +
-		" -e PROJECT=" + pl.ProjectID +
-		" -e DOCKER_HOSTNAME=$(hostname)" +
-		" -e PIPELINE=" + pl.Name +
-		" -e ZONE=" + pl.Zone +
-		" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + pl.Name + "-job-subscription.name)" +
-		" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + pl.Name + "-progress-topic.name)" +
-		" " + pl.ContainerName +
-		" " + pl.Command +
-		" ; done"
+		"TIMEOUT=600 with_backoff " + docker + " pull " + pl.ContainerName +
+		"\n" + fmt.Sprintf("for i in {1..%v}; do", pl.ContainerSize) +
+		"\n  " + strings.Join(docker_run_parts, " \\\n    ") +
+		"\ndone"
 	return r
 }
 
