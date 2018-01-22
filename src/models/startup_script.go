@@ -2,7 +2,7 @@ package models
 
 const StartupScriptHeader = `
 function with_backoff {
-  local max_attempts=${MAX_ATTEMPTS-5}
+  local max_attempts=${MAX_ATTEMPTS-8}
   local interval=${INITIAL_INTERVAL-1}
   local attempt=0
   local exitCode=0
