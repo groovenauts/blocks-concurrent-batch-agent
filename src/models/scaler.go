@@ -1,0 +1,71 @@
+package models
+
+import (
+	"time"
+
+	"golang.org/x/net/context"
+	"google.golang.org/appengine/log"
+)
+
+type Scaler struct {
+	igServicer InstanceGroupServicer
+}
+
+func NewScaler(ctx context.Context) (*Scaler, error) {
+	igServicer, err := DefaultInstanceGroupServicer(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &Scaler{igServicer: igServicer}, nil
+}
+
+func (s *Scaler) Process(ctx context.Context, pl *Pipeline) (*PipelineOperation, error) {
+	if !pl.JobScaler.Enabled {
+		return nil, nil
+	}
+	workingJobCount, err := pl.JobAccessor().WorkingCount(ctx)
+	if err != nil {
+		return nil, err
+	}
+	capacity := pl.InstanceSize * pl.ContainerSize
+	shortage := workingJobCount - capacity
+	if shortage < 1 {
+		log.Debugf(ctx, "Pipeline has enough %d instances for %d jobs\n", pl.InstanceSize, workingJobCount)
+		return nil, err
+	}
+	newInstanceSize := workingJobCount / pl.ContainerSize
+	if m := workingJobCount % pl.ContainerSize; m > 0 {
+		newInstanceSize += 1
+	}
+
+	if newInstanceSize > pl.JobScaler.MaxInstanceSize {
+		log.Warningf(ctx, "Quit increacing instances to %d because of MaxInstanceSize %d\n", newInstanceSize, pl.JobScaler.MaxInstanceSize)
+		return nil, nil
+	}
+
+	ope, err := s.igServicer.Resize(pl.ProjectID, pl.Zone, pl.DeploymentName+"-igm", int64(newInstanceSize))
+	if err != nil {
+		log.Errorf(ctx, "Failed to Resize %v/%v/%v to %d\n", pl.ProjectID, pl.Zone, pl.DeploymentName, newInstanceSize)
+		return nil, err
+	}
+
+	operation := &PipelineOperation{
+		Pipeline:      pl,
+		ProjectID:     pl.ProjectID,
+		Zone:          pl.Zone,
+		Service:       "compute",
+		Name:          ope.Name,
+		OperationType: ope.OperationType,
+		Status:        ope.Status,
+		Logs: []OperationLog{
+			OperationLog{CreatedAt: time.Now(), Message: "Start"},
+		},
+	}
+	err = operation.Create(ctx)
+	if err != nil {
+		log.Errorf(ctx, "Failed to create PipelineOperation: %v because of %v\n", operation, err)
+		return nil, err
+	}
+
+	return operation, nil
+}

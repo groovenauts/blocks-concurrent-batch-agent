@@ -98,6 +98,11 @@ type (
 		Type  string `json:"type"`
 	}
 
+	JobScaler struct {
+		Enabled         bool `json:"enabled"`
+		MaxInstanceSize int  `json:"max_instance_size"`
+	}
+
 	Pipeline struct {
 		ID                   string         `json:"id"             datastore:"-"`
 		Organization         *Organization  `json:"-"              validate:"required" datastore:"-"`
@@ -122,6 +127,8 @@ type (
 		ClosePolicy          ClosePolicy    `json:"close_policy,omitempty"`
 		HibernationDelay     int            `json:"hibernation_delay,omitempty"` // seconds
 		HibernationStartedAt time.Time      `json:"hibernation_started_at,omitempty"`
+		JobScaler            JobScaler      `json:"job_scaler,omitempty"`
+		InstanceSize         int            `json:"-"`
 		CreatedAt            time.Time      `json:"created_at"`
 		UpdatedAt            time.Time      `json:"updated_at"`
 	}
