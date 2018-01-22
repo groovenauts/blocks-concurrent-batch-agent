@@ -298,7 +298,7 @@ func (b *Builder) buildStartupScript(pl *Pipeline) string {
 			"METADATA=http://metadata.google.internal/computeMetadata/v1",
 			"SVC_ACCT=$METADATA/instance/service-accounts/default",
 			"ACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'\"' -f 4)",
-			"INITIAL_INTERVAL=60 with_backoff "+docker+" login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://"+host,
+			"with_backoff "+docker+" login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://"+host,
 		)
 	}
 
@@ -319,7 +319,7 @@ func (b *Builder) buildStartupScript(pl *Pipeline) string {
 	}
 
 	r = append(r,
-		"INITIAL_INTERVAL=600 with_backoff "+docker+" pull "+pl.ContainerName,
+		"with_backoff "+docker+" pull "+pl.ContainerName,
 		fmt.Sprintf("for i in {1..%v}; do", pl.ContainerSize),
 		"  "+strings.Join(docker_run_parts, " \\\n    "),
 		"done",

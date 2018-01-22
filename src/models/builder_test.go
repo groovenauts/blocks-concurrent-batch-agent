@@ -189,7 +189,7 @@ func TestBuildStartupScript1(t *testing.T) {
 	b, pl := setupTestBuildStartupScript()
 	ss := b.buildStartupScript(pl)
 	startupScriptBody :=
-		"INITIAL_INTERVAL=600 with_backoff docker pull groovenauts/batch_type_iot_example:0.3.1\n" +
+		"with_backoff docker pull groovenauts/batch_type_iot_example:0.3.1\n" +
 			"for i in {1..2}; do" +
 			"\n  docker run -d" +
 			" \\\n    -e PROJECT=" + pl.ProjectID +
@@ -224,8 +224,8 @@ func TestBuildStartupScript2(t *testing.T) {
 			"METADATA=http://metadata.google.internal/computeMetadata/v1" +
 			"\nSVC_ACCT=$METADATA/instance/service-accounts/default" +
 			"\nACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'\"' -f 4)" +
-			"\nINITIAL_INTERVAL=60 with_backoff docker --config /home/chronos/.docker login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://asia.gcr.io" +
-			"\nINITIAL_INTERVAL=600 with_backoff docker --config /home/chronos/.docker pull " + pl.ContainerName +
+			"\nwith_backoff docker --config /home/chronos/.docker login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://asia.gcr.io" +
+			"\nwith_backoff docker --config /home/chronos/.docker pull " + pl.ContainerName +
 			"\nfor i in {1..2}; do" +
 			"\n  docker --config /home/chronos/.docker run -d" +
 			" \\\n    -e PROJECT=" + pl.ProjectID +
