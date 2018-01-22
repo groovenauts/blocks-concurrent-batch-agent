@@ -189,17 +189,18 @@ func TestBuildStartupScript1(t *testing.T) {
 	b, pl := setupTestBuildStartupScript()
 	ss := b.buildStartupScript(pl)
 	startupScriptBody :=
-		"TIMEOUT=600 with_backoff docker pull groovenauts/batch_type_iot_example:0.3.1\n" +
-			"for i in {1..2}; do docker run -d" +
-			" -e PROJECT=" + pl.ProjectID +
-			" -e DOCKER_HOSTNAME=$(hostname)" +
-			" -e PIPELINE=" + pl.Name +
-			" -e ZONE=" + pl.Zone +
-			" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + pl.Name + "-job-subscription.name)" +
-			" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + pl.Name + "-progress-topic.name)" +
-			" " + pl.ContainerName +
-			" " + pl.Command +
-			" ; done"
+		"INITIAL_INTERVAL=600 with_backoff docker pull groovenauts/batch_type_iot_example:0.3.1\n" +
+			"for i in {1..2}; do" +
+			"\n  docker run -d" +
+			" \\\n    -e PROJECT=" + pl.ProjectID +
+			" \\\n    -e DOCKER_HOSTNAME=$(hostname)" +
+			" \\\n    -e PIPELINE=" + pl.Name +
+			" \\\n    -e ZONE=" + pl.Zone +
+			" \\\n    -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + pl.Name + "-job-subscription.name)" +
+			" \\\n    -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + pl.Name + "-progress-topic.name)" +
+			" \\\n    " + pl.ContainerName +
+			" \\\n    " + pl.Command +
+			"\ndone"
 	assert.Equal(t, StartupScriptHeader+"\n"+startupScriptBody, ss)
 
 	// Use cos-cloud project's image
@@ -220,21 +221,22 @@ func TestBuildStartupScript2(t *testing.T) {
 	ss := b.buildStartupScript(pl)
 	expected :=
 		StartupScriptHeader + "\n" +
-			"METADATA=http://metadata.google.internal/computeMetadata/v1\n" +
-			"SVC_ACCT=$METADATA/instance/service-accounts/default\n" +
-			"ACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'\"' -f 4)\n" +
-			"TIMEOUT=60 with_backoff docker --config /home/chronos/.docker login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://asia.gcr.io\n" +
-			"TIMEOUT=600 with_backoff docker --config /home/chronos/.docker pull " + pl.ContainerName + "\n" +
-			"for i in {1..2}; do docker --config /home/chronos/.docker run -d" +
-			" -e PROJECT=" + pl.ProjectID +
-			" -e DOCKER_HOSTNAME=$(hostname)" +
-			" -e PIPELINE=" + pl.Name +
-			" -e ZONE=" + pl.Zone +
-			" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + pl.Name + "-job-subscription.name)" +
-			" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + pl.Name + "-progress-topic.name)" +
-			" " + pl.ContainerName +
-			" " + pl.Command +
-			" ; done"
+			"METADATA=http://metadata.google.internal/computeMetadata/v1" +
+			"\nSVC_ACCT=$METADATA/instance/service-accounts/default" +
+			"\nACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'\"' -f 4)" +
+			"\nINITIAL_INTERVAL=60 with_backoff docker --config /home/chronos/.docker login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://asia.gcr.io" +
+			"\nINITIAL_INTERVAL=600 with_backoff docker --config /home/chronos/.docker pull " + pl.ContainerName +
+			"\nfor i in {1..2}; do" +
+			"\n  docker --config /home/chronos/.docker run -d" +
+			" \\\n    -e PROJECT=" + pl.ProjectID +
+			" \\\n    -e DOCKER_HOSTNAME=$(hostname)" +
+			" \\\n    -e PIPELINE=" + pl.Name +
+			" \\\n    -e ZONE=" + pl.Zone +
+			" \\\n    -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + pl.Name + "-job-subscription.name)" +
+			" \\\n    -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + pl.Name + "-progress-topic.name)" +
+			" \\\n    " + pl.ContainerName +
+			" \\\n    " + pl.Command +
+			"\ndone"
 	//fmt.Println(ss)
 	assert.Equal(t, expected, ss)
 
