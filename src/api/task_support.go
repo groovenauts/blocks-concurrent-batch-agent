@@ -84,7 +84,7 @@ func PostTaskWith(c echo.Context, path string, params url.Values, f func(*taskqu
 	}
 	log.Debugf(ctx, "taskqueue.Add a task %v\n", path)
 	if _, err := taskqueue.Add(ctx, t, ""); err != nil {
-		log.Errorf(ctx, "Failed to add a task %v to taskqueue because of %v\n", t, err)
+		log.Errorf(ctx, "Failed to add %v task %v to taskqueue because of %v\n", path, t, err)
 		return err
 	}
 	return nil
