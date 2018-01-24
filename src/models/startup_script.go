@@ -2,8 +2,8 @@ package models
 
 const StartupScriptHeader = `
 function with_backoff {
-  local max_attempts=${ATTEMPTS-5}
-  local timeout=${TIMEOUT-1}
+  local max_attempts=${MAX_ATTEMPTS-8}
+  local interval=${INITIAL_INTERVAL-1}
   local attempt=0
   local exitCode=0
 
@@ -19,10 +19,10 @@ function with_backoff {
       break
     fi
 
-    echo "Failure! Retrying in $timeout.." 1>&2
-    sleep $timeout
+    echo "Failure! Retrying in $interval.." 1>&2
+    sleep $interval
     attempt=$(( attempt + 1 ))
-    timeout=$(( timeout * 2 ))
+    interval=$(( interval * 2 ))
   done
 
   if [[ $exitCode != 0 ]]

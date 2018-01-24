@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+	"strings"
 	"time"
 
 	"golang.org/x/net/context"
@@ -275,14 +276,15 @@ var (
 const StackdriverAgentCommand = "docker run -d -e MONITOR_HOST=true -v /proc:/mnt/proc:ro --privileged wikiwi/stackdriver-agent"
 
 func (b *Builder) buildStartupScript(pl *Pipeline) string {
-	r := StartupScriptHeader + "\n"
+	r := []string{StartupScriptHeader}
 
 	docker := "docker"
 	if pl.GpuAccelerators.Count > 0 {
-		r = r +
-			b.buildInstallCuda(pl) +
-			b.buildInstallDocker(pl) +
-			b.buildInstallNvidiaDocker(pl)
+		r = append(r,
+			b.buildInstallCuda(pl),
+			b.buildInstallDocker(pl),
+			b.buildInstallNvidiaDocker(pl),
+		)
 		docker = "nvidia-docker"
 	}
 
@@ -292,31 +294,37 @@ func (b *Builder) buildStartupScript(pl *Pipeline) string {
 	if usingGcr {
 		docker = docker + " --config /home/chronos/.docker"
 		host := GcrImageHostRegexp.FindString(pl.ContainerName)
-		r = r +
-			"METADATA=http://metadata.google.internal/computeMetadata/v1\n" +
-			"SVC_ACCT=$METADATA/instance/service-accounts/default\n" +
-			"ACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'\"' -f 4)\n" +
-			"TIMEOUT=60 with_backoff " + docker + " login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://" + host + "\n"
+		r = append(r,
+			"METADATA=http://metadata.google.internal/computeMetadata/v1",
+			"SVC_ACCT=$METADATA/instance/service-accounts/default",
+			"ACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'\"' -f 4)",
+			"with_backoff "+docker+" login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://"+host,
+		)
 	}
 
 	if pl.StackdriverAgent {
-		r = r + StackdriverAgentCommand + "\n"
+		r = append(r, StackdriverAgentCommand)
 	}
 
-	r = r +
-		"TIMEOUT=600 with_backoff " + docker + " pull " + pl.ContainerName + "\n" +
-		fmt.Sprintf("for i in {1..%v}; do", pl.ContainerSize) +
-		" " + docker + " run -d" +
-		" -e PROJECT=" + pl.ProjectID +
-		" -e DOCKER_HOSTNAME=$(hostname)" +
-		" -e PIPELINE=" + pl.Name +
-		" -e ZONE=" + pl.Zone +
-		" -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + pl.Name + "-job-subscription.name)" +
-		" -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + pl.Name + "-progress-topic.name)" +
-		" " + pl.ContainerName +
-		" " + pl.Command +
-		" ; done"
-	return r
+	docker_run_parts := []string{
+		docker + " run -d",
+		"-e PROJECT=" + pl.ProjectID,
+		"-e DOCKER_HOSTNAME=$(hostname)",
+		"-e PIPELINE=" + pl.Name,
+		"-e ZONE=" + pl.Zone,
+		"-e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + pl.Name + "-job-subscription.name)",
+		"-e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + pl.Name + "-progress-topic.name)",
+		pl.ContainerName,
+		pl.Command,
+	}
+
+	r = append(r,
+		"with_backoff "+docker+" pull "+pl.ContainerName,
+		fmt.Sprintf("for i in {1..%v}; do", pl.ContainerSize),
+		"  "+strings.Join(docker_run_parts, " \\\n    "),
+		"done",
+	)
+	return strings.Join(r, "\n")
 }
 
 func (b *Builder) buildInstallCuda(pl *Pipeline) string {
