@@ -19,7 +19,8 @@ func (u *DeploymentUpdater) Update(ctx context.Context, operation *PipelineOpera
 		log.Errorf(ctx, "Failed to get deployment operation: %v because of %v\n", operation, err)
 		return err
 	}
-	if operation.Status == newOpe.Status {
+	oldStatus := operation.Status
+	if oldStatus == newOpe.Status {
 		return nil
 	}
 
