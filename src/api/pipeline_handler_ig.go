@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -8,7 +9,7 @@ import (
 
 	"github.com/labstack/echo"
 	"golang.org/x/net/context"
-	// "google.golang.org/appengine/log"
+	"google.golang.org/appengine/log"
 )
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/check_scaling_task
