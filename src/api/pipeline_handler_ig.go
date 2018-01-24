@@ -17,6 +17,11 @@ func (h *PipelineHandler) checkScalingTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
 
+	if !pl.CanScale() {
+		log.Warningf(ctx, "Quit because the pipeline can't scale.\n")
+		return c.JSON(http.StatusOK, pl)
+	}
+
 	if pl.Cancelled {
 		log.Infof(ctx, "Quit because the pipeline is cancelled.\n")
 		return c.JSON(http.StatusOK, pl)
