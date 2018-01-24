@@ -94,9 +94,7 @@ func (aa *JobAccessor) AllWith(ctx context.Context, f func(*datastore.Query) (*d
 }
 
 func (aa *JobAccessor) WorkingCount(ctx context.Context) (int, error) {
-	jobs, err := aa.AllWith(ctx, func(q *datastore.Query) (*datastore.Query, error) {
-		return q.Project("Status"), nil
-	})
+	jobs, err := aa.All(ctx)
 	if err != nil {
 		return 0, err
 	}
