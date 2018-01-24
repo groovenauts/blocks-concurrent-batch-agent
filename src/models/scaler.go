@@ -19,6 +19,14 @@ func NewScaler(ctx context.Context) (*Scaler, error) {
 	return &Scaler{igServicer: igServicer}, nil
 }
 
+func WithScaler(ctx context.Context, f func(*Scaler) error) error {
+	scaler, err := NewScaler(ctx)
+	if err != nil {
+		return err
+	}
+	return f(scaler)
+}
+
 func (s *Scaler) Process(ctx context.Context, pl *Pipeline) (*PipelineOperation, error) {
 	if !pl.JobScaler.Enabled {
 		return nil, nil

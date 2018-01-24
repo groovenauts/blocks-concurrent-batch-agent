@@ -42,23 +42,18 @@ func (h *PipelineHandler) checkScalingTask(c echo.Context) error {
 		return c.JSON(http.StatusOK, pl)
 	}
 
-	scaler, err := models.NewScaler(ctx)
-	if err != nil {
-		return err
-	}
-
-	operation, err := scaler.Process(ctx)
-	if err != nil {
-		return err
-	}
-
-	if operation != nil {
-		return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
-			return PostOperationTask(c, "wait_scaling_task", operation)
+	return models.WithScaler(ctx, func(scaler *models.Scaker) error {
+		operation, err := scaler.Process(ctx, pl)
+		if err != nil {
+			return err
+		}
+		if operation != nil {
+			return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
+				return PostOperationTask(c, "wait_scaling_task", operation)
+			})
+		}
+		return ReturnJsonWith(c, pl, http.StatusAccepted, func() error {
+			return PostPipelineTaskWithETA(c, "check_scaling_task", pl, started.Add(30*time.Second))
 		})
-	}
-
-	return ReturnJsonWith(c, pl, http.StatusAccepted, func() error {
-		return PostPipelineTaskWithETA(c, "check_scaling_task", pl, started.Add(30*time.Second))
 	})
 }
