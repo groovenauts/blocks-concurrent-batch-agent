@@ -28,11 +28,13 @@ func WithScaler(ctx context.Context, f func(*Scaler) error) error {
 }
 
 func (s *Scaler) Process(ctx context.Context, pl *Pipeline) (*PipelineOperation, error) {
-	if !pl.JobScaler.Enabled {
+	if !pl.CanScale() {
+		log.Infof(ctx, "Quit Scaler#Process because the pipeline can't scale because of %v\n", pl.JobScaler)
 		return nil, nil
 	}
 	workingJobCount, err := pl.JobAccessor().WorkingCount(ctx)
 	if err != nil {
+		log.Errorf(ctx, "Failed to get workingJobCount of %v because of %v\n", pl.ID, err)
 		return nil, err
 	}
 	capacity := pl.InstanceSize * pl.ContainerSize
