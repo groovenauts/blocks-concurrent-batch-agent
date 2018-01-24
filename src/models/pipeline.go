@@ -604,3 +604,7 @@ func (m *Pipeline) HasNewTaskSince(ctx context.Context, t time.Time) (bool, erro
 	}
 	return (c > 0), nil
 }
+
+func (m *Pipeline) CanScale() bool {
+	return m.JobScaler.Enabled && (m.InstanceSize < m.JobScaler.MaxInstanceSize)
+}

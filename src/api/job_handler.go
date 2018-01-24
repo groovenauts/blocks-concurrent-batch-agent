@@ -51,6 +51,12 @@ func (h *JobHandler) create(c echo.Context) error {
 		if err != nil {
 			return err
 		}
+		if pl.CanScale() {
+			err = PostPipelineTask(c, "check_scaling_task", pl)
+			if err != nil {
+				return err
+			}
+		}
 	case models.Hibernating:
 		err := pl.BackToBeReserved(ctx)
 		if err != nil {
