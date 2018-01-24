@@ -191,3 +191,8 @@ func (h *OperationHandler) waitClosingTask(c echo.Context) error {
 		}
 	}
 }
+
+// curl -v -X	POST http://localhost:8080/operations/1/wait_scaling_task
+func (h *OperationHandler) waitScalingTask(c echo.Context) error {
+	return nil
+}

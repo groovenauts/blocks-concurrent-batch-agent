@@ -53,7 +53,7 @@ func SetupRoutesOfOperations() *OperationHandler {
 	g.POST("/:id/wait_building_task", h.waitBuildingTask)
 	g.POST("/:id/wait_hibernation_task", h.waitHibernationTask)
 	g.POST("/:id/wait_closing_task", h.waitClosingTask)
-	g.POST("/:id/wait_resizing_task", h.waitResizingTask)
+	g.POST("/:id/wait_scaling_task", h.waitScalingTask)
 
 	return h
 }
