@@ -12,8 +12,6 @@ type DeploymentUpdater struct {
 	Servicer DeploymentServicer
 }
 
-type UpdateHandler func() error
-
 // https://godoc.org/google.golang.org/api/deploymentmanager/v2#Operation
 func (u *DeploymentUpdater) Update(ctx context.Context, operation *PipelineOperation, successHandler, errorHandler UpdateHandler) error {
 	newOpe, err := u.Servicer.GetOperation(ctx, operation.ProjectID, operation.Name)

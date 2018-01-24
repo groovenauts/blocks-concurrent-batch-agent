@@ -108,7 +108,7 @@ func (m *PipelineOperation) AppendLog(msg string) {
 	m.Logs = append(m.Logs, OperationLog{CreatedAt: time.Now(), Message: msg})
 }
 
-func (m *PipelineOperation) ProcessDeploy(ctx context.Context, updater *DeploymentUpdater) error {
+func (m *PipelineOperation) ProcessDeploy(ctx context.Context, updater Updater) error {
 	return updater.Update(ctx, m,
 		func() error {
 			return m.LoadPipelineWith(ctx, func(pl *Pipeline) error {
@@ -123,7 +123,7 @@ func (m *PipelineOperation) ProcessDeploy(ctx context.Context, updater *Deployme
 	)
 }
 
-func (m *PipelineOperation) ProcessHibernation(ctx context.Context, updater *DeploymentUpdater) error {
+func (m *PipelineOperation) ProcessHibernation(ctx context.Context, updater Updater) error {
 	return updater.Update(ctx, m,
 		func() error {
 			return m.LoadPipelineWith(ctx, func(pl *Pipeline) error {
@@ -138,7 +138,7 @@ func (m *PipelineOperation) ProcessHibernation(ctx context.Context, updater *Dep
 	)
 }
 
-func (m *PipelineOperation) ProcessClosing(ctx context.Context, updater *DeploymentUpdater, completeHandler func(*Pipeline) error) error {
+func (m *PipelineOperation) ProcessClosing(ctx context.Context, updater Updater, completeHandler func(*Pipeline) error) error {
 	return updater.Update(ctx, m,
 		func() error {
 			return m.LoadPipelineWith(ctx, func(pl *Pipeline) error {
