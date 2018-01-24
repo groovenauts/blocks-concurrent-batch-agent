@@ -46,6 +46,12 @@ func (u *InstanceGroupUpdater) Update(ctx context.Context, operation *PipelineOp
 		operation.AppendLog("Success")
 		f = successHandler
 	}
+
+	err = operation.Update(ctx)
+	if err != nil {
+		return err
+	}
+
 	err = f()
 	if err != nil {
 		return err

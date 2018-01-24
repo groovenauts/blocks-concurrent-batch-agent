@@ -44,6 +44,12 @@ func (u *DeploymentUpdater) Update(ctx context.Context, operation *PipelineOpera
 		operation.AppendLog("Success")
 		f = successHandler
 	}
+
+	err = operation.Update(ctx)
+	if err != nil {
+		return err
+	}
+
 	err = f()
 	if err != nil {
 		return err
