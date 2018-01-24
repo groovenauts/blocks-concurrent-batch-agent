@@ -194,5 +194,22 @@ func (h *OperationHandler) waitClosingTask(c echo.Context) error {
 
 // curl -v -X	POST http://localhost:8080/operations/1/wait_scaling_task
 func (h *OperationHandler) waitScalingTask(c echo.Context) error {
+	started := time.Now()
+	ctx := c.Get("aecontext").(context.Context)
+	operation := c.Get("operation").(*models.PipelineOperation)
+
+	err := models.WithInstanceGroupServicer(ctx, func(servicer models.InstanceGroupServicer) error {
+		handler := func() error {
+			return operation.LoadPipelineWith(ctx, func(pl *models.Pipeline) error {
+				return PostPipelineTaskWithETA(c, "check_scaling_task", pl, started.Add(30*time.Second))
+			})
+		}
+		updater := &models.InstanceGroupUpdater{Servicer: servicer}
+		return updater.Update(ctx, operation, handler, handler)
+	})
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

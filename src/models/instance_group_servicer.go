@@ -32,6 +32,14 @@ func DefaultInstanceGroupServicer(ctx context.Context) (InstanceGroupServicer, e
 	}, nil
 }
 
+func WithInstanceGroupServicer(ctx context.Context, f func(InstanceGroupServicer) error) error {
+	servicer, err := DefaultInstanceGroupServicer(ctx)
+	if err != nil {
+		return err
+	}
+	return f(servicer)
+}
+
 type InstanceGroupServiceWrapper struct {
 	igService      *compute.InstanceGroupsService
 	igmService     *compute.InstanceGroupManagersService
