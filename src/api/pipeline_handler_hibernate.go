@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -51,12 +50,12 @@ func (h *PipelineHandler) checkHibernationTask(c echo.Context) error {
 func (h *PipelineHandler) hibernateTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
-	closer, err := models.NewCloser(ctx, pl.ProcessHibernation)
+	closer, err := models.NewCloser(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to create new closer because of %v\n", err)
 		return err
 	}
-	err = closer.Process(ctx, pl)
+	operation, err := closer.Process(ctx, pl)
 	if err != nil {
 		switch err.(type) {
 		case *googleapi.Error:
@@ -71,62 +70,12 @@ func (h *PipelineHandler) hibernateTask(c echo.Context) error {
 		return err
 	}
 
-	return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
-		return PostPipelineTask(c, "wait_hibernation_task", pl)
-	})
-}
-
-// curl -v -X	POST http://localhost:8080/pipelines/1/wait_hibernation_task
-func (h *PipelineHandler) waitHibernationTask(c echo.Context) error {
-	started := time.Now()
-	ctx := c.Get("aecontext").(context.Context)
-	pl := c.Get("pipeline").(*models.Pipeline)
-	handler := pl.HibernationHandler(ctx)
-
-	refresher := &models.Refresher{}
-	err := refresher.Process(ctx, pl, handler)
+	err = pl.ProcessHibernation(ctx)
 	if err != nil {
-		log.Errorf(ctx, "Failed to refresh pipeline %v because of %v\n", pl, err)
 		return err
 	}
 
-	switch pl.Status {
-	case models.HibernationProcessing:
-		return ReturnJsonWith(c, pl, http.StatusAccepted, func() error {
-			return PostPipelineTaskWithETA(c, "wait_hibernation_task", pl, started.Add(30*time.Second))
-		})
-	case models.Hibernating:
-		if pl.Cancelled {
-			err := pl.CloseIfHibernating(ctx)
-			if err != nil {
-				log.Errorf(ctx, "Failed to CloseAfterHibernation because of %v\n", err)
-				return err
-			}
-			return c.JSON(http.StatusOK, pl)
-		}
-		newTask, err := pl.HasNewTaskSince(ctx, pl.HibernationStartedAt)
-		if err != nil {
-			log.Errorf(ctx, "Failed to check new tasks because of %v\n", err)
-			return err
-		}
-		if newTask {
-			err := pl.BackToBeReserved(ctx)
-			if err != nil {
-				log.Errorf(ctx, "Failed to BackToReady because of %v\n", err)
-				return err
-			}
-			return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
-				return PostPipelineTask(c, "build_task", pl)
-			})
-		} else {
-			return c.JSON(http.StatusOK, pl)
-		}
-	case models.HibernationError:
-		log.Infof(ctx, "Pipeline is already %v so quit wait_hibernation_task\n", pl.Status)
-		return c.JSON(http.StatusOK, pl)
-	default:
-		msg := fmt.Sprintf("Unexpected Status: %v for Pipeline: %v", pl.Status, pl)
-		log.Errorf(ctx, msg)
-		return &models.InvalidStateTransition{Msg: msg}
-	}
+	return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
+		return PostOperationTask(c, "wait_hibernation_task", operation)
+	})
 }

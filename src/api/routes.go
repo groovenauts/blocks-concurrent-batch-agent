@@ -9,8 +9,9 @@ var e *echo.Echo
 func SetupRoutes(echo *echo.Echo) map[string]interface{} {
 	e = echo // e is the global variable defined aborve.
 	return map[string]interface{}{
-		"pipelines": SetupRoutesOfPipelines(),
-		"jobs":      SetupRoutesOfJobs(),
+		"pipelines":  SetupRoutesOfPipelines(),
+		"operations": SetupRoutesOfOperations(),
+		"jobs":       SetupRoutesOfJobs(),
 	}
 }
 
@@ -32,16 +33,25 @@ func SetupRoutesOfPipelines() *PipelineHandler {
 	g.POST("/:id/close_task", h.closeTask)
 	g.POST("/:id/check_hibernation_task", h.checkHibernationTask)
 	g.POST("/:id/hibernate_task", h.hibernateTask)
-	g.POST("/:id/wait_hibernation_task", h.waitHibernationTask)
 	g.DELETE("/:id", h.destroy)
 
 	g.POST("/:id/build_task", h.buildTask)
-	g.POST("/:id/wait_building_task", h.waitBuildingTask)
 	g.POST("/:id/publish_task", h.publishTask)
 	g.POST("/:id/subscribe_task", h.subscribeTask)
+
+	return h
+}
+
+func SetupRoutesOfOperations() *OperationHandler {
+	h := &OperationHandler{
+		pipeline_id_name:  "pipeline_id",
+		operation_id_name: "id",
+	}
+
+	g := e.Group("/operations", h.member)
+	g.POST("/:id/wait_building_task", h.waitBuildingTask)
+	g.POST("/:id/wait_hibernation_task", h.waitHibernationTask)
 	g.POST("/:id/wait_closing_task", h.waitClosingTask)
-	g.POST("/:id/refresh", h.refresh)
-	g.POST("/:id/refresh_task", h.refreshTask)
 
 	return h
 }

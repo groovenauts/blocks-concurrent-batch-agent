@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+	"time"
 
 	"golang.org/x/net/context"
 	"google.golang.org/api/deploymentmanager/v2"
@@ -22,39 +23,57 @@ func NewBuilder(ctx context.Context) (*Builder, error) {
 	return &Builder{deployer: deployer}, nil
 }
 
-func (b *Builder) Process(ctx context.Context, pl *Pipeline) error {
+func (b *Builder) Process(ctx context.Context, pl *Pipeline) (*PipelineOperation, error) {
 	err := pl.LoadOrganization(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to load Organization for Pipeline: %v\npl: %v\n", err, pl)
-		return err
+		return nil, err
 	}
 
 	err = pl.StartBuilding(ctx)
 	if err != nil {
 		log.Errorf(ctx, "Failed to update Pipeline status to 'building': %v\npl: %v\n", err, pl)
-		return err
+		return nil, err
 	}
 
 	deployment, err := b.BuildDeployment(pl)
 	if err != nil {
 		log.Errorf(ctx, "Failed to BuildDeployment: %v\nPipeline: %v\n", err, pl)
-		return err
+		return nil, err
 	}
 	ope, err := b.deployer.Insert(ctx, pl.ProjectID, deployment)
 	if err != nil {
 		log.Errorf(ctx, "Failed to insert deployment %v\nproject: %v deployment: %v\n", err, pl.ProjectID, deployment)
-		return err
+		return nil, err
 	}
 
 	log.Infof(ctx, "Built pipeline successfully %v\n", pl)
 
-	err = pl.StartDeploying(ctx, deployment.Name, ope.Name)
+	err = pl.StartDeploying(ctx, deployment.Name)
 	if err != nil {
 		log.Errorf(ctx, "Failed to update Pipeline deployment name to %v: %v\npl: %v\n", ope.Name, err, pl)
-		return err
+		return nil, err
 	}
 
-	return nil
+	operation := &PipelineOperation{
+		Pipeline:      pl,
+		ProjectID:     pl.ProjectID,
+		Zone:          pl.Zone,
+		Service:       "deploymentmanager",
+		Name:          ope.Name,
+		OperationType: ope.OperationType,
+		Status:        ope.Status,
+		Logs: []OperationLog{
+			OperationLog{CreatedAt: time.Now(), Message: "Start"},
+		},
+	}
+	err = operation.Create(ctx)
+	if err != nil {
+		log.Errorf(ctx, "Failed to create PipelineOperation: %v because of %v\n", operation, err)
+		return nil, err
+	}
+
+	return operation, nil
 }
 
 func (b *Builder) BuildDeployment(pl *Pipeline) (*deploymentmanager.Deployment, error) {

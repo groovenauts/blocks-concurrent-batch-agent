@@ -5,6 +5,7 @@ import (
 
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
+	"google.golang.org/appengine/log"
 	"gopkg.in/go-playground/validator.v9"
 )
 
@@ -109,6 +110,7 @@ func (m *Organization) StartWaitingPipelines(ctx context.Context, handler func(*
 
 	for _, waiting := range waitings {
 		if m.TokenAmount < waiting.TokenConsumption {
+			log.Warningf(ctx, "Token %d is shorter than the consumption %d\n", m.TokenAmount, waiting.TokenConsumption)
 			return nil
 		}
 		m.TokenAmount = m.TokenAmount - waiting.TokenConsumption

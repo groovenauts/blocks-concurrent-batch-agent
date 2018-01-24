@@ -142,14 +142,6 @@ func (h *PipelineHandler) destroy(c echo.Context) error {
 	return c.JSON(http.StatusOK, pl)
 }
 
-// curl -v -X POST http://localhost:8080/pipelines/:id/refresh
-func (h *PipelineHandler) refresh(c echo.Context) error {
-	pl := c.Get("pipeline").(*models.Pipeline)
-	return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
-		return PostPipelineTask(c, "refresh_task", pl)
-	})
-}
-
 // curl -v -X	POST http://localhost:8080/pipelines/1/publish_task
 func (h *PipelineHandler) publishTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
@@ -161,19 +153,4 @@ func (h *PipelineHandler) publishTask(c echo.Context) error {
 	return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
 		return PostPipelineTask(c, "subscribe_task", pl)
 	})
-}
-
-// curl -v -X	POST http://localhost:8080/pipelines/1/refresh_task
-func (h *PipelineHandler) refreshTask(c echo.Context) error {
-	ctx := c.Get("aecontext").(context.Context)
-	pl := c.Get("pipeline").(*models.Pipeline)
-	refresher := &models.Refresher{}
-	err := refresher.Process(ctx, pl, pl.RefreshHandler(ctx, func(pl *models.Pipeline) error {
-		return PostPipelineTaskWith(c, "build_task", pl, url.Values{}, nil)
-	}))
-	if err != nil {
-		log.Errorf(ctx, "Failed to refresh pipeline %v because of %v\n", pl, err)
-		return err
-	}
-	return c.JSON(http.StatusOK, pl)
 }
