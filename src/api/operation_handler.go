@@ -174,21 +174,25 @@ func (h *OperationHandler) waitScalingTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	operation := c.Get("operation").(*models.PipelineOperation)
 
-	err := models.WithInstanceGroupServicer(ctx, func(servicer models.InstanceGroupServicer) error {
+	return models.WithInstanceGroupServicer(ctx, func(servicer models.InstanceGroupServicer) error {
+		handler_called := false
 		handler := func() error {
+			handler_called = true
 			return operation.LoadPipelineWith(ctx, func(pl *models.Pipeline) error {
 				return PostPipelineTaskWithETA(c, "check_scaling_task", pl, started.Add(30*time.Second))
 			})
 		}
 		updater := &models.InstanceGroupUpdater{Servicer: servicer}
-		return updater.Update(ctx, operation, handler, handler)
-	})
-	if err != nil {
-		log.Errorf(ctx, "Failed in wait_scaling_task because of %v\n", err)
-		return err
-	}
-
-	return ReturnJsonWith(c, operation, http.StatusAccepted, func() error {
-		return PostOperationTaskWithETA(c, "wait_scaling_task", operation, started.Add(30*time.Second))
+		err := updater.Update(ctx, operation, handler, handler)
+		if err != nil {
+			log.Errorf(ctx, "Failed to update operation %v because of %v\n", operation, err)
+			return err
+		}
+		if handler_called {
+			return c.JSON(http.StatusOK, operation)
+		}
+		return ReturnJsonWith(c, operation, http.StatusAccepted, func() error {
+			return PostOperationTaskWithETA(c, "wait_scaling_task", operation, started.Add(30*time.Second))
+		})
 	})
 }
