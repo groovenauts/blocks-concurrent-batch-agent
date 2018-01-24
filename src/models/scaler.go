@@ -75,5 +75,12 @@ func (s *Scaler) Process(ctx context.Context, pl *Pipeline) (*PipelineOperation,
 		return nil, err
 	}
 
+	pl.InstanceSize = newInstanceSize
+	err = pl.Update(ctx)
+	if err != nil {
+		log.Errorf(ctx, "Failed to update Pipeline InstanceSize : %v because of %v\n", pl, err)
+		return nil, err
+	}
+
 	return operation, nil
 }

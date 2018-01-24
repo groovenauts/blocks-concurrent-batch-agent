@@ -173,6 +173,10 @@ func (m *Pipeline) CreateWith(ctx context.Context, f func(ctx context.Context) e
 		m.UpdatedAt = t
 	}
 
+	if m.InstanceSize == 0 {
+		m.InstanceSize = m.TargetSize
+	}
+
 	err := m.Validate()
 	if err != nil {
 		return err
@@ -341,6 +345,7 @@ func (m *Pipeline) StateTransition(ctx context.Context, froms []Status, to Statu
 }
 
 func (m *Pipeline) StartBuilding(ctx context.Context) error {
+	m.InstanceSize = m.TargetSize
 	return m.StateTransition(ctx, []Status{Reserved, Building}, Building)
 }
 
@@ -375,6 +380,7 @@ func (m *Pipeline) FailHibernation(ctx context.Context) error {
 }
 
 func (m *Pipeline) CompleteHibernation(ctx context.Context) error {
+	m.InstanceSize = 0
 	return m.StateTransition(ctx, []Status{HibernationProcessing}, Hibernating)
 }
 
