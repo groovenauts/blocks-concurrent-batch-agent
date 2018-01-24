@@ -100,7 +100,7 @@ func (aa *JobAccessor) WorkingCount(ctx context.Context) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	log.Debugf(ctx, "WorkingCount total %d jobs: %v\n", len(jobs))
+	log.Debugf(ctx, "WorkingCount total %d jobs\n", len(jobs))
 	c := 0
 	for _, job := range jobs {
 		log.Debugf(ctx, "WorkingCount job.Status: %v\n", job.Status)
