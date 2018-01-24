@@ -60,9 +60,19 @@ func (aa *JobAccessor) Query() (*datastore.Query, error) {
 }
 
 func (aa *JobAccessor) All(ctx context.Context) (Jobs, error) {
+	return aa.AllWith(ctx, nil)
+}
+
+func (aa *JobAccessor) AllWith(ctx context.Context, f func(*datastore.Query) (*datastore.Query, error)) (Jobs, error) {
 	q, err := aa.Query()
 	if err != nil {
 		return nil, err
+	}
+	if f != nil {
+		q, err = f(q)
+		if err != nil {
+			return nil, err
+		}
 	}
 	iter := q.Run(ctx)
 	var res = Jobs{}
