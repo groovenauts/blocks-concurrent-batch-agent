@@ -74,81 +74,57 @@ func (h *OperationHandler) waitHibernationTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	operation := c.Get("operation").(*models.PipelineOperation)
 
-	log.Debugf(ctx, "OperationHandler#waitHibernationTask %d\n", 0)
-
 	err := models.WithDefaultDeploymentServicer(ctx, func(servicer models.DeploymentServicer) error {
 		updater := &models.DeploymentUpdater{Servicer: servicer}
 		return operation.ProcessHibernation(ctx, updater)
 	})
 	if err != nil {
-		log.Debugf(ctx, "OperationHandler#waitHibernationTask %d\n", 1)
 		return err
 	}
 
-	log.Debugf(ctx, "OperationHandler#waitHibernationTask %d\n", 2)
-
 	if !operation.Done() {
-		log.Debugf(ctx, "OperationHandler#waitHibernationTask %d\n", 3)
 		return ReturnJsonWith(c, operation, http.StatusAccepted, func() error {
 			return PostOperationTaskWithETA(c, "wait_hibernation_task", operation, started.Add(30*time.Second))
 		})
 	}
 
-	log.Debugf(ctx, "OperationHandler#waitHibernationTask %d\n", 4)
-
 	pl, err := operation.LoadPipeline(ctx)
 	if err != nil {
-		log.Debugf(ctx, "OperationHandler#waitHibernationTask %d\n", 5)
 		return err
 	}
 
-	log.Debugf(ctx, "OperationHandler#waitHibernationTask %d\n", 6)
-
 	switch pl.Status {
 	case models.Hibernating:
-		log.Debugf(ctx, "OperationHandler#waitHibernationTask %d\n", 7)
 		if pl.Cancelled {
-			log.Debugf(ctx, "OperationHandler#waitHibernationTask %d\n", 8)
 			err := pl.CloseIfHibernating(ctx)
 			if err != nil {
-				log.Debugf(ctx, "OperationHandler#waitHibernationTask %d\n", 9)
 				log.Errorf(ctx, "Failed to CloseAfterHibernation because of %v\n", err)
 				return err
 			}
-			log.Debugf(ctx, "OperationHandler#waitHibernationTask %d\n", 10)
 			return c.JSON(http.StatusOK, pl)
 		}
-		log.Debugf(ctx, "OperationHandler#waitHibernationTask %d\n", 11)
 
 		newTask, err := pl.HasNewTaskSince(ctx, pl.HibernationStartedAt)
 		if err != nil {
-			log.Debugf(ctx, "OperationHandler#waitHibernationTask %d\n", 12)
 			log.Errorf(ctx, "Failed to check new tasks because of %v\n", err)
 			return err
 		}
-		log.Debugf(ctx, "OperationHandler#waitHibernationTask %d\n", 13)
 		if newTask {
-			log.Debugf(ctx, "OperationHandler#waitHibernationTask %d\n", 14)
 			err := pl.BackToBeReserved(ctx)
 			if err != nil {
-				log.Debugf(ctx, "OperationHandler#waitHibernationTask %d\n", 15)
 				log.Errorf(ctx, "Failed to BackToReady because of %v\n", err)
 				return err
 			}
-			log.Debugf(ctx, "OperationHandler#waitHibernationTask %d\n", 16)
 			return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
 				return PostPipelineTask(c, "build_task", pl)
 			})
 		} else {
-			log.Debugf(ctx, "OperationHandler#waitHibernationTask %d\n", 17)
 			return c.JSON(http.StatusOK, pl)
 		}
 	case models.HibernationError:
-		log.Debugf(ctx, "OperationHandler#waitHibernationTask %d\n", 18)
 		log.Infof(ctx, "Pipeline is already %v so quit wait_hibernation_task\n", pl.Status)
 		return c.JSON(http.StatusOK, pl)
 	default:
-		log.Debugf(ctx, "OperationHandler#waitHibernationTask %d\n", 19)
 		return &models.InvalidStateTransition{
 			Msg: fmt.Sprintf("Unexpected Status: %v for Pipeline: %v", pl.Status, pl),
 		}
