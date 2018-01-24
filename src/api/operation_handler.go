@@ -184,8 +184,11 @@ func (h *OperationHandler) waitScalingTask(c echo.Context) error {
 		return updater.Update(ctx, operation, handler, handler)
 	})
 	if err != nil {
+		log.Errorf(ctx, "Failed in wait_scaling_task because of %v\n", err)
 		return err
 	}
 
-	return nil
+	return ReturnJsonWith(c, operation, http.StatusAccepted, func() error {
+		return PostOperationTaskWithETA(c, "wait_scaling_task", operation, started.Add(30*time.Second))
+	})
 }
