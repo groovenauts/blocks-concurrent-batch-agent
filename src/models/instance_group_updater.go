@@ -19,14 +19,20 @@ func (u *InstanceGroupUpdater) Update(ctx context.Context, operation *PipelineOp
 		log.Errorf(ctx, "Failed to get compute operation: %v because of %v\n", operation, err)
 		return err
 	}
+
+	log.Debugf(ctx, "Updating newOpe: Name: %v, Status: %v\n", newOpe.Name, newOpe.Status)
+
 	oldStatus := operation.Status
-	if oldStatus == newOpe.Status {
-		return nil
+	operation.Status = newOpe.Status
+
+	if oldStatus != operation.Status {
+		operation.AppendLog(fmt.Sprintf("StatusChange from %s to %s", oldStatus, operation.Status))
 	}
 
-	operation.Status = newOpe.Status
-	if newOpe.Status != "DONE" {
-		operation.AppendLog(fmt.Sprintf("StatusChange from %s to %s", oldStatus, newOpe.Status))
+	if operation.Status != "DONE" {
+		if oldStatus == operation.Status {
+			return nil
+		}
 		err := operation.Update(ctx)
 		if err != nil {
 			return err
