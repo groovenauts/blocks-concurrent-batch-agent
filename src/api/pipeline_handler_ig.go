@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -19,30 +18,18 @@ func (h *PipelineHandler) checkScalingTask(c echo.Context) error {
 	pl := c.Get("pipeline").(*models.Pipeline)
 
 	if pl.Cancelled {
-		switch {
-		case models.StatusesOpened.Include(pl.Status):
-			log.Infof(ctx, "Pipeline is cancelled.\n")
-			return ReturnJsonWith(c, pl, http.StatusNoContent, func() error {
-				return PostPipelineTask(c, "close_task", pl)
-			})
-		case models.StatusesAlreadyClosing.Include(pl.Status):
-			log.Warningf(ctx, "Pipeline is cancelled but do nothing because it's already closed or being closed.\n")
-			return c.JSON(http.StatusOK, pl)
-		default:
-			return &models.InvalidStateTransition{
-				Msg: fmt.Sprintf("Invalid Pipeline#Status %v to subscribe a Pipeline cancelled", pl.Status),
-			}
-		}
+		log.Infof(ctx, "Quit because the pipeline is cancelled.\n")
+		return c.JSON(http.StatusOK, pl)
 	}
 
 	switch {
 	case models.StatusesHibernationInProgresss.Include(pl.Status) ||
 		models.StatusesHibernating.Include(pl.Status):
-		log.Infof(ctx, "Pipeline is %v so now stopping subscribe_task. \n", pl.Status)
+		log.Infof(ctx, "Quit because the pipeline is %v so now stopping subscribe_task. \n", pl.Status)
 		return c.JSON(http.StatusOK, pl)
 	}
 
-	return models.WithScaler(ctx, func(scaler *models.Scaker) error {
+	return models.WithScaler(ctx, func(scaler *models.Scaler) error {
 		operation, err := scaler.Process(ctx, pl)
 		if err != nil {
 			return err
