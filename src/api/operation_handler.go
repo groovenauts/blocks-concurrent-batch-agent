@@ -63,12 +63,6 @@ func (h *OperationHandler) waitBuildingTask(c echo.Context) error {
 		})
 	} else {
 		return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
-			if pl.CanScale() {
-				err = PostPipelineTask(c, "check_scaling_task", pl)
-				if err != nil {
-					return err
-				}
-			}
 			return PostPipelineTask(c, "publish_task", pl)
 		})
 	}
