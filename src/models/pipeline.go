@@ -98,6 +98,11 @@ type (
 		Type  string `json:"type"`
 	}
 
+	JobScaler struct {
+		Enabled         bool `json:"enabled"`
+		MaxInstanceSize int  `json:"max_instance_size"`
+	}
+
 	Pipeline struct {
 		ID                   string         `json:"id"             datastore:"-"`
 		Organization         *Organization  `json:"-"              validate:"required" datastore:"-"`
@@ -122,6 +127,8 @@ type (
 		ClosePolicy          ClosePolicy    `json:"close_policy,omitempty"`
 		HibernationDelay     int            `json:"hibernation_delay,omitempty"` // seconds
 		HibernationStartedAt time.Time      `json:"hibernation_started_at,omitempty"`
+		JobScaler            JobScaler      `json:"job_scaler,omitempty"`
+		InstanceSize         int            `json:"-"`
 		CreatedAt            time.Time      `json:"created_at"`
 		UpdatedAt            time.Time      `json:"updated_at"`
 	}
@@ -164,6 +171,10 @@ func (m *Pipeline) CreateWith(ctx context.Context, f func(ctx context.Context) e
 	}
 	if m.UpdatedAt.IsZero() {
 		m.UpdatedAt = t
+	}
+
+	if m.InstanceSize == 0 {
+		m.InstanceSize = m.TargetSize
 	}
 
 	err := m.Validate()
@@ -334,6 +345,7 @@ func (m *Pipeline) StateTransition(ctx context.Context, froms []Status, to Statu
 }
 
 func (m *Pipeline) StartBuilding(ctx context.Context) error {
+	m.InstanceSize = m.TargetSize
 	return m.StateTransition(ctx, []Status{Reserved, Building}, Building)
 }
 
@@ -368,6 +380,7 @@ func (m *Pipeline) FailHibernation(ctx context.Context) error {
 }
 
 func (m *Pipeline) CompleteHibernation(ctx context.Context) error {
+	m.InstanceSize = 0
 	return m.StateTransition(ctx, []Status{HibernationProcessing}, Hibernating)
 }
 
@@ -596,4 +609,8 @@ func (m *Pipeline) HasNewTaskSince(ctx context.Context, t time.Time) (bool, erro
 		return false, err
 	}
 	return (c > 0), nil
+}
+
+func (m *Pipeline) CanScale() bool {
+	return m.JobScaler.Enabled && (m.InstanceSize < m.JobScaler.MaxInstanceSize)
 }

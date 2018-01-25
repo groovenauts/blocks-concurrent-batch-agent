@@ -151,6 +151,16 @@ func (h *PipelineHandler) publishTask(c echo.Context) error {
 		return err
 	}
 	return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
-		return PostPipelineTask(c, "subscribe_task", pl)
+		err := PostPipelineTask(c, "subscribe_task", pl)
+		if err != nil {
+			return err
+		}
+		if pl.CanScale() {
+			err = PostPipelineTask(c, "check_scaling_task", pl)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
 	})
 }

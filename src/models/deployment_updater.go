@@ -12,8 +12,6 @@ type DeploymentUpdater struct {
 	Servicer DeploymentServicer
 }
 
-type UpdateHandler func() error
-
 // https://godoc.org/google.golang.org/api/deploymentmanager/v2#Operation
 func (u *DeploymentUpdater) Update(ctx context.Context, operation *PipelineOperation, successHandler, errorHandler UpdateHandler) error {
 	newOpe, err := u.Servicer.GetOperation(ctx, operation.ProjectID, operation.Name)
@@ -21,7 +19,8 @@ func (u *DeploymentUpdater) Update(ctx context.Context, operation *PipelineOpera
 		log.Errorf(ctx, "Failed to get deployment operation: %v because of %v\n", operation, err)
 		return err
 	}
-	if operation.Status == newOpe.Status {
+	oldStatus := operation.Status
+	if oldStatus == newOpe.Status {
 		return nil
 	}
 
@@ -45,6 +44,12 @@ func (u *DeploymentUpdater) Update(ctx context.Context, operation *PipelineOpera
 		operation.AppendLog("Success")
 		f = successHandler
 	}
+
+	err = operation.Update(ctx)
+	if err != nil {
+		return err
+	}
+
 	err = f()
 	if err != nil {
 		return err

@@ -38,6 +38,7 @@ func SetupRoutesOfPipelines() *PipelineHandler {
 	g.POST("/:id/build_task", h.buildTask)
 	g.POST("/:id/publish_task", h.publishTask)
 	g.POST("/:id/subscribe_task", h.subscribeTask)
+	g.POST("/:id/check_scaling_task", h.checkScalingTask)
 
 	return h
 }
@@ -52,6 +53,7 @@ func SetupRoutesOfOperations() *OperationHandler {
 	g.POST("/:id/wait_building_task", h.waitBuildingTask)
 	g.POST("/:id/wait_hibernation_task", h.waitHibernationTask)
 	g.POST("/:id/wait_closing_task", h.waitClosingTask)
+	g.POST("/:id/wait_scaling_task", h.waitScalingTask)
 
 	return h
 }
