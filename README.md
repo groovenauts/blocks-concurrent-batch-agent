@@ -121,13 +121,6 @@ $ export TOKEN="[the token you got before]"
 $ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X POST http://$AEHOST/orgs/$ORG_ID/pipelines --data @pipeline.json
 ```
 
-#### Temporary work around
-
-Now you have to call the following command to refresh status
-
-```
-$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' http://$AEHOST/pipelines/refresh
-```
 
 ### Show all Pipeline data
 
