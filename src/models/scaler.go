@@ -49,8 +49,13 @@ func (s *Scaler) Process(ctx context.Context, pl *Pipeline) (*PipelineOperation,
 	}
 
 	if newInstanceSize > pl.JobScaler.MaxInstanceSize {
-		log.Warningf(ctx, "Quit increacing instances to %d because of MaxInstanceSize %d\n", newInstanceSize, pl.JobScaler.MaxInstanceSize)
-		return nil, nil
+		if pl.JobScaler.MaxInstanceSize > pl.InstanceSize {
+			log.Warningf(ctx, "Can't assign %d VMs but can assign %d VMs as max\n", newInstanceSize, pl.JobScaler.MaxInstanceSize)
+			newInstanceSize = pl.JobScaler.MaxInstanceSize
+		} else {
+			log.Warningf(ctx, "Quit increacing instances to %d because of MaxInstanceSize %d\n", newInstanceSize, pl.JobScaler.MaxInstanceSize)
+			return nil, nil
+		}
 	}
 
 	ope, err := s.igServicer.Resize(pl.ProjectID, pl.Zone, pl.DeploymentName+"-igm", int64(newInstanceSize))
