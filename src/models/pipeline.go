@@ -627,7 +627,7 @@ func (m *Pipeline) LogInstanceSizeWithError(ctx context.Context, endTime string,
 	}
 
 	sizeLog := &PipelineInstanceSizeLog{
-		Pipeline:  m,
+		pipeline:  m,
 		Size:      size,
 		CreatedAt: t,
 	}

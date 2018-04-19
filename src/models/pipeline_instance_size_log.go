@@ -13,7 +13,7 @@ import (
 
 type PipelineInstanceSizeLog struct {
 	ID        string    `json:"id"                        datastore:"-"`
-	Pipeline  *Pipeline `json:"-"    validate:"required"  datastore:"-"`
+	pipeline  *Pipeline `            validate:"required"`
 	Size      int       `json:"size" validate:"required"`
 	CreatedAt time.Time `json:"time" validate:"required"`
 }
@@ -29,10 +29,10 @@ func (m *PipelineInstanceSizeLog) Create(ctx context.Context) error {
 		m.CreatedAt = t
 	}
 
-	if m.Pipeline == nil {
+	if m.pipeline == nil {
 		return fmt.Errorf("No pipeline to create PipelineInstanceSizeLog: %v\n", m)
 	}
-	parentKey, err := datastore.DecodeKey(m.Pipeline.ID)
+	parentKey, err := datastore.DecodeKey(m.pipeline.ID)
 	if err != nil {
 		return err
 	}
