@@ -14,8 +14,8 @@ import (
 type PipelineInstanceSizeLog struct {
 	ID        string    `json:"id"                        datastore:"-"`
 	pipeline  *Pipeline `            validate:"required"`
-	Size      int       `json:"size" validate:"required"`
-	CreatedAt time.Time `json:"time" validate:"required"`
+	Size      int       `json:"size"`
+	CreatedAt time.Time `json:"time"`
 }
 
 func (m *PipelineInstanceSizeLog) Validate() error {

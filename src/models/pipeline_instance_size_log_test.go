@@ -54,4 +54,7 @@ func TestPipelineInstanceSizeLogCreate(t *testing.T) {
 
 	err = pl1.LogInstanceSizeWithError(ctx, "2018-04-19 19:56:46 +0900 JST", 1)
 	assert.NoError(t, err)
+
+	err = pl1.LogInstanceSizeWithError(ctx, "2018-04-19 20:20:46 +0900 JST", 0)
+	assert.NoError(t, err)
 }
