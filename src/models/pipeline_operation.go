@@ -111,8 +111,8 @@ func (m *PipelineOperation) AppendLog(msg string) {
 func (m *PipelineOperation) ProcessDeploy(ctx context.Context, updater Updater) error {
 	return updater.Update(ctx, m,
 		func(endTime string) error {
-			m.Pipeline.LogInstanceSize(ctx, endTime, m.Pipeline.InstanceSize) // No error is returned
 			return m.LoadPipelineWith(ctx, func(pl *Pipeline) error {
+				pl.LogInstanceSize(ctx, endTime, pl.InstanceSize) // No error is returned
 				return pl.CompleteDeploying(ctx)
 			})
 		},
@@ -127,8 +127,8 @@ func (m *PipelineOperation) ProcessDeploy(ctx context.Context, updater Updater) 
 func (m *PipelineOperation) ProcessHibernation(ctx context.Context, updater Updater) error {
 	return updater.Update(ctx, m,
 		func(endTime string) error {
-			m.Pipeline.LogInstanceSize(ctx, endTime, 0) // No error is returned
 			return m.LoadPipelineWith(ctx, func(pl *Pipeline) error {
+				pl.LogInstanceSize(ctx, endTime, 0) // No error is returned
 				return pl.CompleteHibernation(ctx)
 			})
 		},
@@ -143,8 +143,8 @@ func (m *PipelineOperation) ProcessHibernation(ctx context.Context, updater Upda
 func (m *PipelineOperation) ProcessClosing(ctx context.Context, updater Updater, completeHandler func(*Pipeline) error) error {
 	return updater.Update(ctx, m,
 		func(endTime string) error {
-			m.Pipeline.LogInstanceSize(ctx, endTime, 0) // No error is returned
 			return m.LoadPipelineWith(ctx, func(pl *Pipeline) error {
+				pl.LogInstanceSize(ctx, endTime, 0) // No error is returned
 				return pl.CompleteClosing(ctx, completeHandler)
 			})
 		},

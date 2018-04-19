@@ -616,6 +616,7 @@ func (m *Pipeline) CanScale() bool {
 }
 
 func (m *Pipeline) LogInstanceSize(ctx context.Context, endTime string, size int) {
+
 	var t time.Time
 	if endTime != "" {
 		var err error
@@ -632,7 +633,7 @@ func (m *Pipeline) LogInstanceSize(ctx context.Context, endTime string, size int
 		CreatedAt: t,
 	}
 	if err := sizeLog.Create(ctx); err != nil {
-		log.Warningf(ctx, "ERROR failed to insert to PipelineInstanceSizeLogs Pipeline.ID: %v, Size: %v, CreatedAt: %v\n", m.ID, size, t)
+		log.Warningf(ctx, "ERROR failed to insert to PipelineInstanceSizeLogs Pipeline.ID: %v, Size: %v, CreatedAt: %v because of %v\n", m.ID, size, t, err)
 	}
 	// Don't return any error
 }

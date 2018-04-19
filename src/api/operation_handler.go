@@ -183,7 +183,10 @@ func (h *OperationHandler) waitScalingTask(c echo.Context) error {
 			})
 		}
 		successHandler := func(endTime string) error {
-			operation.Pipeline.LogInstanceSize(ctx, endTime, operation.Pipeline.InstanceSize) // No error is returned
+			operation.LoadPipelineWith(ctx, func(pl *models.Pipeline) error {
+				pl.LogInstanceSize(ctx, endTime, pl.InstanceSize) // No error is returned
+				return nil
+			})
 			return handler(endTime)
 		}
 
