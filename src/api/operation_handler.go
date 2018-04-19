@@ -176,14 +176,19 @@ func (h *OperationHandler) waitScalingTask(c echo.Context) error {
 
 	return models.WithInstanceGroupServicer(ctx, func(servicer models.InstanceGroupServicer) error {
 		handler_called := false
-		handler := func() error {
+		handler := func(_ string) error {
 			handler_called = true
 			return operation.LoadPipelineWith(ctx, func(pl *models.Pipeline) error {
 				return PostPipelineTaskWithETA(c, "check_scaling_task", pl, started.Add(30*time.Second))
 			})
 		}
+		successHandler := func(endTime string) error {
+			operation.Pipeline.LogInstanceSize(ctx, endTime, operation.Pipeline.InstanceSize) // No error is returned
+			return handler(endTime)
+		}
+
 		updater := &models.InstanceGroupUpdater{Servicer: servicer}
-		err := updater.Update(ctx, operation, handler, handler)
+		err := updater.Update(ctx, operation, successHandler, handler)
 		if err != nil {
 			log.Errorf(ctx, "Failed to update operation %v because of %v\n", operation, err)
 			return err
