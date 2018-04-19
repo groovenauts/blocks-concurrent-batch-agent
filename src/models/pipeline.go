@@ -615,8 +615,7 @@ func (m *Pipeline) CanScale() bool {
 	return m.JobScaler.Enabled && (m.InstanceSize < m.JobScaler.MaxInstanceSize)
 }
 
-func (m *Pipeline) LogInstanceSize(ctx context.Context, endTime string, size int) {
-
+func (m *Pipeline) LogInstanceSizeWithError(ctx context.Context, endTime string, size int) error {
 	var t time.Time
 	if endTime != "" {
 		var err error
@@ -632,8 +631,11 @@ func (m *Pipeline) LogInstanceSize(ctx context.Context, endTime string, size int
 		Size:      size,
 		CreatedAt: t,
 	}
-	if err := sizeLog.Create(ctx); err != nil {
-		log.Warningf(ctx, "ERROR failed to insert to PipelineInstanceSizeLogs Pipeline.ID: %v, Size: %v, CreatedAt: %v because of %v\n", m.ID, size, t, err)
+	return sizeLog.Create(ctx)
+}
+
+func (m *Pipeline) LogInstanceSize(ctx context.Context, endTime string, size int) {
+	if err := m.LogInstanceSizeWithError(ctx, endTime, size); err != nil {
+		log.Warningf(ctx, "ERROR failed to insert to PipelineInstanceSizeLogs Pipeline.ID: %v, Size: %v, CreatedAt: %v because of %v\n", m.ID, size, endTime, err)
 	}
-	// Don't return any error
 }
