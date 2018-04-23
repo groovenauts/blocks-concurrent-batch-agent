@@ -58,7 +58,7 @@ func (u *InstanceGroupUpdater) Update(ctx context.Context, operation *PipelineOp
 		return err
 	}
 
-	err = f()
+	err = f(newOpe.EndTime)
 	if err != nil {
 		return err
 	}

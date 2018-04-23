@@ -614,3 +614,28 @@ func (m *Pipeline) HasNewTaskSince(ctx context.Context, t time.Time) (bool, erro
 func (m *Pipeline) CanScale() bool {
 	return m.JobScaler.Enabled && (m.InstanceSize < m.JobScaler.MaxInstanceSize)
 }
+
+func (m *Pipeline) LogInstanceSizeWithError(ctx context.Context, endTime string, size int) error {
+	var t time.Time
+	if endTime != "" {
+		var err error
+		t, err = time.Parse(time.RFC3339, endTime)
+		if err != nil {
+			t = time.Now()
+			log.Warningf(ctx, "ERROR failed to time.Parse %v with RFC3339, so use time.Now: %v\n", endTime, t)
+		}
+	}
+
+	sizeLog := &PipelineInstanceSizeLog{
+		pipeline:  m,
+		Size:      size,
+		CreatedAt: t,
+	}
+	return sizeLog.Create(ctx)
+}
+
+func (m *Pipeline) LogInstanceSize(ctx context.Context, endTime string, size int) {
+	if err := m.LogInstanceSizeWithError(ctx, endTime, size); err != nil {
+		log.Warningf(ctx, "ERROR failed to insert to PipelineInstanceSizeLogs Pipeline.ID: %v, Size: %v, CreatedAt: %v because of %v\n", m.ID, size, endTime, err)
+	}
+}

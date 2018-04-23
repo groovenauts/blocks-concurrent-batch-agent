@@ -50,7 +50,7 @@ func (u *DeploymentUpdater) Update(ctx context.Context, operation *PipelineOpera
 		return err
 	}
 
-	err = f()
+	err = f(newOpe.EndTime)
 	if err != nil {
 		return err
 	}
