@@ -188,7 +188,7 @@ func setupTestBuildStartupScript() (*Builder, *Pipeline) {
 func TestBuildStartupScript1(t *testing.T) {
 	b, pl := setupTestBuildStartupScript()
 	ss := b.buildStartupScript(pl)
-	startupScriptBody :=
+	startupScriptBodyBase :=
 		"with_backoff docker pull groovenauts/batch_type_iot_example:0.3.1\n" +
 			"for i in {1..2}; do" +
 			"\n  docker run -d" +
@@ -197,20 +197,34 @@ func TestBuildStartupScript1(t *testing.T) {
 			" \\\n    -e PIPELINE=" + pl.Name +
 			" \\\n    -e ZONE=" + pl.Zone +
 			" \\\n    -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + pl.Name + "-job-subscription.name)" +
-			" \\\n    -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + pl.Name + "-progress-topic.name)" +
-			" \\\n    " + pl.ContainerName +
-			" \\\n    " + pl.Command +
-			"\ndone"
-	assert.Equal(t, StartupScriptHeader+"\n"+startupScriptBody, ss)
+			" \\\n    -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + pl.Name + "-progress-topic.name)"
+	startupScriptBody0 := startupScriptBodyBase +
+		" \\\n    " + pl.ContainerName +
+		" \\\n    " + pl.Command +
+		"\ndone"
+
+	assert.Equal(t, StartupScriptHeader+"\n"+startupScriptBody0, ss)
+
+	// Use with DockerRunOptions
+	// https://docs.docker.com/engine/reference/commandline/run/#restart-policies---restart
+	pl.DockerRunOptions = "--restart=on-failure:3"
+	ss1 := b.buildStartupScript(pl)
+	startupScriptBody1 := startupScriptBodyBase +
+		" \\\n    " + pl.DockerRunOptions +
+		" \\\n    " + pl.ContainerName +
+		" \\\n    " + pl.Command +
+		"\ndone"
+	assert.Equal(t, StartupScriptHeader+"\n"+startupScriptBody1, ss1)
+	pl.DockerRunOptions = "" // Reset
 
 	// Use cos-cloud project's image
 	pl.BootDisk.SourceImage = "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-stable-56-9000-84-2"
 	ss = b.buildStartupScript(pl)
-	assert.Equal(t, StartupScriptHeader+"\n"+startupScriptBody, ss)
+	assert.Equal(t, StartupScriptHeader+"\n"+startupScriptBody0, ss)
 
 	// Use stackdriver-agent
 	pl.StackdriverAgent = true
-	assert.Equal(t, StartupScriptHeader+"\n"+StackdriverAgentCommand+"\n"+startupScriptBody, b.buildStartupScript(pl))
+	assert.Equal(t, StartupScriptHeader+"\n"+StackdriverAgentCommand+"\n"+startupScriptBody0, b.buildStartupScript(pl))
 }
 
 func TestBuildStartupScript2(t *testing.T) {
