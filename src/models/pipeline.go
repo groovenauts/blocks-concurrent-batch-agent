@@ -118,6 +118,7 @@ type (
 		ContainerSize        int            `json:"container_size" validate:"required"`
 		ContainerName        string         `json:"container_name" validate:"required"`
 		Command              string         `json:"command"` // allow blank
+		DockerRunOptions     string         `json:"docker_run_options"`
 		Status               Status         `json:"status"`
 		Cancelled            bool           `json:"cancelled"`
 		Dryrun               bool           `json:"dryrun"`
