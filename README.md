@@ -177,6 +177,7 @@ $ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' 
 | dependency              | object   | false    | Dependency to jobs |
 | dependency.condition    | int      | false    | Job's Condition to start the pipeline: 0:OnSuccess, 1:OnFailure, 2: OnFinish |
 | dependency.job_ids      | []string | true     | Job IDs which the pipeline waits to finish |
+| docker_run_options      | string   | false    | Options for `docker run` in startup script |
 | gpu_accelerators        | object   | false    | GPU accelerator settings |
 | gpu_accelerators.Count  | int      | true     | The number of GPU accelerators to use |
 | gpu_accelerators.Type   | string   | true     | GPU accelerator type name (not URL). Run `gcloud compute accelerator-types list` |

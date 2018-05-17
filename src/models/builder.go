@@ -314,9 +314,11 @@ func (b *Builder) buildStartupScript(pl *Pipeline) string {
 		"-e ZONE=" + pl.Zone,
 		"-e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + pl.Name + "-job-subscription.name)",
 		"-e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + pl.Name + "-progress-topic.name)",
-		pl.ContainerName,
-		pl.Command,
 	}
+	if pl.DockerRunOptions != "" {
+		docker_run_parts = append(docker_run_parts, pl.DockerRunOptions)
+	}
+	docker_run_parts = append(docker_run_parts, pl.ContainerName, pl.Command)
 
 	r = append(r,
 		"with_backoff "+docker+" pull "+pl.ContainerName,
