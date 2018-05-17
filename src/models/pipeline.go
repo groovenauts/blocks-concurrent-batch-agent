@@ -579,12 +579,15 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 		job.Zone = m.stringFromMapWithDefault(attrs, "zone", "unknown")
 		job.StartTime = m.stringFromMapWithDefault(attrs, "job.start-time", "")
 		job.FinishTime = m.stringFromMapWithDefault(attrs, "job.finish-time", "")
+
+		log.Debugf(ctx, "PullAndUpdateJobStatus len(recvMsg.Message.Data): %v\n", len(recvMsg.Message.Data))
+
 		if len(recvMsg.Message.Data) > 0 {
 			b, err := base64.StdEncoding.DecodeString(recvMsg.Message.Data)
 			if err != nil {
 				return err
 			}
-			job.Output = string(b)
+			job.Output += "\n\n" + string(b)
 		}
 		err = job.UpdateStatusIfGreaterThanBefore(ctx, completed, step, stepStatus)
 		if err != nil {
