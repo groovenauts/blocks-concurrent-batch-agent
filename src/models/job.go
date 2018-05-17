@@ -119,6 +119,7 @@ type (
 		Hostname    string     `json:"hostname" datastore:"hostname"`
 		Message     JobMessage `json:"message" datastore:"message"`
 		MessageID   string     `json:"message_id"   datastore:"message_id"`
+		Output      string     `json:"output,omitempty"       datastore:"output,noindex"`
 		PublishedAt time.Time  `json:"published_at,omitempty"`
 		StartTime   string     `json:"start_time"`
 		FinishTime  string     `json:"finish_time"`
