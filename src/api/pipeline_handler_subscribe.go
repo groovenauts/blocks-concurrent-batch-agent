@@ -90,10 +90,6 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 	}
 
 	if jobs.AllFinished() {
-		for i, job := range jobs {
-			log.Debugf(ctx, "jobs.AllFinished was true: [%d] %v\n", i, job)
-		}
-
 		if pl.ClosePolicy.Match(jobs) {
 			if pl.HibernationDelay == 0 {
 				return ReturnJsonWith(c, pl, http.StatusCreated, func() error {

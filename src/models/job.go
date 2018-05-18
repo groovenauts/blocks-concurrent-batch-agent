@@ -119,6 +119,7 @@ type (
 		Hostname    string     `json:"hostname" datastore:"hostname"`
 		Message     JobMessage `json:"message" datastore:"message"`
 		MessageID   string     `json:"message_id"   datastore:"message_id"`
+		Output      string     `json:"output,omitempty"       datastore:"output,noindex"`
 		PublishedAt time.Time  `json:"published_at,omitempty"`
 		StartTime   string     `json:"start_time"`
 		FinishTime  string     `json:"finish_time"`
@@ -411,16 +412,7 @@ func (m *Job) DoAndPublishIfPossible(ctx context.Context, f func(ctx context.Con
 	return nil
 }
 
-func (m *Job) UpdateStatusIfGreaterThanBefore(ctx context.Context, completed bool, step JobStep, stepStatus JobStepStatus) error {
-	if completed {
-		m.Status = Success
-		err := m.Update(ctx)
-		if err != nil {
-			return err
-		}
-		return nil
-	}
-
+func (m *Job) ApplyStatusIfGreaterThanBefore(ctx context.Context, completed bool, step JobStep, stepStatus JobStepStatus) bool {
 	newStatus := m.Status
 	switch stepStatus {
 	case STARTING:
@@ -445,11 +437,21 @@ func (m *Job) UpdateStatusIfGreaterThanBefore(ctx context.Context, completed boo
 
 	if newStatus.GreaterThan(m.Status) {
 		m.Status = newStatus
-		err := m.Update(ctx)
-		if err != nil {
-			return err
-		}
-		return nil
+		return true
+	}
+	return false
+}
+
+func (m *Job) UpdateStatusIfGreaterThanBefore(ctx context.Context, completed bool, step JobStep, stepStatus JobStepStatus) error {
+	f := func() error {
+		return m.Update(ctx)
+	}
+	if completed {
+		m.Status = Success
+		return f()
+	}
+	if m.ApplyStatusIfGreaterThanBefore(ctx, completed, step, stepStatus) {
+		return f()
 	}
 	return nil
 }

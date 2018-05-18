@@ -1,10 +1,12 @@
 package models
 
 import (
+	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	pubsub "google.golang.org/api/pubsub/v1"
@@ -554,14 +556,43 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 		return err
 	}
 
+	jobMap := map[string]*Job{}
+
 	accessor := m.JobAccessor()
 	err = s.subscribe(ctx, m.ProgressSubscriptionFqn(), func(recvMsg *pubsub.ReceivedMessage) error {
 		attrs := recvMsg.Message.Attributes
 		jobId := attrs[JobIdKey]
-		job, err := accessor.Find(ctx, jobId)
+		job := jobMap[jobId]
+		if job == nil {
+			var err error
+			job, err = accessor.Find(ctx, jobId)
+			if err != nil {
+				return err
+			}
+			jobMap[jobId] = job
+		}
+
+		if len(recvMsg.Message.Data) > 0 {
+			b, err := base64.StdEncoding.DecodeString(recvMsg.Message.Data)
+			if err != nil {
+				return err
+			}
+			job.Output += "\n\n" + string(b)
+		}
+
+		if job.Status == Success {
+			return nil
+		}
+
+		completed, err := strconv.ParseBool(attrs["completed"])
 		if err != nil {
 			return err
 		}
+		if completed {
+			job.Status = Success
+			return nil
+		}
+
 		step, err := ParseJobStep(attrs["step"])
 		if err != nil {
 			return err
@@ -570,23 +601,31 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		completed, err := strconv.ParseBool(attrs["completed"])
-		if err != nil {
-			return err
-		}
 		job.Hostname = m.stringFromMapWithDefault(attrs, "host", "unknown")
 		job.Zone = m.stringFromMapWithDefault(attrs, "zone", "unknown")
 		job.StartTime = m.stringFromMapWithDefault(attrs, "job.start-time", "")
 		job.FinishTime = m.stringFromMapWithDefault(attrs, "job.finish-time", "")
-		err = job.UpdateStatusIfGreaterThanBefore(ctx, completed, step, stepStatus)
-		if err != nil {
-			return err
-		}
+
+		log.Debugf(ctx, "PullAndUpdateJobStatus len(recvMsg.Message.Data): %v\n", len(recvMsg.Message.Data))
+
+		job.ApplyStatusIfGreaterThanBefore(ctx, completed, step, stepStatus)
 		return nil
 	})
 	if err != nil {
 		return err
 	}
+
+	errors := []string{}
+	for _, job := range jobMap {
+		err := job.Update(ctx)
+		if err != nil {
+			errors = append(errors, err.Error())
+		}
+	}
+	if len(errors) > 0 {
+		return fmt.Errorf(strings.Join(errors, "\n"))
+	}
+
 	return nil
 }
 
