@@ -559,7 +559,8 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 	jobMap := map[string]*Job{}
 
 	accessor := m.JobAccessor()
-	err = s.subscribeAndAck(ctx, m.ProgressSubscriptionFqn(), func(recvMsg *pubsub.ReceivedMessage) error {
+	subscription := m.ProgressSubscriptionFqn()
+	err = s.subscribeAndAck(ctx, subscription, func(recvMsg *pubsub.ReceivedMessage) error {
 		attrs := recvMsg.Message.Attributes
 		jobId := attrs[JobIdKey]
 		job := jobMap[jobId]
