@@ -103,7 +103,11 @@ func (ps *PubsubSubscriber) processProgressNotification(ctx context.Context, sub
 		log.Errorf(ctx, "the received request process returns error: [%T] %v", err, err)
 		return err
 	}
-	_, err = ps.puller.Acknowledge(subscription, receivedMessage.AckId)
+	return ps.sendAck(ctx, subscription, receivedMessage)
+}
+
+func (ps *PubsubSubscriber) sendAck(ctx context.Context, subscription string, receivedMessage *pubsub.ReceivedMessage) error {
+	_, err := ps.puller.Acknowledge(subscription, receivedMessage.AckId)
 	if err != nil {
 		log.Errorf(ctx, "Failed to acknowledge for message: %v cause of [%T] %v", receivedMessage, err, err)
 		return err
