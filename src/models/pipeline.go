@@ -606,15 +606,18 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 		err = m.OverwriteJobByMessages(ctx, job, recvMsgs)
 		if err != nil {
 			errors = append(errors, err.Error())
+			continue
 		}
 		err = job.Update(ctx)
 		if err != nil {
 			errors = append(errors, err.Error())
+			continue
 		}
 		for _, recvMsg := range recvMsgs {
 			err := s.sendAck(ctx, subscription, recvMsg)
 			if err != nil {
-				return err
+				errors = append(errors, err.Error())
+				break
 			}
 		}
 	}
