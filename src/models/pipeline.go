@@ -594,45 +594,9 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 			return err
 		}
 
-		for _, recvMsg := range recvMsgs {
-			if len(recvMsg.Message.Data) > 0 {
-				b, err := base64.StdEncoding.DecodeString(recvMsg.Message.Data)
-				if err != nil {
-					return err
-				}
-				job.Output += "\n\n" + string(b)
-			}
-
-			if job.Status == Success {
-				return nil
-			}
-
-			attrs := recvMsg.Message.Attributes
-			completed, err := strconv.ParseBool(attrs["completed"])
-			if err != nil {
-				return err
-			}
-			if completed {
-				job.Status = Success
-			}
-
-			step, err := ParseJobStep(attrs["step"])
-			if err != nil {
-				return err
-			}
-			stepStatus, err := ParseJobStepStatus(attrs["step_status"])
-			if err != nil {
-				return err
-			}
-			job.Hostname = m.stringFromMapWithDefault(attrs, "host", "unknown")
-			job.Zone = m.stringFromMapWithDefault(attrs, "zone", "unknown")
-			job.StartTime = m.stringFromMapWithDefault(attrs, "job.start-time", "")
-			job.FinishTime = m.stringFromMapWithDefault(attrs, "job.finish-time", "")
-
-			log.Debugf(ctx, "PullAndUpdateJobStatus len(recvMsg.Message.Data): %v\n", len(recvMsg.Message.Data))
-
-			job.ApplyStatusIfGreaterThanBefore(ctx, completed, step, stepStatus)
-			return nil
+		err = m.OverwriteJobByMessages(ctx, job, recvMsgs)
+		if err != nil {
+			errors = append(errors, err.Error())
 		}
 		err = job.Update(ctx)
 		if err != nil {
@@ -650,6 +614,61 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 		return fmt.Errorf(strings.Join(errors, "\n"))
 	}
 
+	return nil
+}
+
+func (m *Pipeline) OverwriteJobByMessages(ctx context.Context, job *Job, recvMsgs []*pubsub.ReceivedMessage) error {
+	errors := []string{}
+	for _, recvMsg := range recvMsgs {
+		err := m.OverwriteJob(ctx, job, recvMsg)
+		if err != nil {
+			errors = append(errors, err.Error())
+		}
+	}
+	if len(errors) > 0 {
+		return fmt.Errorf(strings.Join(errors, "\n"))
+	}
+	return nil
+}
+
+func (m *Pipeline) OverwriteJob(ctx context.Context, job *Job, recvMsg *pubsub.ReceivedMessage) error {
+	if len(recvMsg.Message.Data) > 0 {
+		b, err := base64.StdEncoding.DecodeString(recvMsg.Message.Data)
+		if err != nil {
+			return err
+		}
+		job.Output += "\n\n" + string(b)
+	}
+
+	if job.Status == Success {
+		return nil
+	}
+
+	attrs := recvMsg.Message.Attributes
+	completed, err := strconv.ParseBool(attrs["completed"])
+	if err != nil {
+		return err
+	}
+	if completed {
+		job.Status = Success
+	}
+
+	step, err := ParseJobStep(attrs["step"])
+	if err != nil {
+		return err
+	}
+	stepStatus, err := ParseJobStepStatus(attrs["step_status"])
+	if err != nil {
+		return err
+	}
+	job.Hostname = m.stringFromMapWithDefault(attrs, "host", "unknown")
+	job.Zone = m.stringFromMapWithDefault(attrs, "zone", "unknown")
+	job.StartTime = m.stringFromMapWithDefault(attrs, "job.start-time", "")
+	job.FinishTime = m.stringFromMapWithDefault(attrs, "job.finish-time", "")
+
+	log.Debugf(ctx, "PullAndUpdateJobStatus len(recvMsg.Message.Data): %v\n", len(recvMsg.Message.Data))
+
+	job.ApplyStatusIfGreaterThanBefore(ctx, completed, step, stepStatus)
 	return nil
 }
 
