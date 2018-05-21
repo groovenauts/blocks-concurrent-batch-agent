@@ -558,6 +558,15 @@ func (a ByPublishTime) Less(i, j int) bool {
 	return strings.Compare(a[i].Message.PublishTime, a[j].Message.PublishTime) < 0
 }
 
+type ErrorMessages []string
+
+func (em ErrorMessages) Error() error {
+	if len(em) > 0 {
+		return fmt.Errorf(strings.Join(em, "\n"))
+	}
+	return nil
+}
+
 func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 	s := &PubsubSubscriber{MessagePerPull: 10}
 	err := s.setup(ctx)
@@ -587,7 +596,7 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 		sort.Sort(ByPublishTime(recvMsgs))
 	}
 
-	errors := []string{}
+	errors := ErrorMessages{}
 	for jobId, recvMsgs := range messagesForJob {
 		job, err := accessor.Find(ctx, jobId)
 		if err != nil {
@@ -610,25 +619,18 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 		}
 	}
 
-	if len(errors) > 0 {
-		return fmt.Errorf(strings.Join(errors, "\n"))
-	}
-
-	return nil
+	return errors.Error()
 }
 
 func (m *Pipeline) OverwriteJobByMessages(ctx context.Context, job *Job, recvMsgs []*pubsub.ReceivedMessage) error {
-	errors := []string{}
+	errors := ErrorMessages{}
 	for _, recvMsg := range recvMsgs {
 		err := m.OverwriteJob(ctx, job, recvMsg)
 		if err != nil {
 			errors = append(errors, err.Error())
 		}
 	}
-	if len(errors) > 0 {
-		return fmt.Errorf(strings.Join(errors, "\n"))
-	}
-	return nil
+	return errors.Error()
 }
 
 func (m *Pipeline) OverwriteJob(ctx context.Context, job *Job, recvMsg *pubsub.ReceivedMessage) error {
