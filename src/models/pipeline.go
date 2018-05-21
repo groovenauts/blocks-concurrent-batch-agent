@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -549,6 +550,14 @@ func (m *Pipeline) IDHex() string {
 	return hex.EncodeToString([]byte(m.ID))
 }
 
+type ByPublishTime []*pubsub.ReceivedMessage
+
+func (a ByPublishTime) Len() int      { return len(a) }
+func (a ByPublishTime) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ByPublishTime) Less(i, j int) bool {
+	return strings.Compare(a[i].Message.PublishTime, a[j].Message.PublishTime) < 0
+}
+
 func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 	s := &PubsubSubscriber{MessagePerPull: 10}
 	err := s.setup(ctx)
@@ -556,73 +565,87 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 		return err
 	}
 
-	jobMap := map[string]*Job{}
+	messagesForJob := map[string][]*pubsub.ReceivedMessage{}
 
 	accessor := m.JobAccessor()
 	subscription := m.ProgressSubscriptionFqn()
-	err = s.subscribeAndAck(ctx, subscription, func(recvMsg *pubsub.ReceivedMessage) error {
+	err = s.subscribe(ctx, subscription, func(recvMsg *pubsub.ReceivedMessage) error {
 		attrs := recvMsg.Message.Attributes
 		jobId := attrs[JobIdKey]
-		job := jobMap[jobId]
-		if job == nil {
-			var err error
-			job, err = accessor.Find(ctx, jobId)
-			if err != nil {
-				return err
-			}
-			jobMap[jobId] = job
+		if messagesForJob[jobId] == nil {
+			messages := []*pubsub.ReceivedMessage{}
+			messagesForJob[jobId] = messages
 		}
-
-		if len(recvMsg.Message.Data) > 0 {
-			b, err := base64.StdEncoding.DecodeString(recvMsg.Message.Data)
-			if err != nil {
-				return err
-			}
-			job.Output += "\n\n" + string(b)
-		}
-
-		if job.Status == Success {
-			return nil
-		}
-
-		completed, err := strconv.ParseBool(attrs["completed"])
-		if err != nil {
-			return err
-		}
-		if completed {
-			job.Status = Success
-			return nil
-		}
-
-		step, err := ParseJobStep(attrs["step"])
-		if err != nil {
-			return err
-		}
-		stepStatus, err := ParseJobStepStatus(attrs["step_status"])
-		if err != nil {
-			return err
-		}
-		job.Hostname = m.stringFromMapWithDefault(attrs, "host", "unknown")
-		job.Zone = m.stringFromMapWithDefault(attrs, "zone", "unknown")
-		job.StartTime = m.stringFromMapWithDefault(attrs, "job.start-time", "")
-		job.FinishTime = m.stringFromMapWithDefault(attrs, "job.finish-time", "")
-
-		log.Debugf(ctx, "PullAndUpdateJobStatus len(recvMsg.Message.Data): %v\n", len(recvMsg.Message.Data))
-
-		job.ApplyStatusIfGreaterThanBefore(ctx, completed, step, stepStatus)
+		messagesForJob[jobId] = append(messagesForJob[jobId], recvMsg)
 		return nil
 	})
 	if err != nil {
 		return err
 	}
 
+	for _, recvMsgs := range messagesForJob {
+		sort.Sort(ByPublishTime(recvMsgs))
+	}
+
 	errors := []string{}
-	for _, job := range jobMap {
-		err := job.Update(ctx)
+	for jobId, recvMsgs := range messagesForJob {
+		job, err := accessor.Find(ctx, jobId)
+		if err != nil {
+			return err
+		}
+
+		for _, recvMsg := range recvMsgs {
+			if len(recvMsg.Message.Data) > 0 {
+				b, err := base64.StdEncoding.DecodeString(recvMsg.Message.Data)
+				if err != nil {
+					return err
+				}
+				job.Output += "\n\n" + string(b)
+			}
+
+			if job.Status == Success {
+				return nil
+			}
+
+			attrs := recvMsg.Message.Attributes
+			completed, err := strconv.ParseBool(attrs["completed"])
+			if err != nil {
+				return err
+			}
+			if completed {
+				job.Status = Success
+			}
+
+			step, err := ParseJobStep(attrs["step"])
+			if err != nil {
+				return err
+			}
+			stepStatus, err := ParseJobStepStatus(attrs["step_status"])
+			if err != nil {
+				return err
+			}
+			job.Hostname = m.stringFromMapWithDefault(attrs, "host", "unknown")
+			job.Zone = m.stringFromMapWithDefault(attrs, "zone", "unknown")
+			job.StartTime = m.stringFromMapWithDefault(attrs, "job.start-time", "")
+			job.FinishTime = m.stringFromMapWithDefault(attrs, "job.finish-time", "")
+
+			log.Debugf(ctx, "PullAndUpdateJobStatus len(recvMsg.Message.Data): %v\n", len(recvMsg.Message.Data))
+
+			job.ApplyStatusIfGreaterThanBefore(ctx, completed, step, stepStatus)
+			return nil
+		}
+		err = job.Update(ctx)
 		if err != nil {
 			errors = append(errors, err.Error())
 		}
+		for _, recvMsg := range recvMsgs {
+			err := s.sendAck(ctx, subscription, recvMsg)
+			if err != nil {
+				return err
+			}
+		}
 	}
+
 	if len(errors) > 0 {
 		return fmt.Errorf(strings.Join(errors, "\n"))
 	}
