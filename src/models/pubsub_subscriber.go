@@ -56,7 +56,13 @@ func (ps *PubsubSubscriber) setup(ctx context.Context) error {
 	return nil
 }
 
-func (ps *PubsubSubscriber) subscribe(ctx context.Context, subscription string, f func(msg *pubsub.ReceivedMessage) error) error {
+func (ps *PubsubSubscriber) subscribeAndAck(ctx context.Context, subscription string, f func(*pubsub.ReceivedMessage) error) error {
+	return ps.subscribe(ctx, subscription, func(receivedMessage *pubsub.ReceivedMessage) error {
+		return ps.processProgressNotification(ctx, subscription, receivedMessage, f)
+	})
+}
+
+func (ps *PubsubSubscriber) subscribe(ctx context.Context, subscription string, f func(*pubsub.ReceivedMessage) error) error {
 	pullRequest := &pubsub.PullRequest{
 		ReturnImmediately: true,
 		MaxMessages:       ps.MessagePerPull,
@@ -83,7 +89,7 @@ func (ps *PubsubSubscriber) subscribe(ctx context.Context, subscription string, 
 	for i, recv := range res.ReceivedMessages {
 		m := recv.Message
 		log.Debugf(ctx, "Pulled Message #%v AckId: %v, MessageId: %v, PublishTime: %v\n", i, recv.AckId, m.MessageId, m.PublishTime)
-		err := ps.processProgressNotification(ctx, subscription, recv, f)
+		err := f(recv)
 		if err != nil {
 			return err
 		}
@@ -91,13 +97,17 @@ func (ps *PubsubSubscriber) subscribe(ctx context.Context, subscription string, 
 	return nil
 }
 
-func (ps *PubsubSubscriber) processProgressNotification(ctx context.Context, subscription string, receivedMessage *pubsub.ReceivedMessage, f func(msg *pubsub.ReceivedMessage) error) error {
+func (ps *PubsubSubscriber) processProgressNotification(ctx context.Context, subscription string, receivedMessage *pubsub.ReceivedMessage, f func(*pubsub.ReceivedMessage) error) error {
 	err := f(receivedMessage)
 	if err != nil {
 		log.Errorf(ctx, "the received request process returns error: [%T] %v", err, err)
 		return err
 	}
-	_, err = ps.puller.Acknowledge(subscription, receivedMessage.AckId)
+	return ps.sendAck(ctx, subscription, receivedMessage)
+}
+
+func (ps *PubsubSubscriber) sendAck(ctx context.Context, subscription string, receivedMessage *pubsub.ReceivedMessage) error {
+	_, err := ps.puller.Acknowledge(subscription, receivedMessage.AckId)
 	if err != nil {
 		log.Errorf(ctx, "Failed to acknowledge for message: %v cause of [%T] %v", receivedMessage, err, err)
 		return err
