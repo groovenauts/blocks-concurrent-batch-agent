@@ -13,6 +13,14 @@ bootstrap:
 	@goagen bootstrap -d $(REPO)/design
 	@mv vendor.bak vendor
 
+server:
+	@mkdir -p server
+	@mv main.go server/
+
+controller:
+	@mkdir -p controller
+	@sh -c "mv *.go controller/"
+
 clean:
 	@rm -rf app
 	@rm -rf client
