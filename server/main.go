@@ -6,6 +6,7 @@ import (
 	"github.com/goadesign/goa"
 	"github.com/goadesign/goa/middleware"
 	"github.com/groovenauts/blocks-concurrent-batch-server/app"
+	"github.com/groovenauts/blocks-concurrent-batch-server/controller"
 )
 
 func main() {
@@ -19,10 +20,10 @@ func main() {
 	service.Use(middleware.Recover())
 
 	// Mount "IntanceGroup" controller
-	c := NewIntanceGroupController(service)
+	c := controller.NewIntanceGroupController(service)
 	app.MountIntanceGroupController(service, c)
 	// Mount "swagger" controller
-	c2 := NewSwaggerController(service)
+	c2 := controller.NewSwaggerController(service)
 	app.MountSwaggerController(service, c2)
 
 	// Start service
