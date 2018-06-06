@@ -1,0 +1,576 @@
+consumes:
+- application/json
+- application/xml
+- application/gob
+- application/x-gob
+definitions:
+  Accelerators:
+    example:
+      count: 2
+      type: nvidia-tesla-p100
+    properties:
+      count:
+        default: 0
+        description: Count
+        example: 2
+        format: int64
+        type: integer
+      type:
+        default: ""
+        description: Type
+        example: nvidia-tesla-p100
+        type: string
+    title: Accelerators
+    type: object
+  Instance-Group:
+    description: instance-group (default view)
+    example:
+      boot_disk:
+        disk_size_gb: 50
+        disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
+        source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
+      deployment_name: Hic tenetur ut.
+      gpu_accelerators:
+        count: 2
+        type: nvidia-tesla-p100
+      id: bhJifmNvbmN1cnJlbnQtYmF0Y2hyMAsSDU9yZ2FuaXphdGlvbmMYgICAgJK2lgoMCxIJUGlwZWxpbmVzGICAgIDAnIIKDX
+      instance_size: 3
+      machine_type: f1-micro
+      name: instancegroup1
+      preemptible: false
+      project_id: dummy-proj-999
+      startup_script: Ratione ipsam qui blanditiis numquam consequatur.
+      status: destructing
+      token_consumption: 2
+      zone: us-central1-f
+    properties:
+      boot_disk:
+        $ref: '#/definitions/PipelineVmDisk'
+      deployment_name:
+        description: Deployment name
+        example: Hic tenetur ut.
+        type: string
+      gpu_accelerators:
+        $ref: '#/definitions/Accelerators'
+      id:
+        description: ID
+        example: bhJifmNvbmN1cnJlbnQtYmF0Y2hyMAsSDU9yZ2FuaXphdGlvbmMYgICAgJK2lgoMCxIJUGlwZWxpbmVzGICAgIDAnIIKDX
+        type: string
+      instance_size:
+        description: Instance size
+        example: 3
+        format: int64
+        type: integer
+      machine_type:
+        description: GCE Machine Type
+        example: f1-micro
+        type: string
+      name:
+        description: Name
+        example: instancegroup1
+        type: string
+      preemptible:
+        description: Use preemptible VMs
+        example: false
+        type: boolean
+      project_id:
+        description: GCP Project ID
+        example: dummy-proj-999
+        type: string
+      startup_script:
+        description: Startup script
+        example: Ratione ipsam qui blanditiis numquam consequatur.
+        type: string
+      status:
+        description: Status
+        enum:
+        - constructing
+        - constructing_error
+        - constructed
+        - resizing
+        - destructing
+        - destructing_error
+        - destructed
+        example: destructing
+        type: string
+      token_consumption:
+        description: Token Consumption
+        example: 2
+        format: int64
+        type: integer
+      zone:
+        description: GCP zone
+        example: us-central1-f
+        type: string
+    required:
+    - id
+    - name
+    - project_id
+    - zone
+    - boot_disk
+    - machine_type
+    - gpu_accelerators
+    - preemptible
+    - instance_size
+    - startup_script
+    - status
+    - deployment_name
+    - token_consumption
+    title: 'Mediatype identifier: application/vnd.instance-group+json; view=default'
+    type: object
+  Instance-GroupCollection:
+    description: Instance-GroupCollection is the media type for an array of Instance-Group
+      (default view)
+    example:
+    - boot_disk:
+        disk_size_gb: 50
+        disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
+        source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
+      deployment_name: Hic tenetur ut.
+      gpu_accelerators:
+        count: 2
+        type: nvidia-tesla-p100
+      id: bhJifmNvbmN1cnJlbnQtYmF0Y2hyMAsSDU9yZ2FuaXphdGlvbmMYgICAgJK2lgoMCxIJUGlwZWxpbmVzGICAgIDAnIIKDX
+      instance_size: 3
+      machine_type: f1-micro
+      name: instancegroup1
+      preemptible: false
+      project_id: dummy-proj-999
+      startup_script: Ratione ipsam qui blanditiis numquam consequatur.
+      status: destructing
+      token_consumption: 2
+      zone: us-central1-f
+    items:
+      $ref: '#/definitions/Instance-Group'
+    title: 'Mediatype identifier: application/vnd.instance-group+json; type=collection;
+      view=default'
+    type: array
+  InstanceGroup:
+    example:
+      boot_disk:
+        disk_size_gb: 50
+        disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
+        source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
+      deployment_name: Culpa sed officia.
+      gpu_accelerators:
+        count: 2
+        type: nvidia-tesla-p100
+      instance_size: 3
+      machine_type: f1-micro
+      name: instancegroup1
+      preemptible: true
+      project_id: dummy-proj-999
+      startup_script: Et quia consequatur est quas.
+      status: constructing
+      token_consumption: 2
+      zone: us-central1-f
+    properties:
+      boot_disk:
+        $ref: '#/definitions/PipelineVmDisk'
+      deployment_name:
+        description: Deployment name
+        example: Culpa sed officia.
+        type: string
+      gpu_accelerators:
+        $ref: '#/definitions/Accelerators'
+      instance_size:
+        description: Instance size
+        example: 3
+        format: int64
+        type: integer
+      machine_type:
+        description: GCE Machine Type
+        example: f1-micro
+        type: string
+      name:
+        description: Name
+        example: instancegroup1
+        type: string
+      preemptible:
+        description: Use preemptible VMs
+        example: true
+        type: boolean
+      project_id:
+        description: GCP Project ID
+        example: dummy-proj-999
+        type: string
+      startup_script:
+        description: Startup script
+        example: Et quia consequatur est quas.
+        type: string
+      status:
+        description: Status
+        enum:
+        - constructing
+        - constructing_error
+        - constructed
+        - resizing
+        - destructing
+        - destructing_error
+        - destructed
+        example: constructing
+        type: string
+      token_consumption:
+        description: Token Consumption
+        example: 2
+        format: int64
+        type: integer
+      zone:
+        description: GCP zone
+        example: us-central1-f
+        type: string
+    title: InstanceGroup
+    type: object
+  PipelineVmDisk:
+    example:
+      disk_size_gb: 50
+      disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
+      source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
+    properties:
+      disk_size_gb:
+        default: 0
+        description: Disk size
+        example: 50
+        format: int64
+        type: integer
+      disk_type:
+        default: ""
+        description: Disk type
+        example: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
+        type: string
+      source_image:
+        default: ""
+        description: Source image
+        example: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
+        type: string
+    required:
+    - source_image
+    title: PipelineVmDisk
+    type: object
+  ResizeIntanceGroupPayload:
+    example:
+      new_size: 8.759870265339155e+18
+    properties:
+      new_size:
+        description: New Instance Size
+        example: 8.759870265339155e+18
+        format: int64
+        type: integer
+    required:
+    - new_size
+    title: ResizeIntanceGroupPayload
+    type: object
+  error:
+    description: Error response media type (default view)
+    example:
+      code: invalid_value
+      detail: Value of ID must be an integer
+      id: 3F1FKVRR
+      meta:
+        timestamp: 1.458609066e+09
+      status: "400"
+    properties:
+      code:
+        description: an application-specific error code, expressed as a string value.
+        example: invalid_value
+        type: string
+      detail:
+        description: a human-readable explanation specific to this occurrence of the
+          problem.
+        example: Value of ID must be an integer
+        type: string
+      id:
+        description: a unique identifier for this particular occurrence of the problem.
+        example: 3F1FKVRR
+        type: string
+      meta:
+        additionalProperties: true
+        description: a meta object containing non-standard meta-information about
+          the error.
+        example:
+          timestamp: 1.458609066e+09
+        type: object
+      status:
+        description: the HTTP status code applicable to this problem, expressed as
+          a string value.
+        example: "400"
+        type: string
+    title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+    type: object
+host: localhost:8080
+info:
+  description: A simple appengine example
+  title: The appengine example
+  version: ""
+paths:
+  /instance_groups:
+    get:
+      description: list
+      operationId: IntanceGroup#list
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.instance-group+json; type=collection
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Instance-GroupCollection'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: list IntanceGroup
+      tags:
+      - IntanceGroup
+    post:
+      description: create
+      operationId: IntanceGroup#create
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/InstanceGroup'
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.instance-group+json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Instance-Group'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: create IntanceGroup
+      tags:
+      - IntanceGroup
+  /instance_groups/{id}:
+    delete:
+      description: delete
+      operationId: IntanceGroup#delete
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.instance-group+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Instance-Group'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: delete IntanceGroup
+      tags:
+      - IntanceGroup
+    get:
+      description: show
+      operationId: IntanceGroup#show
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.instance-group+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Instance-Group'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: show IntanceGroup
+      tags:
+      - IntanceGroup
+  /instance_groups/{id}/resize:
+    put:
+      description: Resize
+      operationId: IntanceGroup#resize
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/ResizeIntanceGroupPayload'
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.instance-group+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Instance-Group'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: resize IntanceGroup
+      tags:
+      - IntanceGroup
+  /instance_groups/{id}/restruct:
+    put:
+      description: Destruct
+      operationId: IntanceGroup#destruct
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.instance-group+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Instance-Group'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: destruct IntanceGroup
+      tags:
+      - IntanceGroup
+  /swagger.json:
+    get:
+      operationId: swagger#/swagger.json
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
+      schemes:
+      - http
+      summary: Download ../swagger/swagger.json
+  /swagger/{filepath}:
+    get:
+      operationId: swagger#/swagger/*filepath
+      parameters:
+      - description: Relative file path
+        in: path
+        name: filepath
+        required: true
+        type: string
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
+        "404":
+          description: File not found
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: Download ../static/swagger/
+produces:
+- application/json
+- application/xml
+- application/gob
+- application/x-gob
+schemes:
+- http
+swagger: "2.0"
