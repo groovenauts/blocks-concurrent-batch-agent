@@ -89,7 +89,8 @@ var InstanceGroup = MediaType("application/vnd.instance-group+json", func() {
 		for _, attrName := range attrNames {
 			Attribute(attrName)
 		}
-		Required("id", attrNames...)
+		requiredAttrs := append([]string{"id"}, attrNames...)
+		Required(requiredAttrs...)
 	})
 	View("default", func() {
 		Attribute("id")
