@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/goadesign/goa"
 	"github.com/groovenauts/blocks-concurrent-batch-server/app"
+	"github.com/groovenauts/blocks-concurrent-batch-server/model"
 )
 
 // IntanceGroupController implements the IntanceGroup resource.
@@ -20,8 +21,14 @@ func (c *IntanceGroupController) Create(ctx *app.CreateIntanceGroupContext) erro
 	// IntanceGroupController_Create: start_implement
 
 	// Put your logic here
+	store := &model.InstanceGroupStore{}
+	model := InstanceGroupPayloadToModel(ctx.Payload)
+	_, err := store.Put(ctx.Context, &model)
+	if err != nil {
+		return ctx.BadRequest(goa.ErrBadRequest(err))
+	}
 
-	return nil
+	return ctx.Created(InstanceGroupModelToMediaType(&model))
 	// IntanceGroupController_Create: end_implement
 }
 

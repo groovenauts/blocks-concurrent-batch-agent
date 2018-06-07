@@ -1,15 +1,11 @@
 package model
 
 import (
-	"fmt"
-
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 
 	"github.com/mjibson/goon"
-
-	"github.com/groovenauts/blocks-concurrent-batch-server/app"
 )
 
 type PipelineVmDisk struct {
@@ -33,7 +29,6 @@ type InstanceGroup struct {
 	MachineType      string
 	GpuAccelerators  Accelerators
 	Preemptible      bool
-	StackdriverAgent bool
 	InstanceSize     int
 	StartupScript    string
 	Status           string
@@ -41,26 +36,24 @@ type InstanceGroup struct {
 	TokenConsumption int
 }
 
-type InstanceGroupStore struct {
-	ctx context.Context
-}
+type InstanceGroupStore struct{}
 
-func (s *InstanceGroupStore) GetAll() ([]*InstanceGroup, error) {
+func (s *InstanceGroupStore) GetAll(ctx context.Context) ([]*InstanceGroup, error) {
 	g := goon.FromContext(ctx)
 	r := []*InstanceGroup{}
 	_, err := g.GetAll(datastore.NewQuery(g.Kind(new(InstanceGroup))), &r)
 	if err != nil {
-		log.Errorf(s.ctx, "Failed to GetAll InstanceGroup because of %v\n", err)
+		log.Errorf(ctx, "Failed to GetAll InstanceGroup because of %v\n", err)
 		return nil, err
 	}
-	return r
+	return r, nil
 }
 
-func (s *InstanceGroupStore) Put(m *InstanceGroup) (*datastore.Key, error) {
-	g := goon.FromContext(s.ctx)
+func (s *InstanceGroupStore) Put(ctx context.Context, m *InstanceGroup) (*datastore.Key, error) {
+	g := goon.FromContext(ctx)
 	key, err := g.Put(m)
 	if err != nil {
-		log.Errorf(s.ctx, "Failed to Put %v because of %v\n", m, err)
+		log.Errorf(ctx, "Failed to Put %v because of %v\n", m, err)
 		return nil, err
 	}
 	return key, nil
