@@ -25,7 +25,7 @@ func CreateIntanceGroupPath() string {
 }
 
 // create
-func (c *Client) CreateIntanceGroup(ctx context.Context, path string, payload *InstanceGroup, contentType string) (*http.Response, error) {
+func (c *Client) CreateIntanceGroup(ctx context.Context, path string, payload *InstanceGroupPayload, contentType string) (*http.Response, error) {
 	req, err := c.NewCreateIntanceGroupRequest(ctx, path, payload, contentType)
 	if err != nil {
 		return nil, err
@@ -34,7 +34,7 @@ func (c *Client) CreateIntanceGroup(ctx context.Context, path string, payload *I
 }
 
 // NewCreateIntanceGroupRequest create the request corresponding to the create action endpoint of the IntanceGroup resource.
-func (c *Client) NewCreateIntanceGroupRequest(ctx context.Context, path string, payload *InstanceGroup, contentType string) (*http.Request, error) {
+func (c *Client) NewCreateIntanceGroupRequest(ctx context.Context, path string, payload *InstanceGroupPayload, contentType string) (*http.Request, error) {
 	var body bytes.Buffer
 	if contentType == "" {
 		contentType = "*/*" // Use default encoder

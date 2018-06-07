@@ -148,7 +148,7 @@ definitions:
     title: 'Mediatype identifier: application/vnd.instance-group+json; type=collection;
       view=default'
     type: array
-  InstanceGroup:
+  InstanceGroupPayload:
     example:
       boot_disk:
         disk_size_gb: 50
@@ -228,7 +228,7 @@ definitions:
     - zone
     - boot_disk
     - machine_type
-    title: InstanceGroup
+    title: InstanceGroupPayload
     type: object
   PipelineVmDisk:
     example:
@@ -353,7 +353,7 @@ paths:
         name: payload
         required: true
         schema:
-          $ref: '#/definitions/InstanceGroup'
+          $ref: '#/definitions/InstanceGroupPayload'
       produces:
       - application/vnd.goa.error
       - application/vnd.instance-group+json

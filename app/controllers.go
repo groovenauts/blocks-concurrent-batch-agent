@@ -64,7 +64,7 @@ func MountIntanceGroupController(service *goa.Service, ctrl IntanceGroupControll
 		}
 		// Build the payload
 		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
-			rctx.Payload = rawPayload.(*InstanceGroup)
+			rctx.Payload = rawPayload.(*InstanceGroupPayload)
 		} else {
 			return goa.MissingPayloadError()
 		}
@@ -188,7 +188,7 @@ func handleIntanceGroupOrigin(h goa.Handler) goa.Handler {
 
 // unmarshalCreateIntanceGroupPayload unmarshals the request body into the context request data Payload field.
 func unmarshalCreateIntanceGroupPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
-	payload := &instanceGroup{}
+	payload := &instanceGroupPayload{}
 	if err := service.DecodeRequest(req, payload); err != nil {
 		return err
 	}

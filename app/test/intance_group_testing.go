@@ -28,7 +28,7 @@ import (
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func CreateIntanceGroupBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.IntanceGroupController, payload *app.InstanceGroup) (http.ResponseWriter, error) {
+func CreateIntanceGroupBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.IntanceGroupController, payload *app.InstanceGroupPayload) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -107,7 +107,7 @@ func CreateIntanceGroupBadRequest(t goatest.TInterface, ctx context.Context, ser
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func CreateIntanceGroupCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.IntanceGroupController, payload *app.InstanceGroup) (http.ResponseWriter, *app.InstanceGroup) {
+func CreateIntanceGroupCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.IntanceGroupController, payload *app.InstanceGroupPayload) (http.ResponseWriter, *app.InstanceGroup) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -192,7 +192,7 @@ func CreateIntanceGroupCreated(t goatest.TInterface, ctx context.Context, servic
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func CreateIntanceGroupInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.IntanceGroupController, payload *app.InstanceGroup) (http.ResponseWriter, error) {
+func CreateIntanceGroupInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.IntanceGroupController, payload *app.InstanceGroupPayload) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -271,7 +271,7 @@ func CreateIntanceGroupInternalServerError(t goatest.TInterface, ctx context.Con
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func CreateIntanceGroupNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.IntanceGroupController, payload *app.InstanceGroup) (http.ResponseWriter, error) {
+func CreateIntanceGroupNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.IntanceGroupController, payload *app.InstanceGroupPayload) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -350,7 +350,7 @@ func CreateIntanceGroupNotFound(t goatest.TInterface, ctx context.Context, servi
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func CreateIntanceGroupUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.IntanceGroupController, payload *app.InstanceGroup) (http.ResponseWriter, error) {
+func CreateIntanceGroupUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.IntanceGroupController, payload *app.InstanceGroupPayload) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer

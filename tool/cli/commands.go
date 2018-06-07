@@ -418,7 +418,7 @@ func (cmd *CreateIntanceGroupCommand) Run(c *client.Client, args []string) error
 	} else {
 		path = "/instance_groups"
 	}
-	var payload client.InstanceGroup
+	var payload client.InstanceGroupPayload
 	if cmd.Payload != "" {
 		err := json.Unmarshal([]byte(cmd.Payload), &payload)
 		if err != nil {

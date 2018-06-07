@@ -74,8 +74,8 @@ func (ut *Accelerators) Validate() (err error) {
 	return
 }
 
-// instanceGroup user type.
-type instanceGroup struct {
+// instanceGroupPayload user type.
+type instanceGroupPayload struct {
 	// Boot disk
 	BootDisk *pipelineVMDisk `form:"boot_disk,omitempty" json:"boot_disk,omitempty" yaml:"boot_disk,omitempty" xml:"boot_disk,omitempty"`
 	// Deployment name
@@ -102,8 +102,8 @@ type instanceGroup struct {
 	Zone *string `form:"zone,omitempty" json:"zone,omitempty" yaml:"zone,omitempty" xml:"zone,omitempty"`
 }
 
-// Finalize sets the default values for instanceGroup type instance.
-func (ut *instanceGroup) Finalize() {
+// Finalize sets the default values for instanceGroupPayload type instance.
+func (ut *instanceGroupPayload) Finalize() {
 	if ut.BootDisk != nil {
 		var defaultDiskSizeGb = 0
 		if ut.BootDisk.DiskSizeGb == nil {
@@ -130,8 +130,8 @@ func (ut *instanceGroup) Finalize() {
 	}
 }
 
-// Validate validates the instanceGroup type instance.
-func (ut *instanceGroup) Validate() (err error) {
+// Validate validates the instanceGroupPayload type instance.
+func (ut *instanceGroupPayload) Validate() (err error) {
 	if ut.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "name"))
 	}
@@ -165,9 +165,9 @@ func (ut *instanceGroup) Validate() (err error) {
 	return
 }
 
-// Publicize creates InstanceGroup from instanceGroup
-func (ut *instanceGroup) Publicize() *InstanceGroup {
-	var pub InstanceGroup
+// Publicize creates InstanceGroupPayload from instanceGroupPayload
+func (ut *instanceGroupPayload) Publicize() *InstanceGroupPayload {
+	var pub InstanceGroupPayload
 	if ut.BootDisk != nil {
 		pub.BootDisk = ut.BootDisk.Publicize()
 	}
@@ -207,8 +207,8 @@ func (ut *instanceGroup) Publicize() *InstanceGroup {
 	return &pub
 }
 
-// InstanceGroup user type.
-type InstanceGroup struct {
+// InstanceGroupPayload user type.
+type InstanceGroupPayload struct {
 	// Boot disk
 	BootDisk *PipelineVMDisk `form:"boot_disk" json:"boot_disk" yaml:"boot_disk" xml:"boot_disk"`
 	// Deployment name
@@ -235,8 +235,8 @@ type InstanceGroup struct {
 	Zone string `form:"zone" json:"zone" yaml:"zone" xml:"zone"`
 }
 
-// Validate validates the InstanceGroup type instance.
-func (ut *InstanceGroup) Validate() (err error) {
+// Validate validates the InstanceGroupPayload type instance.
+func (ut *InstanceGroupPayload) Validate() (err error) {
 	if ut.Name == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "name"))
 	}
