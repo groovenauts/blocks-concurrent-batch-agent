@@ -20,6 +20,9 @@ definitions:
         description: Type
         example: nvidia-tesla-p100
         type: string
+    required:
+    - count
+    - type
     title: Accelerators
     type: object
   Instance-Group:
@@ -219,6 +222,12 @@ definitions:
         description: GCP zone
         example: us-central1-f
         type: string
+    required:
+    - name
+    - project_id
+    - zone
+    - boot_disk
+    - machine_type
     title: InstanceGroup
     type: object
   PipelineVmDisk:

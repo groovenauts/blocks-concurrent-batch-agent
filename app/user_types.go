@@ -34,6 +34,17 @@ func (ut *accelerators) Finalize() {
 	}
 }
 
+// Validate validates the accelerators type instance.
+func (ut *accelerators) Validate() (err error) {
+	if ut.Count == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "count"))
+	}
+	if ut.Type == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "type"))
+	}
+	return
+}
+
 // Publicize creates Accelerators from accelerators
 func (ut *accelerators) Publicize() *Accelerators {
 	var pub Accelerators
@@ -52,6 +63,15 @@ type Accelerators struct {
 	Count int `form:"count" json:"count" yaml:"count" xml:"count"`
 	// Type
 	Type string `form:"type" json:"type" yaml:"type" xml:"type"`
+}
+
+// Validate validates the Accelerators type instance.
+func (ut *Accelerators) Validate() (err error) {
+
+	if ut.Type == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "type"))
+	}
+	return
 }
 
 // instanceGroup user type.
@@ -112,8 +132,28 @@ func (ut *instanceGroup) Finalize() {
 
 // Validate validates the instanceGroup type instance.
 func (ut *instanceGroup) Validate() (err error) {
+	if ut.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "name"))
+	}
+	if ut.ProjectID == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "project_id"))
+	}
+	if ut.Zone == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "zone"))
+	}
+	if ut.BootDisk == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "boot_disk"))
+	}
+	if ut.MachineType == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "machine_type"))
+	}
 	if ut.BootDisk != nil {
 		if err2 := ut.BootDisk.Validate(); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	if ut.GpuAccelerators != nil {
+		if err2 := ut.GpuAccelerators.Validate(); err2 != nil {
 			err = goa.MergeErrors(err, err2)
 		}
 	}
@@ -141,16 +181,16 @@ func (ut *instanceGroup) Publicize() *InstanceGroup {
 		pub.InstanceSize = ut.InstanceSize
 	}
 	if ut.MachineType != nil {
-		pub.MachineType = ut.MachineType
+		pub.MachineType = *ut.MachineType
 	}
 	if ut.Name != nil {
-		pub.Name = ut.Name
+		pub.Name = *ut.Name
 	}
 	if ut.Preemptible != nil {
 		pub.Preemptible = ut.Preemptible
 	}
 	if ut.ProjectID != nil {
-		pub.ProjectID = ut.ProjectID
+		pub.ProjectID = *ut.ProjectID
 	}
 	if ut.StartupScript != nil {
 		pub.StartupScript = ut.StartupScript
@@ -162,7 +202,7 @@ func (ut *instanceGroup) Publicize() *InstanceGroup {
 		pub.TokenConsumption = ut.TokenConsumption
 	}
 	if ut.Zone != nil {
-		pub.Zone = ut.Zone
+		pub.Zone = *ut.Zone
 	}
 	return &pub
 }
@@ -170,7 +210,7 @@ func (ut *instanceGroup) Publicize() *InstanceGroup {
 // InstanceGroup user type.
 type InstanceGroup struct {
 	// Boot disk
-	BootDisk *PipelineVMDisk `form:"boot_disk,omitempty" json:"boot_disk,omitempty" yaml:"boot_disk,omitempty" xml:"boot_disk,omitempty"`
+	BootDisk *PipelineVMDisk `form:"boot_disk" json:"boot_disk" yaml:"boot_disk" xml:"boot_disk"`
 	// Deployment name
 	DeploymentName *string `form:"deployment_name,omitempty" json:"deployment_name,omitempty" yaml:"deployment_name,omitempty" xml:"deployment_name,omitempty"`
 	// GPU Accelerators
@@ -178,13 +218,13 @@ type InstanceGroup struct {
 	// Instance size
 	InstanceSize *int `form:"instance_size,omitempty" json:"instance_size,omitempty" yaml:"instance_size,omitempty" xml:"instance_size,omitempty"`
 	// GCE Machine Type
-	MachineType *string `form:"machine_type,omitempty" json:"machine_type,omitempty" yaml:"machine_type,omitempty" xml:"machine_type,omitempty"`
+	MachineType string `form:"machine_type" json:"machine_type" yaml:"machine_type" xml:"machine_type"`
 	// Name
-	Name *string `form:"name,omitempty" json:"name,omitempty" yaml:"name,omitempty" xml:"name,omitempty"`
+	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
 	// Use preemptible VMs
 	Preemptible *bool `form:"preemptible,omitempty" json:"preemptible,omitempty" yaml:"preemptible,omitempty" xml:"preemptible,omitempty"`
 	// GCP Project ID
-	ProjectID *string `form:"project_id,omitempty" json:"project_id,omitempty" yaml:"project_id,omitempty" xml:"project_id,omitempty"`
+	ProjectID string `form:"project_id" json:"project_id" yaml:"project_id" xml:"project_id"`
 	// Startup script
 	StartupScript *string `form:"startup_script,omitempty" json:"startup_script,omitempty" yaml:"startup_script,omitempty" xml:"startup_script,omitempty"`
 	// Status
@@ -192,13 +232,33 @@ type InstanceGroup struct {
 	// Token Consumption
 	TokenConsumption *int `form:"token_consumption,omitempty" json:"token_consumption,omitempty" yaml:"token_consumption,omitempty" xml:"token_consumption,omitempty"`
 	// GCP zone
-	Zone *string `form:"zone,omitempty" json:"zone,omitempty" yaml:"zone,omitempty" xml:"zone,omitempty"`
+	Zone string `form:"zone" json:"zone" yaml:"zone" xml:"zone"`
 }
 
 // Validate validates the InstanceGroup type instance.
 func (ut *InstanceGroup) Validate() (err error) {
+	if ut.Name == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "name"))
+	}
+	if ut.ProjectID == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "project_id"))
+	}
+	if ut.Zone == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "zone"))
+	}
+	if ut.BootDisk == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "boot_disk"))
+	}
+	if ut.MachineType == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "machine_type"))
+	}
 	if ut.BootDisk != nil {
 		if err2 := ut.BootDisk.Validate(); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	if ut.GpuAccelerators != nil {
+		if err2 := ut.GpuAccelerators.Validate(); err2 != nil {
 			err = goa.MergeErrors(err, err2)
 		}
 	}

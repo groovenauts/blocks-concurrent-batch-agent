@@ -93,6 +93,11 @@ func (mt *InstanceGroup) Validate() (err error) {
 			err = goa.MergeErrors(err, err2)
 		}
 	}
+	if mt.GpuAccelerators != nil {
+		if err2 := mt.GpuAccelerators.Validate(); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
 	if !(mt.Status == "constructing" || mt.Status == "constructing_error" || mt.Status == "constructed" || mt.Status == "resizing" || mt.Status == "destructing" || mt.Status == "destructing_error" || mt.Status == "destructed") {
 		err = goa.MergeErrors(err, goa.InvalidEnumValueError(`response.status`, mt.Status, []interface{}{"constructing", "constructing_error", "constructed", "resizing", "destructing", "destructing_error", "destructed"}))
 	}
