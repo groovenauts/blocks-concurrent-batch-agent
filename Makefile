@@ -14,28 +14,28 @@ gen: clean generate import
 #	https://github.com/goadesign/goa/issues/923#issuecomment-290424097
 bootstrap: generate main
 
-main:
+main: controller server/main.go
+
+server/main.go:
 	@mv vendor vendor.bak
-	@goagen main -d $(REPO)/design
-	@echo '1. mkdir -p server'
-	@echo '2. mv main.go server/'
-	@echo '3. Change package from "main" to "server"'
-	@echo '4. Add "net/http" to import section'
-	@echo '5. Add "github.com/groovenauts/blocks-concurrent-batch-server/controller" to import section'
-	@echo '6. Change "func main()" to "func init()"'
-	@echo '7. Add "controller." before each "NewXxxxController"'
-	@echo '8. Comment out the lines below the comment "Start service"'
-	@echo '9. Add http.HandleFunc("/", service.Mux.ServeHTTP) at the end of init func'
+	@goagen main -d $(REPO)/design >/dev/null
+	@mkdir -p server
+	@mv main.go server
+	@rm *.go
+	@echo 'server/main.go'
+	@echo '1. Change package from "main" to "server"'
+	@echo '2. Add "net/http" to import section'
+	@echo '3. Add "github.com/groovenauts/blocks-concurrent-batch-server/controller" to import section'
+	@echo '4. Change "func main()" to "func init()"'
+	@echo '5. Add "controller." before each "NewXxxxController"'
+	@echo '6. Comment out the lines below the comment "Start service"'
+	@echo '7. Add http.HandleFunc("/", service.Mux.ServeHTTP) at the end of init func'
 	@mv vendor.bak vendor
 
 app:
 	@mv vendor vendor.bak
 	@goagen app -d $(REPO)/design
 	@mv vendor.bak vendor
-
-server:
-	@mkdir -p server
-	@mv main.go server/
 
 controller:
 	@mv vendor vendor.bak
