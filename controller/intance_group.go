@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"google.golang.org/appengine"
+
 	"github.com/goadesign/goa"
 	"github.com/groovenauts/blocks-concurrent-batch-server/app"
 	"github.com/groovenauts/blocks-concurrent-batch-server/model"
@@ -21,9 +23,10 @@ func (c *IntanceGroupController) Create(ctx *app.CreateIntanceGroupContext) erro
 	// IntanceGroupController_Create: start_implement
 
 	// Put your logic here
+	appCtx := appengine.NewContext(ctx.Request)
 	store := &model.InstanceGroupStore{}
 	model := InstanceGroupPayloadToModel(ctx.Payload)
-	_, err := store.Put(ctx.Context, &model)
+	_, err := store.Put(appCtx, &model)
 	if err != nil {
 		return ctx.BadRequest(goa.ErrBadRequest(err))
 	}
@@ -59,8 +62,9 @@ func (c *IntanceGroupController) List(ctx *app.ListIntanceGroupContext) error {
 	// IntanceGroupController_List: start_implement
 
 	// Put your logic here
+	appCtx := appengine.NewContext(ctx.Request)
 	store := &model.InstanceGroupStore{}
-	models, err := store.GetAll(ctx.Context)
+	models, err := store.GetAll(appCtx)
 	if err != nil {
 		return ctx.BadRequest(goa.ErrBadRequest(err))
 	}
@@ -89,8 +93,14 @@ func (c *IntanceGroupController) Show(ctx *app.ShowIntanceGroupContext) error {
 	// IntanceGroupController_Show: start_implement
 
 	// Put your logic here
+	appCtx := appengine.NewContext(ctx.Request)
+	store := &model.InstanceGroupStore{}
+	model, err := store.Get(appCtx, ctx.ID)
+	if err != nil {
+		return ctx.BadRequest(goa.ErrBadRequest(err))
+	}
 
-	res := &app.InstanceGroup{}
+	res := InstanceGroupModelToMediaType(model)
 	return ctx.OK(res)
 	// IntanceGroupController_Show: end_implement
 }

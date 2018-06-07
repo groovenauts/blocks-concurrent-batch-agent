@@ -58,12 +58,12 @@ func InstanceGroupPayloadToModel(src *app.InstanceGroupPayload) model.InstanceGr
 		BootDisk:         PipelineVmDiskPayloadToModel(src.BootDisk),
 		MachineType:      src.MachineType,
 		GpuAccelerators:  AcceleratorsPayloadToModel(src.GpuAccelerators),
-		Preemptible:      *src.Preemptible,
-		InstanceSize:     *src.InstanceSize,
-		StartupScript:    *src.StartupScript,
-		Status:           *src.Status,
-		DeploymentName:   *src.DeploymentName,
-		TokenConsumption: *src.TokenConsumption,
+		Preemptible:      BoolPointerToBool(src.Preemptible),
+		InstanceSize:     IntPointerToInt(src.InstanceSize),
+		StartupScript:    StringPointerToString(src.StartupScript),
+		Status:           StringPointerToString(src.Status),
+		DeploymentName:   StringPointerToString(src.DeploymentName),
+		TokenConsumption: IntPointerToInt(src.TokenConsumption),
 	}
 }
 
