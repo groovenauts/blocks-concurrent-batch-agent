@@ -20,10 +20,12 @@ main:
 	@echo '1. mkdir -p server'
 	@echo '2. mv main.go server/'
 	@echo '3. Change package from "main" to "server"'
-	@echo '4. Change "func main()" to "func init()"'
-	@echo '5. Comment out the lines below the comment "Start service"'
-	@echo '6. Add "net/http" to import section'
-	@echo '7. Add http.HandleFunc("/", service.Mux.ServeHTTP) at the end of init func'
+	@echo '4. Add "net/http" to import section'
+	@echo '5. Add "github.com/groovenauts/blocks-concurrent-batch-server/controller" to import section'
+	@echo '6. Change "func main()" to "func init()"'
+	@echo '7. Add "controller." before each "NewXxxxController"'
+	@echo '8. Comment out the lines below the comment "Start service"'
+	@echo '9. Add http.HandleFunc("/", service.Mux.ServeHTTP) at the end of init func'
 	@mv vendor.bak vendor
 
 app:
