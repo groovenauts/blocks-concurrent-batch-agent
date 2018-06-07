@@ -59,8 +59,16 @@ func (c *IntanceGroupController) List(ctx *app.ListIntanceGroupContext) error {
 	// IntanceGroupController_List: start_implement
 
 	// Put your logic here
+	store := &model.InstanceGroupStore{}
+	models, err := store.GetAll(ctx.Context)
+	if err != nil {
+		return ctx.BadRequest(goa.ErrBadRequest(err))
+	}
 
 	res := app.InstanceGroupCollection{}
+	for _, m := range models {
+		res = append(res, InstanceGroupModelToMediaType(m))
+	}
 	return ctx.OK(res)
 	// IntanceGroupController_List: end_implement
 }
