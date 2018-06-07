@@ -13,6 +13,11 @@ bootstrap:
 	@goagen bootstrap -d $(REPO)/design
 	@mv vendor.bak vendor
 
+app:
+	@mv vendor vendor.bak
+	@goagen app -d $(REPO)/design
+	@mv vendor.bak vendor
+
 server:
 	@mkdir -p server
 	@mv main.go server/
