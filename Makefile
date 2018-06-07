@@ -18,8 +18,10 @@ server:
 	@mv main.go server/
 
 controller:
+	@mv vendor vendor.bak
 	@mkdir -p controller
-	@sh -c "mv *.go controller/"
+	@goagen controller  -d $(REPO)/design --pkg controller --out controller --app-pkg ../app
+	@mv vendor.bak vendor
 
 clean:
 	@rm -rf app
