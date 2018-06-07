@@ -31,6 +31,7 @@ var Accelerators = Type("Accelerators", func() {
 		Default("")
 		Example("nvidia-tesla-p100")
 	})
+	Required("count", "type")
 })
 
 var InstanceGroupPayload = Type("InstanceGroup", func() {
@@ -63,6 +64,8 @@ var InstanceGroupPayload = Type("InstanceGroup", func() {
 	Member("token_consumption", Integer, "Token Consumption", func() {
 		Example(2)
 	})
+
+	Required("name", "project_id", "zone", "boot_disk", "machine_type")
 })
 
 var InstanceGroup = MediaType("application/vnd.instance-group+json", func() {
