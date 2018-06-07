@@ -34,7 +34,7 @@ var Accelerators = Type("Accelerators", func() {
 	Required("count", "type")
 })
 
-var InstanceGroupPayload = Type("InstanceGroup", func() {
+var InstanceGroupPayload = Type("InstanceGroupPayload", func() {
 	Member("name", String, "Name", func() {
 		Example("instancegroup1")
 	})
