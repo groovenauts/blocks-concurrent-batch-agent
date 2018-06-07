@@ -96,6 +96,35 @@ var _ = Resource("PipelineBase", func() {
 		Response(OK, PipelineBase)
 		UseTrait(DefineTrait)
 	})
+	Action("waking_finalize_task", func() {
+		Description("Task to finalize waking status")
+		Routing(PUT("/:id/waking_finalize_task"))
+		Params(func() {
+			Param("id")
+			Param("error")
+		})
+		Response(OK, PipelineBase)
+		UseTrait(DefineTrait)
+	})
+	Action("hibernation_checking_finalize_task", func() {
+		Description("Task to finalize hibernation_checking status")
+		Routing(PUT("/:id/hibernation_checking_finalize_task"))
+		Params(func() {
+			Param("id")
+		})
+		Response(OK, PipelineBase)
+		UseTrait(DefineTrait)
+	})
+	Action("hibernation_going_finalize_task", func() {
+		Description("Task to finalize hibernation_going status")
+		Routing(PUT("/:id/hibernation_going_finalize_task"))
+		Params(func() {
+			Param("id")
+			Param("error")
+		})
+		Response(OK, PipelineBase)
+		UseTrait(DefineTrait)
+	})
 	Action("close", func() {
 		Description("Close")
 		Routing(PUT("/:id"))
