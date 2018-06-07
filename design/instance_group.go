@@ -116,6 +116,10 @@ var _ = Resource("IntanceGroup", func() {
 	Action("create", func() {
 		Description("create")
 		Routing(POST(""))
+		Params(func() {
+			Param("org_id", String, "Organization ID")
+			Required("org_id")
+		})
 		Payload(InstanceGroupPayload)
 		Response(Created, InstanceGroup)
 		UseTrait(DefineTrait)
