@@ -86,9 +86,7 @@ var InstanceGroup = MediaType("application/vnd.instance-group+json", func() {
 		"token_consumption",
 	}
 	Attributes(func() {
-		Attribute("id", String, "ID", func() {
-			Example("bhJifmNvbmN1cnJlbnQtYmF0Y2hyMAsSDU9yZ2FuaXphdGlvbmMYgICAgJK2lgoMCxIJUGlwZWxpbmVzGICAgIDAnIIKDX")
-		})
+		UseTrait(IdTrait)
 		for _, attrName := range attrNames {
 			Attribute(attrName)
 		}

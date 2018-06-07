@@ -7,6 +7,8 @@ import (
 
 const DefineTrait = "DefineTrait"
 
+const IdTrait = "IdTrait"
+
 const TimestampCreatedAt = "created_at"
 const TimestampUpdatedAt = "updated_at"
 
@@ -31,6 +33,11 @@ var _ = API("appengine", func() {
 		Response(InternalServerError, ErrorMedia)
 	})
 
+	Trait(IdTrait, func() {
+		Attribute("id", String, "ID", func() {
+			Example("bd2d5ee3-d8be-4024-85a7-334dee9c1c88")
+		})
+	})
 	Trait(TimestampsAttrTrait, func() {
 		Attribute(TimestampCreatedAt, DateTime, "Datetime created")
 		Attribute(TimestampUpdatedAt, DateTime, "Datetime updated")
