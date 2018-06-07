@@ -11,7 +11,7 @@ import (
 	"github.com/groovenauts/blocks-concurrent-batch-server/controller"
 )
 
-func main() {
+func init() {
 	// Create service
 	service := goa.New("appengine")
 
