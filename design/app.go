@@ -7,6 +7,12 @@ import (
 
 const DefineTrait = "DefineTrait"
 
+const TimestampCreatedAt = "created_at"
+const TimestampUpdatedAt = "updated_at"
+
+const TimestampsAttrTrait = "TimestampsAttrTrait"
+const TimestampsViewTrait = "TimestampsViewTrait"
+
 var _ = API("appengine", func() {
 	Title("The appengine example")
 	Description("A simple appengine example")
@@ -23,6 +29,15 @@ var _ = API("appengine", func() {
 		Response(NotFound, ErrorMedia)
 		Response(BadRequest, ErrorMedia)
 		Response(InternalServerError, ErrorMedia)
+	})
+
+	Trait(TimestampsAttrTrait, func() {
+		Attribute(TimestampCreatedAt, DateTime, "Datetime created")
+		Attribute(TimestampUpdatedAt, DateTime, "Datetime updated")
+	})
+	Trait(TimestampsViewTrait, func() {
+		Attribute(TimestampCreatedAt)
+		Attribute(TimestampUpdatedAt)
 	})
 })
 var _ = Resource("swagger", func() {

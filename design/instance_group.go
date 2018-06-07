@@ -85,10 +85,6 @@ var InstanceGroup = MediaType("application/vnd.instance-group+json", func() {
 		"deployment_name",
 		"token_consumption",
 	}
-	outputAttrs := []string{
-		"created_at",
-		"updated_at",
-	}
 	Attributes(func() {
 		Attribute("id", String, "ID", func() {
 			Example("bhJifmNvbmN1cnJlbnQtYmF0Y2hyMAsSDU9yZ2FuaXphdGlvbmMYgICAgJK2lgoMCxIJUGlwZWxpbmVzGICAgIDAnIIKDX")
@@ -96,10 +92,9 @@ var InstanceGroup = MediaType("application/vnd.instance-group+json", func() {
 		for _, attrName := range attrNames {
 			Attribute(attrName)
 		}
-		Attribute("created_at", DateTime, "Datetime created")
-		Attribute("updated_at", DateTime, "Datetime updated")
+		UseTrait(TimestampsAttrTrait)
 
-		requiredAttrs := append(append([]string{"id"}, attrNames...), outputAttrs...)
+		requiredAttrs := append([]string{"id"}, attrNames...)
 		Required(requiredAttrs...)
 	})
 	View("default", func() {
@@ -107,9 +102,7 @@ var InstanceGroup = MediaType("application/vnd.instance-group+json", func() {
 		for _, attrName := range attrNames {
 			Attribute(attrName)
 		}
-		for _, attrName := range outputAttrs {
-			Attribute(attrName)
-		}
+		UseTrait(TimestampsViewTrait)
 	})
 })
 
