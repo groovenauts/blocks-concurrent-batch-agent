@@ -167,17 +167,17 @@ var _ = Resource("IntanceGroup", func() {
 	})
 })
 
-var _ = Resource("Constructing", func() {
+var _ = Resource("InstanceGroupConstructingTask", func() {
 	BasePath("/constructing_tasks")
 	UseTrait(OperationResourceTrait)
 })
 
-var _ = Resource("Destructing", func() {
+var _ = Resource("InstanceGroupDestructingTask", func() {
 	BasePath("/destructing_tasks")
 	UseTrait(OperationResourceTrait)
 })
 
-var _ = Resource("Resizing", func() {
+var _ = Resource("InstanceGroupResizingTask", func() {
 	BasePath("/resizing_tasks")
 	UseTrait(OperationResourceTrait)
 })
