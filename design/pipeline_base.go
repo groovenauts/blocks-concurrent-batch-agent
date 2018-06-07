@@ -48,6 +48,7 @@ var PipelineBase = MediaType("application/vnd.pipeline-base+json", func() {
 				"awake", "hibernation_checking", "hibernation_going", "hibernation_going_error",
 				"closing", "closing_error", "closed")
 		})
+		Attribute("instance_group_id", String, "ID of instance group")
 		UseTrait(TimestampsAttrTrait)
 
 		requiredAttrs := append([]string{"id"}, attrNames...)
