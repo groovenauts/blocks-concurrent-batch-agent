@@ -55,7 +55,7 @@ var _ = API("appengine", func() {
 			Description("Start refreshing")
 			Routing(POST(""))
 			Params(func() {
-				Param("id", String, "InstanceGroup ID")
+				Param("id", String, "Resource ID")
 			})
 			Payload(OperationPayload)
 			Response(Created, Operation)
