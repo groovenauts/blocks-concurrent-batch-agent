@@ -15,6 +15,8 @@ const TimestampUpdatedAt = "updated_at"
 const TimestampsAttrTrait = "TimestampsAttrTrait"
 const TimestampsViewTrait = "TimestampsViewTrait"
 
+const OperationResourceTrait = "OperationResourceTrait"
+
 var _ = API("appengine", func() {
 	Title("The appengine example")
 	Description("A simple appengine example")
@@ -45,6 +47,30 @@ var _ = API("appengine", func() {
 	Trait(TimestampsViewTrait, func() {
 		Attribute(TimestampCreatedAt)
 		Attribute(TimestampUpdatedAt)
+	})
+
+	Trait(OperationResourceTrait, func() {
+		DefaultMedia(Operation)
+		Action("start", func() {
+			Description("Start refreshing")
+			Routing(POST(""))
+			Params(func() {
+				Param("id", String, "InstanceGroup ID")
+			})
+			Payload(OperationPayload)
+			Response(Created, Operation)
+			UseTrait(DefineTrait)
+		})
+		Action("refresh", func() {
+			Description("Refresh")
+			Routing(PUT("/:id"))
+			Params(func() {
+				Param("id")
+			})
+			Response(Accepted, InstanceGroup)
+			Response(OK, InstanceGroup)
+			UseTrait(DefineTrait)
+		})
 	})
 })
 var _ = Resource("swagger", func() {
