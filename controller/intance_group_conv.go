@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"strconv"
-
 	"github.com/groovenauts/blocks-concurrent-batch-server/app"
 	"github.com/groovenauts/blocks-concurrent-batch-server/model"
 )
@@ -74,7 +72,7 @@ func InstanceGroupModelToMediaType(src *model.InstanceGroup) *app.InstanceGroup 
 		return nil
 	}
 	return &app.InstanceGroup{
-		ID:               strconv.FormatInt(src.Id, 10),
+		ID:               src.Id,
 		Name:             src.Name,
 		ProjectID:        src.ProjectID,
 		Zone:             src.Zone,
