@@ -6,11 +6,24 @@ GAE_PROJECT:=projectName
 init: install bootstrap import
 gen: clean generate import
 
+# goagen douments
+# https://goa.design/implement/goagen/
+# https://goa.design/ja/implement/goagen/
+
 # Rename vendor during executing goagen
 #	https://github.com/goadesign/goa/issues/923#issuecomment-290424097
-bootstrap:
+bootstrap: generate main
+
+main:
 	@mv vendor vendor.bak
-	@goagen bootstrap -d $(REPO)/design
+	@goagen main -d $(REPO)/design
+	@echo '1. mkdir -p server'
+	@echo '2. mv main.go server/'
+	@echo '3. Change package from "main" to "server"'
+	@echo '4. Change "func main()" to "func init()"'
+	@echo '5. Comment out the lines below the comment "Start service"'
+	@echo '6. Add "net/http" to import section'
+	@echo '7. Add http.HandleFunc("/", service.Mux.ServeHTTP) at the end of init func'
 	@mv vendor.bak vendor
 
 app:
