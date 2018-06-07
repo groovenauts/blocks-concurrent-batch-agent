@@ -115,3 +115,13 @@ var _ = Resource("PipelineBase", func() {
 		UseTrait(DefineTrait)
 	})
 })
+
+var _ = Resource("Opening", func() {
+	BasePath("/opening_tasks")
+	UseTrait(OperationResourceTrait)
+})
+
+var _ = Resource("Closing", func() {
+	BasePath("/closing_tasks")
+	UseTrait(OperationResourceTrait)
+})
