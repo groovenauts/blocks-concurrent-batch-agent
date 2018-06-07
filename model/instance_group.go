@@ -1,11 +1,11 @@
 package model
 
 import (
+	"strconv"
+
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
-
-	"github.com/goadesign/goa/uuid"
 
 	"github.com/mjibson/goon"
 )
@@ -23,7 +23,7 @@ type Accelerators struct {
 }
 
 type InstanceGroup struct {
-	Id               string `datastore:"-" goon:"id"`
+	Id               int64 `datastore:"-" goon:"id"`
 	Name             string
 	ProjectID        string
 	Zone             string
@@ -55,10 +55,15 @@ func (s *InstanceGroupStore) GetAll(ctx context.Context) ([]*InstanceGroup, erro
 	return r, nil
 }
 
-func (s *InstanceGroupStore) Get(ctx context.Context, id string) (*InstanceGroup, error) {
+func (s *InstanceGroupStore) Get(ctx context.Context, idStr string) (*InstanceGroup, error) {
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		log.Errorf(ctx, "Failed to parse %v as int64 because of %v\n", idStr, err)
+		return nil, err
+	}
 	g := goon.FromContext(ctx)
 	r := InstanceGroup{Id: id}
-	err := g.Get(&r)
+	err = g.Get(&r)
 	if err != nil {
 		log.Errorf(ctx, "Failed to Get InstanceGroup because of %v\n", err)
 		return nil, err
@@ -68,9 +73,6 @@ func (s *InstanceGroupStore) Get(ctx context.Context, id string) (*InstanceGroup
 
 func (s *InstanceGroupStore) Put(ctx context.Context, m *InstanceGroup) (*datastore.Key, error) {
 	g := goon.FromContext(ctx)
-	if m.Id == "" {
-		m.Id = uuid.NewV4().String()
-	}
 	key, err := g.Put(m)
 	if err != nil {
 		log.Errorf(ctx, "Failed to Put %v because of %v\n", m, err)
