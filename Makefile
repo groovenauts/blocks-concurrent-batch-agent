@@ -70,6 +70,9 @@ import:
           -from="../tool/cli" \
           -to="$(REPO)/tool/cli"
 
+build:
+	goapp build github.com/groovenauts/blocks-concurrent-batch-server/server
+
 deploy:
 	goapp deploy -application $(GAE_PROJECT) ./app
 
