@@ -1,8 +1,10 @@
 //go:generate goagen bootstrap -d github.com/groovenauts/blocks-concurrent-batch-server/design
 
-package main
+package server
 
 import (
+	"net/http"
+
 	"github.com/goadesign/goa"
 	"github.com/goadesign/goa/middleware"
 	"github.com/groovenauts/blocks-concurrent-batch-server/app"
@@ -26,9 +28,10 @@ func main() {
 	c2 := controller.NewSwaggerController(service)
 	app.MountSwaggerController(service, c2)
 
-	// Start service
-	if err := service.ListenAndServe(":8080"); err != nil {
-		service.LogError("startup", "err", err)
-	}
+	// // Start service
+	// if err := service.ListenAndServe(":8080"); err != nil {
+	// 	service.LogError("startup", "err", err)
+	// }
 
+	http.HandleFunc("/", service.Mux.ServeHTTP)
 }
