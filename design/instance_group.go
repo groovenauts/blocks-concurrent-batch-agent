@@ -34,6 +34,10 @@ var Accelerators = Type("Accelerators", func() {
 	Required("count", "type")
 })
 
+var instanceGroupPayloadBodyRequired = []string{
+	"project_id", "zone", "boot_disk", "machine_type",
+}
+
 var InstanceGroupPayloadBody = Type("InstanceGroupPayloadBody", func() {
 	Member("project_id", String, "GCP Project ID", func() {
 		Example("dummy-proj-999")
@@ -58,7 +62,7 @@ var InstanceGroupPayloadBody = Type("InstanceGroupPayloadBody", func() {
 	Member("token_consumption", Integer, "Token Consumption", func() {
 		Example(2)
 	})
-	Required("project_id", "zone", "boot_disk", "machine_type")
+	Required(instanceGroupPayloadBodyRequired...)
 })
 
 var InstanceGroupPayload = Type("InstanceGroupPayload", func() {
@@ -87,6 +91,7 @@ var InstanceGroupPayload = Type("InstanceGroupPayload", func() {
 	for _, m := range members {
 		Member(m)
 	}
+	Required(instanceGroupPayloadBodyRequired...)
 })
 
 var InstanceGroup = MediaType("application/vnd.instance-group+json", func() {
