@@ -1,8 +1,11 @@
 package controller
 
 import (
+	"google.golang.org/appengine"
+
 	"github.com/goadesign/goa"
 	"github.com/groovenauts/blocks-concurrent-batch-server/app"
+	"github.com/groovenauts/blocks-concurrent-batch-server/model"
 )
 
 // IntanceGroupController implements the IntanceGroup resource.

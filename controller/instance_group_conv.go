@@ -61,7 +61,6 @@ func InstanceGroupPayloadToModel(src *app.InstanceGroupPayload) model.InstanceGr
 		Preemptible:      BoolPointerToBool(src.Preemptible),
 		InstanceSize:     IntPointerToInt(src.InstanceSize),
 		StartupScript:    StringPointerToString(src.StartupScript),
-		Status:           StringPointerToString(src.Status),
 		DeploymentName:   StringPointerToString(src.DeploymentName),
 		TokenConsumption: IntPointerToInt(src.TokenConsumption),
 	}
