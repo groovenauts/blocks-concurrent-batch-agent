@@ -20,8 +20,15 @@ func (c *IntanceGroupController) Create(ctx *app.CreateIntanceGroupContext) erro
 	// IntanceGroupController_Create: start_implement
 
 	// Put your logic here
+	appCtx := appengine.NewContext(ctx.Request)
+	store := &model.InstanceGroupStore{}
+	model := InstanceGroupPayloadToModel(ctx.Payload)
+	_, err := store.Put(appCtx, &model)
+	if err != nil {
+		return ctx.BadRequest(goa.ErrBadRequest(err))
+	}
 
-	return nil
+	return ctx.Created(InstanceGroupModelToMediaType(&model))
 	// IntanceGroupController_Create: end_implement
 }
 
@@ -52,8 +59,17 @@ func (c *IntanceGroupController) List(ctx *app.ListIntanceGroupContext) error {
 	// IntanceGroupController_List: start_implement
 
 	// Put your logic here
+	appCtx := appengine.NewContext(ctx.Request)
+	store := &model.InstanceGroupStore{}
+	models, err := store.GetAll(appCtx)
+	if err != nil {
+		return ctx.BadRequest(goa.ErrBadRequest(err))
+	}
 
 	res := app.InstanceGroupCollection{}
+	for _, m := range models {
+		res = append(res, InstanceGroupModelToMediaType(m))
+	}
 	return ctx.OK(res)
 	// IntanceGroupController_List: end_implement
 }
