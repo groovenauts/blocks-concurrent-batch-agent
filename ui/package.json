@@ -23,6 +23,7 @@
     "webpack-dev-server": "^3.1.4"
   },
   "dependencies": {
+    "expect": "^23.1.0",
     "react": "^16.4.0",
     "react-dom": "^16.4.0",
     "redux": "^4.0.0"
