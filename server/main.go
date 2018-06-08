@@ -21,6 +21,9 @@ func init() {
 	service.Use(middleware.ErrorHandler(service, true))
 	service.Use(middleware.Recover())
 
+	// Mount security middleware
+	app.UseAPIKeyMiddleware(service, controller.NewAuthorizationMiddleware())
+
 	// Mount "InstanceGroupConstructingTask" controller
 	c := controller.NewInstanceGroupConstructingTaskController(service)
 	app.MountInstanceGroupConstructingTaskController(service, c)
