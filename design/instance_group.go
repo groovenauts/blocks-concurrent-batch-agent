@@ -35,6 +35,10 @@ var Accelerators = Type("Accelerators", func() {
 })
 
 var InstanceGroupPayload = Type("InstanceGroupPayload", func() {
+	Member("pipeline_base_id", String, "Owner pipeline_base id (UUID)", func() {
+		// Optional
+		Example("bd2d5ee3-d8be-4024-85a7-334dee9c1c88")
+	})
 	Member("name", String, "Name", func() {
 		Example("instancegroup1")
 	})
@@ -56,9 +60,6 @@ var InstanceGroupPayload = Type("InstanceGroupPayload", func() {
 	})
 	Member("startup_script", String, "Startup script")
 
-	Member("status", String, "Status", func() {
-		Enum("constructing", "constructing_error", "constructed", "resizing", "destructing", "destructing_error", "destructed")
-	})
 	Member("deployment_name", String, "Deployment name")
 
 	Member("token_consumption", Integer, "Token Consumption", func() {
@@ -87,6 +88,10 @@ var InstanceGroup = MediaType("application/vnd.instance-group+json", func() {
 	}
 	Attributes(func() {
 		UseTrait(IdTrait)
+		Attribute("status", String, "Status", func() {
+			Enum("constructing", "constructing_error", "constructed", "resizing",
+				"destructing", "destructing_error", "destructed")
+		})
 		for _, attrName := range attrNames {
 			Attribute(attrName)
 		}
