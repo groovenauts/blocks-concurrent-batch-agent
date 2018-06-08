@@ -6,14 +6,13 @@ import (
 )
 
 
-
-
 var DummyAuth = MediaType("application/vnd.dummy-auth+json", func() {
 	Description("Dummy auth")
 
 	Attributes(func() {
 		Attribute("organization_id", String)
 		Attribute("token", String)
+		Required("organization_id", "token")
 	})
 	View("default", func() {
 		Attribute("organization_id")
@@ -28,5 +27,6 @@ var _ = Resource("dummy-auths", func() {
 		Description("create")
 		Routing(POST(""))
 		Response(Created, DummyAuth)
+		UseTrait(DefineTrait)
 	})
 })
