@@ -6,6 +6,7 @@ import (
 )
 
 const DefineTrait = "DefineTrait"
+const DefineResourceTrait = "DefineResourceTrait"
 
 const IdTrait = "IdTrait"
 
@@ -33,6 +34,9 @@ var _ = API("appengine", func() {
 		Response(NotFound, ErrorMedia)
 		Response(BadRequest, ErrorMedia)
 		Response(InternalServerError, ErrorMedia)
+	})
+	Trait(DefineResourceTrait, func() {
+		Security(Authorization)
 	})
 
 	Trait(IdTrait, func() {

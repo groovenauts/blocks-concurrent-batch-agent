@@ -48,6 +48,8 @@ var Pipeline = MediaType("application/vnd.pipeline+json", func() {
 var _ = Resource("Pipeline", func() {
 	BasePath("/pipelines")
 	DefaultMedia(Pipeline)
+	UseTrait(DefineResourceTrait)
+
 	Action("list", func() {
 		Description("list")
 		Routing(GET(""))

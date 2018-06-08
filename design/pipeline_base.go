@@ -87,6 +87,8 @@ var PipelineBase = MediaType("application/vnd.pipeline-base+json", func() {
 var _ = Resource("PipelineBase", func() {
 	BasePath("/pipeline_bases")
 	DefaultMedia(PipelineBase)
+	UseTrait(DefineResourceTrait)
+
 	Action("list", func() {
 		Description("list")
 		Routing(GET(""))
@@ -180,10 +182,12 @@ var _ = Resource("PipelineBase", func() {
 
 var _ = Resource("PipelineBaseOpeningTask", func() {
 	BasePath("/opening_tasks")
+	UseTrait(DefineResourceTrait)
 	UseTrait(OperationResourceTrait)
 })
 
 var _ = Resource("PipelineBaseClosingTask", func() {
 	BasePath("/closing_tasks")
+	UseTrait(DefineResourceTrait)
 	UseTrait(OperationResourceTrait)
 })

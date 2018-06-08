@@ -66,6 +66,8 @@ var Job = MediaType("application/vnd.job+json", func() {
 var _ = Resource("Job", func() {
 	BasePath("/jobs")
 	DefaultMedia(Job)
+	UseTrait(DefineResourceTrait)
+
 	Action("create", func() {
 		Description("create")
 		Routing(POST(""))

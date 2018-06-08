@@ -137,6 +137,8 @@ var InstanceGroup = MediaType("application/vnd.instance-group+json", func() {
 var _ = Resource("IntanceGroup", func() {
 	BasePath("/instance_groups")
 	DefaultMedia(InstanceGroup)
+	UseTrait(DefineResourceTrait)
+
 	Action("list", func() {
 		Description("list")
 		Routing(GET(""))
@@ -199,15 +201,18 @@ var _ = Resource("IntanceGroup", func() {
 
 var _ = Resource("InstanceGroupConstructingTask", func() {
 	BasePath("/constructing_tasks")
+	UseTrait(DefineResourceTrait)
 	UseTrait(OperationResourceTrait)
 })
 
 var _ = Resource("InstanceGroupDestructingTask", func() {
 	BasePath("/destructing_tasks")
+	UseTrait(DefineResourceTrait)
 	UseTrait(OperationResourceTrait)
 })
 
 var _ = Resource("InstanceGroupResizingTask", func() {
 	BasePath("/resizing_tasks")
+	UseTrait(DefineResourceTrait)
 	UseTrait(OperationResourceTrait)
 })
