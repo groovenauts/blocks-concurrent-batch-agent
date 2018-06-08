@@ -19,8 +19,19 @@ import (
 //
 // Identifier: application/vnd.dummy-auth+json; view=default
 type DummyAuth struct {
-	OrganizationID *string `form:"organization_id,omitempty" json:"organization_id,omitempty" yaml:"organization_id,omitempty" xml:"organization_id,omitempty"`
-	Token          *string `form:"token,omitempty" json:"token,omitempty" yaml:"token,omitempty" xml:"token,omitempty"`
+	OrganizationID string `form:"organization_id" json:"organization_id" yaml:"organization_id" xml:"organization_id"`
+	Token          string `form:"token" json:"token" yaml:"token" xml:"token"`
+}
+
+// Validate validates the DummyAuth media type instance.
+func (mt *DummyAuth) Validate() (err error) {
+	if mt.OrganizationID == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "organization_id"))
+	}
+	if mt.Token == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "token"))
+	}
+	return
 }
 
 // instance-group (default view)
