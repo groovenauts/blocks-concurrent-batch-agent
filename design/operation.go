@@ -6,6 +6,14 @@ import (
 )
 
 var OperationPayload = Type("OperationPayload", func() {
+	Member("owner_type", String, "Owner type name", func() {
+		Example("InstanceGroup")
+	})
+	Member("owner_id", String, "Owner id", func() {
+		Example("bd2d5ee3-d8be-4024-85a7-334dee9c1c88")
+	})
+	Member("finalize_task_path", String, "Callback task path")
+
 	Member("name", String, "Name", func() {
 		Example("instancegroup-ope1")
 	})
