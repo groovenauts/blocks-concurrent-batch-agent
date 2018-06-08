@@ -51,6 +51,9 @@ func init() {
 	// Mount "swagger" controller
 	c10 := controller.NewSwaggerController(service)
 	app.MountSwaggerController(service, c10)
+	// Mount "dummy-auths" controller
+	c11 := controller.NewDummyAuthsController(service)
+	app.MountDummyAuthsController(service, c11)
 
 	// // Start service
 	// if err := service.ListenAndServe(":8080"); err != nil {
