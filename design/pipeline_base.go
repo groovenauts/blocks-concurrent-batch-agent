@@ -21,15 +21,33 @@ var PipelineContainerPayload = Type("PipelineContainerPayload", func() {
 	Required("name")
 })
 
-var PipelineBasePayload = Type("PipelineBasePayload", func() {
-	Member("name", String, "Name of pipeline_base", func(){
-		Example("pipeline1-123")
-	})
+var pipelineBasePayloadBodyRequired = []string{
+	"instance_group", "container",
+}
+var PipelineBasePayloadBody = Type("PipelineBasePayloadBody", func() {
 	Member("instance_group", InstanceGroupPayloadBody, "Instance Group configuration")
 	Member("container", PipelineContainerPayload, "Container configuration")
 	Member("hibernation_delay", Integer, "Hibernation delay in seconds since last job finsihed")
 
-	Required("instance_group", "container")
+	Required(pipelineBasePayloadBodyRequired...)
+})
+
+var PipelineBasePayload = Type("PipelineBasePayload", func() {
+	Member("name", String, "Name of pipeline_base", func(){
+		Example("pipeline1-123")
+	})
+	Required("name")
+
+	Reference(PipelineBasePayloadBody)
+	members := []string{
+		"instance_group",
+		"container",
+		"hibernation_delay",
+	}
+	for _, m := range members {
+		Member(m)
+	}
+	Required(pipelineBasePayloadBodyRequired...)
 })
 
 var PipelineBase = MediaType("application/vnd.pipeline-base+json", func() {

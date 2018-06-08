@@ -6,8 +6,12 @@ import (
 )
 
 var PipelinePayload = Type("PipelinePayload", func() {
-	Member("base", PipelineBasePayload, "PipelineBase configuration")
+	Member("name", String, "Name of pipeline_base", func(){
+		Example("pipeline1")
+	})
+	Required("name")
 
+	Member("base", PipelineBasePayloadBody, "PipelineBase configuration")
 	Required("base")
 })
 
