@@ -82,5 +82,5 @@ rollback:
 	appcfg.py rollback ./app -A $(GAE_PROJECT)
 
 local:
-#	dev_appserver.py --enable_console --skip_sdk_update_check=yes server/app.yaml
-	goapp serve ./server
+	dev_appserver.py --enable_console --skip_sdk_update_check=yes server/app.yaml
+# goapp serve ./server
