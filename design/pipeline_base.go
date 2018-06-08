@@ -101,6 +101,7 @@ var _ = Resource("PipelineBase", func() {
 		Routing(PUT("/:id/waking_finalize_task"))
 		Params(func() {
 			Param("id")
+			Param("operation_id")
 			Param("error")
 		})
 		Response(OK, PipelineBase)
@@ -129,6 +130,7 @@ var _ = Resource("PipelineBase", func() {
 		Routing(PUT("/:id/hibernation_going_finalize_task"))
 		Params(func() {
 			Param("id")
+			Param("operation_id")
 			Param("error")
 		})
 		Response(OK, PipelineBase)
