@@ -67,8 +67,10 @@ var _ = API("appengine", func() {
 			Params(func() {
 				Param("id")
 			})
-			Response(Accepted, InstanceGroup)
-			Response(OK, InstanceGroup)
+			Response(OK, Operation)        // 200 (他のなにかによって)既に完了済み
+			Response(Created, Operation)   // 201 継続
+			Response(Accepted, Operation)  // 202 完了
+			Response(NoContent, Operation) // 204 エラー
 			UseTrait(DefineTrait)
 		})
 	})
