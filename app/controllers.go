@@ -1245,6 +1245,60 @@ func unmarshalStartPipelineBaseOpeningTaskPayload(ctx context.Context, service *
 	return nil
 }
 
+// DummyAuthsController is the controller interface for the DummyAuths actions.
+type DummyAuthsController interface {
+	goa.Muxer
+	Create(*CreateDummyAuthsContext) error
+}
+
+// MountDummyAuthsController "mounts" a DummyAuths resource controller on the given service.
+func MountDummyAuthsController(service *goa.Service, ctrl DummyAuthsController) {
+	initService(service)
+	var h goa.Handler
+	service.Mux.Handle("OPTIONS", "/dummy-auths", ctrl.MuxHandler("preflight", handleDummyAuthsOrigin(cors.HandlePreflight()), nil))
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewCreateDummyAuthsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Create(rctx)
+	}
+	h = handleDummyAuthsOrigin(h)
+	service.Mux.Handle("POST", "/dummy-auths", ctrl.MuxHandler("create", h, nil))
+	service.LogInfo("mount", "ctrl", "DummyAuths", "action", "Create", "route", "POST /dummy-auths")
+}
+
+// handleDummyAuthsOrigin applies the CORS response headers corresponding to the origin.
+func handleDummyAuthsOrigin(h goa.Handler) goa.Handler {
+
+	return func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		origin := req.Header.Get("Origin")
+		if origin == "" {
+			// Not a CORS request
+			return h(ctx, rw, req)
+		}
+		if cors.MatchOrigin(origin, "*") {
+			ctx = goa.WithLogContext(ctx, "origin", origin)
+			rw.Header().Set("Access-Control-Allow-Origin", origin)
+			rw.Header().Set("Access-Control-Max-Age", "600")
+			rw.Header().Set("Access-Control-Allow-Credentials", "true")
+			if acrm := req.Header.Get("Access-Control-Request-Method"); acrm != "" {
+				// We are handling a preflight request
+				rw.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			}
+			return h(ctx, rw, req)
+		}
+
+		return h(ctx, rw, req)
+	}
+}
+
 // SwaggerController is the controller interface for the Swagger actions.
 type SwaggerController interface {
 	goa.Muxer

@@ -16,6 +16,21 @@ import (
 	"time"
 )
 
+// Dummy auth (default view)
+//
+// Identifier: application/vnd.dummy-auth+json; view=default
+type DummyAuth struct {
+	OrganizationID *string `form:"organization_id,omitempty" json:"organization_id,omitempty" yaml:"organization_id,omitempty" xml:"organization_id,omitempty"`
+	Token          *string `form:"token,omitempty" json:"token,omitempty" yaml:"token,omitempty" xml:"token,omitempty"`
+}
+
+// DecodeDummyAuth decodes the DummyAuth instance encoded in resp body.
+func (c *Client) DecodeDummyAuth(resp *http.Response) (*DummyAuth, error) {
+	var decoded DummyAuth
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
+
 // DecodeErrorResponse decodes the ErrorResponse instance encoded in resp body.
 func (c *Client) DecodeErrorResponse(resp *http.Response) (*goa.ErrorResponse, error) {
 	var decoded goa.ErrorResponse

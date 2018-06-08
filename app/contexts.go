@@ -2721,3 +2721,30 @@ func (ctx *StartPipelineBaseOpeningTaskContext) InternalServerError(r error) err
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
+
+// CreateDummyAuthsContext provides the dummy-auths create action context.
+type CreateDummyAuthsContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+}
+
+// NewCreateDummyAuthsContext parses the incoming request URL and body, performs validations and creates the
+// context used by the dummy-auths controller create action.
+func NewCreateDummyAuthsContext(ctx context.Context, r *http.Request, service *goa.Service) (*CreateDummyAuthsContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := CreateDummyAuthsContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// Created sends a HTTP response with status code 201.
+func (ctx *CreateDummyAuthsContext) Created(r *DummyAuth) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.dummy-auth+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
+}

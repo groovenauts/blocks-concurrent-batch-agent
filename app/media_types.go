@@ -15,6 +15,14 @@ import (
 	"time"
 )
 
+// Dummy auth (default view)
+//
+// Identifier: application/vnd.dummy-auth+json; view=default
+type DummyAuth struct {
+	OrganizationID *string `form:"organization_id,omitempty" json:"organization_id,omitempty" yaml:"organization_id,omitempty" xml:"organization_id,omitempty"`
+	Token          *string `form:"token,omitempty" json:"token,omitempty" yaml:"token,omitempty" xml:"token,omitempty"`
+}
+
 // instance-group (default view)
 //
 // Identifier: application/vnd.instance-group+json; view=default

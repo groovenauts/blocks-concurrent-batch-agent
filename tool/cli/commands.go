@@ -324,6 +324,11 @@ type (
 		PrettyPrint bool
 	}
 
+	// CreateDummyAuthsCommand is the command line data structure for the create action of dummy-auths
+	CreateDummyAuthsCommand struct {
+		PrettyPrint bool
+	}
+
 	// DownloadCommand is the command line data structure for the download command.
 	DownloadCommand struct {
 		// OutFile is the path to the download output file.
@@ -380,7 +385,7 @@ Payload example:
       "disk_type": "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
       "source_image": "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable"
    },
-   "deployment_name": "Voluptatem quaerat.",
+   "deployment_name": "A perferendis itaque corporis voluptatem.",
    "gpu_accelerators": {
       "count": 2,
       "type": "nvidia-tesla-p100"
@@ -391,7 +396,7 @@ Payload example:
    "pipeline_base_id": "bd2d5ee3-d8be-4024-85a7-334dee9c1c88",
    "preemptible": true,
    "project_id": "dummy-proj-999",
-   "startup_script": "Corrupti nihil cupiditate voluptatum omnis.",
+   "startup_script": "Hic est.",
    "token_consumption": 2,
    "zone": "us-central1-f"
 }`,
@@ -409,12 +414,12 @@ Payload example:
 Payload example:
 
 {
-   "id_by_client": "Id culpa quo quae commodi beatae.",
+   "id_by_client": "Non architecto mollitia voluptatibus ducimus nisi.",
    "message": {
       "attributes": {
-         "Ratione praesentium asperiores dolor.": "Iusto pariatur sequi adipisci eius temporibus."
+         "Dolor ut iusto.": "Sequi adipisci eius temporibus adipisci quis."
       },
-      "data": "Quis quibusdam."
+      "data": "Ut eum enim eum aliquam."
    }
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
@@ -434,19 +439,19 @@ Payload example:
    "base": {
       "container": {
          "command": "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
-         "name": "Aut illo.",
+         "name": "Enim animi veritatis nisi veritatis corporis.",
          "options": "--restart=on-failure:3",
          "size": 2,
-         "stackdriver_agent": true
+         "stackdriver_agent": false
       },
-      "hibernation_delay": 2315173997661684401,
+      "hibernation_delay": 3317251858221010256,
       "instance_group": {
          "boot_disk": {
             "disk_size_gb": 50,
             "disk_type": "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
             "source_image": "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable"
          },
-         "deployment_name": "Quaerat perspiciatis nulla esse enim animi.",
+         "deployment_name": "Sed id eveniet quis sit.",
          "gpu_accelerators": {
             "count": 2,
             "type": "nvidia-tesla-p100"
@@ -455,7 +460,7 @@ Payload example:
          "machine_type": "f1-micro",
          "preemptible": true,
          "project_id": "dummy-proj-999",
-         "startup_script": "Veritatis corporis aliquam.",
+         "startup_script": "Mollitia laboriosam iure labore.",
          "token_consumption": 2,
          "zone": "us-central1-f"
       }
@@ -478,19 +483,19 @@ Payload example:
 {
    "container": {
       "command": "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
-      "name": "Aut illo.",
+      "name": "Enim animi veritatis nisi veritatis corporis.",
       "options": "--restart=on-failure:3",
       "size": 2,
-      "stackdriver_agent": true
+      "stackdriver_agent": false
    },
-   "hibernation_delay": 8598421964078057100,
+   "hibernation_delay": 435861793796380430,
    "instance_group": {
       "boot_disk": {
          "disk_size_gb": 50,
          "disk_type": "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
          "source_image": "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable"
       },
-      "deployment_name": "Quaerat perspiciatis nulla esse enim animi.",
+      "deployment_name": "Sed id eveniet quis sit.",
       "gpu_accelerators": {
          "count": 2,
          "type": "nvidia-tesla-p100"
@@ -499,7 +504,7 @@ Payload example:
       "machine_type": "f1-micro",
       "preemptible": true,
       "project_id": "dummy-proj-999",
-      "startup_script": "Veritatis corporis aliquam.",
+      "startup_script": "Mollitia laboriosam iure labore.",
       "token_consumption": 2,
       "zone": "us-central1-f"
    },
@@ -510,14 +515,9 @@ Payload example:
 	tmp6.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp6.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	app.AddCommand(command)
-	command = &cobra.Command{
-		Use:   "current",
-		Short: `Update current pipeline base`,
-	}
-	tmp7 := new(CurrentPipelineCommand)
+	tmp7 := new(CreateDummyAuthsCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline ["/pipelines/ID/current"]`,
+		Use:   `dummy-auths ["/dummy-auths"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp7.Run(c, args) },
 	}
@@ -526,53 +526,53 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "delete",
-		Short: `delete action`,
+		Use:   "current",
+		Short: `Update current pipeline base`,
 	}
-	tmp8 := new(DeleteIntanceGroupCommand)
+	tmp8 := new(CurrentPipelineCommand)
 	sub = &cobra.Command{
-		Use:   `intance-group ["/instance_groups/ID"]`,
+		Use:   `pipeline ["/pipelines/ID/current"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp8.Run(c, args) },
 	}
 	tmp8.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp8.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	tmp9 := new(DeleteJobCommand)
+	app.AddCommand(command)
+	command = &cobra.Command{
+		Use:   "delete",
+		Short: `delete action`,
+	}
+	tmp9 := new(DeleteIntanceGroupCommand)
 	sub = &cobra.Command{
-		Use:   `job ["/jobs/ID"]`,
+		Use:   `intance-group ["/instance_groups/ID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp9.Run(c, args) },
 	}
 	tmp9.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp9.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	tmp10 := new(DeletePipelineCommand)
+	tmp10 := new(DeleteJobCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline ["/pipelines/ID"]`,
+		Use:   `job ["/jobs/ID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp10.Run(c, args) },
 	}
 	tmp10.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp10.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	tmp11 := new(DeletePipelineBaseCommand)
+	tmp11 := new(DeletePipelineCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline-base ["/pipeline_bases/ID"]`,
+		Use:   `pipeline ["/pipelines/ID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp11.Run(c, args) },
 	}
 	tmp11.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp11.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	app.AddCommand(command)
-	command = &cobra.Command{
-		Use:   "destruct",
-		Short: `Destruct`,
-	}
-	tmp12 := new(DestructIntanceGroupCommand)
+	tmp12 := new(DeletePipelineBaseCommand)
 	sub = &cobra.Command{
-		Use:   `intance-group ["/instance_groups/ID/restruct"]`,
+		Use:   `pipeline-base ["/pipeline_bases/ID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp12.Run(c, args) },
 	}
@@ -581,12 +581,12 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "hibernation-checking-finalize-task",
-		Short: `Task to finalize hibernation_checking status`,
+		Use:   "destruct",
+		Short: `Destruct`,
 	}
-	tmp13 := new(HibernationCheckingFinalizeTaskPipelineBaseCommand)
+	tmp13 := new(DestructIntanceGroupCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline-base ["/pipeline_bases/ID/hibernation_checking_finalize_task"]`,
+		Use:   `intance-group ["/instance_groups/ID/restruct"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp13.Run(c, args) },
 	}
@@ -595,12 +595,12 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "hibernation-going-finalize-task",
-		Short: `Task to finalize hibernation_going status`,
+		Use:   "hibernation-checking-finalize-task",
+		Short: `Task to finalize hibernation_checking status`,
 	}
-	tmp14 := new(HibernationGoingFinalizeTaskPipelineBaseCommand)
+	tmp14 := new(HibernationCheckingFinalizeTaskPipelineBaseCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline-base ["/pipeline_bases/ID/hibernation_going_finalize_task"]`,
+		Use:   `pipeline-base ["/pipeline_bases/ID/hibernation_checking_finalize_task"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp14.Run(c, args) },
 	}
@@ -609,12 +609,12 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "inactivate",
-		Short: `Inactivate job`,
+		Use:   "hibernation-going-finalize-task",
+		Short: `Task to finalize hibernation_going status`,
 	}
-	tmp15 := new(InactivateJobCommand)
+	tmp15 := new(HibernationGoingFinalizeTaskPipelineBaseCommand)
 	sub = &cobra.Command{
-		Use:   `job ["/jobs/ID/inactivate"]`,
+		Use:   `pipeline-base ["/pipeline_bases/ID/hibernation_going_finalize_task"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp15.Run(c, args) },
 	}
@@ -623,44 +623,44 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "list",
-		Short: `list action`,
+		Use:   "inactivate",
+		Short: `Inactivate job`,
 	}
-	tmp16 := new(ListIntanceGroupCommand)
+	tmp16 := new(InactivateJobCommand)
 	sub = &cobra.Command{
-		Use:   `intance-group ["/instance_groups"]`,
+		Use:   `job ["/jobs/ID/inactivate"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp16.Run(c, args) },
 	}
 	tmp16.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp16.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	tmp17 := new(ListPipelineCommand)
+	app.AddCommand(command)
+	command = &cobra.Command{
+		Use:   "list",
+		Short: `list action`,
+	}
+	tmp17 := new(ListIntanceGroupCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline ["/pipelines"]`,
+		Use:   `intance-group ["/instance_groups"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp17.Run(c, args) },
 	}
 	tmp17.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp17.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	tmp18 := new(ListPipelineBaseCommand)
+	tmp18 := new(ListPipelineCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline-base ["/pipeline_bases"]`,
+		Use:   `pipeline ["/pipelines"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp18.Run(c, args) },
 	}
 	tmp18.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp18.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	app.AddCommand(command)
-	command = &cobra.Command{
-		Use:   "preparing-finalize-task",
-		Short: `Task to finalize current_preparing or next_preparing status`,
-	}
-	tmp19 := new(PreparingFinalizeTaskPipelineCommand)
+	tmp19 := new(ListPipelineBaseCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline ["/pipelines/ID/preparing_finalize_task"]`,
+		Use:   `pipeline-base ["/pipeline_bases"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp19.Run(c, args) },
 	}
@@ -669,12 +669,12 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "publishing-task",
-		Short: `Publishing job task`,
+		Use:   "preparing-finalize-task",
+		Short: `Task to finalize current_preparing or next_preparing status`,
 	}
-	tmp20 := new(PublishingTaskJobCommand)
+	tmp20 := new(PreparingFinalizeTaskPipelineCommand)
 	sub = &cobra.Command{
-		Use:   `job ["/jobs/ID/publishing_task"]`,
+		Use:   `pipeline ["/pipelines/ID/preparing_finalize_task"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp20.Run(c, args) },
 	}
@@ -683,12 +683,12 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "pull-task",
-		Short: `Task to pull progress messages`,
+		Use:   "publishing-task",
+		Short: `Publishing job task`,
 	}
-	tmp21 := new(PullTaskPipelineBaseCommand)
+	tmp21 := new(PublishingTaskJobCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline-base ["/pipeline_bases/ID/pull_task"]`,
+		Use:   `job ["/jobs/ID/publishing_task"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp21.Run(c, args) },
 	}
@@ -697,60 +697,74 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "refresh",
-		Short: `refresh action`,
+		Use:   "pull-task",
+		Short: `Task to pull progress messages`,
 	}
-	tmp22 := new(RefreshInstanceGroupConstructingTaskCommand)
+	tmp22 := new(PullTaskPipelineBaseCommand)
 	sub = &cobra.Command{
-		Use:   `instance-group-constructing-task ["/constructing_tasks/ID"]`,
+		Use:   `pipeline-base ["/pipeline_bases/ID/pull_task"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp22.Run(c, args) },
 	}
 	tmp22.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp22.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	tmp23 := new(RefreshInstanceGroupDestructingTaskCommand)
+	app.AddCommand(command)
+	command = &cobra.Command{
+		Use:   "refresh",
+		Short: `refresh action`,
+	}
+	tmp23 := new(RefreshInstanceGroupConstructingTaskCommand)
 	sub = &cobra.Command{
-		Use:   `instance-group-destructing-task ["/destructing_tasks/ID"]`,
+		Use:   `instance-group-constructing-task ["/constructing_tasks/ID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp23.Run(c, args) },
 	}
 	tmp23.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp23.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	tmp24 := new(RefreshInstanceGroupResizingTaskCommand)
+	tmp24 := new(RefreshInstanceGroupDestructingTaskCommand)
 	sub = &cobra.Command{
-		Use:   `instance-group-resizing-task ["/resizing_tasks/ID"]`,
+		Use:   `instance-group-destructing-task ["/destructing_tasks/ID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp24.Run(c, args) },
 	}
 	tmp24.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp24.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	tmp25 := new(RefreshPipelineBaseClosingTaskCommand)
+	tmp25 := new(RefreshInstanceGroupResizingTaskCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline-base-closing-task ["/closing_tasks/ID"]`,
+		Use:   `instance-group-resizing-task ["/resizing_tasks/ID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp25.Run(c, args) },
 	}
 	tmp25.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp25.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	tmp26 := new(RefreshPipelineBaseOpeningTaskCommand)
+	tmp26 := new(RefreshPipelineBaseClosingTaskCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline-base-opening-task ["/opening_tasks/ID"]`,
+		Use:   `pipeline-base-closing-task ["/closing_tasks/ID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp26.Run(c, args) },
 	}
 	tmp26.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp26.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
+	tmp27 := new(RefreshPipelineBaseOpeningTaskCommand)
+	sub = &cobra.Command{
+		Use:   `pipeline-base-opening-task ["/opening_tasks/ID"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp27.Run(c, args) },
+	}
+	tmp27.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp27.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
 		Use:   "resize",
 		Short: `Resize`,
 	}
-	tmp27 := new(ResizeIntanceGroupCommand)
+	tmp28 := new(ResizeIntanceGroupCommand)
 	sub = &cobra.Command{
 		Use:   `intance-group ["/instance_groups/ID/resize"]`,
 		Short: ``,
@@ -759,60 +773,60 @@ Payload example:
 Payload example:
 
 {
-   "new_size": 5041815502873883296
+   "new_size": 866966539938638813
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp27.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp28.Run(c, args) },
 	}
-	tmp27.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp27.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp28.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp28.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
 		Use:   "show",
 		Short: `show action`,
 	}
-	tmp28 := new(ShowIntanceGroupCommand)
+	tmp29 := new(ShowIntanceGroupCommand)
 	sub = &cobra.Command{
 		Use:   `intance-group ["/instance_groups/ID"]`,
-		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp28.Run(c, args) },
-	}
-	tmp28.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp28.PrettyPrint, "pp", false, "Pretty print response body")
-	command.AddCommand(sub)
-	tmp29 := new(ShowJobCommand)
-	sub = &cobra.Command{
-		Use:   `job ["/jobs/ID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp29.Run(c, args) },
 	}
 	tmp29.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp29.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	tmp30 := new(ShowPipelineCommand)
+	tmp30 := new(ShowJobCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline ["/pipelines/ID"]`,
+		Use:   `job ["/jobs/ID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp30.Run(c, args) },
 	}
 	tmp30.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp30.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	tmp31 := new(ShowPipelineBaseCommand)
+	tmp31 := new(ShowPipelineCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline-base ["/pipeline_bases/ID"]`,
+		Use:   `pipeline ["/pipelines/ID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp31.Run(c, args) },
 	}
 	tmp31.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp31.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
+	tmp32 := new(ShowPipelineBaseCommand)
+	sub = &cobra.Command{
+		Use:   `pipeline-base ["/pipeline_bases/ID"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp32.Run(c, args) },
+	}
+	tmp32.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp32.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
 		Use:   "start",
 		Short: `start action`,
 	}
-	tmp32 := new(StartInstanceGroupConstructingTaskCommand)
+	tmp33 := new(StartInstanceGroupConstructingTaskCommand)
 	sub = &cobra.Command{
 		Use:   `instance-group-constructing-task ["/constructing_tasks"]`,
 		Short: ``,
@@ -821,22 +835,22 @@ Payload example:
 Payload example:
 
 {
-   "finalize_task_path": "Velit voluptatem quidem laudantium voluptatem.",
+   "finalize_task_path": "Eos id culpa quo.",
    "name": "instancegroup-ope1",
-   "operation_type": "Consequatur culpa magni ea.",
+   "operation_type": "Commodi beatae quod magni ea ducimus aspernatur.",
    "owner_id": "bd2d5ee3-d8be-4024-85a7-334dee9c1c88",
    "owner_type": "InstanceGroup",
    "project_id": "dummy-proj-999",
    "service": "deploymentmanager",
-   "status": "Quia molestiae.",
+   "status": "Aperiam est.",
    "zone": "us-central1-f"
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp32.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp33.Run(c, args) },
 	}
-	tmp32.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp32.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp33.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp33.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	tmp33 := new(StartInstanceGroupDestructingTaskCommand)
+	tmp34 := new(StartInstanceGroupDestructingTaskCommand)
 	sub = &cobra.Command{
 		Use:   `instance-group-destructing-task ["/destructing_tasks"]`,
 		Short: ``,
@@ -845,22 +859,22 @@ Payload example:
 Payload example:
 
 {
-   "finalize_task_path": "Velit voluptatem quidem laudantium voluptatem.",
+   "finalize_task_path": "Eos id culpa quo.",
    "name": "instancegroup-ope1",
-   "operation_type": "Consequatur culpa magni ea.",
+   "operation_type": "Commodi beatae quod magni ea ducimus aspernatur.",
    "owner_id": "bd2d5ee3-d8be-4024-85a7-334dee9c1c88",
    "owner_type": "InstanceGroup",
    "project_id": "dummy-proj-999",
    "service": "deploymentmanager",
-   "status": "Quia molestiae.",
+   "status": "Aperiam est.",
    "zone": "us-central1-f"
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp33.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp34.Run(c, args) },
 	}
-	tmp33.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp33.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp34.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp34.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	tmp34 := new(StartInstanceGroupResizingTaskCommand)
+	tmp35 := new(StartInstanceGroupResizingTaskCommand)
 	sub = &cobra.Command{
 		Use:   `instance-group-resizing-task ["/resizing_tasks"]`,
 		Short: ``,
@@ -869,22 +883,22 @@ Payload example:
 Payload example:
 
 {
-   "finalize_task_path": "Velit voluptatem quidem laudantium voluptatem.",
+   "finalize_task_path": "Eos id culpa quo.",
    "name": "instancegroup-ope1",
-   "operation_type": "Consequatur culpa magni ea.",
+   "operation_type": "Commodi beatae quod magni ea ducimus aspernatur.",
    "owner_id": "bd2d5ee3-d8be-4024-85a7-334dee9c1c88",
    "owner_type": "InstanceGroup",
    "project_id": "dummy-proj-999",
    "service": "deploymentmanager",
-   "status": "Quia molestiae.",
+   "status": "Aperiam est.",
    "zone": "us-central1-f"
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp34.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp35.Run(c, args) },
 	}
-	tmp34.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp34.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp35.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp35.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	tmp35 := new(StartPipelineBaseClosingTaskCommand)
+	tmp36 := new(StartPipelineBaseClosingTaskCommand)
 	sub = &cobra.Command{
 		Use:   `pipeline-base-closing-task ["/closing_tasks"]`,
 		Short: ``,
@@ -893,22 +907,22 @@ Payload example:
 Payload example:
 
 {
-   "finalize_task_path": "Velit voluptatem quidem laudantium voluptatem.",
+   "finalize_task_path": "Eos id culpa quo.",
    "name": "instancegroup-ope1",
-   "operation_type": "Consequatur culpa magni ea.",
+   "operation_type": "Commodi beatae quod magni ea ducimus aspernatur.",
    "owner_id": "bd2d5ee3-d8be-4024-85a7-334dee9c1c88",
    "owner_type": "InstanceGroup",
    "project_id": "dummy-proj-999",
    "service": "deploymentmanager",
-   "status": "Quia molestiae.",
+   "status": "Aperiam est.",
    "zone": "us-central1-f"
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp35.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp36.Run(c, args) },
 	}
-	tmp35.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp35.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp36.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp36.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	tmp36 := new(StartPipelineBaseOpeningTaskCommand)
+	tmp37 := new(StartPipelineBaseOpeningTaskCommand)
 	sub = &cobra.Command{
 		Use:   `pipeline-base-opening-task ["/opening_tasks"]`,
 		Short: ``,
@@ -917,48 +931,48 @@ Payload example:
 Payload example:
 
 {
-   "finalize_task_path": "Velit voluptatem quidem laudantium voluptatem.",
+   "finalize_task_path": "Eos id culpa quo.",
    "name": "instancegroup-ope1",
-   "operation_type": "Consequatur culpa magni ea.",
+   "operation_type": "Commodi beatae quod magni ea ducimus aspernatur.",
    "owner_id": "bd2d5ee3-d8be-4024-85a7-334dee9c1c88",
    "owner_type": "InstanceGroup",
    "project_id": "dummy-proj-999",
    "service": "deploymentmanager",
-   "status": "Quia molestiae.",
+   "status": "Aperiam est.",
    "zone": "us-central1-f"
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp36.Run(c, args) },
-	}
-	tmp36.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp36.PrettyPrint, "pp", false, "Pretty print response body")
-	command.AddCommand(sub)
-	app.AddCommand(command)
-	command = &cobra.Command{
-		Use:   "stop",
-		Short: `Stop pipeline`,
-	}
-	tmp37 := new(StopPipelineCommand)
-	sub = &cobra.Command{
-		Use:   `pipeline ["/pipelines/ID/stop"]`,
-		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp37.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp37.Run(c, args) },
 	}
 	tmp37.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp37.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "waking-finalize-task",
-		Short: `Task to finalize waking status`,
+		Use:   "stop",
+		Short: `Stop pipeline`,
 	}
-	tmp38 := new(WakingFinalizeTaskPipelineBaseCommand)
+	tmp38 := new(StopPipelineCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline-base ["/pipeline_bases/ID/waking_finalize_task"]`,
+		Use:   `pipeline ["/pipelines/ID/stop"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp38.Run(c, args) },
 	}
 	tmp38.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp38.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
+		Use:   "waking-finalize-task",
+		Short: `Task to finalize waking status`,
+	}
+	tmp39 := new(WakingFinalizeTaskPipelineBaseCommand)
+	sub = &cobra.Command{
+		Use:   `pipeline-base ["/pipeline_bases/ID/waking_finalize_task"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp39.Run(c, args) },
+	}
+	tmp39.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp39.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 
@@ -2266,4 +2280,28 @@ func (cmd *StartPipelineBaseOpeningTaskCommand) RegisterFlags(cc *cobra.Command,
 	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
 	var id string
 	cc.Flags().StringVar(&cmd.ID, "id", id, `Resource ID`)
+}
+
+// Run makes the HTTP request corresponding to the CreateDummyAuthsCommand command.
+func (cmd *CreateDummyAuthsCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = "/dummy-auths"
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.CreateDummyAuths(ctx, path)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *CreateDummyAuthsCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 }
