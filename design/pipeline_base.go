@@ -106,6 +106,15 @@ var _ = Resource("PipelineBase", func() {
 		Response(OK, PipelineBase)
 		UseTrait(DefineTrait)
 	})
+	Action("pull_task", func() {
+		Description("Task to pull progress messages")
+		Routing(PUT("/:id/pull_task"))
+		Params(func() {
+			Param("id")
+		})
+		Response(OK, PipelineBase)
+		UseTrait(DefineTrait)
+	})
 	Action("hibernation_checking_finalize_task", func() {
 		Description("Task to finalize hibernation_checking status")
 		Routing(PUT("/:id/hibernation_checking_finalize_task"))
