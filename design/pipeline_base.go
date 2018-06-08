@@ -22,7 +22,10 @@ var PipelineContainerPayload = Type("PipelineContainerPayload", func() {
 })
 
 var PipelineBasePayload = Type("PipelineBasePayload", func() {
-	Member("instance_group", InstanceGroupPayload, "Instance Group configuration")
+	Member("name", String, "Name of pipeline_base", func(){
+		Example("pipeline1-123")
+	})
+	Member("instance_group", InstanceGroupPayloadBody, "Instance Group configuration")
 	Member("container", PipelineContainerPayload, "Container configuration")
 	Member("hibernation_delay", Integer, "Hibernation delay in seconds since last job finsihed")
 

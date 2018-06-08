@@ -34,14 +34,7 @@ var Accelerators = Type("Accelerators", func() {
 	Required("count", "type")
 })
 
-var InstanceGroupPayload = Type("InstanceGroupPayload", func() {
-	Member("pipeline_base_id", String, "Owner pipeline_base id (UUID)", func() {
-		// Optional
-		Example("bd2d5ee3-d8be-4024-85a7-334dee9c1c88")
-	})
-	Member("name", String, "Name", func() {
-		Example("instancegroup1")
-	})
+var InstanceGroupPayloadBody = Type("InstanceGroupPayloadBody", func() {
 	Member("project_id", String, "GCP Project ID", func() {
 		Example("dummy-proj-999")
 	})
@@ -65,8 +58,35 @@ var InstanceGroupPayload = Type("InstanceGroupPayload", func() {
 	Member("token_consumption", Integer, "Token Consumption", func() {
 		Example(2)
 	})
+	Required("project_id", "zone", "boot_disk", "machine_type")
+})
 
-	Required("name", "project_id", "zone", "boot_disk", "machine_type")
+var InstanceGroupPayload = Type("InstanceGroupPayload", func() {
+	Member("pipeline_base_id", String, "Owner pipeline_base id (UUID)", func() {
+		// Optional
+		Example("bd2d5ee3-d8be-4024-85a7-334dee9c1c88")
+	})
+	Member("name", String, "Name", func() {
+		Example("pipeline1-123-ig-456")
+	})
+	Required("name")
+
+	Reference(InstanceGroupPayloadBody)
+	members := []string{
+		"project_id",
+		"zone",
+		"boot_disk",
+		"machine_type",
+		"gpu_accelerators",
+		"preemptible",
+		"instance_size",
+		"startup_script",
+		"deployment_name",
+		"token_consumption",
+	}
+	for _, m := range members {
+		Member(m)
+	}
 })
 
 var InstanceGroup = MediaType("application/vnd.instance-group+json", func() {
