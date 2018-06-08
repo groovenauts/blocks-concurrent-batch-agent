@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"errors"
 	"strings"
 
@@ -10,6 +11,15 @@ import (
 	"google.golang.org/appengine/log"
 )
 
+type InvalidParent struct {
+	ID string
+}
+
+func (e *InvalidParent) Error() string {
+	return fmt.Sprintf("Invalid parent from ID: %q", e.ID)
+}
+
+
 type AuthAccessor struct {
 	Parent *Organization
 }
@@ -17,6 +27,7 @@ type AuthAccessor struct {
 var GlobalAuthAccessor = &AuthAccessor{}
 
 var ErrNoSuchAuth = errors.New("No such data in Auths")
+
 
 func (aa *AuthAccessor) Find(ctx context.Context, id string) (*Auth, error) {
 	// log.Debugf(ctx, "@FindAuth id: %q\n", id)

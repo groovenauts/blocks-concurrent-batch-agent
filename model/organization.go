@@ -5,7 +5,7 @@ import (
 
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
-	"google.golang.org/appengine/log"
+	// "google.golang.org/appengine/log"
 	"gopkg.in/go-playground/validator.v9"
 )
 
@@ -81,50 +81,4 @@ func (m *Organization) Update(ctx context.Context) error {
 
 func (m *Organization) AuthAccessor() *AuthAccessor {
 	return &AuthAccessor{Parent: m}
-}
-
-func (m *Organization) PipelineAccessor() *PipelineAccessor {
-	return &PipelineAccessor{Parent: m}
-}
-
-func (m *Organization) GetBackToken(ctx context.Context, pl *Pipeline, handler func() error) error {
-	m.TokenAmount = m.TokenAmount + pl.TokenConsumption
-	if handler != nil {
-		err := handler()
-		if err != nil {
-			return err
-		}
-	}
-	err := m.Update(ctx)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *Organization) StartWaitingPipelines(ctx context.Context, handler func(*Pipeline) error) error {
-	waitings, err := m.PipelineAccessor().GetWaitings(ctx)
-	if err != nil {
-		return err
-	}
-
-	for _, waiting := range waitings {
-		if m.TokenAmount < waiting.TokenConsumption {
-			log.Warningf(ctx, "Token %d is shorter than the consumption %d\n", m.TokenAmount, waiting.TokenConsumption)
-			return nil
-		}
-		m.TokenAmount = m.TokenAmount - waiting.TokenConsumption
-		waiting.Status = Reserved
-		err := waiting.Update(ctx)
-		if err != nil {
-			return err
-		}
-		if handler != nil {
-			err := handler(waiting)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
 }
