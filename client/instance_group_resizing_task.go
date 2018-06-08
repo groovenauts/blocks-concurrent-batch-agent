@@ -45,6 +45,11 @@ func (c *Client) NewRefreshInstanceGroupResizingTaskRequest(ctx context.Context,
 	if err != nil {
 		return nil, err
 	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
 	return req, nil
 }
 
@@ -92,6 +97,11 @@ func (c *Client) NewStartInstanceGroupResizingTaskRequest(ctx context.Context, p
 		header.Set("Content-Type", "application/json")
 	} else {
 		header.Set("Content-Type", contentType)
+	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
 	}
 	return req, nil
 }

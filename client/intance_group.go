@@ -61,6 +61,11 @@ func (c *Client) NewCreateIntanceGroupRequest(ctx context.Context, path string, 
 	} else {
 		header.Set("Content-Type", contentType)
 	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
 	return req, nil
 }
 
@@ -90,6 +95,11 @@ func (c *Client) NewDeleteIntanceGroupRequest(ctx context.Context, path string) 
 	req, err := http.NewRequest("DELETE", u.String(), nil)
 	if err != nil {
 		return nil, err
+	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
 	}
 	return req, nil
 }
@@ -121,6 +131,11 @@ func (c *Client) NewDestructIntanceGroupRequest(ctx context.Context, path string
 	if err != nil {
 		return nil, err
 	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
 	return req, nil
 }
 
@@ -149,6 +164,11 @@ func (c *Client) NewListIntanceGroupRequest(ctx context.Context, path string) (*
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return nil, err
+	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
 	}
 	return req, nil
 }
@@ -200,6 +220,11 @@ func (c *Client) NewResizeIntanceGroupRequest(ctx context.Context, path string, 
 	} else {
 		header.Set("Content-Type", contentType)
 	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
 	return req, nil
 }
 
@@ -229,6 +254,11 @@ func (c *Client) NewShowIntanceGroupRequest(ctx context.Context, path string) (*
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return nil, err
+	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
 	}
 	return req, nil
 }

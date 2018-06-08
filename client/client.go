@@ -18,8 +18,9 @@ import (
 // Client is the appengine service client.
 type Client struct {
 	*goaclient.Client
-	Encoder *goa.HTTPEncoder
-	Decoder *goa.HTTPDecoder
+	APIKeySigner goaclient.Signer
+	Encoder      *goa.HTTPEncoder
+	Decoder      *goa.HTTPDecoder
 }
 
 // New instantiates the client.
@@ -43,4 +44,9 @@ func New(c goaclient.Doer) *Client {
 	client.Decoder.Register(goa.NewJSONDecoder, "*/*")
 
 	return client
+}
+
+// SetAPIKeySigner sets the request signer for the api_key security scheme.
+func (c *Client) SetAPIKeySigner(signer goaclient.Signer) {
+	c.APIKeySigner = signer
 }

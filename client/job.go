@@ -45,6 +45,11 @@ func (c *Client) NewActivateJobRequest(ctx context.Context, path string) (*http.
 	if err != nil {
 		return nil, err
 	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
 	return req, nil
 }
 
@@ -99,6 +104,11 @@ func (c *Client) NewCreateJobRequest(ctx context.Context, path string, payload *
 	} else {
 		header.Set("Content-Type", contentType)
 	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
 	return req, nil
 }
 
@@ -128,6 +138,11 @@ func (c *Client) NewDeleteJobRequest(ctx context.Context, path string) (*http.Re
 	req, err := http.NewRequest("DELETE", u.String(), nil)
 	if err != nil {
 		return nil, err
+	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
 	}
 	return req, nil
 }
@@ -159,6 +174,11 @@ func (c *Client) NewInactivateJobRequest(ctx context.Context, path string) (*htt
 	if err != nil {
 		return nil, err
 	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
 	return req, nil
 }
 
@@ -189,6 +209,11 @@ func (c *Client) NewPublishingTaskJobRequest(ctx context.Context, path string) (
 	if err != nil {
 		return nil, err
 	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
 	return req, nil
 }
 
@@ -218,6 +243,11 @@ func (c *Client) NewShowJobRequest(ctx context.Context, path string) (*http.Requ
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return nil, err
+	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
 	}
 	return req, nil
 }

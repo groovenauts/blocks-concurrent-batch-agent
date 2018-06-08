@@ -1131,6 +1131,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: start PipelineBaseClosingTask
       tags:
       - PipelineBaseClosingTask
@@ -1182,6 +1184,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: refresh PipelineBaseClosingTask
       tags:
       - PipelineBaseClosingTask
@@ -1226,6 +1230,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: start InstanceGroupConstructingTask
       tags:
       - InstanceGroupConstructingTask
@@ -1277,6 +1283,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: refresh InstanceGroupConstructingTask
       tags:
       - InstanceGroupConstructingTask
@@ -1321,6 +1329,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: start InstanceGroupDestructingTask
       tags:
       - InstanceGroupDestructingTask
@@ -1372,6 +1382,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: refresh InstanceGroupDestructingTask
       tags:
       - InstanceGroupDestructingTask
@@ -1438,6 +1450,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: list IntanceGroup
       tags:
       - IntanceGroup
@@ -1481,6 +1495,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: create IntanceGroup
       tags:
       - IntanceGroup
@@ -1520,6 +1536,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: delete IntanceGroup
       tags:
       - IntanceGroup
@@ -1558,6 +1576,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: show IntanceGroup
       tags:
       - IntanceGroup
@@ -1602,6 +1622,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: resize IntanceGroup
       tags:
       - IntanceGroup
@@ -1641,6 +1663,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: destruct IntanceGroup
       tags:
       - IntanceGroup
@@ -1695,6 +1719,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: create Job
       tags:
       - Job
@@ -1734,6 +1760,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: delete Job
       tags:
       - Job
@@ -1772,6 +1800,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: show Job
       tags:
       - Job
@@ -1815,6 +1845,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: activate Job
       tags:
       - Job
@@ -1854,6 +1886,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: inactivate Job
       tags:
       - Job
@@ -1893,6 +1927,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: publishing_task Job
       tags:
       - Job
@@ -1937,6 +1973,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: start PipelineBaseOpeningTask
       tags:
       - PipelineBaseOpeningTask
@@ -1988,6 +2026,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: refresh PipelineBaseOpeningTask
       tags:
       - PipelineBaseOpeningTask
@@ -2027,6 +2067,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: list PipelineBase
       tags:
       - PipelineBase
@@ -2070,6 +2112,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: create PipelineBase
       tags:
       - PipelineBase
@@ -2109,6 +2153,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: delete PipelineBase
       tags:
       - PipelineBase
@@ -2147,6 +2193,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: show PipelineBase
       tags:
       - PipelineBase
@@ -2185,6 +2233,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: close PipelineBase
       tags:
       - PipelineBase
@@ -2224,6 +2274,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: hibernation_checking_finalize_task PipelineBase
       tags:
       - PipelineBase
@@ -2271,6 +2323,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: hibernation_going_finalize_task PipelineBase
       tags:
       - PipelineBase
@@ -2310,6 +2364,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: pull_task PipelineBase
       tags:
       - PipelineBase
@@ -2357,6 +2413,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: waking_finalize_task PipelineBase
       tags:
       - PipelineBase
@@ -2396,6 +2454,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: list Pipeline
       tags:
       - Pipeline
@@ -2439,6 +2499,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: create Pipeline
       tags:
       - Pipeline
@@ -2478,6 +2540,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: delete Pipeline
       tags:
       - Pipeline
@@ -2516,6 +2580,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: show Pipeline
       tags:
       - Pipeline
@@ -2559,6 +2625,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: current Pipeline
       tags:
       - Pipeline
@@ -2606,6 +2674,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: preparing_finalize_task Pipeline
       tags:
       - Pipeline
@@ -2645,6 +2715,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: stop Pipeline
       tags:
       - Pipeline
@@ -2689,6 +2761,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: start InstanceGroupResizingTask
       tags:
       - InstanceGroupResizingTask
@@ -2740,6 +2814,8 @@ paths:
             $ref: '#/definitions/error'
       schemes:
       - http
+      security:
+      - api_key: []
       summary: refresh InstanceGroupResizingTask
       tags:
       - InstanceGroupResizingTask
@@ -2782,4 +2858,10 @@ produces:
 - application/x-gob
 schemes:
 - http
+securityDefinitions:
+  api_key:
+    description: Shared password
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

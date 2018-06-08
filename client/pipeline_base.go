@@ -45,6 +45,11 @@ func (c *Client) NewClosePipelineBaseRequest(ctx context.Context, path string) (
 	if err != nil {
 		return nil, err
 	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
 	return req, nil
 }
 
@@ -91,6 +96,11 @@ func (c *Client) NewCreatePipelineBaseRequest(ctx context.Context, path string, 
 	} else {
 		header.Set("Content-Type", contentType)
 	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
 	return req, nil
 }
 
@@ -121,6 +131,11 @@ func (c *Client) NewDeletePipelineBaseRequest(ctx context.Context, path string) 
 	if err != nil {
 		return nil, err
 	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
 	return req, nil
 }
 
@@ -150,6 +165,11 @@ func (c *Client) NewHibernationCheckingFinalizeTaskPipelineBaseRequest(ctx conte
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
 		return nil, err
+	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
 	}
 	return req, nil
 }
@@ -189,6 +209,11 @@ func (c *Client) NewHibernationGoingFinalizeTaskPipelineBaseRequest(ctx context.
 	if err != nil {
 		return nil, err
 	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
 	return req, nil
 }
 
@@ -221,6 +246,11 @@ func (c *Client) NewListPipelineBaseRequest(ctx context.Context, path string, or
 	if err != nil {
 		return nil, err
 	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
 	return req, nil
 }
 
@@ -251,6 +281,11 @@ func (c *Client) NewPullTaskPipelineBaseRequest(ctx context.Context, path string
 	if err != nil {
 		return nil, err
 	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
 	return req, nil
 }
 
@@ -280,6 +315,11 @@ func (c *Client) NewShowPipelineBaseRequest(ctx context.Context, path string) (*
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return nil, err
+	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
 	}
 	return req, nil
 }
@@ -318,6 +358,11 @@ func (c *Client) NewWakingFinalizeTaskPipelineBaseRequest(ctx context.Context, p
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
 		return nil, err
+	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
 	}
 	return req, nil
 }

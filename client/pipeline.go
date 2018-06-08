@@ -61,6 +61,11 @@ func (c *Client) NewCreatePipelineRequest(ctx context.Context, path string, payl
 	} else {
 		header.Set("Content-Type", contentType)
 	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
 	return req, nil
 }
 
@@ -94,6 +99,11 @@ func (c *Client) NewCurrentPipelineRequest(ctx context.Context, path string, pip
 	if err != nil {
 		return nil, err
 	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
 	return req, nil
 }
 
@@ -123,6 +133,11 @@ func (c *Client) NewDeletePipelineRequest(ctx context.Context, path string) (*ht
 	req, err := http.NewRequest("DELETE", u.String(), nil)
 	if err != nil {
 		return nil, err
+	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
 	}
 	return req, nil
 }
@@ -155,6 +170,11 @@ func (c *Client) NewListPipelineRequest(ctx context.Context, path string, orgID 
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return nil, err
+	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
 	}
 	return req, nil
 }
@@ -194,6 +214,11 @@ func (c *Client) NewPreparingFinalizeTaskPipelineRequest(ctx context.Context, pa
 	if err != nil {
 		return nil, err
 	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
 	return req, nil
 }
 
@@ -224,6 +249,11 @@ func (c *Client) NewShowPipelineRequest(ctx context.Context, path string) (*http
 	if err != nil {
 		return nil, err
 	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
 	return req, nil
 }
 
@@ -253,6 +283,11 @@ func (c *Client) NewStopPipelineRequest(ctx context.Context, path string) (*http
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
 		return nil, err
+	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
 	}
 	return req, nil
 }
