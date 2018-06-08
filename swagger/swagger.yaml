@@ -1,0 +1,3133 @@
+consumes:
+- application/json
+- application/xml
+- application/gob
+- application/x-gob
+definitions:
+  Accelerators:
+    example:
+      count: 2
+      type: nvidia-tesla-p100
+    properties:
+      count:
+        default: 0
+        description: Count
+        example: 2
+        format: int64
+        type: integer
+      type:
+        default: ""
+        description: Type
+        example: nvidia-tesla-p100
+        type: string
+    required:
+    - count
+    - type
+    title: Accelerators
+    type: object
+  Auth:
+    description: auth (default view)
+    example:
+      created_at: "2015-03-09T17:44:16Z"
+      id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+      updated_at: "1972-07-15T17:07:24Z"
+    properties:
+      created_at:
+        description: Datetime created
+        example: "2015-03-09T17:44:16Z"
+        format: date-time
+        type: string
+      id:
+        description: ID
+        example: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+        type: string
+      updated_at:
+        description: Datetime updated
+        example: "1972-07-15T17:07:24Z"
+        format: date-time
+        type: string
+    required:
+    - id
+    title: 'Mediatype identifier: application/vnd.auth+json; view=default'
+    type: object
+  Auth-Secret:
+    description: auth (default view)
+    example:
+      created_at: "1992-02-18T08:06:04Z"
+      id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+      token: Corporis harum ratione ipsam qui blanditiis numquam.
+      updated_at: "1997-10-06T17:58:12Z"
+    properties:
+      created_at:
+        description: Datetime created
+        example: "1992-02-18T08:06:04Z"
+        format: date-time
+        type: string
+      id:
+        description: ID
+        example: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+        type: string
+      token:
+        description: Token
+        example: Corporis harum ratione ipsam qui blanditiis numquam.
+        type: string
+      updated_at:
+        description: Datetime updated
+        example: "1997-10-06T17:58:12Z"
+        format: date-time
+        type: string
+    required:
+    - id
+    title: 'Mediatype identifier: application/vnd.auth-secret+json; view=default'
+    type: object
+  AuthCollection:
+    description: AuthCollection is the media type for an array of Auth (default view)
+    example:
+    - created_at: "2015-03-09T17:44:16Z"
+      id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+      updated_at: "1972-07-15T17:07:24Z"
+    - created_at: "2015-03-09T17:44:16Z"
+      id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+      updated_at: "1972-07-15T17:07:24Z"
+    items:
+      $ref: '#/definitions/Auth'
+    title: 'Mediatype identifier: application/vnd.auth+json; type=collection; view=default'
+    type: array
+  Instance-Group:
+    description: instance-group (default view)
+    example:
+      boot_disk:
+        disk_size_gb: 50
+        disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
+        source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
+      created_at: "2007-03-31T16:05:01Z"
+      deployment_name: Culpa sed officia.
+      gpu_accelerators:
+        count: 2
+        type: nvidia-tesla-p100
+      id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+      instance_size: 3
+      machine_type: f1-micro
+      name: pipeline1-123-ig-456
+      preemptible: true
+      project_id: dummy-proj-999
+      startup_script: Et quia consequatur est quas.
+      status: Quae distinctio quaerat cum amet sed exercitationem.
+      token_consumption: 2
+      updated_at: "1981-12-11T13:04:22Z"
+      zone: us-central1-f
+    properties:
+      boot_disk:
+        $ref: '#/definitions/PipelineVmDisk'
+      created_at:
+        description: Datetime created
+        example: "2007-03-31T16:05:01Z"
+        format: date-time
+        type: string
+      deployment_name:
+        description: Deployment name
+        example: Culpa sed officia.
+        type: string
+      gpu_accelerators:
+        $ref: '#/definitions/Accelerators'
+      id:
+        description: ID
+        example: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+        type: string
+      instance_size:
+        description: Instance size
+        example: 3
+        format: int64
+        type: integer
+      machine_type:
+        description: GCE Machine Type
+        example: f1-micro
+        type: string
+      name:
+        description: Name
+        example: pipeline1-123-ig-456
+        type: string
+      preemptible:
+        description: Use preemptible VMs
+        example: true
+        type: boolean
+      project_id:
+        description: GCP Project ID
+        example: dummy-proj-999
+        type: string
+      startup_script:
+        description: Startup script
+        example: Et quia consequatur est quas.
+        type: string
+      status:
+        example: Quae distinctio quaerat cum amet sed exercitationem.
+        type: string
+      token_consumption:
+        description: Token Consumption
+        example: 2
+        format: int64
+        type: integer
+      updated_at:
+        description: Datetime updated
+        example: "1981-12-11T13:04:22Z"
+        format: date-time
+        type: string
+      zone:
+        description: GCP zone
+        example: us-central1-f
+        type: string
+    required:
+    - id
+    - name
+    - project_id
+    - zone
+    - boot_disk
+    - machine_type
+    - gpu_accelerators
+    - preemptible
+    - instance_size
+    - startup_script
+    - status
+    - deployment_name
+    - token_consumption
+    title: 'Mediatype identifier: application/vnd.instance-group+json; view=default'
+    type: object
+  Instance-Group-Operation:
+    description: instance-group-operation (default view)
+    example:
+      created_at: "1976-03-25T20:32:45Z"
+      id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+      name: instancegroup-ope1
+      operation_type: Amet cum numquam voluptatem et aspernatur et.
+      project_id: dummy-proj-999
+      service: deploymentmanager
+      status: Aut et similique consectetur corporis aut ratione.
+      updated_at: "1989-02-14T21:32:02Z"
+      zone: us-central1-f
+    properties:
+      created_at:
+        description: Datetime created
+        example: "1976-03-25T20:32:45Z"
+        format: date-time
+        type: string
+      id:
+        description: ID
+        example: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+        type: string
+      name:
+        description: Name
+        example: instancegroup-ope1
+        type: string
+      operation_type:
+        description: Operation Type
+        example: Amet cum numquam voluptatem et aspernatur et.
+        type: string
+      project_id:
+        description: GCP Project ID
+        example: dummy-proj-999
+        type: string
+      service:
+        description: Service name
+        example: deploymentmanager
+        type: string
+      status:
+        description: status
+        example: Aut et similique consectetur corporis aut ratione.
+        type: string
+      updated_at:
+        description: Datetime updated
+        example: "1989-02-14T21:32:02Z"
+        format: date-time
+        type: string
+      zone:
+        description: GCP zone
+        example: us-central1-f
+        type: string
+    required:
+    - id
+    - name
+    - service
+    - operation_type
+    - status
+    - project_id
+    - zone
+    title: 'Mediatype identifier: application/vnd.instance-group-operation+json; view=default'
+    type: object
+  Instance-GroupCollection:
+    description: Instance-GroupCollection is the media type for an array of Instance-Group
+      (default view)
+    example:
+    - boot_disk:
+        disk_size_gb: 50
+        disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
+        source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
+      created_at: "2007-03-31T16:05:01Z"
+      deployment_name: Culpa sed officia.
+      gpu_accelerators:
+        count: 2
+        type: nvidia-tesla-p100
+      id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+      instance_size: 3
+      machine_type: f1-micro
+      name: pipeline1-123-ig-456
+      preemptible: true
+      project_id: dummy-proj-999
+      startup_script: Et quia consequatur est quas.
+      status: Quae distinctio quaerat cum amet sed exercitationem.
+      token_consumption: 2
+      updated_at: "1981-12-11T13:04:22Z"
+      zone: us-central1-f
+    - boot_disk:
+        disk_size_gb: 50
+        disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
+        source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
+      created_at: "2007-03-31T16:05:01Z"
+      deployment_name: Culpa sed officia.
+      gpu_accelerators:
+        count: 2
+        type: nvidia-tesla-p100
+      id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+      instance_size: 3
+      machine_type: f1-micro
+      name: pipeline1-123-ig-456
+      preemptible: true
+      project_id: dummy-proj-999
+      startup_script: Et quia consequatur est quas.
+      status: Quae distinctio quaerat cum amet sed exercitationem.
+      token_consumption: 2
+      updated_at: "1981-12-11T13:04:22Z"
+      zone: us-central1-f
+    - boot_disk:
+        disk_size_gb: 50
+        disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
+        source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
+      created_at: "2007-03-31T16:05:01Z"
+      deployment_name: Culpa sed officia.
+      gpu_accelerators:
+        count: 2
+        type: nvidia-tesla-p100
+      id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+      instance_size: 3
+      machine_type: f1-micro
+      name: pipeline1-123-ig-456
+      preemptible: true
+      project_id: dummy-proj-999
+      startup_script: Et quia consequatur est quas.
+      status: Quae distinctio quaerat cum amet sed exercitationem.
+      token_consumption: 2
+      updated_at: "1981-12-11T13:04:22Z"
+      zone: us-central1-f
+    items:
+      $ref: '#/definitions/Instance-Group'
+    title: 'Mediatype identifier: application/vnd.instance-group+json; type=collection;
+      view=default'
+    type: array
+  InstanceGroupPayload:
+    example:
+      boot_disk:
+        disk_size_gb: 50
+        disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
+        source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
+      deployment_name: Mollitia voluptatibus.
+      gpu_accelerators:
+        count: 2
+        type: nvidia-tesla-p100
+      instance_size: 3
+      machine_type: f1-micro
+      name: pipeline1-123-ig-456
+      pipeline_base_id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+      preemptible: true
+      project_id: dummy-proj-999
+      startup_script: Nesciunt ab perspiciatis.
+      token_consumption: 2
+      zone: us-central1-f
+    properties:
+      boot_disk:
+        $ref: '#/definitions/PipelineVmDisk'
+      deployment_name:
+        description: Deployment name
+        example: Mollitia voluptatibus.
+        type: string
+      gpu_accelerators:
+        $ref: '#/definitions/Accelerators'
+      instance_size:
+        description: Instance size
+        example: 3
+        format: int64
+        type: integer
+      machine_type:
+        description: GCE Machine Type
+        example: f1-micro
+        type: string
+      name:
+        description: Name
+        example: pipeline1-123-ig-456
+        type: string
+      pipeline_base_id:
+        description: Owner pipeline_base id (UUID)
+        example: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+        type: string
+      preemptible:
+        description: Use preemptible VMs
+        example: true
+        type: boolean
+      project_id:
+        description: GCP Project ID
+        example: dummy-proj-999
+        type: string
+      startup_script:
+        description: Startup script
+        example: Nesciunt ab perspiciatis.
+        type: string
+      token_consumption:
+        description: Token Consumption
+        example: 2
+        format: int64
+        type: integer
+      zone:
+        description: GCP zone
+        example: us-central1-f
+        type: string
+    required:
+    - name
+    - project_id
+    - zone
+    - boot_disk
+    - machine_type
+    title: InstanceGroupPayload
+    type: object
+  InstanceGroupPayloadBody:
+    example:
+      boot_disk:
+        disk_size_gb: 50
+        disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
+        source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
+      deployment_name: Rem repellendus vel sit velit voluptatem quidem.
+      gpu_accelerators:
+        count: 2
+        type: nvidia-tesla-p100
+      instance_size: 3
+      machine_type: f1-micro
+      preemptible: true
+      project_id: dummy-proj-999
+      startup_script: Maiores consequatur culpa.
+      token_consumption: 2
+      zone: us-central1-f
+    properties:
+      boot_disk:
+        $ref: '#/definitions/PipelineVmDisk'
+      deployment_name:
+        description: Deployment name
+        example: Rem repellendus vel sit velit voluptatem quidem.
+        type: string
+      gpu_accelerators:
+        $ref: '#/definitions/Accelerators'
+      instance_size:
+        description: Instance size
+        example: 3
+        format: int64
+        type: integer
+      machine_type:
+        description: GCE Machine Type
+        example: f1-micro
+        type: string
+      preemptible:
+        description: Use preemptible VMs
+        example: true
+        type: boolean
+      project_id:
+        description: GCP Project ID
+        example: dummy-proj-999
+        type: string
+      startup_script:
+        description: Startup script
+        example: Maiores consequatur culpa.
+        type: string
+      token_consumption:
+        description: Token Consumption
+        example: 2
+        format: int64
+        type: integer
+      zone:
+        description: GCP zone
+        example: us-central1-f
+        type: string
+    required:
+    - project_id
+    - zone
+    - boot_disk
+    - machine_type
+    title: InstanceGroupPayloadBody
+    type: object
+  Job:
+    description: job (default view)
+    example:
+      created_at: "1990-07-05T15:37:33Z"
+      finish_time: "1993-11-24T15:06:22Z"
+      host_name: Pariatur sequi adipisci eius temporibus.
+      id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+      id_by_client: Quis quibusdam.
+      message:
+        attributes:
+          Enim eum aliquam eaque repellendus consequuntur dignissimos.: Delectus cum
+            veritatis.
+        data: Odio numquam culpa non aut.
+      message_id: Saepe qui rerum.
+      pipeline_base_id: Perspiciatis nulla esse enim animi veritatis.
+      pipeline_id: Veritatis corporis aliquam.
+      publish_time: "2011-05-15T10:10:56Z"
+      start_time: "2004-11-08T13:25:51Z"
+      status: started
+      updated_at: "1986-06-24T12:13:54Z"
+    properties:
+      created_at:
+        description: Datetime created
+        example: "1990-07-05T15:37:33Z"
+        format: date-time
+        type: string
+      finish_time:
+        description: Time when job finishes
+        example: "1993-11-24T15:06:22Z"
+        format: date-time
+        type: string
+      host_name:
+        description: Hostname where job is running
+        example: Pariatur sequi adipisci eius temporibus.
+        type: string
+      id:
+        description: ID
+        example: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+        type: string
+      id_by_client:
+        description: ID assigned by client
+        example: Quis quibusdam.
+        type: string
+      message:
+        $ref: '#/definitions/JobMessage'
+      message_id:
+        description: Pubsub Message ID
+        example: Saepe qui rerum.
+        type: string
+      pipeline_base_id:
+        description: PipelineBase ID (UUID)
+        example: Perspiciatis nulla esse enim animi veritatis.
+        type: string
+      pipeline_id:
+        description: Pipeline ID (UUID)
+        example: Veritatis corporis aliquam.
+        type: string
+      publish_time:
+        description: Time when job is published
+        example: "2011-05-15T10:10:56Z"
+        format: date-time
+        type: string
+      start_time:
+        description: Time when job starts
+        example: "2004-11-08T13:25:51Z"
+        format: date-time
+        type: string
+      status:
+        description: Status
+        enum:
+        - inactive
+        - blocked
+        - publishing
+        - publishing_error
+        - published
+        - started
+        - success
+        - failure
+        example: started
+        type: string
+      updated_at:
+        description: Datetime updated
+        example: "1986-06-24T12:13:54Z"
+        format: date-time
+        type: string
+    required:
+    - id
+    - message
+    - id_by_client
+    title: 'Mediatype identifier: application/vnd.job+json; view=default'
+    type: object
+  JobMessage:
+    example:
+      attributes:
+        Enim eum aliquam eaque repellendus consequuntur dignissimos.: Delectus cum
+          veritatis.
+      data: Odio numquam culpa non aut.
+    properties:
+      attributes:
+        additionalProperties: true
+        description: Attributes
+        example:
+          Enim eum aliquam eaque repellendus consequuntur dignissimos.: Delectus cum
+            veritatis.
+        type: object
+      data:
+        description: Data
+        example: Odio numquam culpa non aut.
+        type: string
+    title: JobMessage
+    type: object
+  JobPayload:
+    example:
+      id_by_client: Modi enim.
+      message:
+        attributes:
+          Enim eum aliquam eaque repellendus consequuntur dignissimos.: Delectus cum
+            veritatis.
+        data: Odio numquam culpa non aut.
+    properties:
+      id_by_client:
+        description: ID assigned by client
+        example: Modi enim.
+        type: string
+      message:
+        $ref: '#/definitions/JobMessage'
+    required:
+    - message
+    title: JobPayload
+    type: object
+  OperationPayload:
+    example:
+      finalize_task_path: Ducimus aspernatur perspiciatis aperiam.
+      name: instancegroup-ope1
+      operation_type: Accusamus a perferendis itaque corporis voluptatem.
+      owner_id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+      owner_type: InstanceGroup
+      project_id: dummy-proj-999
+      service: deploymentmanager
+      status: Sint hic est sit qui non.
+      zone: us-central1-f
+    properties:
+      finalize_task_path:
+        description: Callback task path
+        example: Ducimus aspernatur perspiciatis aperiam.
+        type: string
+      name:
+        description: Name
+        example: instancegroup-ope1
+        type: string
+      operation_type:
+        description: Operation Type
+        example: Accusamus a perferendis itaque corporis voluptatem.
+        type: string
+      owner_id:
+        description: Owner id
+        example: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+        type: string
+      owner_type:
+        description: Owner type name
+        example: InstanceGroup
+        type: string
+      project_id:
+        description: GCP Project ID
+        example: dummy-proj-999
+        type: string
+      service:
+        description: Service name
+        example: deploymentmanager
+        type: string
+      status:
+        description: status
+        example: Sint hic est sit qui non.
+        type: string
+      zone:
+        description: GCP zone
+        example: us-central1-f
+        type: string
+    required:
+    - name
+    - service
+    - operation_type
+    - status
+    - project_id
+    - zone
+    title: OperationPayload
+    type: object
+  Organization:
+    description: organization (default view)
+    example:
+      created_at: "2012-09-12T11:32:26Z"
+      id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+      memo: Sit a magnam mollitia laboriosam iure labore.
+      name: org1
+      token_amount: 10
+      updated_at: "1991-10-04T00:14:55Z"
+    properties:
+      created_at:
+        description: Datetime created
+        example: "2012-09-12T11:32:26Z"
+        format: date-time
+        type: string
+      id:
+        description: ID
+        example: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+        type: string
+      memo:
+        description: Memo
+        example: Sit a magnam mollitia laboriosam iure labore.
+        type: string
+      name:
+        description: Name
+        example: org1
+        type: string
+      token_amount:
+        default: 100
+        description: Token Amount
+        example: 10
+        format: int64
+        type: integer
+      updated_at:
+        description: Datetime updated
+        example: "1991-10-04T00:14:55Z"
+        format: date-time
+        type: string
+    required:
+    - id
+    - name
+    - memo
+    - token_amount
+    title: 'Mediatype identifier: application/vnd.organization+json; view=default'
+    type: object
+  OrganizationCollection:
+    description: OrganizationCollection is the media type for an array of Organization
+      (default view)
+    example:
+    - created_at: "2012-09-12T11:32:26Z"
+      id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+      memo: Sit a magnam mollitia laboriosam iure labore.
+      name: org1
+      token_amount: 10
+      updated_at: "1991-10-04T00:14:55Z"
+    items:
+      $ref: '#/definitions/Organization'
+    title: 'Mediatype identifier: application/vnd.organization+json; type=collection;
+      view=default'
+    type: array
+  OrganizationPayload:
+    example:
+      memo: Quam sapiente sapiente fugit enim necessitatibus.
+      name: org1
+      token_amount: 10
+    properties:
+      memo:
+        description: Memo
+        example: Quam sapiente sapiente fugit enim necessitatibus.
+        type: string
+      name:
+        description: Name
+        example: org1
+        type: string
+      token_amount:
+        default: 100
+        description: Token Amount
+        example: 10
+        format: int64
+        type: integer
+    title: OrganizationPayload
+    type: object
+  Pipeline:
+    description: pipeline (default view)
+    example:
+      base:
+        container:
+          command: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
+            %{uploads_dir}
+          name: Optio et voluptas quia.
+          options: --restart=on-failure:3
+          size: 2
+          stackdriver_agent: false
+        hibernation_delay: 9.030230439708588e+18
+        instance_group:
+          boot_disk:
+            disk_size_gb: 50
+            disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
+            source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
+          deployment_name: Rem repellendus vel sit velit voluptatem quidem.
+          gpu_accelerators:
+            count: 2
+            type: nvidia-tesla-p100
+          instance_size: 3
+          machine_type: f1-micro
+          preemptible: true
+          project_id: dummy-proj-999
+          startup_script: Maiores consequatur culpa.
+          token_consumption: 2
+          zone: us-central1-f
+      created_at: "1978-01-05T14:10:07Z"
+      curr_base_id: Accusamus quia molestiae et.
+      id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+      next_base_id: Quaerat unde ratione corrupti.
+      prev_base_id: Cupiditate voluptatum.
+      status: stopping
+      updated_at: "2011-01-03T13:28:16Z"
+    properties:
+      base:
+        $ref: '#/definitions/PipelineBasePayloadBody'
+      created_at:
+        description: Datetime created
+        example: "1978-01-05T14:10:07Z"
+        format: date-time
+        type: string
+      curr_base_id:
+        description: Current pipeline base ID
+        example: Accusamus quia molestiae et.
+        type: string
+      id:
+        description: ID
+        example: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+        type: string
+      next_base_id:
+        description: Next pipeline base ID
+        example: Quaerat unde ratione corrupti.
+        type: string
+      prev_base_id:
+        description: Previous pipeline base ID
+        example: Cupiditate voluptatum.
+        type: string
+      status:
+        description: Status
+        enum:
+        - current_preparing
+        - current_preparing_error
+        - running
+        - next_preparing
+        - stopping
+        - stopping_error
+        - stopped
+        example: stopping
+        type: string
+      updated_at:
+        description: Datetime updated
+        example: "2011-01-03T13:28:16Z"
+        format: date-time
+        type: string
+    required:
+    - base
+    - status
+    title: 'Mediatype identifier: application/vnd.pipeline+json; view=default'
+    type: object
+  Pipeline-Base:
+    description: pipeline-base (default view)
+    example:
+      container:
+        command: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
+          %{uploads_dir}
+        name: Optio et voluptas quia.
+        options: --restart=on-failure:3
+        size: 2
+        stackdriver_agent: false
+      created_at: "2008-05-04T14:24:13Z"
+      hibernation_delay: 6.056355197058698e+18
+      id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+      instance_group:
+        boot_disk:
+          disk_size_gb: 50
+          disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
+          source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
+        deployment_name: Rem repellendus vel sit velit voluptatem quidem.
+        gpu_accelerators:
+          count: 2
+          type: nvidia-tesla-p100
+        instance_size: 3
+        machine_type: f1-micro
+        preemptible: true
+        project_id: dummy-proj-999
+        startup_script: Maiores consequatur culpa.
+        token_consumption: 2
+        zone: us-central1-f
+      updated_at: "1981-12-12T05:18:07Z"
+    properties:
+      container:
+        $ref: '#/definitions/PipelineContainerPayload'
+      created_at:
+        description: Datetime created
+        example: "2008-05-04T14:24:13Z"
+        format: date-time
+        type: string
+      hibernation_delay:
+        description: Hibernation delay in seconds since last job finsihed
+        example: 6.056355197058698e+18
+        format: int64
+        type: integer
+      id:
+        description: ID
+        example: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+        type: string
+      instance_group:
+        $ref: '#/definitions/InstanceGroupPayloadBody'
+      updated_at:
+        description: Datetime updated
+        example: "1981-12-12T05:18:07Z"
+        format: date-time
+        type: string
+    required:
+    - id
+    - instance_group
+    - container
+    - hibernation_delay
+    title: 'Mediatype identifier: application/vnd.pipeline-base+json; view=default'
+    type: object
+  Pipeline-BaseCollection:
+    description: Pipeline-BaseCollection is the media type for an array of Pipeline-Base
+      (default view)
+    example:
+    - container:
+        command: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
+          %{uploads_dir}
+        name: Optio et voluptas quia.
+        options: --restart=on-failure:3
+        size: 2
+        stackdriver_agent: false
+      created_at: "2008-05-04T14:24:13Z"
+      hibernation_delay: 6.056355197058698e+18
+      id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+      instance_group:
+        boot_disk:
+          disk_size_gb: 50
+          disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
+          source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
+        deployment_name: Rem repellendus vel sit velit voluptatem quidem.
+        gpu_accelerators:
+          count: 2
+          type: nvidia-tesla-p100
+        instance_size: 3
+        machine_type: f1-micro
+        preemptible: true
+        project_id: dummy-proj-999
+        startup_script: Maiores consequatur culpa.
+        token_consumption: 2
+        zone: us-central1-f
+      updated_at: "1981-12-12T05:18:07Z"
+    items:
+      $ref: '#/definitions/Pipeline-Base'
+    title: 'Mediatype identifier: application/vnd.pipeline-base+json; type=collection;
+      view=default'
+    type: array
+  PipelineBasePayload:
+    example:
+      container:
+        command: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
+          %{uploads_dir}
+        name: Optio et voluptas quia.
+        options: --restart=on-failure:3
+        size: 2
+        stackdriver_agent: false
+      hibernation_delay: 7.044847696412245e+18
+      instance_group:
+        boot_disk:
+          disk_size_gb: 50
+          disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
+          source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
+        deployment_name: Rem repellendus vel sit velit voluptatem quidem.
+        gpu_accelerators:
+          count: 2
+          type: nvidia-tesla-p100
+        instance_size: 3
+        machine_type: f1-micro
+        preemptible: true
+        project_id: dummy-proj-999
+        startup_script: Maiores consequatur culpa.
+        token_consumption: 2
+        zone: us-central1-f
+      name: pipeline1-123
+    properties:
+      container:
+        $ref: '#/definitions/PipelineContainerPayload'
+      hibernation_delay:
+        description: Hibernation delay in seconds since last job finsihed
+        example: 7.044847696412245e+18
+        format: int64
+        type: integer
+      instance_group:
+        $ref: '#/definitions/InstanceGroupPayloadBody'
+      name:
+        description: Name of pipeline_base
+        example: pipeline1-123
+        type: string
+    required:
+    - name
+    - instance_group
+    - container
+    title: PipelineBasePayload
+    type: object
+  PipelineBasePayloadBody:
+    example:
+      container:
+        command: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
+          %{uploads_dir}
+        name: Optio et voluptas quia.
+        options: --restart=on-failure:3
+        size: 2
+        stackdriver_agent: false
+      hibernation_delay: 9.030230439708588e+18
+      instance_group:
+        boot_disk:
+          disk_size_gb: 50
+          disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
+          source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
+        deployment_name: Rem repellendus vel sit velit voluptatem quidem.
+        gpu_accelerators:
+          count: 2
+          type: nvidia-tesla-p100
+        instance_size: 3
+        machine_type: f1-micro
+        preemptible: true
+        project_id: dummy-proj-999
+        startup_script: Maiores consequatur culpa.
+        token_consumption: 2
+        zone: us-central1-f
+    properties:
+      container:
+        $ref: '#/definitions/PipelineContainerPayload'
+      hibernation_delay:
+        description: Hibernation delay in seconds since last job finsihed
+        example: 9.030230439708588e+18
+        format: int64
+        type: integer
+      instance_group:
+        $ref: '#/definitions/InstanceGroupPayloadBody'
+    required:
+    - instance_group
+    - container
+    title: PipelineBasePayloadBody
+    type: object
+  PipelineCollection:
+    description: PipelineCollection is the media type for an array of Pipeline (default
+      view)
+    example:
+    - base:
+        container:
+          command: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
+            %{uploads_dir}
+          name: Optio et voluptas quia.
+          options: --restart=on-failure:3
+          size: 2
+          stackdriver_agent: false
+        hibernation_delay: 9.030230439708588e+18
+        instance_group:
+          boot_disk:
+            disk_size_gb: 50
+            disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
+            source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
+          deployment_name: Rem repellendus vel sit velit voluptatem quidem.
+          gpu_accelerators:
+            count: 2
+            type: nvidia-tesla-p100
+          instance_size: 3
+          machine_type: f1-micro
+          preemptible: true
+          project_id: dummy-proj-999
+          startup_script: Maiores consequatur culpa.
+          token_consumption: 2
+          zone: us-central1-f
+      created_at: "1978-01-05T14:10:07Z"
+      curr_base_id: Accusamus quia molestiae et.
+      id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+      next_base_id: Quaerat unde ratione corrupti.
+      prev_base_id: Cupiditate voluptatum.
+      status: stopping
+      updated_at: "2011-01-03T13:28:16Z"
+    items:
+      $ref: '#/definitions/Pipeline'
+    title: 'Mediatype identifier: application/vnd.pipeline+json; type=collection;
+      view=default'
+    type: array
+  PipelineContainerPayload:
+    example:
+      command: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
+        %{uploads_dir}
+      name: Optio et voluptas quia.
+      options: --restart=on-failure:3
+      size: 2
+      stackdriver_agent: false
+    properties:
+      command:
+        description: Command for docker run
+        example: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
+          %{uploads_dir}
+        type: string
+      name:
+        description: Container name
+        example: Optio et voluptas quia.
+        type: string
+      options:
+        description: Options for docker run
+        example: --restart=on-failure:3
+        type: string
+      size:
+        default: 1
+        description: Container size per VM
+        example: 2
+        format: int64
+        type: integer
+      stackdriver_agent:
+        description: Use stackdriver agent
+        example: false
+        type: boolean
+    required:
+    - name
+    title: PipelineContainerPayload
+    type: object
+  PipelinePayload:
+    example:
+      base:
+        container:
+          command: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
+            %{uploads_dir}
+          name: Optio et voluptas quia.
+          options: --restart=on-failure:3
+          size: 2
+          stackdriver_agent: false
+        hibernation_delay: 9.030230439708588e+18
+        instance_group:
+          boot_disk:
+            disk_size_gb: 50
+            disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
+            source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
+          deployment_name: Rem repellendus vel sit velit voluptatem quidem.
+          gpu_accelerators:
+            count: 2
+            type: nvidia-tesla-p100
+          instance_size: 3
+          machine_type: f1-micro
+          preemptible: true
+          project_id: dummy-proj-999
+          startup_script: Maiores consequatur culpa.
+          token_consumption: 2
+          zone: us-central1-f
+      name: pipeline1
+    properties:
+      base:
+        $ref: '#/definitions/PipelineBasePayloadBody'
+      name:
+        description: Name of pipeline_base
+        example: pipeline1
+        type: string
+    required:
+    - name
+    - base
+    title: PipelinePayload
+    type: object
+  PipelineVmDisk:
+    example:
+      disk_size_gb: 50
+      disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
+      source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
+    properties:
+      disk_size_gb:
+        default: 0
+        description: Disk size
+        example: 50
+        format: int64
+        type: integer
+      disk_type:
+        default: ""
+        description: Disk type
+        example: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
+        type: string
+      source_image:
+        default: ""
+        description: Source image
+        example: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
+        type: string
+    required:
+    - source_image
+    title: PipelineVmDisk
+    type: object
+  ResizeIntanceGroupPayload:
+    example:
+      new_size: 6.394932039073838e+18
+    properties:
+      new_size:
+        description: New Instance Size
+        example: 6.394932039073838e+18
+        format: int64
+        type: integer
+    required:
+    - new_size
+    title: ResizeIntanceGroupPayload
+    type: object
+  error:
+    description: Error response media type (default view)
+    example:
+      code: invalid_value
+      detail: Value of ID must be an integer
+      id: 3F1FKVRR
+      meta:
+        timestamp: 1.458609066e+09
+      status: "400"
+    properties:
+      code:
+        description: an application-specific error code, expressed as a string value.
+        example: invalid_value
+        type: string
+      detail:
+        description: a human-readable explanation specific to this occurrence of the
+          problem.
+        example: Value of ID must be an integer
+        type: string
+      id:
+        description: a unique identifier for this particular occurrence of the problem.
+        example: 3F1FKVRR
+        type: string
+      meta:
+        additionalProperties: true
+        description: a meta object containing non-standard meta-information about
+          the error.
+        example:
+          timestamp: 1.458609066e+09
+        type: object
+      status:
+        description: the HTTP status code applicable to this problem, expressed as
+          a string value.
+        example: "400"
+        type: string
+    title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+    type: object
+host: localhost:8080
+info:
+  description: A simple appengine example
+  title: The appengine example
+  version: ""
+paths:
+  /admin/organizations:
+    get:
+      description: list
+      operationId: Organization#list
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.organization+json; type=collection
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/OrganizationCollection'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: list Organization
+      tags:
+      - Organization
+    post:
+      description: create
+      operationId: Organization#create
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/OrganizationPayload'
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.organization+json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Organization'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: create Organization
+      tags:
+      - Organization
+  /admin/organizations/{id}:
+    delete:
+      description: delete
+      operationId: Organization#delete
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.organization+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Organization'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: delete Organization
+      tags:
+      - Organization
+    get:
+      description: show
+      operationId: Organization#show
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.organization+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Organization'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: show Organization
+      tags:
+      - Organization
+  /admin/organizations/{id}/auths:
+    get:
+      description: list
+      operationId: Auth#list
+      parameters:
+      - in: path
+        name: id
+        required: true
+        type: string
+      - in: query
+        name: org_id
+        required: false
+        type: string
+      produces:
+      - application/vnd.auth+json; type=collection
+      - application/vnd.goa.error
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/AuthCollection'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: list Auth
+      tags:
+      - Auth
+    post:
+      description: create
+      operationId: Auth#create
+      parameters:
+      - in: path
+        name: id
+        required: true
+        type: string
+      - in: query
+        name: org_id
+        required: false
+        type: string
+      produces:
+      - application/vnd.auth-secret+json
+      - application/vnd.goa.error
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Auth-Secret'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: create Auth
+      tags:
+      - Auth
+  /admin/organizations/{id}/auths/{auth_id}:
+    delete:
+      description: delete
+      operationId: Auth#delete
+      parameters:
+      - in: path
+        name: auth_id
+        required: true
+        type: string
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - in: query
+        name: org_id
+        required: false
+        type: string
+      produces:
+      - application/vnd.auth+json
+      - application/vnd.goa.error
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Auth'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: delete Auth
+      tags:
+      - Auth
+  /closing_tasks:
+    post:
+      description: Start refreshing
+      operationId: PipelineBaseClosingTask#start
+      parameters:
+      - description: Resource ID
+        in: query
+        name: id
+        required: false
+        type: string
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/OperationPayload'
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.instance-group-operation+json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Instance-Group-Operation'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: start PipelineBaseClosingTask
+      tags:
+      - PipelineBaseClosingTask
+  /closing_tasks/{id}:
+    put:
+      description: Refresh
+      operationId: PipelineBaseClosingTask#refresh
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.instance-group-operation+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Instance-Group-Operation'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Instance-Group-Operation'
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/Instance-Group-Operation'
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/Instance-Group-Operation'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: refresh PipelineBaseClosingTask
+      tags:
+      - PipelineBaseClosingTask
+  /constructing_tasks:
+    post:
+      description: Start refreshing
+      operationId: InstanceGroupConstructingTask#start
+      parameters:
+      - description: Resource ID
+        in: query
+        name: id
+        required: false
+        type: string
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/OperationPayload'
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.instance-group-operation+json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Instance-Group-Operation'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: start InstanceGroupConstructingTask
+      tags:
+      - InstanceGroupConstructingTask
+  /constructing_tasks/{id}:
+    put:
+      description: Refresh
+      operationId: InstanceGroupConstructingTask#refresh
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.instance-group-operation+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Instance-Group-Operation'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Instance-Group-Operation'
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/Instance-Group-Operation'
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/Instance-Group-Operation'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: refresh InstanceGroupConstructingTask
+      tags:
+      - InstanceGroupConstructingTask
+  /destructing_tasks:
+    post:
+      description: Start refreshing
+      operationId: InstanceGroupDestructingTask#start
+      parameters:
+      - description: Resource ID
+        in: query
+        name: id
+        required: false
+        type: string
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/OperationPayload'
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.instance-group-operation+json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Instance-Group-Operation'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: start InstanceGroupDestructingTask
+      tags:
+      - InstanceGroupDestructingTask
+  /destructing_tasks/{id}:
+    put:
+      description: Refresh
+      operationId: InstanceGroupDestructingTask#refresh
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.instance-group-operation+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Instance-Group-Operation'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Instance-Group-Operation'
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/Instance-Group-Operation'
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/Instance-Group-Operation'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: refresh InstanceGroupDestructingTask
+      tags:
+      - InstanceGroupDestructingTask
+  /instance_groups:
+    get:
+      description: list
+      operationId: IntanceGroup#list
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.instance-group+json; type=collection
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Instance-GroupCollection'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: list IntanceGroup
+      tags:
+      - IntanceGroup
+    post:
+      description: create
+      operationId: IntanceGroup#create
+      parameters:
+      - description: Organization ID
+        in: query
+        name: org_id
+        required: true
+        type: string
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/InstanceGroupPayload'
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.instance-group+json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Instance-Group'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: create IntanceGroup
+      tags:
+      - IntanceGroup
+  /instance_groups/{id}:
+    delete:
+      description: delete
+      operationId: IntanceGroup#delete
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.instance-group+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Instance-Group'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: delete IntanceGroup
+      tags:
+      - IntanceGroup
+    get:
+      description: show
+      operationId: IntanceGroup#show
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.instance-group+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Instance-Group'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: show IntanceGroup
+      tags:
+      - IntanceGroup
+  /instance_groups/{id}/resize:
+    put:
+      description: Resize
+      operationId: IntanceGroup#resize
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/ResizeIntanceGroupPayload'
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.instance-group+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Instance-Group'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: resize IntanceGroup
+      tags:
+      - IntanceGroup
+  /instance_groups/{id}/restruct:
+    put:
+      description: Destruct
+      operationId: IntanceGroup#destruct
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.instance-group+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Instance-Group'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: destruct IntanceGroup
+      tags:
+      - IntanceGroup
+  /jobs:
+    post:
+      description: create
+      operationId: Job#create
+      parameters:
+      - description: Set true to activate soon
+        in: query
+        name: active
+        required: false
+        type: string
+      - description: Pipeline Base ID
+        in: query
+        name: pipeline_base_id
+        required: false
+        type: string
+      - description: Pipeline ID
+        in: query
+        name: pipeline_id
+        required: false
+        type: string
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/JobPayload'
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.job+json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Job'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: create Job
+      tags:
+      - Job
+  /jobs/{id}:
+    delete:
+      description: delete
+      operationId: Job#delete
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.job+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Job'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: delete Job
+      tags:
+      - Job
+    get:
+      description: show
+      operationId: Job#show
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.job+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Job'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: show Job
+      tags:
+      - Job
+  /jobs/{id}/activate:
+    put:
+      description: Activate job
+      operationId: Job#activate
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.job+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Job'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Job'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: activate Job
+      tags:
+      - Job
+  /jobs/{id}/inactivate:
+    put:
+      description: Inactivate job
+      operationId: Job#inactivate
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.job+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Job'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: inactivate Job
+      tags:
+      - Job
+  /jobs/{id}/publishing_task:
+    put:
+      description: Publishing job task
+      operationId: Job#publishing_task
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.job+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Job'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: publishing_task Job
+      tags:
+      - Job
+  /opening_tasks:
+    post:
+      description: Start refreshing
+      operationId: PipelineBaseOpeningTask#start
+      parameters:
+      - description: Resource ID
+        in: query
+        name: id
+        required: false
+        type: string
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/OperationPayload'
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.instance-group-operation+json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Instance-Group-Operation'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: start PipelineBaseOpeningTask
+      tags:
+      - PipelineBaseOpeningTask
+  /opening_tasks/{id}:
+    put:
+      description: Refresh
+      operationId: PipelineBaseOpeningTask#refresh
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.instance-group-operation+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Instance-Group-Operation'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Instance-Group-Operation'
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/Instance-Group-Operation'
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/Instance-Group-Operation'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: refresh PipelineBaseOpeningTask
+      tags:
+      - PipelineBaseOpeningTask
+  /pipeline_bases:
+    get:
+      description: list
+      operationId: PipelineBase#list
+      parameters:
+      - description: Organization ID
+        in: query
+        name: org_id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.pipeline-base+json; type=collection
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Pipeline-BaseCollection'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: list PipelineBase
+      tags:
+      - PipelineBase
+    post:
+      description: create
+      operationId: PipelineBase#create
+      parameters:
+      - description: Organization ID
+        in: query
+        name: org_id
+        required: true
+        type: string
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/PipelineBasePayload'
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.pipeline-base+json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Pipeline-Base'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: create PipelineBase
+      tags:
+      - PipelineBase
+  /pipeline_bases/{id}:
+    delete:
+      description: delete
+      operationId: PipelineBase#delete
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.pipeline-base+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Pipeline-Base'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: delete PipelineBase
+      tags:
+      - PipelineBase
+    get:
+      description: show
+      operationId: PipelineBase#show
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.pipeline-base+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Pipeline-Base'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: show PipelineBase
+      tags:
+      - PipelineBase
+    put:
+      description: Close
+      operationId: PipelineBase#close
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.pipeline-base+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Pipeline-Base'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: close PipelineBase
+      tags:
+      - PipelineBase
+  /pipeline_bases/{id}/hibernation_checking_finalize_task:
+    put:
+      description: Task to finalize hibernation_checking status
+      operationId: PipelineBase#hibernation_checking_finalize_task
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.pipeline-base+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Pipeline-Base'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: hibernation_checking_finalize_task PipelineBase
+      tags:
+      - PipelineBase
+  /pipeline_bases/{id}/hibernation_going_finalize_task:
+    put:
+      description: Task to finalize hibernation_going status
+      operationId: PipelineBase#hibernation_going_finalize_task
+      parameters:
+      - in: query
+        name: error
+        required: false
+        type: string
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - in: query
+        name: operation_id
+        required: false
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.pipeline-base+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Pipeline-Base'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: hibernation_going_finalize_task PipelineBase
+      tags:
+      - PipelineBase
+  /pipeline_bases/{id}/pull_task:
+    put:
+      description: Task to pull progress messages
+      operationId: PipelineBase#pull_task
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.pipeline-base+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Pipeline-Base'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: pull_task PipelineBase
+      tags:
+      - PipelineBase
+  /pipeline_bases/{id}/waking_finalize_task:
+    put:
+      description: Task to finalize waking status
+      operationId: PipelineBase#waking_finalize_task
+      parameters:
+      - in: query
+        name: error
+        required: false
+        type: string
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - in: query
+        name: operation_id
+        required: false
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.pipeline-base+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Pipeline-Base'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: waking_finalize_task PipelineBase
+      tags:
+      - PipelineBase
+  /pipelines:
+    get:
+      description: list
+      operationId: Pipeline#list
+      parameters:
+      - description: Organization ID
+        in: query
+        name: org_id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.pipeline+json; type=collection
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/PipelineCollection'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: list Pipeline
+      tags:
+      - Pipeline
+    post:
+      description: create
+      operationId: Pipeline#create
+      parameters:
+      - description: Organization ID
+        in: query
+        name: org_id
+        required: true
+        type: string
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/PipelinePayload'
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.pipeline+json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Pipeline'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: create Pipeline
+      tags:
+      - Pipeline
+  /pipelines/{id}:
+    delete:
+      description: delete
+      operationId: Pipeline#delete
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.pipeline+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Pipeline'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: delete Pipeline
+      tags:
+      - Pipeline
+    get:
+      description: show
+      operationId: Pipeline#show
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.pipeline+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Pipeline'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: show Pipeline
+      tags:
+      - Pipeline
+  /pipelines/{id}/current:
+    put:
+      description: Update current pipeline base
+      operationId: Pipeline#current
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - in: query
+        name: pipeline_base_id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.pipeline+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Pipeline'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: current Pipeline
+      tags:
+      - Pipeline
+  /pipelines/{id}/preparing_finalize_task:
+    put:
+      description: Task to finalize current_preparing or next_preparing status
+      operationId: Pipeline#preparing_finalize_task
+      parameters:
+      - in: query
+        name: error
+        required: false
+        type: string
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - in: query
+        name: operation_id
+        required: false
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.pipeline+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Pipeline'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: preparing_finalize_task Pipeline
+      tags:
+      - Pipeline
+  /pipelines/{id}/stop:
+    put:
+      description: Stop pipeline
+      operationId: Pipeline#stop
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.pipeline+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Pipeline'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: stop Pipeline
+      tags:
+      - Pipeline
+  /resizing_tasks:
+    post:
+      description: Start refreshing
+      operationId: InstanceGroupResizingTask#start
+      parameters:
+      - description: Resource ID
+        in: query
+        name: id
+        required: false
+        type: string
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/OperationPayload'
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.instance-group-operation+json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Instance-Group-Operation'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: start InstanceGroupResizingTask
+      tags:
+      - InstanceGroupResizingTask
+  /resizing_tasks/{id}:
+    put:
+      description: Refresh
+      operationId: InstanceGroupResizingTask#refresh
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.instance-group-operation+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Instance-Group-Operation'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Instance-Group-Operation'
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/Instance-Group-Operation'
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/Instance-Group-Operation'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: refresh InstanceGroupResizingTask
+      tags:
+      - InstanceGroupResizingTask
+  /swagger.json:
+    get:
+      operationId: swagger#/swagger.json
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
+      schemes:
+      - http
+      summary: Download ../swagger/swagger.json
+  /swagger/{filepath}:
+    get:
+      operationId: swagger#/swagger/*filepath
+      parameters:
+      - description: Relative file path
+        in: path
+        name: filepath
+        required: true
+        type: string
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
+        "404":
+          description: File not found
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      summary: Download ../static/swagger/
+produces:
+- application/json
+- application/xml
+- application/gob
+- application/x-gob
+schemes:
+- http
+swagger: "2.0"
