@@ -1,0 +1,44 @@
+anchors:
+- &string_required
+  type: string
+  required: true
+- &time_required
+  type: time.Time
+  required: true
+
+types:
+  InstanceGroupVmDisk:
+    fields:
+      DiskSizeGb: int
+      DiskType: {}
+      SourceImage: *string_required
+  InstanceGroupAccelerators:
+    fields:
+      Count: int
+      Type: {}
+  InstanceGroup:
+    goon:
+      # id: int64
+      # id: string
+      # id: UUID (type: string)
+      id: UUID
+      ancestor: Organization
+    # payload: InstanceGroupPayload
+    media_type: Instance-Group
+    fields:
+      Name: *string_required
+      ProjectID: *string_required
+      Zone: *string_required
+      BootDisk:
+        type: InstanceGroupVmDisk
+        required: true
+      MachineType: *string_required
+      GpuAccelerators: InstanceGroupAccelerators
+      Preemptible: bool
+      InstanceSize: int
+      StartupScript: {}
+      Status: {}
+      DeploymentName: {}
+      TokenConsumption: int
+      CreatedAt: *time_required
+      UpdatedAt: *time_required
