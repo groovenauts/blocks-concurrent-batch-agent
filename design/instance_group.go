@@ -5,7 +5,7 @@ import (
 	. "github.com/goadesign/goa/design/apidsl"
 )
 
-var PipelineVmDisk = Type("PipelineVmDisk", func() {
+var InstanceGroupVmDisk = Type("InstanceGroupVmDisk", func() {
 	// Member("disk_name", String, "Disk name")
 	Member("disk_size_gb", Integer, "Disk size", func() {
 		Default(0)
@@ -22,7 +22,7 @@ var PipelineVmDisk = Type("PipelineVmDisk", func() {
 	Required("source_image")
 })
 
-var Accelerators = Type("Accelerators", func() {
+var InstanceGroupAccelerators = Type("InstanceGroupAccelerators", func() {
 	Member("count", Integer, "Count", func() {
 		Default(0)
 		Example(2)
@@ -45,11 +45,11 @@ var InstanceGroupPayloadBody = Type("InstanceGroupPayloadBody", func() {
 	Member("zone", String, "GCP zone", func() {
 		Example("us-central1-f")
 	})
-	Member("boot_disk", PipelineVmDisk, "Boot disk")
+	Member("boot_disk", InstanceGroupVmDisk, "Boot disk")
 	Member("machine_type", String, "GCE Machine Type", func() {
 		Example("f1-micro")
 	})
-	Member("gpu_accelerators", Accelerators, "GPU Accelerators")
+	Member("gpu_accelerators", InstanceGroupAccelerators, "GPU Accelerators")
 	Member("preemptible", Boolean, "Use preemptible VMs")
 
 	Member("instance_size", Integer, "Instance size", func() {
