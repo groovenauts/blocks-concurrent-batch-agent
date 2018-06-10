@@ -14,16 +14,16 @@ import (
 	"github.com/goadesign/goa"
 )
 
-// accelerators user type.
-type accelerators struct {
+// instanceGroupAccelerators user type.
+type instanceGroupAccelerators struct {
 	// Count
 	Count *int `form:"count,omitempty" json:"count,omitempty" yaml:"count,omitempty" xml:"count,omitempty"`
 	// Type
 	Type *string `form:"type,omitempty" json:"type,omitempty" yaml:"type,omitempty" xml:"type,omitempty"`
 }
 
-// Finalize sets the default values for accelerators type instance.
-func (ut *accelerators) Finalize() {
+// Finalize sets the default values for instanceGroupAccelerators type instance.
+func (ut *instanceGroupAccelerators) Finalize() {
 	var defaultCount = 0
 	if ut.Count == nil {
 		ut.Count = &defaultCount
@@ -34,8 +34,8 @@ func (ut *accelerators) Finalize() {
 	}
 }
 
-// Validate validates the accelerators type instance.
-func (ut *accelerators) Validate() (err error) {
+// Validate validates the instanceGroupAccelerators type instance.
+func (ut *instanceGroupAccelerators) Validate() (err error) {
 	if ut.Count == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "count"))
 	}
@@ -45,9 +45,9 @@ func (ut *accelerators) Validate() (err error) {
 	return
 }
 
-// Publicize creates Accelerators from accelerators
-func (ut *accelerators) Publicize() *Accelerators {
-	var pub Accelerators
+// Publicize creates InstanceGroupAccelerators from instanceGroupAccelerators
+func (ut *instanceGroupAccelerators) Publicize() *InstanceGroupAccelerators {
+	var pub InstanceGroupAccelerators
 	if ut.Count != nil {
 		pub.Count = *ut.Count
 	}
@@ -57,16 +57,16 @@ func (ut *accelerators) Publicize() *Accelerators {
 	return &pub
 }
 
-// Accelerators user type.
-type Accelerators struct {
+// InstanceGroupAccelerators user type.
+type InstanceGroupAccelerators struct {
 	// Count
 	Count int `form:"count" json:"count" yaml:"count" xml:"count"`
 	// Type
 	Type string `form:"type" json:"type" yaml:"type" xml:"type"`
 }
 
-// Validate validates the Accelerators type instance.
-func (ut *Accelerators) Validate() (err error) {
+// Validate validates the InstanceGroupAccelerators type instance.
+func (ut *InstanceGroupAccelerators) Validate() (err error) {
 
 	if ut.Type == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "type"))
@@ -77,11 +77,11 @@ func (ut *Accelerators) Validate() (err error) {
 // instanceGroupPayload user type.
 type instanceGroupPayload struct {
 	// Boot disk
-	BootDisk *pipelineVMDisk `form:"boot_disk,omitempty" json:"boot_disk,omitempty" yaml:"boot_disk,omitempty" xml:"boot_disk,omitempty"`
+	BootDisk *instanceGroupVMDisk `form:"boot_disk,omitempty" json:"boot_disk,omitempty" yaml:"boot_disk,omitempty" xml:"boot_disk,omitempty"`
 	// Deployment name
 	DeploymentName *string `form:"deployment_name,omitempty" json:"deployment_name,omitempty" yaml:"deployment_name,omitempty" xml:"deployment_name,omitempty"`
 	// GPU Accelerators
-	GpuAccelerators *accelerators `form:"gpu_accelerators,omitempty" json:"gpu_accelerators,omitempty" yaml:"gpu_accelerators,omitempty" xml:"gpu_accelerators,omitempty"`
+	GpuAccelerators *instanceGroupAccelerators `form:"gpu_accelerators,omitempty" json:"gpu_accelerators,omitempty" yaml:"gpu_accelerators,omitempty" xml:"gpu_accelerators,omitempty"`
 	// Instance size
 	InstanceSize *int `form:"instance_size,omitempty" json:"instance_size,omitempty" yaml:"instance_size,omitempty" xml:"instance_size,omitempty"`
 	// GCE Machine Type
@@ -205,11 +205,11 @@ func (ut *instanceGroupPayload) Publicize() *InstanceGroupPayload {
 // InstanceGroupPayload user type.
 type InstanceGroupPayload struct {
 	// Boot disk
-	BootDisk *PipelineVMDisk `form:"boot_disk" json:"boot_disk" yaml:"boot_disk" xml:"boot_disk"`
+	BootDisk *InstanceGroupVMDisk `form:"boot_disk" json:"boot_disk" yaml:"boot_disk" xml:"boot_disk"`
 	// Deployment name
 	DeploymentName *string `form:"deployment_name,omitempty" json:"deployment_name,omitempty" yaml:"deployment_name,omitempty" xml:"deployment_name,omitempty"`
 	// GPU Accelerators
-	GpuAccelerators *Accelerators `form:"gpu_accelerators,omitempty" json:"gpu_accelerators,omitempty" yaml:"gpu_accelerators,omitempty" xml:"gpu_accelerators,omitempty"`
+	GpuAccelerators *InstanceGroupAccelerators `form:"gpu_accelerators,omitempty" json:"gpu_accelerators,omitempty" yaml:"gpu_accelerators,omitempty" xml:"gpu_accelerators,omitempty"`
 	// Instance size
 	InstanceSize *int `form:"instance_size,omitempty" json:"instance_size,omitempty" yaml:"instance_size,omitempty" xml:"instance_size,omitempty"`
 	// GCE Machine Type
@@ -263,11 +263,11 @@ func (ut *InstanceGroupPayload) Validate() (err error) {
 // instanceGroupPayloadBody user type.
 type instanceGroupPayloadBody struct {
 	// Boot disk
-	BootDisk *pipelineVMDisk `form:"boot_disk,omitempty" json:"boot_disk,omitempty" yaml:"boot_disk,omitempty" xml:"boot_disk,omitempty"`
+	BootDisk *instanceGroupVMDisk `form:"boot_disk,omitempty" json:"boot_disk,omitempty" yaml:"boot_disk,omitempty" xml:"boot_disk,omitempty"`
 	// Deployment name
 	DeploymentName *string `form:"deployment_name,omitempty" json:"deployment_name,omitempty" yaml:"deployment_name,omitempty" xml:"deployment_name,omitempty"`
 	// GPU Accelerators
-	GpuAccelerators *accelerators `form:"gpu_accelerators,omitempty" json:"gpu_accelerators,omitempty" yaml:"gpu_accelerators,omitempty" xml:"gpu_accelerators,omitempty"`
+	GpuAccelerators *instanceGroupAccelerators `form:"gpu_accelerators,omitempty" json:"gpu_accelerators,omitempty" yaml:"gpu_accelerators,omitempty" xml:"gpu_accelerators,omitempty"`
 	// Instance size
 	InstanceSize *int `form:"instance_size,omitempty" json:"instance_size,omitempty" yaml:"instance_size,omitempty" xml:"instance_size,omitempty"`
 	// GCE Machine Type
@@ -378,11 +378,11 @@ func (ut *instanceGroupPayloadBody) Publicize() *InstanceGroupPayloadBody {
 // InstanceGroupPayloadBody user type.
 type InstanceGroupPayloadBody struct {
 	// Boot disk
-	BootDisk *PipelineVMDisk `form:"boot_disk" json:"boot_disk" yaml:"boot_disk" xml:"boot_disk"`
+	BootDisk *InstanceGroupVMDisk `form:"boot_disk" json:"boot_disk" yaml:"boot_disk" xml:"boot_disk"`
 	// Deployment name
 	DeploymentName *string `form:"deployment_name,omitempty" json:"deployment_name,omitempty" yaml:"deployment_name,omitempty" xml:"deployment_name,omitempty"`
 	// GPU Accelerators
-	GpuAccelerators *Accelerators `form:"gpu_accelerators,omitempty" json:"gpu_accelerators,omitempty" yaml:"gpu_accelerators,omitempty" xml:"gpu_accelerators,omitempty"`
+	GpuAccelerators *InstanceGroupAccelerators `form:"gpu_accelerators,omitempty" json:"gpu_accelerators,omitempty" yaml:"gpu_accelerators,omitempty" xml:"gpu_accelerators,omitempty"`
 	// Instance size
 	InstanceSize *int `form:"instance_size,omitempty" json:"instance_size,omitempty" yaml:"instance_size,omitempty" xml:"instance_size,omitempty"`
 	// GCE Machine Type
@@ -422,6 +422,73 @@ func (ut *InstanceGroupPayloadBody) Validate() (err error) {
 		if err2 := ut.GpuAccelerators.Validate(); err2 != nil {
 			err = goa.MergeErrors(err, err2)
 		}
+	}
+	return
+}
+
+// instanceGroupVMDisk user type.
+type instanceGroupVMDisk struct {
+	// Disk size
+	DiskSizeGb *int `form:"disk_size_gb,omitempty" json:"disk_size_gb,omitempty" yaml:"disk_size_gb,omitempty" xml:"disk_size_gb,omitempty"`
+	// Disk type
+	DiskType *string `form:"disk_type,omitempty" json:"disk_type,omitempty" yaml:"disk_type,omitempty" xml:"disk_type,omitempty"`
+	// Source image
+	SourceImage *string `form:"source_image,omitempty" json:"source_image,omitempty" yaml:"source_image,omitempty" xml:"source_image,omitempty"`
+}
+
+// Finalize sets the default values for instanceGroupVMDisk type instance.
+func (ut *instanceGroupVMDisk) Finalize() {
+	var defaultDiskSizeGb = 0
+	if ut.DiskSizeGb == nil {
+		ut.DiskSizeGb = &defaultDiskSizeGb
+	}
+	var defaultDiskType = ""
+	if ut.DiskType == nil {
+		ut.DiskType = &defaultDiskType
+	}
+	var defaultSourceImage = ""
+	if ut.SourceImage == nil {
+		ut.SourceImage = &defaultSourceImage
+	}
+}
+
+// Validate validates the instanceGroupVMDisk type instance.
+func (ut *instanceGroupVMDisk) Validate() (err error) {
+	if ut.SourceImage == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "source_image"))
+	}
+	return
+}
+
+// Publicize creates InstanceGroupVMDisk from instanceGroupVMDisk
+func (ut *instanceGroupVMDisk) Publicize() *InstanceGroupVMDisk {
+	var pub InstanceGroupVMDisk
+	if ut.DiskSizeGb != nil {
+		pub.DiskSizeGb = *ut.DiskSizeGb
+	}
+	if ut.DiskType != nil {
+		pub.DiskType = *ut.DiskType
+	}
+	if ut.SourceImage != nil {
+		pub.SourceImage = *ut.SourceImage
+	}
+	return &pub
+}
+
+// InstanceGroupVMDisk user type.
+type InstanceGroupVMDisk struct {
+	// Disk size
+	DiskSizeGb int `form:"disk_size_gb" json:"disk_size_gb" yaml:"disk_size_gb" xml:"disk_size_gb"`
+	// Disk type
+	DiskType string `form:"disk_type" json:"disk_type" yaml:"disk_type" xml:"disk_type"`
+	// Source image
+	SourceImage string `form:"source_image" json:"source_image" yaml:"source_image" xml:"source_image"`
+}
+
+// Validate validates the InstanceGroupVMDisk type instance.
+func (ut *InstanceGroupVMDisk) Validate() (err error) {
+	if ut.SourceImage == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "source_image"))
 	}
 	return
 }
@@ -1027,73 +1094,6 @@ func (ut *PipelinePayload) Validate() (err error) {
 		if err2 := ut.Base.Validate(); err2 != nil {
 			err = goa.MergeErrors(err, err2)
 		}
-	}
-	return
-}
-
-// pipelineVMDisk user type.
-type pipelineVMDisk struct {
-	// Disk size
-	DiskSizeGb *int `form:"disk_size_gb,omitempty" json:"disk_size_gb,omitempty" yaml:"disk_size_gb,omitempty" xml:"disk_size_gb,omitempty"`
-	// Disk type
-	DiskType *string `form:"disk_type,omitempty" json:"disk_type,omitempty" yaml:"disk_type,omitempty" xml:"disk_type,omitempty"`
-	// Source image
-	SourceImage *string `form:"source_image,omitempty" json:"source_image,omitempty" yaml:"source_image,omitempty" xml:"source_image,omitempty"`
-}
-
-// Finalize sets the default values for pipelineVMDisk type instance.
-func (ut *pipelineVMDisk) Finalize() {
-	var defaultDiskSizeGb = 0
-	if ut.DiskSizeGb == nil {
-		ut.DiskSizeGb = &defaultDiskSizeGb
-	}
-	var defaultDiskType = ""
-	if ut.DiskType == nil {
-		ut.DiskType = &defaultDiskType
-	}
-	var defaultSourceImage = ""
-	if ut.SourceImage == nil {
-		ut.SourceImage = &defaultSourceImage
-	}
-}
-
-// Validate validates the pipelineVMDisk type instance.
-func (ut *pipelineVMDisk) Validate() (err error) {
-	if ut.SourceImage == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "source_image"))
-	}
-	return
-}
-
-// Publicize creates PipelineVMDisk from pipelineVMDisk
-func (ut *pipelineVMDisk) Publicize() *PipelineVMDisk {
-	var pub PipelineVMDisk
-	if ut.DiskSizeGb != nil {
-		pub.DiskSizeGb = *ut.DiskSizeGb
-	}
-	if ut.DiskType != nil {
-		pub.DiskType = *ut.DiskType
-	}
-	if ut.SourceImage != nil {
-		pub.SourceImage = *ut.SourceImage
-	}
-	return &pub
-}
-
-// PipelineVMDisk user type.
-type PipelineVMDisk struct {
-	// Disk size
-	DiskSizeGb int `form:"disk_size_gb" json:"disk_size_gb" yaml:"disk_size_gb" xml:"disk_size_gb"`
-	// Disk type
-	DiskType string `form:"disk_type" json:"disk_type" yaml:"disk_type" xml:"disk_type"`
-	// Source image
-	SourceImage string `form:"source_image" json:"source_image" yaml:"source_image" xml:"source_image"`
-}
-
-// Validate validates the PipelineVMDisk type instance.
-func (ut *PipelineVMDisk) Validate() (err error) {
-	if ut.SourceImage == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "source_image"))
 	}
 	return
 }

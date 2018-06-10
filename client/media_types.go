@@ -54,13 +54,13 @@ func (c *Client) DecodeErrorResponse(resp *http.Response) (*goa.ErrorResponse, e
 // Identifier: application/vnd.instance-group+json; view=default
 type InstanceGroup struct {
 	// Boot disk
-	BootDisk *PipelineVMDisk `form:"boot_disk" json:"boot_disk" yaml:"boot_disk" xml:"boot_disk"`
+	BootDisk *InstanceGroupVMDisk `form:"boot_disk" json:"boot_disk" yaml:"boot_disk" xml:"boot_disk"`
 	// Datetime created
 	CreatedAt *time.Time `form:"created_at,omitempty" json:"created_at,omitempty" yaml:"created_at,omitempty" xml:"created_at,omitempty"`
 	// Deployment name
 	DeploymentName string `form:"deployment_name" json:"deployment_name" yaml:"deployment_name" xml:"deployment_name"`
 	// GPU Accelerators
-	GpuAccelerators *Accelerators `form:"gpu_accelerators" json:"gpu_accelerators" yaml:"gpu_accelerators" xml:"gpu_accelerators"`
+	GpuAccelerators *InstanceGroupAccelerators `form:"gpu_accelerators" json:"gpu_accelerators" yaml:"gpu_accelerators" xml:"gpu_accelerators"`
 	// ID
 	ID string `form:"id" json:"id" yaml:"id" xml:"id"`
 	// Instance size

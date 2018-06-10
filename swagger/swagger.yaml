@@ -4,27 +4,6 @@ consumes:
 - application/gob
 - application/x-gob
 definitions:
-  Accelerators:
-    example:
-      count: 2
-      type: nvidia-tesla-p100
-    properties:
-      count:
-        default: 0
-        description: Count
-        example: 2
-        format: int64
-        type: integer
-      type:
-        default: ""
-        description: Type
-        example: nvidia-tesla-p100
-        type: string
-    required:
-    - count
-    - type
-    title: Accelerators
-    type: object
   Dummy-Auth:
     description: Dummy auth (default view)
     example:
@@ -67,7 +46,7 @@ definitions:
       zone: us-central1-f
     properties:
       boot_disk:
-        $ref: '#/definitions/PipelineVmDisk'
+        $ref: '#/definitions/InstanceGroupVmDisk'
       created_at:
         description: Datetime created
         example: "1978-07-31T11:14:35Z"
@@ -78,7 +57,7 @@ definitions:
         example: Blanditiis numquam consequatur.
         type: string
       gpu_accelerators:
-        $ref: '#/definitions/Accelerators'
+        $ref: '#/definitions/InstanceGroupAccelerators'
       id:
         description: ID
         example: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
@@ -251,6 +230,27 @@ definitions:
     title: 'Mediatype identifier: application/vnd.instance-group+json; type=collection;
       view=default'
     type: array
+  InstanceGroupAccelerators:
+    example:
+      count: 2
+      type: nvidia-tesla-p100
+    properties:
+      count:
+        default: 0
+        description: Count
+        example: 2
+        format: int64
+        type: integer
+      type:
+        default: ""
+        description: Type
+        example: nvidia-tesla-p100
+        type: string
+    required:
+    - count
+    - type
+    title: InstanceGroupAccelerators
+    type: object
   InstanceGroupPayload:
     example:
       boot_disk:
@@ -272,13 +272,13 @@ definitions:
       zone: us-central1-f
     properties:
       boot_disk:
-        $ref: '#/definitions/PipelineVmDisk'
+        $ref: '#/definitions/InstanceGroupVmDisk'
       deployment_name:
         description: Deployment name
         example: A perferendis itaque corporis voluptatem.
         type: string
       gpu_accelerators:
-        $ref: '#/definitions/Accelerators'
+        $ref: '#/definitions/InstanceGroupAccelerators'
       instance_size:
         description: Instance size
         example: 3
@@ -344,13 +344,13 @@ definitions:
       zone: us-central1-f
     properties:
       boot_disk:
-        $ref: '#/definitions/PipelineVmDisk'
+        $ref: '#/definitions/InstanceGroupVmDisk'
       deployment_name:
         description: Deployment name
         example: Sed id eveniet quis sit.
         type: string
       gpu_accelerators:
-        $ref: '#/definitions/Accelerators'
+        $ref: '#/definitions/InstanceGroupAccelerators'
       instance_size:
         description: Instance size
         example: 3
@@ -387,6 +387,32 @@ definitions:
     - boot_disk
     - machine_type
     title: InstanceGroupPayloadBody
+    type: object
+  InstanceGroupVmDisk:
+    example:
+      disk_size_gb: 50
+      disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
+      source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
+    properties:
+      disk_size_gb:
+        default: 0
+        description: Disk size
+        example: 50
+        format: int64
+        type: integer
+      disk_type:
+        default: ""
+        description: Disk type
+        example: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
+        type: string
+      source_image:
+        default: ""
+        description: Source image
+        example: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
+        type: string
+    required:
+    - source_image
+    title: InstanceGroupVmDisk
     type: object
   Job:
     description: job (default view)
@@ -1007,32 +1033,6 @@ definitions:
     - name
     - base
     title: PipelinePayload
-    type: object
-  PipelineVmDisk:
-    example:
-      disk_size_gb: 50
-      disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
-      source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
-    properties:
-      disk_size_gb:
-        default: 0
-        description: Disk size
-        example: 50
-        format: int64
-        type: integer
-      disk_type:
-        default: ""
-        description: Disk type
-        example: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
-        type: string
-      source_image:
-        default: ""
-        description: Source image
-        example: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
-        type: string
-    required:
-    - source_image
-    title: PipelineVmDisk
     type: object
   ResizeIntanceGroupPayload:
     example:
