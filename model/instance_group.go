@@ -1,6 +1,9 @@
 package model
 
 import (
+	"fmt"
+	"time"
+
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
@@ -10,35 +13,39 @@ import (
 	"github.com/mjibson/goon"
 )
 
-type PipelineVmDisk struct {
-	// DiskName    string
+type InstanceGroupVMDisk struct {
 	DiskSizeGb  int
 	DiskType    string
 	SourceImage string
 }
 
-type Accelerators struct {
+type InstanceGroupAccelerators struct {
 	Count int
 	Type  string
 }
 
 type InstanceGroup struct {
-	Id               string `datastore:"-" goon:"id"`
+	Id               string         `datastore:"-" goon:"id"`
+	Parent           *datastore.Key `datastore:"-" goon:"parent"`
 	Name             string
 	ProjectID        string
 	Zone             string
-	BootDisk         PipelineVmDisk
+	BootDisk         InstanceGroupVMDisk
 	MachineType      string
-	GpuAccelerators  Accelerators
+	GpuAccelerators  InstanceGroupAccelerators
 	Preemptible      bool
 	InstanceSize     int
 	StartupScript    string
 	Status           string
 	DeploymentName   string
 	TokenConsumption int
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
 }
 
-type InstanceGroupStore struct{}
+type InstanceGroupStore struct {
+	ParentKey *datastore.Key
+}
 
 func (s *InstanceGroupStore) GetAll(ctx context.Context) ([]*InstanceGroup, error) {
 	g := goon.FromContext(ctx)
@@ -46,6 +53,7 @@ func (s *InstanceGroupStore) GetAll(ctx context.Context) ([]*InstanceGroup, erro
 	k := g.Kind(new(InstanceGroup))
 	log.Infof(ctx, "Kind is %v\n", k)
 	q := datastore.NewQuery(k)
+	q = q.Ancestor(s.ParentKey)
 	log.Infof(ctx, "q is %v\n", q)
 	_, err := g.GetAll(q.EventualConsistency(), &r)
 	if err != nil {
@@ -63,6 +71,11 @@ func (s *InstanceGroupStore) Get(ctx context.Context, id string) (*InstanceGroup
 		log.Errorf(ctx, "Failed to Get InstanceGroup because of %v\n", err)
 		return nil, err
 	}
+	if err := s.ValidateParent(&r); err != nil {
+		log.Errorf(ctx, "Invalid parent key for InstanceGroup because of %v\n", err)
+		return nil, err
+	}
+
 	return &r, nil
 }
 
@@ -71,10 +84,27 @@ func (s *InstanceGroupStore) Put(ctx context.Context, m *InstanceGroup) (*datast
 	if m.Id == "" {
 		m.Id = uuid.NewV4().String()
 	}
+	if err := s.ValidateParent(m); err != nil {
+		log.Errorf(ctx, "Invalid parent key for InstanceGroup because of %v\n", err)
+		return nil, err
+	}
 	key, err := g.Put(m)
 	if err != nil {
 		log.Errorf(ctx, "Failed to Put %v because of %v\n", m, err)
 		return nil, err
 	}
 	return key, nil
+}
+
+func (s *InstanceGroupStore) ValidateParent(m *InstanceGroup) error {
+	if s.ParentKey == nil {
+		return nil
+	}
+	if m.Parent == nil {
+		return fmt.Errorf("No Parent given to %v", m)
+	}
+	if !s.ParentKey.Equal(m.Parent) {
+		return fmt.Errorf("Invalid Parent for %v", m)
+	}
+	return nil
 }

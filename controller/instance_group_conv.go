@@ -1,47 +1,49 @@
 package controller
 
 import (
+	"time"
+
 	"github.com/groovenauts/blocks-concurrent-batch-server/app"
 	"github.com/groovenauts/blocks-concurrent-batch-server/model"
 )
 
-func PipelineVmDiskPayloadToModel(src *app.PipelineVMDisk) model.PipelineVmDisk {
+func InstanceGroupVMDiskPayloadToModel(src *app.InstanceGroupVMDisk) model.InstanceGroupVMDisk {
 	if src == nil {
-		return model.PipelineVmDisk{}
+		return model.InstanceGroupVMDisk{}
 	}
-	return model.PipelineVmDisk{
+	return model.InstanceGroupVMDisk{
+		DiskSizeGb:  IntPointerToInt(src.DiskSizeGb),
+		DiskType:    StringPointerToString(src.DiskType),
+		SourceImage: src.SourceImage,
+	}
+}
+
+func InstanceGroupVMDiskModelToMediaType(src *model.InstanceGroupVMDisk) *app.InstanceGroupVMDisk {
+	if src == nil {
+		return nil
+	}
+	return &app.InstanceGroupVMDisk{
 		DiskSizeGb:  src.DiskSizeGb,
 		DiskType:    src.DiskType,
 		SourceImage: src.SourceImage,
 	}
 }
 
-func PipelineVmDiskModelToMediaType(src *model.PipelineVmDisk) *app.PipelineVMDisk {
+func InstanceGroupAcceleratorsPayloadToModel(src *app.InstanceGroupAccelerators) model.InstanceGroupAccelerators {
 	if src == nil {
-		return &app.PipelineVMDisk{}
+		return model.InstanceGroupAccelerators{}
 	}
-	return &app.PipelineVMDisk{
-		DiskSizeGb:  src.DiskSizeGb,
-		DiskType:    src.DiskType,
-		SourceImage: src.SourceImage,
-	}
-}
-
-func AcceleratorsPayloadToModel(src *app.Accelerators) model.Accelerators {
-	if src == nil {
-		return model.Accelerators{}
-	}
-	return model.Accelerators{
+	return model.InstanceGroupAccelerators{
 		Count: src.Count,
 		Type:  src.Type,
 	}
 }
 
-func AcceleratorsModelToMediaType(src *model.Accelerators) *app.Accelerators {
+func InstanceGroupAcceleratorsModelToMediaType(src *model.InstanceGroupAccelerators) *app.InstanceGroupAccelerators {
 	if src == nil {
-		return &app.Accelerators{}
+		return nil
 	}
-	return &app.Accelerators{
+	return &app.InstanceGroupAccelerators{
 		Count: src.Count,
 		Type:  src.Type,
 	}
@@ -55,14 +57,18 @@ func InstanceGroupPayloadToModel(src *app.InstanceGroupPayload) model.InstanceGr
 		Name:             src.Name,
 		ProjectID:        src.ProjectID,
 		Zone:             src.Zone,
-		BootDisk:         PipelineVmDiskPayloadToModel(src.BootDisk),
+		BootDisk:         InstanceGroupVMDiskPayloadToModel(src.BootDisk),
 		MachineType:      src.MachineType,
-		GpuAccelerators:  AcceleratorsPayloadToModel(src.GpuAccelerators),
+		GpuAccelerators:  InstanceGroupAcceleratorsPayloadToModel(src.GpuAccelerators),
 		Preemptible:      BoolPointerToBool(src.Preemptible),
 		InstanceSize:     IntPointerToInt(src.InstanceSize),
 		StartupScript:    StringPointerToString(src.StartupScript),
 		DeploymentName:   StringPointerToString(src.DeploymentName),
 		TokenConsumption: IntPointerToInt(src.TokenConsumption),
+		// Status no payload field
+		// CreatedAt no payload field
+		// UpdatedAt no payload field
+		// No model field for payload field "pipeline_base_id"
 	}
 }
 
@@ -71,18 +77,20 @@ func InstanceGroupModelToMediaType(src *model.InstanceGroup) *app.InstanceGroup 
 		return nil
 	}
 	return &app.InstanceGroup{
-		ID:               src.Id,
 		Name:             src.Name,
 		ProjectID:        src.ProjectID,
 		Zone:             src.Zone,
-		BootDisk:         PipelineVmDiskModelToMediaType(&src.BootDisk),
+		BootDisk:         InstanceGroupVMDiskModelToMediaType(&src.BootDisk),
 		MachineType:      src.MachineType,
-		GpuAccelerators:  AcceleratorsModelToMediaType(&src.GpuAccelerators),
+		GpuAccelerators:  InstanceGroupAcceleratorsModelToMediaType(&src.GpuAccelerators),
 		Preemptible:      src.Preemptible,
 		InstanceSize:     src.InstanceSize,
 		StartupScript:    src.StartupScript,
 		Status:           src.Status,
 		DeploymentName:   src.DeploymentName,
 		TokenConsumption: src.TokenConsumption,
+		CreatedAt:        src.CreatedAt,
+		UpdatedAt:        src.UpdatedAt,
+		// No field for media type field "id"
 	}
 }
