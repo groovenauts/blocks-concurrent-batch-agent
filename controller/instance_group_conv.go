@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"time"
-
 	"github.com/groovenauts/blocks-concurrent-batch-server/app"
 	"github.com/groovenauts/blocks-concurrent-batch-server/model"
 )
@@ -23,8 +21,8 @@ func InstanceGroupVMDiskModelToMediaType(src *model.InstanceGroupVMDisk) *app.In
 		return nil
 	}
 	return &app.InstanceGroupVMDisk{
-		DiskSizeGb:  src.DiskSizeGb,
-		DiskType:    src.DiskType,
+		DiskSizeGb:  &src.DiskSizeGb,
+		DiskType:    &src.DiskType,
 		SourceImage: src.SourceImage,
 	}
 }
@@ -78,7 +76,6 @@ func InstanceGroupModelToMediaType(src *model.InstanceGroup) *app.InstanceGroup 
 	}
 	return &app.InstanceGroup{
 		Name:             src.Name,
-		ProjectID:        src.ProjectID,
 		Zone:             src.Zone,
 		BootDisk:         InstanceGroupVMDiskModelToMediaType(&src.BootDisk),
 		MachineType:      src.MachineType,
@@ -89,8 +86,9 @@ func InstanceGroupModelToMediaType(src *model.InstanceGroup) *app.InstanceGroup 
 		Status:           src.Status,
 		DeploymentName:   src.DeploymentName,
 		TokenConsumption: src.TokenConsumption,
-		CreatedAt:        src.CreatedAt,
-		UpdatedAt:        src.UpdatedAt,
+		CreatedAt:        &src.CreatedAt,
+		UpdatedAt:        &src.UpdatedAt,
+		// ProjectID no media type field
 		// No field for media type field "id"
 	}
 }
