@@ -7,7 +7,7 @@ anchors:
   required: true
 
 types:
-  InstanceGroupVmDisk:
+  InstanceGroupVMDisk:
     fields:
       DiskSizeGb: int
       DiskType: {}
@@ -30,7 +30,7 @@ types:
       ProjectID: *string_required
       Zone: *string_required
       BootDisk:
-        type: InstanceGroupVmDisk
+        type: InstanceGroupVMDisk
         required: true
       MachineType: *string_required
       GpuAccelerators: InstanceGroupAccelerators
