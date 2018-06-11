@@ -8,15 +8,12 @@ import (
 var InstanceGroupVmDisk = Type("InstanceGroupVmDisk", func() {
 	// Member("disk_name", String, "Disk name")
 	Member("disk_size_gb", Integer, "Disk size", func() {
-		Default(0)
 		Example(50)
 	})
 	Member("disk_type", String, "Disk type", func() {
-		Default("")
 		Example("projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard")
 	})
 	Member("source_image", String, "Source image", func() {
-		Default("")
 		Example("https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable")
 	})
 	Required("source_image")
@@ -24,11 +21,9 @@ var InstanceGroupVmDisk = Type("InstanceGroupVmDisk", func() {
 
 var InstanceGroupAccelerators = Type("InstanceGroupAccelerators", func() {
 	Member("count", Integer, "Count", func() {
-		Default(0)
 		Example(2)
 	})
 	Member("type", String, "Type", func() {
-		Default("")
 		Example("nvidia-tesla-p100")
 	})
 	Required("count", "type")
