@@ -236,13 +236,11 @@ definitions:
       type: nvidia-tesla-p100
     properties:
       count:
-        default: 0
         description: Count
         example: 2
         format: int64
         type: integer
       type:
-        default: ""
         description: Type
         example: nvidia-tesla-p100
         type: string
@@ -395,18 +393,15 @@ definitions:
       source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
     properties:
       disk_size_gb:
-        default: 0
         description: Disk size
         example: 50
         format: int64
         type: integer
       disk_type:
-        default: ""
         description: Disk type
         example: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
         type: string
       source_image:
-        default: ""
         description: Source image
         example: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
         type: string

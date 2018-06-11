@@ -22,18 +22,6 @@ type instanceGroupAccelerators struct {
 	Type *string `form:"type,omitempty" json:"type,omitempty" yaml:"type,omitempty" xml:"type,omitempty"`
 }
 
-// Finalize sets the default values for instanceGroupAccelerators type instance.
-func (ut *instanceGroupAccelerators) Finalize() {
-	var defaultCount = 0
-	if ut.Count == nil {
-		ut.Count = &defaultCount
-	}
-	var defaultType = ""
-	if ut.Type == nil {
-		ut.Type = &defaultType
-	}
-}
-
 // Validate validates the instanceGroupAccelerators type instance.
 func (ut *instanceGroupAccelerators) Validate() (err error) {
 	if ut.Count == nil {
@@ -100,34 +88,6 @@ type instanceGroupPayload struct {
 	TokenConsumption *int `form:"token_consumption,omitempty" json:"token_consumption,omitempty" yaml:"token_consumption,omitempty" xml:"token_consumption,omitempty"`
 	// GCP zone
 	Zone *string `form:"zone,omitempty" json:"zone,omitempty" yaml:"zone,omitempty" xml:"zone,omitempty"`
-}
-
-// Finalize sets the default values for instanceGroupPayload type instance.
-func (ut *instanceGroupPayload) Finalize() {
-	if ut.BootDisk != nil {
-		var defaultDiskSizeGb = 0
-		if ut.BootDisk.DiskSizeGb == nil {
-			ut.BootDisk.DiskSizeGb = &defaultDiskSizeGb
-		}
-		var defaultDiskType = ""
-		if ut.BootDisk.DiskType == nil {
-			ut.BootDisk.DiskType = &defaultDiskType
-		}
-		var defaultSourceImage = ""
-		if ut.BootDisk.SourceImage == nil {
-			ut.BootDisk.SourceImage = &defaultSourceImage
-		}
-	}
-	if ut.GpuAccelerators != nil {
-		var defaultCount = 0
-		if ut.GpuAccelerators.Count == nil {
-			ut.GpuAccelerators.Count = &defaultCount
-		}
-		var defaultType = ""
-		if ut.GpuAccelerators.Type == nil {
-			ut.GpuAccelerators.Type = &defaultType
-		}
-	}
 }
 
 // Validate validates the instanceGroupPayload type instance.
@@ -284,34 +244,6 @@ type instanceGroupPayloadBody struct {
 	Zone *string `form:"zone,omitempty" json:"zone,omitempty" yaml:"zone,omitempty" xml:"zone,omitempty"`
 }
 
-// Finalize sets the default values for instanceGroupPayloadBody type instance.
-func (ut *instanceGroupPayloadBody) Finalize() {
-	if ut.BootDisk != nil {
-		var defaultDiskSizeGb = 0
-		if ut.BootDisk.DiskSizeGb == nil {
-			ut.BootDisk.DiskSizeGb = &defaultDiskSizeGb
-		}
-		var defaultDiskType = ""
-		if ut.BootDisk.DiskType == nil {
-			ut.BootDisk.DiskType = &defaultDiskType
-		}
-		var defaultSourceImage = ""
-		if ut.BootDisk.SourceImage == nil {
-			ut.BootDisk.SourceImage = &defaultSourceImage
-		}
-	}
-	if ut.GpuAccelerators != nil {
-		var defaultCount = 0
-		if ut.GpuAccelerators.Count == nil {
-			ut.GpuAccelerators.Count = &defaultCount
-		}
-		var defaultType = ""
-		if ut.GpuAccelerators.Type == nil {
-			ut.GpuAccelerators.Type = &defaultType
-		}
-	}
-}
-
 // Validate validates the instanceGroupPayloadBody type instance.
 func (ut *instanceGroupPayloadBody) Validate() (err error) {
 	if ut.ProjectID == nil {
@@ -436,22 +368,6 @@ type instanceGroupVMDisk struct {
 	SourceImage *string `form:"source_image,omitempty" json:"source_image,omitempty" yaml:"source_image,omitempty" xml:"source_image,omitempty"`
 }
 
-// Finalize sets the default values for instanceGroupVMDisk type instance.
-func (ut *instanceGroupVMDisk) Finalize() {
-	var defaultDiskSizeGb = 0
-	if ut.DiskSizeGb == nil {
-		ut.DiskSizeGb = &defaultDiskSizeGb
-	}
-	var defaultDiskType = ""
-	if ut.DiskType == nil {
-		ut.DiskType = &defaultDiskType
-	}
-	var defaultSourceImage = ""
-	if ut.SourceImage == nil {
-		ut.SourceImage = &defaultSourceImage
-	}
-}
-
 // Validate validates the instanceGroupVMDisk type instance.
 func (ut *instanceGroupVMDisk) Validate() (err error) {
 	if ut.SourceImage == nil {
@@ -464,10 +380,10 @@ func (ut *instanceGroupVMDisk) Validate() (err error) {
 func (ut *instanceGroupVMDisk) Publicize() *InstanceGroupVMDisk {
 	var pub InstanceGroupVMDisk
 	if ut.DiskSizeGb != nil {
-		pub.DiskSizeGb = *ut.DiskSizeGb
+		pub.DiskSizeGb = ut.DiskSizeGb
 	}
 	if ut.DiskType != nil {
-		pub.DiskType = *ut.DiskType
+		pub.DiskType = ut.DiskType
 	}
 	if ut.SourceImage != nil {
 		pub.SourceImage = *ut.SourceImage
@@ -478,9 +394,9 @@ func (ut *instanceGroupVMDisk) Publicize() *InstanceGroupVMDisk {
 // InstanceGroupVMDisk user type.
 type InstanceGroupVMDisk struct {
 	// Disk size
-	DiskSizeGb int `form:"disk_size_gb" json:"disk_size_gb" yaml:"disk_size_gb" xml:"disk_size_gb"`
+	DiskSizeGb *int `form:"disk_size_gb,omitempty" json:"disk_size_gb,omitempty" yaml:"disk_size_gb,omitempty" xml:"disk_size_gb,omitempty"`
 	// Disk type
-	DiskType string `form:"disk_type" json:"disk_type" yaml:"disk_type" xml:"disk_type"`
+	DiskType *string `form:"disk_type,omitempty" json:"disk_type,omitempty" yaml:"disk_type,omitempty" xml:"disk_type,omitempty"`
 	// Source image
 	SourceImage string `form:"source_image" json:"source_image" yaml:"source_image" xml:"source_image"`
 }
@@ -708,32 +624,6 @@ func (ut *pipelineBasePayload) Finalize() {
 			ut.Container.Size = &defaultSize
 		}
 	}
-	if ut.InstanceGroup != nil {
-		if ut.InstanceGroup.BootDisk != nil {
-			var defaultDiskSizeGb = 0
-			if ut.InstanceGroup.BootDisk.DiskSizeGb == nil {
-				ut.InstanceGroup.BootDisk.DiskSizeGb = &defaultDiskSizeGb
-			}
-			var defaultDiskType = ""
-			if ut.InstanceGroup.BootDisk.DiskType == nil {
-				ut.InstanceGroup.BootDisk.DiskType = &defaultDiskType
-			}
-			var defaultSourceImage = ""
-			if ut.InstanceGroup.BootDisk.SourceImage == nil {
-				ut.InstanceGroup.BootDisk.SourceImage = &defaultSourceImage
-			}
-		}
-		if ut.InstanceGroup.GpuAccelerators != nil {
-			var defaultCount = 0
-			if ut.InstanceGroup.GpuAccelerators.Count == nil {
-				ut.InstanceGroup.GpuAccelerators.Count = &defaultCount
-			}
-			var defaultType = ""
-			if ut.InstanceGroup.GpuAccelerators.Type == nil {
-				ut.InstanceGroup.GpuAccelerators.Type = &defaultType
-			}
-		}
-	}
 }
 
 // Validate validates the pipelineBasePayload type instance.
@@ -830,32 +720,6 @@ func (ut *pipelineBasePayloadBody) Finalize() {
 		var defaultSize = 1
 		if ut.Container.Size == nil {
 			ut.Container.Size = &defaultSize
-		}
-	}
-	if ut.InstanceGroup != nil {
-		if ut.InstanceGroup.BootDisk != nil {
-			var defaultDiskSizeGb = 0
-			if ut.InstanceGroup.BootDisk.DiskSizeGb == nil {
-				ut.InstanceGroup.BootDisk.DiskSizeGb = &defaultDiskSizeGb
-			}
-			var defaultDiskType = ""
-			if ut.InstanceGroup.BootDisk.DiskType == nil {
-				ut.InstanceGroup.BootDisk.DiskType = &defaultDiskType
-			}
-			var defaultSourceImage = ""
-			if ut.InstanceGroup.BootDisk.SourceImage == nil {
-				ut.InstanceGroup.BootDisk.SourceImage = &defaultSourceImage
-			}
-		}
-		if ut.InstanceGroup.GpuAccelerators != nil {
-			var defaultCount = 0
-			if ut.InstanceGroup.GpuAccelerators.Count == nil {
-				ut.InstanceGroup.GpuAccelerators.Count = &defaultCount
-			}
-			var defaultType = ""
-			if ut.InstanceGroup.GpuAccelerators.Type == nil {
-				ut.InstanceGroup.GpuAccelerators.Type = &defaultType
-			}
 		}
 	}
 }
@@ -1015,32 +879,6 @@ func (ut *pipelinePayload) Finalize() {
 			var defaultSize = 1
 			if ut.Base.Container.Size == nil {
 				ut.Base.Container.Size = &defaultSize
-			}
-		}
-		if ut.Base.InstanceGroup != nil {
-			if ut.Base.InstanceGroup.BootDisk != nil {
-				var defaultDiskSizeGb = 0
-				if ut.Base.InstanceGroup.BootDisk.DiskSizeGb == nil {
-					ut.Base.InstanceGroup.BootDisk.DiskSizeGb = &defaultDiskSizeGb
-				}
-				var defaultDiskType = ""
-				if ut.Base.InstanceGroup.BootDisk.DiskType == nil {
-					ut.Base.InstanceGroup.BootDisk.DiskType = &defaultDiskType
-				}
-				var defaultSourceImage = ""
-				if ut.Base.InstanceGroup.BootDisk.SourceImage == nil {
-					ut.Base.InstanceGroup.BootDisk.SourceImage = &defaultSourceImage
-				}
-			}
-			if ut.Base.InstanceGroup.GpuAccelerators != nil {
-				var defaultCount = 0
-				if ut.Base.InstanceGroup.GpuAccelerators.Count == nil {
-					ut.Base.InstanceGroup.GpuAccelerators.Count = &defaultCount
-				}
-				var defaultType = ""
-				if ut.Base.InstanceGroup.GpuAccelerators.Type == nil {
-					ut.Base.InstanceGroup.GpuAccelerators.Type = &defaultType
-				}
 			}
 		}
 	}
