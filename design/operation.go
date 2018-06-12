@@ -21,7 +21,7 @@ var OperationPayload = Type("OperationPayload", func() {
 		Example("deploymentmanager")
 	})
 	Member("operation_type", String, "Operation Type")
-	Member("status", String, "status")
+	Member("status", String, "Operation Status")
 
 	Member("project_id", String, "GCP Project ID", func() {
 		Example("dummy-proj-999")

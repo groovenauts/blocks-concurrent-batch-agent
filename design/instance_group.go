@@ -102,15 +102,15 @@ var InstanceGroup = MediaType("application/vnd.instance-group+json", func() {
 		"preemptible",
 		"instance_size",
 		"startup_script",
-		"status",
 		"deployment_name",
 		"token_consumption",
 	}
 	Attributes(func() {
 		UseTrait(IdTrait)
-		Attribute("status", String, "Status", func() {
+		Attribute("status", String, "Instance Group Status", func() {
 			Enum("constructing", "constructing_error", "constructed", "resizing",
 				"destructing", "destructing_error", "destructed")
+			Example("constructing")
 		})
 		for _, attrName := range attrNames {
 			Attribute(attrName)
@@ -122,6 +122,7 @@ var InstanceGroup = MediaType("application/vnd.instance-group+json", func() {
 	})
 	View("default", func() {
 		Attribute("id")
+		Attribute("status")
 		for _, attrName := range attrNames {
 			Attribute(attrName)
 		}

@@ -30,7 +30,7 @@ var Job = MediaType("application/vnd.job+json", func() {
 		for _, attrName := range attrNames {
 			Attribute(attrName)
 		}
-		Attribute("status", String, "Status", func() {
+		Attribute("status", String, "Job Status", func() {
 			Enum("inactive", "blocked", "publishing", "publishing_error",
 				"published", "started", "success", "failure")
 		})

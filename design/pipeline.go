@@ -42,7 +42,7 @@ var Pipeline = MediaType("application/vnd.pipeline+json", func() {
 		Attribute("prev_base_id", String, "Previous pipeline base ID")
 		Attribute("curr_base_id", String, "Current pipeline base ID")
 		Attribute("next_base_id", String, "Next pipeline base ID")
-		Attribute("status", String, "Status", func() {
+		Attribute("status", String, "Pipeline Status", func() {
 			Enum("current_preparing", "current_preparing_error",
 				"running", "next_preparing",
 				"stopping", "stopping_error", "stopped")

@@ -33,7 +33,7 @@ var PipelineBasePayloadBody = Type("PipelineBasePayloadBody", func() {
 })
 
 var PipelineBasePayload = Type("PipelineBasePayload", func() {
-	Member("name", String, "Name of pipeline_base", func(){
+	Member("name", String, "Name of pipeline_base", func() {
 		Example("pipeline1-123")
 	})
 	Required("name")
@@ -64,7 +64,7 @@ var PipelineBase = MediaType("application/vnd.pipeline-base+json", func() {
 		for _, attrName := range attrNames {
 			Attribute(attrName)
 		}
-		Attribute("status", String, "Status", func() {
+		Attribute("status", String, "Pipeline Base Status", func() {
 			Enum("opening", "opening_error", "hibernating", "waking", "waking_error",
 				"awake", "hibernation_checking", "hibernation_going", "hibernation_going_error",
 				"closing", "closing_error", "closed")
@@ -80,6 +80,8 @@ var PipelineBase = MediaType("application/vnd.pipeline-base+json", func() {
 		for _, attrName := range attrNames {
 			Attribute(attrName)
 		}
+		Attribute("status")
+		Attribute("instance_group_id")
 		UseTrait(TimestampsViewTrait)
 	})
 })
