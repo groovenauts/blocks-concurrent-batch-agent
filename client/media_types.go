@@ -75,7 +75,8 @@ type InstanceGroup struct {
 	ProjectID string `form:"project_id" json:"project_id" yaml:"project_id" xml:"project_id"`
 	// Startup script
 	StartupScript string `form:"startup_script" json:"startup_script" yaml:"startup_script" xml:"startup_script"`
-	Status        string `form:"status" json:"status" yaml:"status" xml:"status"`
+	// Instance Group Status
+	Status *string `form:"status,omitempty" json:"status,omitempty" yaml:"status,omitempty" xml:"status,omitempty"`
 	// Token Consumption
 	TokenConsumption int `form:"token_consumption" json:"token_consumption" yaml:"token_consumption" xml:"token_consumption"`
 	// Datetime updated
@@ -111,9 +112,6 @@ func (mt *InstanceGroup) Validate() (err error) {
 	if mt.StartupScript == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "startup_script"))
 	}
-	if mt.Status == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "status"))
-	}
 	if mt.DeploymentName == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "deployment_name"))
 	}
@@ -126,6 +124,11 @@ func (mt *InstanceGroup) Validate() (err error) {
 	if mt.GpuAccelerators != nil {
 		if err2 := mt.GpuAccelerators.Validate(); err2 != nil {
 			err = goa.MergeErrors(err, err2)
+		}
+	}
+	if mt.Status != nil {
+		if !(*mt.Status == "constructing" || *mt.Status == "constructing_error" || *mt.Status == "constructed" || *mt.Status == "resizing" || *mt.Status == "destructing" || *mt.Status == "destructing_error" || *mt.Status == "destructed") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError(`response.status`, *mt.Status, []interface{}{"constructing", "constructing_error", "constructed", "resizing", "destructing", "destructing_error", "destructed"}))
 		}
 	}
 	return
@@ -154,7 +157,7 @@ type InstanceGroupOperation struct {
 	ProjectID string `form:"project_id" json:"project_id" yaml:"project_id" xml:"project_id"`
 	// Service name
 	Service string `form:"service" json:"service" yaml:"service" xml:"service"`
-	// status
+	// Operation Status
 	Status string `form:"status" json:"status" yaml:"status" xml:"status"`
 	// Datetime updated
 	UpdatedAt *time.Time `form:"updated_at,omitempty" json:"updated_at,omitempty" yaml:"updated_at,omitempty" xml:"updated_at,omitempty"`
@@ -245,7 +248,7 @@ type Job struct {
 	PublishTime *time.Time `form:"publish_time,omitempty" json:"publish_time,omitempty" yaml:"publish_time,omitempty" xml:"publish_time,omitempty"`
 	// Time when job starts
 	StartTime *time.Time `form:"start_time,omitempty" json:"start_time,omitempty" yaml:"start_time,omitempty" xml:"start_time,omitempty"`
-	// Status
+	// Job Status
 	Status *string `form:"status,omitempty" json:"status,omitempty" yaml:"status,omitempty" xml:"status,omitempty"`
 	// Datetime updated
 	UpdatedAt *time.Time `form:"updated_at,omitempty" json:"updated_at,omitempty" yaml:"updated_at,omitempty" xml:"updated_at,omitempty"`
@@ -299,7 +302,7 @@ type Pipeline struct {
 	NextBaseID *string `form:"next_base_id,omitempty" json:"next_base_id,omitempty" yaml:"next_base_id,omitempty" xml:"next_base_id,omitempty"`
 	// Previous pipeline base ID
 	PrevBaseID *string `form:"prev_base_id,omitempty" json:"prev_base_id,omitempty" yaml:"prev_base_id,omitempty" xml:"prev_base_id,omitempty"`
-	// Status
+	// Pipeline Status
 	Status *string `form:"status,omitempty" json:"status,omitempty" yaml:"status,omitempty" xml:"status,omitempty"`
 	// Datetime updated
 	UpdatedAt *time.Time `form:"updated_at,omitempty" json:"updated_at,omitempty" yaml:"updated_at,omitempty" xml:"updated_at,omitempty"`
@@ -356,6 +359,10 @@ type PipelineBase struct {
 	ID string `form:"id" json:"id" yaml:"id" xml:"id"`
 	// Instance Group configuration
 	InstanceGroup *InstanceGroupPayloadBody `form:"instance_group" json:"instance_group" yaml:"instance_group" xml:"instance_group"`
+	// ID of instance group
+	InstanceGroupID *string `form:"instance_group_id,omitempty" json:"instance_group_id,omitempty" yaml:"instance_group_id,omitempty" xml:"instance_group_id,omitempty"`
+	// Pipeline Base Status
+	Status *string `form:"status,omitempty" json:"status,omitempty" yaml:"status,omitempty" xml:"status,omitempty"`
 	// Datetime updated
 	UpdatedAt *time.Time `form:"updated_at,omitempty" json:"updated_at,omitempty" yaml:"updated_at,omitempty" xml:"updated_at,omitempty"`
 }
@@ -380,6 +387,11 @@ func (mt *PipelineBase) Validate() (err error) {
 	if mt.InstanceGroup != nil {
 		if err2 := mt.InstanceGroup.Validate(); err2 != nil {
 			err = goa.MergeErrors(err, err2)
+		}
+	}
+	if mt.Status != nil {
+		if !(*mt.Status == "opening" || *mt.Status == "opening_error" || *mt.Status == "hibernating" || *mt.Status == "waking" || *mt.Status == "waking_error" || *mt.Status == "awake" || *mt.Status == "hibernation_checking" || *mt.Status == "hibernation_going" || *mt.Status == "hibernation_going_error" || *mt.Status == "closing" || *mt.Status == "closing_error" || *mt.Status == "closed") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError(`response.status`, *mt.Status, []interface{}{"opening", "opening_error", "hibernating", "waking", "waking_error", "awake", "hibernation_checking", "hibernation_going", "hibernation_going_error", "closing", "closing_error", "closed"}))
 		}
 	}
 	return

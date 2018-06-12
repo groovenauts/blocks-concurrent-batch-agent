@@ -497,7 +497,7 @@ type operationPayload struct {
 	ProjectID *string `form:"project_id,omitempty" json:"project_id,omitempty" yaml:"project_id,omitempty" xml:"project_id,omitempty"`
 	// Service name
 	Service *string `form:"service,omitempty" json:"service,omitempty" yaml:"service,omitempty" xml:"service,omitempty"`
-	// status
+	// Operation Status
 	Status *string `form:"status,omitempty" json:"status,omitempty" yaml:"status,omitempty" xml:"status,omitempty"`
 	// GCP zone
 	Zone *string `form:"zone,omitempty" json:"zone,omitempty" yaml:"zone,omitempty" xml:"zone,omitempty"`
@@ -575,7 +575,7 @@ type OperationPayload struct {
 	ProjectID string `form:"project_id" json:"project_id" yaml:"project_id" xml:"project_id"`
 	// Service name
 	Service string `form:"service" json:"service" yaml:"service" xml:"service"`
-	// status
+	// Operation Status
 	Status string `form:"status" json:"status" yaml:"status" xml:"status"`
 	// GCP zone
 	Zone string `form:"zone" json:"zone" yaml:"zone" xml:"zone"`

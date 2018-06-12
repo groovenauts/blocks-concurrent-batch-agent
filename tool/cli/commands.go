@@ -385,7 +385,7 @@ Payload example:
       "disk_type": "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
       "source_image": "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable"
    },
-   "deployment_name": "A perferendis itaque corporis voluptatem.",
+   "deployment_name": "Voluptatem quaerat.",
    "gpu_accelerators": {
       "count": 2,
       "type": "nvidia-tesla-p100"
@@ -396,7 +396,7 @@ Payload example:
    "pipeline_base_id": "bd2d5ee3-d8be-4024-85a7-334dee9c1c88",
    "preemptible": true,
    "project_id": "dummy-proj-999",
-   "startup_script": "Hic est.",
+   "startup_script": "Corrupti nihil cupiditate voluptatum omnis.",
    "token_consumption": 2,
    "zone": "us-central1-f"
 }`,
@@ -414,12 +414,12 @@ Payload example:
 Payload example:
 
 {
-   "id_by_client": "Non architecto mollitia voluptatibus ducimus nisi.",
+   "id_by_client": "Id culpa quo quae commodi beatae.",
    "message": {
       "attributes": {
-         "Dolor ut iusto.": "Sequi adipisci eius temporibus adipisci quis."
+         "Et aspernatur et.": "Aut et similique consectetur corporis aut ratione."
       },
-      "data": "Ut eum enim eum aliquam."
+      "data": "Asperiores dolor ut iusto pariatur."
    }
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
@@ -438,28 +438,28 @@ Payload example:
 {
    "container": {
       "command": "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
-      "name": "Enim animi veritatis nisi veritatis corporis.",
+      "name": "Aut illo.",
       "options": "--restart=on-failure:3",
       "size": 2,
-      "stackdriver_agent": false
+      "stackdriver_agent": true
    },
-   "hibernation_delay": 435861793796380430,
+   "hibernation_delay": 8598421964078057100,
    "instance_group": {
       "boot_disk": {
          "disk_size_gb": 50,
          "disk_type": "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
          "source_image": "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable"
       },
-      "deployment_name": "Mollitia laboriosam iure labore.",
+      "deployment_name": "Veritatis corporis aliquam.",
       "gpu_accelerators": {
          "count": 2,
          "type": "nvidia-tesla-p100"
       },
       "instance_size": 3,
       "machine_type": "f1-micro",
-      "preemptible": false,
+      "preemptible": true,
       "project_id": "dummy-proj-999",
-      "startup_script": "Possimus optio et voluptas quia suscipit autem.",
+      "startup_script": "Sed id eveniet quis sit.",
       "token_consumption": 2,
       "zone": "us-central1-f"
    },
@@ -481,28 +481,28 @@ Payload example:
 {
    "container": {
       "command": "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
-      "name": "Enim animi veritatis nisi veritatis corporis.",
+      "name": "Aut illo.",
       "options": "--restart=on-failure:3",
       "size": 2,
-      "stackdriver_agent": false
+      "stackdriver_agent": true
    },
-   "hibernation_delay": 1542460047829617553,
+   "hibernation_delay": 4251147645571147493,
    "instance_group": {
       "boot_disk": {
          "disk_size_gb": 50,
          "disk_type": "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
          "source_image": "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable"
       },
-      "deployment_name": "Mollitia laboriosam iure labore.",
+      "deployment_name": "Veritatis corporis aliquam.",
       "gpu_accelerators": {
          "count": 2,
          "type": "nvidia-tesla-p100"
       },
       "instance_size": 3,
       "machine_type": "f1-micro",
-      "preemptible": false,
+      "preemptible": true,
       "project_id": "dummy-proj-999",
-      "startup_script": "Possimus optio et voluptas quia suscipit autem.",
+      "startup_script": "Sed id eveniet quis sit.",
       "token_consumption": 2,
       "zone": "us-central1-f"
    },
@@ -771,7 +771,7 @@ Payload example:
 Payload example:
 
 {
-   "new_size": 866966539938638813
+   "new_size": 5041815502873883296
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp28.Run(c, args) },
 	}
@@ -833,14 +833,14 @@ Payload example:
 Payload example:
 
 {
-   "finalize_task_path": "Eos id culpa quo.",
+   "finalize_task_path": "Velit voluptatem quidem laudantium voluptatem.",
    "name": "instancegroup-ope1",
-   "operation_type": "Commodi beatae quod magni ea ducimus aspernatur.",
+   "operation_type": "Consequatur culpa magni ea.",
    "owner_id": "bd2d5ee3-d8be-4024-85a7-334dee9c1c88",
    "owner_type": "InstanceGroup",
    "project_id": "dummy-proj-999",
    "service": "deploymentmanager",
-   "status": "Aperiam est.",
+   "status": "Quia molestiae.",
    "zone": "us-central1-f"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp33.Run(c, args) },
@@ -857,14 +857,14 @@ Payload example:
 Payload example:
 
 {
-   "finalize_task_path": "Eos id culpa quo.",
+   "finalize_task_path": "Velit voluptatem quidem laudantium voluptatem.",
    "name": "instancegroup-ope1",
-   "operation_type": "Commodi beatae quod magni ea ducimus aspernatur.",
+   "operation_type": "Consequatur culpa magni ea.",
    "owner_id": "bd2d5ee3-d8be-4024-85a7-334dee9c1c88",
    "owner_type": "InstanceGroup",
    "project_id": "dummy-proj-999",
    "service": "deploymentmanager",
-   "status": "Aperiam est.",
+   "status": "Quia molestiae.",
    "zone": "us-central1-f"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp34.Run(c, args) },
@@ -881,14 +881,14 @@ Payload example:
 Payload example:
 
 {
-   "finalize_task_path": "Eos id culpa quo.",
+   "finalize_task_path": "Velit voluptatem quidem laudantium voluptatem.",
    "name": "instancegroup-ope1",
-   "operation_type": "Commodi beatae quod magni ea ducimus aspernatur.",
+   "operation_type": "Consequatur culpa magni ea.",
    "owner_id": "bd2d5ee3-d8be-4024-85a7-334dee9c1c88",
    "owner_type": "InstanceGroup",
    "project_id": "dummy-proj-999",
    "service": "deploymentmanager",
-   "status": "Aperiam est.",
+   "status": "Quia molestiae.",
    "zone": "us-central1-f"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp35.Run(c, args) },
@@ -905,14 +905,14 @@ Payload example:
 Payload example:
 
 {
-   "finalize_task_path": "Eos id culpa quo.",
+   "finalize_task_path": "Velit voluptatem quidem laudantium voluptatem.",
    "name": "instancegroup-ope1",
-   "operation_type": "Commodi beatae quod magni ea ducimus aspernatur.",
+   "operation_type": "Consequatur culpa magni ea.",
    "owner_id": "bd2d5ee3-d8be-4024-85a7-334dee9c1c88",
    "owner_type": "InstanceGroup",
    "project_id": "dummy-proj-999",
    "service": "deploymentmanager",
-   "status": "Aperiam est.",
+   "status": "Quia molestiae.",
    "zone": "us-central1-f"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp36.Run(c, args) },
@@ -929,14 +929,14 @@ Payload example:
 Payload example:
 
 {
-   "finalize_task_path": "Eos id culpa quo.",
+   "finalize_task_path": "Velit voluptatem quidem laudantium voluptatem.",
    "name": "instancegroup-ope1",
-   "operation_type": "Commodi beatae quod magni ea ducimus aspernatur.",
+   "operation_type": "Consequatur culpa magni ea.",
    "owner_id": "bd2d5ee3-d8be-4024-85a7-334dee9c1c88",
    "owner_type": "InstanceGroup",
    "project_id": "dummy-proj-999",
    "service": "deploymentmanager",
-   "status": "Aperiam est.",
+   "status": "Quia molestiae.",
    "zone": "us-central1-f"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp37.Run(c, args) },
