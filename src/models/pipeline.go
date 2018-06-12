@@ -350,7 +350,7 @@ func (m *Pipeline) StateTransition(ctx context.Context, froms []Status, to Statu
 
 func (m *Pipeline) StartBuilding(ctx context.Context) error {
 	m.InstanceSize = m.TargetSize
-	return m.StateTransition(ctx, []Status{Reserved, Building}, Building)
+	return m.StateTransition(ctx, []Status{Reserved, Building, Hibernating}, Building)
 }
 
 func (m *Pipeline) StartDeploying(ctx context.Context, deploymentName string) error {
