@@ -238,39 +238,56 @@ func (mt *Job) Validate() (err error) {
 //
 // Identifier: application/vnd.pipeline+json; view=default
 type Pipeline struct {
-	// PipelineBase configuration
-	Base *PipelineBasePayloadBody `form:"base" json:"base" yaml:"base" xml:"base"`
+	// Container configuration
+	Container *PipelineContainerPayload `form:"container" json:"container" yaml:"container" xml:"container"`
 	// Datetime created
 	CreatedAt *time.Time `form:"created_at,omitempty" json:"created_at,omitempty" yaml:"created_at,omitempty" xml:"created_at,omitempty"`
 	// Current pipeline base ID
 	CurrBaseID *string `form:"curr_base_id,omitempty" json:"curr_base_id,omitempty" yaml:"curr_base_id,omitempty" xml:"curr_base_id,omitempty"`
+	// Hibernation delay in seconds since last job finsihed
+	HibernationDelay int `form:"hibernation_delay" json:"hibernation_delay" yaml:"hibernation_delay" xml:"hibernation_delay"`
 	// ID
 	ID *string `form:"id,omitempty" json:"id,omitempty" yaml:"id,omitempty" xml:"id,omitempty"`
+	// Instance Group configuration
+	InstanceGroup *InstanceGroupPayloadBody `form:"instance_group" json:"instance_group" yaml:"instance_group" xml:"instance_group"`
+	// Name of pipeline_base
+	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
 	// Next pipeline base ID
 	NextBaseID *string `form:"next_base_id,omitempty" json:"next_base_id,omitempty" yaml:"next_base_id,omitempty" xml:"next_base_id,omitempty"`
 	// Previous pipeline base ID
 	PrevBaseID *string `form:"prev_base_id,omitempty" json:"prev_base_id,omitempty" yaml:"prev_base_id,omitempty" xml:"prev_base_id,omitempty"`
 	// Status
-	Status string `form:"status" json:"status" yaml:"status" xml:"status"`
+	Status *string `form:"status,omitempty" json:"status,omitempty" yaml:"status,omitempty" xml:"status,omitempty"`
 	// Datetime updated
 	UpdatedAt *time.Time `form:"updated_at,omitempty" json:"updated_at,omitempty" yaml:"updated_at,omitempty" xml:"updated_at,omitempty"`
 }
 
 // Validate validates the Pipeline media type instance.
 func (mt *Pipeline) Validate() (err error) {
-	if mt.Base == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "base"))
+	if mt.Name == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "name"))
 	}
-	if mt.Status == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "status"))
+	if mt.InstanceGroup == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "instance_group"))
 	}
-	if mt.Base != nil {
-		if err2 := mt.Base.Validate(); err2 != nil {
+	if mt.Container == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "container"))
+	}
+
+	if mt.Container != nil {
+		if err2 := mt.Container.Validate(); err2 != nil {
 			err = goa.MergeErrors(err, err2)
 		}
 	}
-	if !(mt.Status == "current_preparing" || mt.Status == "current_preparing_error" || mt.Status == "running" || mt.Status == "next_preparing" || mt.Status == "stopping" || mt.Status == "stopping_error" || mt.Status == "stopped") {
-		err = goa.MergeErrors(err, goa.InvalidEnumValueError(`response.status`, mt.Status, []interface{}{"current_preparing", "current_preparing_error", "running", "next_preparing", "stopping", "stopping_error", "stopped"}))
+	if mt.InstanceGroup != nil {
+		if err2 := mt.InstanceGroup.Validate(); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	if mt.Status != nil {
+		if !(*mt.Status == "current_preparing" || *mt.Status == "current_preparing_error" || *mt.Status == "running" || *mt.Status == "next_preparing" || *mt.Status == "stopping" || *mt.Status == "stopping_error" || *mt.Status == "stopped") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError(`response.status`, *mt.Status, []interface{}{"current_preparing", "current_preparing_error", "running", "next_preparing", "stopping", "stopping_error", "stopped"}))
+		}
 	}
 	return
 }

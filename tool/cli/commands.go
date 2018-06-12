@@ -436,34 +436,32 @@ Payload example:
 Payload example:
 
 {
-   "base": {
-      "container": {
-         "command": "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
-         "name": "Enim animi veritatis nisi veritatis corporis.",
-         "options": "--restart=on-failure:3",
-         "size": 2,
-         "stackdriver_agent": false
+   "container": {
+      "command": "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
+      "name": "Enim animi veritatis nisi veritatis corporis.",
+      "options": "--restart=on-failure:3",
+      "size": 2,
+      "stackdriver_agent": false
+   },
+   "hibernation_delay": 435861793796380430,
+   "instance_group": {
+      "boot_disk": {
+         "disk_size_gb": 50,
+         "disk_type": "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
+         "source_image": "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable"
       },
-      "hibernation_delay": 3317251858221010256,
-      "instance_group": {
-         "boot_disk": {
-            "disk_size_gb": 50,
-            "disk_type": "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
-            "source_image": "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable"
-         },
-         "deployment_name": "Sed id eveniet quis sit.",
-         "gpu_accelerators": {
-            "count": 2,
-            "type": "nvidia-tesla-p100"
-         },
-         "instance_size": 3,
-         "machine_type": "f1-micro",
-         "preemptible": true,
-         "project_id": "dummy-proj-999",
-         "startup_script": "Mollitia laboriosam iure labore.",
-         "token_consumption": 2,
-         "zone": "us-central1-f"
-      }
+      "deployment_name": "Mollitia laboriosam iure labore.",
+      "gpu_accelerators": {
+         "count": 2,
+         "type": "nvidia-tesla-p100"
+      },
+      "instance_size": 3,
+      "machine_type": "f1-micro",
+      "preemptible": false,
+      "project_id": "dummy-proj-999",
+      "startup_script": "Possimus optio et voluptas quia suscipit autem.",
+      "token_consumption": 2,
+      "zone": "us-central1-f"
    },
    "name": "pipeline1"
 }`,
@@ -488,23 +486,23 @@ Payload example:
       "size": 2,
       "stackdriver_agent": false
    },
-   "hibernation_delay": 435861793796380430,
+   "hibernation_delay": 1542460047829617553,
    "instance_group": {
       "boot_disk": {
          "disk_size_gb": 50,
          "disk_type": "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
          "source_image": "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable"
       },
-      "deployment_name": "Sed id eveniet quis sit.",
+      "deployment_name": "Mollitia laboriosam iure labore.",
       "gpu_accelerators": {
          "count": 2,
          "type": "nvidia-tesla-p100"
       },
       "instance_size": 3,
       "machine_type": "f1-micro",
-      "preemptible": true,
+      "preemptible": false,
       "project_id": "dummy-proj-999",
-      "startup_script": "Mollitia laboriosam iure labore.",
+      "startup_script": "Possimus optio et voluptas quia suscipit autem.",
       "token_consumption": 2,
       "zone": "us-central1-f"
    },

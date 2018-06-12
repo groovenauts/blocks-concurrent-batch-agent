@@ -866,20 +866,22 @@ func (ut *PipelineContainerPayload) Validate() (err error) {
 
 // pipelinePayload user type.
 type pipelinePayload struct {
-	// PipelineBase configuration
-	Base *pipelineBasePayloadBody `form:"base,omitempty" json:"base,omitempty" yaml:"base,omitempty" xml:"base,omitempty"`
+	// Container configuration
+	Container *pipelineContainerPayload `form:"container,omitempty" json:"container,omitempty" yaml:"container,omitempty" xml:"container,omitempty"`
+	// Hibernation delay in seconds since last job finsihed
+	HibernationDelay *int `form:"hibernation_delay,omitempty" json:"hibernation_delay,omitempty" yaml:"hibernation_delay,omitempty" xml:"hibernation_delay,omitempty"`
+	// Instance Group configuration
+	InstanceGroup *instanceGroupPayloadBody `form:"instance_group,omitempty" json:"instance_group,omitempty" yaml:"instance_group,omitempty" xml:"instance_group,omitempty"`
 	// Name of pipeline_base
 	Name *string `form:"name,omitempty" json:"name,omitempty" yaml:"name,omitempty" xml:"name,omitempty"`
 }
 
 // Finalize sets the default values for pipelinePayload type instance.
 func (ut *pipelinePayload) Finalize() {
-	if ut.Base != nil {
-		if ut.Base.Container != nil {
-			var defaultSize = 1
-			if ut.Base.Container.Size == nil {
-				ut.Base.Container.Size = &defaultSize
-			}
+	if ut.Container != nil {
+		var defaultSize = 1
+		if ut.Container.Size == nil {
+			ut.Container.Size = &defaultSize
 		}
 	}
 }
@@ -889,11 +891,19 @@ func (ut *pipelinePayload) Validate() (err error) {
 	if ut.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "name"))
 	}
-	if ut.Base == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "base"))
+	if ut.InstanceGroup == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "instance_group"))
 	}
-	if ut.Base != nil {
-		if err2 := ut.Base.Validate(); err2 != nil {
+	if ut.Container == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "container"))
+	}
+	if ut.Container != nil {
+		if err2 := ut.Container.Validate(); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	if ut.InstanceGroup != nil {
+		if err2 := ut.InstanceGroup.Validate(); err2 != nil {
 			err = goa.MergeErrors(err, err2)
 		}
 	}
@@ -903,8 +913,14 @@ func (ut *pipelinePayload) Validate() (err error) {
 // Publicize creates PipelinePayload from pipelinePayload
 func (ut *pipelinePayload) Publicize() *PipelinePayload {
 	var pub PipelinePayload
-	if ut.Base != nil {
-		pub.Base = ut.Base.Publicize()
+	if ut.Container != nil {
+		pub.Container = ut.Container.Publicize()
+	}
+	if ut.HibernationDelay != nil {
+		pub.HibernationDelay = ut.HibernationDelay
+	}
+	if ut.InstanceGroup != nil {
+		pub.InstanceGroup = ut.InstanceGroup.Publicize()
 	}
 	if ut.Name != nil {
 		pub.Name = *ut.Name
@@ -914,8 +930,12 @@ func (ut *pipelinePayload) Publicize() *PipelinePayload {
 
 // PipelinePayload user type.
 type PipelinePayload struct {
-	// PipelineBase configuration
-	Base *PipelineBasePayloadBody `form:"base" json:"base" yaml:"base" xml:"base"`
+	// Container configuration
+	Container *PipelineContainerPayload `form:"container" json:"container" yaml:"container" xml:"container"`
+	// Hibernation delay in seconds since last job finsihed
+	HibernationDelay *int `form:"hibernation_delay,omitempty" json:"hibernation_delay,omitempty" yaml:"hibernation_delay,omitempty" xml:"hibernation_delay,omitempty"`
+	// Instance Group configuration
+	InstanceGroup *InstanceGroupPayloadBody `form:"instance_group" json:"instance_group" yaml:"instance_group" xml:"instance_group"`
 	// Name of pipeline_base
 	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
 }
@@ -925,11 +945,19 @@ func (ut *PipelinePayload) Validate() (err error) {
 	if ut.Name == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "name"))
 	}
-	if ut.Base == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "base"))
+	if ut.InstanceGroup == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "instance_group"))
 	}
-	if ut.Base != nil {
-		if err2 := ut.Base.Validate(); err2 != nil {
+	if ut.Container == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "container"))
+	}
+	if ut.Container != nil {
+		if err2 := ut.Container.Validate(); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	if ut.InstanceGroup != nil {
+		if err2 := ut.InstanceGroup.Validate(); err2 != nil {
 			err = goa.MergeErrors(err, err2)
 		}
 	}
