@@ -6,22 +6,39 @@ import (
 )
 
 var PipelinePayload = Type("PipelinePayload", func() {
-	Member("name", String, "Name of pipeline_base", func(){
+	Member("name", String, "Name of pipeline_base", func() {
 		Example("pipeline1")
 	})
 	Required("name")
 
-	Member("base", PipelineBasePayloadBody, "PipelineBase configuration")
-	Required("base")
+	Reference(PipelineBasePayloadBody)
+	members := []string{
+		"instance_group",
+		"container",
+		"hibernation_delay",
+	}
+	for _, m := range members {
+		Member(m)
+	}
+	Required(pipelineBasePayloadBodyRequired...)
 })
 
 var Pipeline = MediaType("application/vnd.pipeline+json", func() {
 	Description("pipeline")
 	Reference(PipelinePayload)
 
+	inheritedAttrs := []string{
+		"name",
+		"instance_group",
+		"container",
+		"hibernation_delay",
+	}
+
 	Attributes(func() {
 		UseTrait(IdTrait)
-		Attribute("base")
+		for _, attr := range inheritedAttrs {
+			Attribute(attr)
+		}
 		Attribute("prev_base_id", String, "Previous pipeline base ID")
 		Attribute("curr_base_id", String, "Current pipeline base ID")
 		Attribute("next_base_id", String, "Next pipeline base ID")
@@ -32,11 +49,13 @@ var Pipeline = MediaType("application/vnd.pipeline+json", func() {
 		})
 		UseTrait(TimestampsAttrTrait)
 
-		Required("base", "status")
+		Required(inheritedAttrs...)
 	})
 	View("default", func() {
 		Attribute("id")
-		Attribute("base")
+		for _, attr := range inheritedAttrs {
+			Attribute(attr)
+		}
 		Attribute("prev_base_id")
 		Attribute("curr_base_id")
 		Attribute("next_base_id")
