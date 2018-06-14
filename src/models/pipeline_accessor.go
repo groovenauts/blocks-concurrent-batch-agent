@@ -36,6 +36,12 @@ func (pa *PipelineAccessor) FindByKey(ctx context.Context, key *datastore.Key) (
 }
 
 func (pa *PipelineAccessor) LoadByID(ctx context.Context, pl *Pipeline) error {
+	if pl.ID == "" {
+		err := fmt.Errorf("No ID given to load a Pipeline %v", pl)
+		log.Errorf(ctx, "Failed to load Pipeline because of %v\n", err)
+		return err
+	}
+
 	key, err := datastore.DecodeKey(pl.ID)
 	if err != nil {
 		log.Errorf(ctx, "Failed to decode id(%v) to key because of %v \n", pl.ID, err)
