@@ -7,6 +7,9 @@ anchors:
   required: true
 
 types:
+  InstanceGroupStatus:
+    base: string
+    enum: "definitions/Instance-Group/properties/status/enum"
   InstanceGroupVMDisk:
     fields:
       DiskSizeGb: int
