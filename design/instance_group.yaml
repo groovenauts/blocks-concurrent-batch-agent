@@ -40,7 +40,9 @@ types:
       Preemptible: bool
       InstanceSize: int
       StartupScript: {}
-      Status: {}
+      Status:
+        type: InstanceGroupStatus
+        required: true
       DeploymentName: {}
       TokenConsumption: int
       CreatedAt: *time_required
