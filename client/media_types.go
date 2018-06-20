@@ -76,7 +76,7 @@ type InstanceGroup struct {
 	// Startup script
 	StartupScript string `form:"startup_script" json:"startup_script" yaml:"startup_script" xml:"startup_script"`
 	// Instance Group Status
-	Status *string `form:"status,omitempty" json:"status,omitempty" yaml:"status,omitempty" xml:"status,omitempty"`
+	Status string `form:"status" json:"status" yaml:"status" xml:"status"`
 	// Token Consumption
 	TokenConsumption int `form:"token_consumption" json:"token_consumption" yaml:"token_consumption" xml:"token_consumption"`
 	// Datetime updated
@@ -89,6 +89,9 @@ type InstanceGroup struct {
 func (mt *InstanceGroup) Validate() (err error) {
 	if mt.ID == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "id"))
+	}
+	if mt.Status == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "status"))
 	}
 	if mt.Name == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "name"))
@@ -126,10 +129,8 @@ func (mt *InstanceGroup) Validate() (err error) {
 			err = goa.MergeErrors(err, err2)
 		}
 	}
-	if mt.Status != nil {
-		if !(*mt.Status == "constructing" || *mt.Status == "constructing_error" || *mt.Status == "constructed" || *mt.Status == "resizing" || *mt.Status == "destructing" || *mt.Status == "destructing_error" || *mt.Status == "destructed") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError(`response.status`, *mt.Status, []interface{}{"constructing", "constructing_error", "constructed", "resizing", "destructing", "destructing_error", "destructed"}))
-		}
+	if !(mt.Status == "constructing" || mt.Status == "constructing_error" || mt.Status == "constructed" || mt.Status == "resizing" || mt.Status == "destructing" || mt.Status == "destructing_error" || mt.Status == "destructed") {
+		err = goa.MergeErrors(err, goa.InvalidEnumValueError(`response.status`, mt.Status, []interface{}{"constructing", "constructing_error", "constructed", "resizing", "destructing", "destructing_error", "destructed"}))
 	}
 	return
 }

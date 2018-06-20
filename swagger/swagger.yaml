@@ -115,6 +115,7 @@ definitions:
         type: string
     required:
     - id
+    - status
     - name
     - project_id
     - zone
