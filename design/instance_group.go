@@ -117,7 +117,7 @@ var InstanceGroup = MediaType("application/vnd.instance-group+json", func() {
 		}
 		UseTrait(TimestampsAttrTrait)
 
-		requiredAttrs := append([]string{"id"}, attrNames...)
+		requiredAttrs := append([]string{"id", "status"}, attrNames...)
 		Required(requiredAttrs...)
 	})
 	View("default", func() {
