@@ -13,6 +13,18 @@ import (
 	"github.com/mjibson/goon"
 )
 
+type InstanceGroupStatus string
+
+const (
+	Constructing      InstanceGroupStatus = "constructing"
+	ConstructingError InstanceGroupStatus = "constructing_error"
+	Constructed       InstanceGroupStatus = "constructed"
+	Resizing          InstanceGroupStatus = "resizing"
+	Destructing       InstanceGroupStatus = "destructing"
+	DestructingError  InstanceGroupStatus = "destructing_error"
+	Destructed        InstanceGroupStatus = "destructed"
+)
+
 type InstanceGroupVMDisk struct {
 	DiskSizeGb  int
 	DiskType    string
@@ -36,7 +48,7 @@ type InstanceGroup struct {
 	Preemptible      bool
 	InstanceSize     int
 	StartupScript    string
-	Status           string
+	Status           InstanceGroupStatus
 	DeploymentName   string
 	TokenConsumption int
 	CreatedAt        time.Time

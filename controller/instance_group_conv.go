@@ -83,7 +83,7 @@ func InstanceGroupModelToMediaType(src *model.InstanceGroup) *app.InstanceGroup 
 		Preemptible:      src.Preemptible,
 		InstanceSize:     src.InstanceSize,
 		StartupScript:    src.StartupScript,
-		Status:           src.Status,
+		Status:           string(src.Status),
 		DeploymentName:   src.DeploymentName,
 		TokenConsumption: src.TokenConsumption,
 		CreatedAt:        &src.CreatedAt,
