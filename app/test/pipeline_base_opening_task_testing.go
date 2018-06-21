@@ -28,7 +28,7 @@ import (
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func WatchPipelineBaseOpeningTaskAccepted(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseOpeningTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
+func WatchPipelineBaseOpeningTaskAccepted(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseOpeningTaskController, id string) (http.ResponseWriter, *app.Operation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -81,12 +81,12 @@ func WatchPipelineBaseOpeningTaskAccepted(t goatest.TInterface, ctx context.Cont
 	if rw.Code != 202 {
 		t.Errorf("invalid response status code: got %+v, expected 202", rw.Code)
 	}
-	var mt *app.InstanceGroupOperation
+	var mt *app.Operation
 	if resp != nil {
 		var _ok bool
-		mt, _ok = resp.(*app.InstanceGroupOperation)
+		mt, _ok = resp.(*app.Operation)
 		if !_ok {
-			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.InstanceGroupOperation", resp, resp)
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.Operation", resp, resp)
 		}
 		_err = mt.Validate()
 		if _err != nil {
@@ -171,7 +171,7 @@ func WatchPipelineBaseOpeningTaskBadRequest(t goatest.TInterface, ctx context.Co
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func WatchPipelineBaseOpeningTaskCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseOpeningTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
+func WatchPipelineBaseOpeningTaskCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseOpeningTaskController, id string) (http.ResponseWriter, *app.Operation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -224,12 +224,12 @@ func WatchPipelineBaseOpeningTaskCreated(t goatest.TInterface, ctx context.Conte
 	if rw.Code != 201 {
 		t.Errorf("invalid response status code: got %+v, expected 201", rw.Code)
 	}
-	var mt *app.InstanceGroupOperation
+	var mt *app.Operation
 	if resp != nil {
 		var _ok bool
-		mt, _ok = resp.(*app.InstanceGroupOperation)
+		mt, _ok = resp.(*app.Operation)
 		if !_ok {
-			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.InstanceGroupOperation", resp, resp)
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.Operation", resp, resp)
 		}
 		_err = mt.Validate()
 		if _err != nil {
@@ -314,7 +314,7 @@ func WatchPipelineBaseOpeningTaskInternalServerError(t goatest.TInterface, ctx c
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func WatchPipelineBaseOpeningTaskNoContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseOpeningTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
+func WatchPipelineBaseOpeningTaskNoContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseOpeningTaskController, id string) (http.ResponseWriter, *app.Operation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -367,12 +367,12 @@ func WatchPipelineBaseOpeningTaskNoContent(t goatest.TInterface, ctx context.Con
 	if rw.Code != 204 {
 		t.Errorf("invalid response status code: got %+v, expected 204", rw.Code)
 	}
-	var mt *app.InstanceGroupOperation
+	var mt *app.Operation
 	if resp != nil {
 		var _ok bool
-		mt, _ok = resp.(*app.InstanceGroupOperation)
+		mt, _ok = resp.(*app.Operation)
 		if !_ok {
-			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.InstanceGroupOperation", resp, resp)
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.Operation", resp, resp)
 		}
 		_err = mt.Validate()
 		if _err != nil {
@@ -457,7 +457,7 @@ func WatchPipelineBaseOpeningTaskNotFound(t goatest.TInterface, ctx context.Cont
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func WatchPipelineBaseOpeningTaskOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseOpeningTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
+func WatchPipelineBaseOpeningTaskOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseOpeningTaskController, id string) (http.ResponseWriter, *app.Operation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -510,12 +510,12 @@ func WatchPipelineBaseOpeningTaskOK(t goatest.TInterface, ctx context.Context, s
 	if rw.Code != 200 {
 		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
 	}
-	var mt *app.InstanceGroupOperation
+	var mt *app.Operation
 	if resp != nil {
 		var _ok bool
-		mt, _ok = resp.(*app.InstanceGroupOperation)
+		mt, _ok = resp.(*app.Operation)
 		if !_ok {
-			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.InstanceGroupOperation", resp, resp)
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.Operation", resp, resp)
 		}
 		_err = mt.Validate()
 		if _err != nil {

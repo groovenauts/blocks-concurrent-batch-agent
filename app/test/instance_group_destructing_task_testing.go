@@ -28,7 +28,7 @@ import (
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func WatchInstanceGroupDestructingTaskAccepted(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
+func WatchInstanceGroupDestructingTaskAccepted(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructingTaskController, id string) (http.ResponseWriter, *app.Operation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -81,12 +81,12 @@ func WatchInstanceGroupDestructingTaskAccepted(t goatest.TInterface, ctx context
 	if rw.Code != 202 {
 		t.Errorf("invalid response status code: got %+v, expected 202", rw.Code)
 	}
-	var mt *app.InstanceGroupOperation
+	var mt *app.Operation
 	if resp != nil {
 		var _ok bool
-		mt, _ok = resp.(*app.InstanceGroupOperation)
+		mt, _ok = resp.(*app.Operation)
 		if !_ok {
-			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.InstanceGroupOperation", resp, resp)
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.Operation", resp, resp)
 		}
 		_err = mt.Validate()
 		if _err != nil {
@@ -171,7 +171,7 @@ func WatchInstanceGroupDestructingTaskBadRequest(t goatest.TInterface, ctx conte
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func WatchInstanceGroupDestructingTaskCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
+func WatchInstanceGroupDestructingTaskCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructingTaskController, id string) (http.ResponseWriter, *app.Operation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -224,12 +224,12 @@ func WatchInstanceGroupDestructingTaskCreated(t goatest.TInterface, ctx context.
 	if rw.Code != 201 {
 		t.Errorf("invalid response status code: got %+v, expected 201", rw.Code)
 	}
-	var mt *app.InstanceGroupOperation
+	var mt *app.Operation
 	if resp != nil {
 		var _ok bool
-		mt, _ok = resp.(*app.InstanceGroupOperation)
+		mt, _ok = resp.(*app.Operation)
 		if !_ok {
-			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.InstanceGroupOperation", resp, resp)
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.Operation", resp, resp)
 		}
 		_err = mt.Validate()
 		if _err != nil {
@@ -314,7 +314,7 @@ func WatchInstanceGroupDestructingTaskInternalServerError(t goatest.TInterface, 
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func WatchInstanceGroupDestructingTaskNoContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
+func WatchInstanceGroupDestructingTaskNoContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructingTaskController, id string) (http.ResponseWriter, *app.Operation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -367,12 +367,12 @@ func WatchInstanceGroupDestructingTaskNoContent(t goatest.TInterface, ctx contex
 	if rw.Code != 204 {
 		t.Errorf("invalid response status code: got %+v, expected 204", rw.Code)
 	}
-	var mt *app.InstanceGroupOperation
+	var mt *app.Operation
 	if resp != nil {
 		var _ok bool
-		mt, _ok = resp.(*app.InstanceGroupOperation)
+		mt, _ok = resp.(*app.Operation)
 		if !_ok {
-			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.InstanceGroupOperation", resp, resp)
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.Operation", resp, resp)
 		}
 		_err = mt.Validate()
 		if _err != nil {
@@ -457,7 +457,7 @@ func WatchInstanceGroupDestructingTaskNotFound(t goatest.TInterface, ctx context
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func WatchInstanceGroupDestructingTaskOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
+func WatchInstanceGroupDestructingTaskOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructingTaskController, id string) (http.ResponseWriter, *app.Operation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -510,12 +510,12 @@ func WatchInstanceGroupDestructingTaskOK(t goatest.TInterface, ctx context.Conte
 	if rw.Code != 200 {
 		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
 	}
-	var mt *app.InstanceGroupOperation
+	var mt *app.Operation
 	if resp != nil {
 		var _ok bool
-		mt, _ok = resp.(*app.InstanceGroupOperation)
+		mt, _ok = resp.(*app.Operation)
 		if !_ok {
-			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.InstanceGroupOperation", resp, resp)
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.Operation", resp, resp)
 		}
 		_err = mt.Validate()
 		if _err != nil {

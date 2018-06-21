@@ -42,33 +42,33 @@ func NewWatchInstanceGroupConstructingTaskContext(ctx context.Context, r *http.R
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *WatchInstanceGroupConstructingTaskContext) OK(r *InstanceGroupOperation) error {
+func (ctx *WatchInstanceGroupConstructingTaskContext) OK(r *Operation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.operation+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 
 // Created sends a HTTP response with status code 201.
-func (ctx *WatchInstanceGroupConstructingTaskContext) Created(r *InstanceGroupOperation) error {
+func (ctx *WatchInstanceGroupConstructingTaskContext) Created(r *Operation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.operation+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
 }
 
 // Accepted sends a HTTP response with status code 202.
-func (ctx *WatchInstanceGroupConstructingTaskContext) Accepted(r *InstanceGroupOperation) error {
+func (ctx *WatchInstanceGroupConstructingTaskContext) Accepted(r *Operation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.operation+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 202, r)
 }
 
 // NoContent sends a HTTP response with status code 204.
-func (ctx *WatchInstanceGroupConstructingTaskContext) NoContent(r *InstanceGroupOperation) error {
+func (ctx *WatchInstanceGroupConstructingTaskContext) NoContent(r *Operation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.operation+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 204, r)
 }
@@ -131,33 +131,33 @@ func NewWatchInstanceGroupDestructingTaskContext(ctx context.Context, r *http.Re
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *WatchInstanceGroupDestructingTaskContext) OK(r *InstanceGroupOperation) error {
+func (ctx *WatchInstanceGroupDestructingTaskContext) OK(r *Operation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.operation+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 
 // Created sends a HTTP response with status code 201.
-func (ctx *WatchInstanceGroupDestructingTaskContext) Created(r *InstanceGroupOperation) error {
+func (ctx *WatchInstanceGroupDestructingTaskContext) Created(r *Operation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.operation+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
 }
 
 // Accepted sends a HTTP response with status code 202.
-func (ctx *WatchInstanceGroupDestructingTaskContext) Accepted(r *InstanceGroupOperation) error {
+func (ctx *WatchInstanceGroupDestructingTaskContext) Accepted(r *Operation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.operation+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 202, r)
 }
 
 // NoContent sends a HTTP response with status code 204.
-func (ctx *WatchInstanceGroupDestructingTaskContext) NoContent(r *InstanceGroupOperation) error {
+func (ctx *WatchInstanceGroupDestructingTaskContext) NoContent(r *Operation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.operation+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 204, r)
 }
@@ -220,33 +220,33 @@ func NewWatchInstanceGroupResizingTaskContext(ctx context.Context, r *http.Reque
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *WatchInstanceGroupResizingTaskContext) OK(r *InstanceGroupOperation) error {
+func (ctx *WatchInstanceGroupResizingTaskContext) OK(r *Operation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.operation+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 
 // Created sends a HTTP response with status code 201.
-func (ctx *WatchInstanceGroupResizingTaskContext) Created(r *InstanceGroupOperation) error {
+func (ctx *WatchInstanceGroupResizingTaskContext) Created(r *Operation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.operation+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
 }
 
 // Accepted sends a HTTP response with status code 202.
-func (ctx *WatchInstanceGroupResizingTaskContext) Accepted(r *InstanceGroupOperation) error {
+func (ctx *WatchInstanceGroupResizingTaskContext) Accepted(r *Operation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.operation+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 202, r)
 }
 
 // NoContent sends a HTTP response with status code 204.
-func (ctx *WatchInstanceGroupResizingTaskContext) NoContent(r *InstanceGroupOperation) error {
+func (ctx *WatchInstanceGroupResizingTaskContext) NoContent(r *Operation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.operation+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 204, r)
 }
@@ -2240,33 +2240,33 @@ func NewWatchPipelineBaseClosingTaskContext(ctx context.Context, r *http.Request
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *WatchPipelineBaseClosingTaskContext) OK(r *InstanceGroupOperation) error {
+func (ctx *WatchPipelineBaseClosingTaskContext) OK(r *Operation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.operation+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 
 // Created sends a HTTP response with status code 201.
-func (ctx *WatchPipelineBaseClosingTaskContext) Created(r *InstanceGroupOperation) error {
+func (ctx *WatchPipelineBaseClosingTaskContext) Created(r *Operation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.operation+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
 }
 
 // Accepted sends a HTTP response with status code 202.
-func (ctx *WatchPipelineBaseClosingTaskContext) Accepted(r *InstanceGroupOperation) error {
+func (ctx *WatchPipelineBaseClosingTaskContext) Accepted(r *Operation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.operation+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 202, r)
 }
 
 // NoContent sends a HTTP response with status code 204.
-func (ctx *WatchPipelineBaseClosingTaskContext) NoContent(r *InstanceGroupOperation) error {
+func (ctx *WatchPipelineBaseClosingTaskContext) NoContent(r *Operation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.operation+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 204, r)
 }
@@ -2329,33 +2329,33 @@ func NewWatchPipelineBaseOpeningTaskContext(ctx context.Context, r *http.Request
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *WatchPipelineBaseOpeningTaskContext) OK(r *InstanceGroupOperation) error {
+func (ctx *WatchPipelineBaseOpeningTaskContext) OK(r *Operation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.operation+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 
 // Created sends a HTTP response with status code 201.
-func (ctx *WatchPipelineBaseOpeningTaskContext) Created(r *InstanceGroupOperation) error {
+func (ctx *WatchPipelineBaseOpeningTaskContext) Created(r *Operation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.operation+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
 }
 
 // Accepted sends a HTTP response with status code 202.
-func (ctx *WatchPipelineBaseOpeningTaskContext) Accepted(r *InstanceGroupOperation) error {
+func (ctx *WatchPipelineBaseOpeningTaskContext) Accepted(r *Operation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.operation+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 202, r)
 }
 
 // NoContent sends a HTTP response with status code 204.
-func (ctx *WatchPipelineBaseOpeningTaskContext) NoContent(r *InstanceGroupOperation) error {
+func (ctx *WatchPipelineBaseOpeningTaskContext) NoContent(r *Operation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.operation+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 204, r)
 }

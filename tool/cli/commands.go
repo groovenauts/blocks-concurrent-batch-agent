@@ -340,7 +340,7 @@ Payload example:
       "disk_type": "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
       "source_image": "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable"
    },
-   "deployment_name": "Velit voluptatem quidem laudantium voluptatem.",
+   "deployment_name": "Eos id culpa quo.",
    "gpu_accelerators": {
       "count": 2,
       "type": "nvidia-tesla-p100"
@@ -349,9 +349,9 @@ Payload example:
    "machine_type": "f1-micro",
    "name": "pipeline1-123-ig-456",
    "pipeline_base_id": "bd2d5ee3-d8be-4024-85a7-334dee9c1c88",
-   "preemptible": false,
+   "preemptible": true,
    "project_id": "dummy-proj-999",
-   "startup_script": "Culpa magni ea.",
+   "startup_script": "Beatae quod.",
    "token_consumption": 2,
    "zone": "us-central1-f"
 }`,
@@ -369,12 +369,12 @@ Payload example:
 Payload example:
 
 {
-   "id_by_client": "Molestiae et voluptatem quaerat unde.",
+   "id_by_client": "Ducimus aspernatur perspiciatis aperiam.",
    "message": {
       "attributes": {
-         "Et aspernatur et.": "Aut et similique consectetur corporis aut ratione."
+         "Suscipit amet cum.": "Voluptatem et aspernatur et."
       },
-      "data": "Asperiores dolor ut iusto pariatur."
+      "data": "Aut et similique consectetur corporis aut ratione."
    }
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
@@ -393,28 +393,28 @@ Payload example:
 {
    "container": {
       "command": "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
-      "name": "Aut illo.",
+      "name": "Animi veritatis nisi veritatis.",
       "options": "--restart=on-failure:3",
       "size": 2,
       "stackdriver_agent": true
    },
-   "hibernation_delay": 947832725694624549,
+   "hibernation_delay": 7797336613342039318,
    "instance_group": {
       "boot_disk": {
          "disk_size_gb": 50,
          "disk_type": "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
          "source_image": "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable"
       },
-      "deployment_name": "Veritatis corporis aliquam.",
+      "deployment_name": "Sit a magnam mollitia laboriosam iure labore.",
       "gpu_accelerators": {
          "count": 2,
          "type": "nvidia-tesla-p100"
       },
       "instance_size": 3,
       "machine_type": "f1-micro",
-      "preemptible": true,
+      "preemptible": false,
       "project_id": "dummy-proj-999",
-      "startup_script": "Sed id eveniet quis sit.",
+      "startup_script": "Possimus optio et voluptas quia suscipit autem.",
       "token_consumption": 2,
       "zone": "us-central1-f"
    },
@@ -436,28 +436,28 @@ Payload example:
 {
    "container": {
       "command": "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
-      "name": "Aut illo.",
+      "name": "Animi veritatis nisi veritatis.",
       "options": "--restart=on-failure:3",
       "size": 2,
       "stackdriver_agent": true
    },
-   "hibernation_delay": 3246586652370484891,
+   "hibernation_delay": 7212691683500624276,
    "instance_group": {
       "boot_disk": {
          "disk_size_gb": 50,
          "disk_type": "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
          "source_image": "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable"
       },
-      "deployment_name": "Veritatis corporis aliquam.",
+      "deployment_name": "Sit a magnam mollitia laboriosam iure labore.",
       "gpu_accelerators": {
          "count": 2,
          "type": "nvidia-tesla-p100"
       },
       "instance_size": 3,
       "machine_type": "f1-micro",
-      "preemptible": true,
+      "preemptible": false,
       "project_id": "dummy-proj-999",
-      "startup_script": "Sed id eveniet quis sit.",
+      "startup_script": "Possimus optio et voluptas quia suscipit autem.",
       "token_consumption": 2,
       "zone": "us-central1-f"
    },
@@ -676,7 +676,7 @@ Payload example:
 Payload example:
 
 {
-   "new_size": 7184480744315988943
+   "new_size": 4251147645571147493
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp23.Run(c, args) },
 	}

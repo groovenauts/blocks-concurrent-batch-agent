@@ -142,73 +142,6 @@ func (c *Client) DecodeInstanceGroup(resp *http.Response) (*InstanceGroup, error
 	return &decoded, err
 }
 
-// instance-group-operation (default view)
-//
-// Identifier: application/vnd.instance-group-operation+json; view=default
-type InstanceGroupOperation struct {
-	// Datetime created
-	CreatedAt *time.Time `form:"created_at,omitempty" json:"created_at,omitempty" yaml:"created_at,omitempty" xml:"created_at,omitempty"`
-	// ID
-	ID string `form:"id" json:"id" yaml:"id" xml:"id"`
-	// Name
-	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
-	// Operation Type
-	OperationType string `form:"operation_type" json:"operation_type" yaml:"operation_type" xml:"operation_type"`
-	// Owner id
-	OwnerID string `form:"owner_id" json:"owner_id" yaml:"owner_id" xml:"owner_id"`
-	// Owner type name
-	OwnerType string `form:"owner_type" json:"owner_type" yaml:"owner_type" xml:"owner_type"`
-	// GCP Project ID
-	ProjectID string `form:"project_id" json:"project_id" yaml:"project_id" xml:"project_id"`
-	// Service name
-	Service string `form:"service" json:"service" yaml:"service" xml:"service"`
-	// Operation Status
-	Status string `form:"status" json:"status" yaml:"status" xml:"status"`
-	// Datetime updated
-	UpdatedAt *time.Time `form:"updated_at,omitempty" json:"updated_at,omitempty" yaml:"updated_at,omitempty" xml:"updated_at,omitempty"`
-	// GCP zone
-	Zone string `form:"zone" json:"zone" yaml:"zone" xml:"zone"`
-}
-
-// Validate validates the InstanceGroupOperation media type instance.
-func (mt *InstanceGroupOperation) Validate() (err error) {
-	if mt.ID == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "id"))
-	}
-	if mt.OwnerType == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "owner_type"))
-	}
-	if mt.OwnerID == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "owner_id"))
-	}
-	if mt.Name == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "name"))
-	}
-	if mt.Service == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "service"))
-	}
-	if mt.OperationType == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "operation_type"))
-	}
-	if mt.Status == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "status"))
-	}
-	if mt.ProjectID == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "project_id"))
-	}
-	if mt.Zone == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "zone"))
-	}
-	return
-}
-
-// DecodeInstanceGroupOperation decodes the InstanceGroupOperation instance encoded in resp body.
-func (c *Client) DecodeInstanceGroupOperation(resp *http.Response) (*InstanceGroupOperation, error) {
-	var decoded InstanceGroupOperation
-	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
-	return &decoded, err
-}
-
 // Instance-GroupCollection is the media type for an array of Instance-Group (default view)
 //
 // Identifier: application/vnd.instance-group+json; type=collection; view=default
@@ -287,6 +220,73 @@ func (mt *Job) Validate() (err error) {
 // DecodeJob decodes the Job instance encoded in resp body.
 func (c *Client) DecodeJob(resp *http.Response) (*Job, error) {
 	var decoded Job
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
+
+// Operation (default view)
+//
+// Identifier: application/vnd.operation+json; view=default
+type Operation struct {
+	// Datetime created
+	CreatedAt *time.Time `form:"created_at,omitempty" json:"created_at,omitempty" yaml:"created_at,omitempty" xml:"created_at,omitempty"`
+	// ID
+	ID string `form:"id" json:"id" yaml:"id" xml:"id"`
+	// Name
+	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
+	// Operation Type
+	OperationType string `form:"operation_type" json:"operation_type" yaml:"operation_type" xml:"operation_type"`
+	// Owner id
+	OwnerID string `form:"owner_id" json:"owner_id" yaml:"owner_id" xml:"owner_id"`
+	// Owner type name
+	OwnerType string `form:"owner_type" json:"owner_type" yaml:"owner_type" xml:"owner_type"`
+	// GCP Project ID
+	ProjectID string `form:"project_id" json:"project_id" yaml:"project_id" xml:"project_id"`
+	// Service name
+	Service string `form:"service" json:"service" yaml:"service" xml:"service"`
+	// Operation Status
+	Status string `form:"status" json:"status" yaml:"status" xml:"status"`
+	// Datetime updated
+	UpdatedAt *time.Time `form:"updated_at,omitempty" json:"updated_at,omitempty" yaml:"updated_at,omitempty" xml:"updated_at,omitempty"`
+	// GCP zone
+	Zone string `form:"zone" json:"zone" yaml:"zone" xml:"zone"`
+}
+
+// Validate validates the Operation media type instance.
+func (mt *Operation) Validate() (err error) {
+	if mt.ID == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "id"))
+	}
+	if mt.OwnerType == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "owner_type"))
+	}
+	if mt.OwnerID == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "owner_id"))
+	}
+	if mt.Name == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "name"))
+	}
+	if mt.Service == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "service"))
+	}
+	if mt.OperationType == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "operation_type"))
+	}
+	if mt.Status == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "status"))
+	}
+	if mt.ProjectID == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "project_id"))
+	}
+	if mt.Zone == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "zone"))
+	}
+	return
+}
+
+// DecodeOperation decodes the Operation instance encoded in resp body.
+func (c *Client) DecodeOperation(resp *http.Response) (*Operation, error) {
+	var decoded Operation
 	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
 	return &decoded, err
 }
