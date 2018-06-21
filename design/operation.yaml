@@ -1,0 +1,29 @@
+anchors:
+- &string_required
+  type: string
+  required: true
+- &time_required
+  type: time.Time
+  required: true
+
+types:
+  Operation:
+    goon:
+      # id: int64
+      # id: string
+      # id: UUID (type: string)
+      id: UUID
+      ancestor: Organization
+    payload: ""
+    mediatype: Operation
+    fields:
+      OwnerType: *string_required
+      OwnerID: *string_required
+      Name: *string_required
+      Service: *string_required
+      OperationType: *string_required
+      Status: *string_required
+      ProjectId: *string_required
+      Zone: *string_required
+      CreatedAt: *time_required
+      UpdatedAt: *time_required
