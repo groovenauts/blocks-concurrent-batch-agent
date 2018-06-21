@@ -15,23 +15,13 @@ func NewInstanceGroupDestructingTaskController(service *goa.Service) *InstanceGr
 	return &InstanceGroupDestructingTaskController{Controller: service.NewController("InstanceGroupDestructingTaskController")}
 }
 
-// Refresh runs the refresh action.
-func (c *InstanceGroupDestructingTaskController) Refresh(ctx *app.RefreshInstanceGroupDestructingTaskContext) error {
-	// InstanceGroupDestructingTaskController_Refresh: start_implement
+// Watch runs the watch action.
+func (c *InstanceGroupDestructingTaskController) Watch(ctx *app.WatchInstanceGroupDestructingTaskContext) error {
+	// InstanceGroupDestructingTaskController_Watch: start_implement
 
 	// Put your logic here
 
-	res := &app.InstanceGroupOperation{}
+	res := &app.Operation{}
 	return ctx.OK(res)
-	// InstanceGroupDestructingTaskController_Refresh: end_implement
-}
-
-// Start runs the start action.
-func (c *InstanceGroupDestructingTaskController) Start(ctx *app.StartInstanceGroupDestructingTaskContext) error {
-	// InstanceGroupDestructingTaskController_Start: start_implement
-
-	// Put your logic here
-
-	return nil
-	// InstanceGroupDestructingTaskController_Start: end_implement
+	// InstanceGroupDestructingTaskController_Watch: end_implement
 }

@@ -15,23 +15,13 @@ func NewInstanceGroupResizingTaskController(service *goa.Service) *InstanceGroup
 	return &InstanceGroupResizingTaskController{Controller: service.NewController("InstanceGroupResizingTaskController")}
 }
 
-// Refresh runs the refresh action.
-func (c *InstanceGroupResizingTaskController) Refresh(ctx *app.RefreshInstanceGroupResizingTaskContext) error {
-	// InstanceGroupResizingTaskController_Refresh: start_implement
+// Watch runs the watch action.
+func (c *InstanceGroupResizingTaskController) Watch(ctx *app.WatchInstanceGroupResizingTaskContext) error {
+	// InstanceGroupResizingTaskController_Watch: start_implement
 
 	// Put your logic here
 
-	res := &app.InstanceGroupOperation{}
+	res := &app.Operation{}
 	return ctx.OK(res)
-	// InstanceGroupResizingTaskController_Refresh: end_implement
-}
-
-// Start runs the start action.
-func (c *InstanceGroupResizingTaskController) Start(ctx *app.StartInstanceGroupResizingTaskContext) error {
-	// InstanceGroupResizingTaskController_Start: start_implement
-
-	// Put your logic here
-
-	return nil
-	// InstanceGroupResizingTaskController_Start: end_implement
+	// InstanceGroupResizingTaskController_Watch: end_implement
 }

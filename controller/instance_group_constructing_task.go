@@ -15,23 +15,13 @@ func NewInstanceGroupConstructingTaskController(service *goa.Service) *InstanceG
 	return &InstanceGroupConstructingTaskController{Controller: service.NewController("InstanceGroupConstructingTaskController")}
 }
 
-// Refresh runs the refresh action.
-func (c *InstanceGroupConstructingTaskController) Refresh(ctx *app.RefreshInstanceGroupConstructingTaskContext) error {
-	// InstanceGroupConstructingTaskController_Refresh: start_implement
+// Watch runs the watch action.
+func (c *InstanceGroupConstructingTaskController) Watch(ctx *app.WatchInstanceGroupConstructingTaskContext) error {
+	// InstanceGroupConstructingTaskController_Watch: start_implement
 
 	// Put your logic here
 
-	res := &app.InstanceGroupOperation{}
+	res := &app.Operation{}
 	return ctx.OK(res)
-	// InstanceGroupConstructingTaskController_Refresh: end_implement
-}
-
-// Start runs the start action.
-func (c *InstanceGroupConstructingTaskController) Start(ctx *app.StartInstanceGroupConstructingTaskContext) error {
-	// InstanceGroupConstructingTaskController_Start: start_implement
-
-	// Put your logic here
-
-	return nil
-	// InstanceGroupConstructingTaskController_Start: end_implement
+	// InstanceGroupConstructingTaskController_Watch: end_implement
 }

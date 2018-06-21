@@ -15,23 +15,13 @@ func NewPipelineBaseClosingTaskController(service *goa.Service) *PipelineBaseClo
 	return &PipelineBaseClosingTaskController{Controller: service.NewController("PipelineBaseClosingTaskController")}
 }
 
-// Refresh runs the refresh action.
-func (c *PipelineBaseClosingTaskController) Refresh(ctx *app.RefreshPipelineBaseClosingTaskContext) error {
-	// PipelineBaseClosingTaskController_Refresh: start_implement
+// Watch runs the watch action.
+func (c *PipelineBaseClosingTaskController) Watch(ctx *app.WatchPipelineBaseClosingTaskContext) error {
+	// PipelineBaseClosingTaskController_Watch: start_implement
 
 	// Put your logic here
 
-	res := &app.InstanceGroupOperation{}
+	res := &app.Operation{}
 	return ctx.OK(res)
-	// PipelineBaseClosingTaskController_Refresh: end_implement
-}
-
-// Start runs the start action.
-func (c *PipelineBaseClosingTaskController) Start(ctx *app.StartPipelineBaseClosingTaskContext) error {
-	// PipelineBaseClosingTaskController_Start: start_implement
-
-	// Put your logic here
-
-	return nil
-	// PipelineBaseClosingTaskController_Start: end_implement
+	// PipelineBaseClosingTaskController_Watch: end_implement
 }
