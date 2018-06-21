@@ -77,7 +77,7 @@ var _ = Resource("Pipeline", func() {
 			Required("org_id")
 		})
 		Response(OK, CollectionOf(Pipeline))
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 	Action("create", func() {
 		Description("create")
@@ -88,7 +88,7 @@ var _ = Resource("Pipeline", func() {
 		})
 		Payload(PipelinePayload)
 		Response(Created, Pipeline)
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 	Action("show", func() {
 		Description("show")
@@ -97,7 +97,7 @@ var _ = Resource("Pipeline", func() {
 			Param("id")
 		})
 		Response(OK, Pipeline)
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 	Action("preparing_finalize_task", func() {
 		Description("Task to finalize current_preparing or next_preparing status")
@@ -108,7 +108,7 @@ var _ = Resource("Pipeline", func() {
 			Param("error")
 		})
 		Response(OK, Pipeline)
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 	Action("current", func() {
 		Description("Update current pipeline base")
@@ -119,7 +119,7 @@ var _ = Resource("Pipeline", func() {
 			Required("pipeline_base_id")
 		})
 		Response(OK, Pipeline)
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 	Action("stop", func() {
 		Description("Stop pipeline")
@@ -128,7 +128,7 @@ var _ = Resource("Pipeline", func() {
 			Param("id")
 		})
 		Response(OK, Pipeline)
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 	Action("delete", func() {
 		Description("delete")
@@ -138,6 +138,6 @@ var _ = Resource("Pipeline", func() {
 			Required("id")
 		})
 		Response(OK, Pipeline)
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 })

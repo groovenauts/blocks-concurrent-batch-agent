@@ -27,6 +27,6 @@ var _ = Resource("dummy-auths", func() {
 		Description("create")
 		Routing(POST(""))
 		Response(Created, DummyAuth)
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 })

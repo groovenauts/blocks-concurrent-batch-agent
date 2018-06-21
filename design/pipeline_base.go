@@ -99,7 +99,7 @@ var _ = Resource("PipelineBase", func() {
 			Required("org_id")
 		})
 		Response(OK, CollectionOf(PipelineBase))
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 	Action("create", func() {
 		Description("create")
@@ -110,7 +110,7 @@ var _ = Resource("PipelineBase", func() {
 		})
 		Payload(PipelineBasePayload)
 		Response(Created, PipelineBase)
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 	Action("show", func() {
 		Description("show")
@@ -119,7 +119,7 @@ var _ = Resource("PipelineBase", func() {
 			Param("id")
 		})
 		Response(OK, PipelineBase)
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 	Action("waking_finalize_task", func() {
 		Description("Task to finalize waking status")
@@ -130,7 +130,7 @@ var _ = Resource("PipelineBase", func() {
 			Param("error")
 		})
 		Response(OK, PipelineBase)
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 	Action("pull_task", func() {
 		Description("Task to pull progress messages")
@@ -139,7 +139,7 @@ var _ = Resource("PipelineBase", func() {
 			Param("id")
 		})
 		Response(OK, PipelineBase)
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 	Action("hibernation_checking_finalize_task", func() {
 		Description("Task to finalize hibernation_checking status")
@@ -148,7 +148,7 @@ var _ = Resource("PipelineBase", func() {
 			Param("id")
 		})
 		Response(OK, PipelineBase)
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 	Action("hibernation_going_finalize_task", func() {
 		Description("Task to finalize hibernation_going status")
@@ -159,7 +159,7 @@ var _ = Resource("PipelineBase", func() {
 			Param("error")
 		})
 		Response(OK, PipelineBase)
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 	Action("close", func() {
 		Description("Close")
@@ -168,7 +168,7 @@ var _ = Resource("PipelineBase", func() {
 			Param("id")
 		})
 		Response(OK, PipelineBase)
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 	Action("delete", func() {
 		Description("delete")
@@ -178,7 +178,7 @@ var _ = Resource("PipelineBase", func() {
 			Required("id")
 		})
 		Response(OK, PipelineBase)
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 })
 

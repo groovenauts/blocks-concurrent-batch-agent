@@ -5,7 +5,7 @@ import (
 	. "github.com/goadesign/goa/design/apidsl"
 )
 
-const DefineTrait = "DefineTrait"
+const DefaultResponseTrait = "DefaultResponseTrait"
 const DefineResourceTrait = "DefineResourceTrait"
 
 const IdTrait = "IdTrait"
@@ -31,7 +31,7 @@ var _ = API("appengine", func() {
 		MaxAge(600)
 		Credentials()
 	})
-	Trait(DefineTrait, func() {
+	Trait(DefaultResponseTrait, func() {
 		Response(Unauthorized, ErrorMedia)
 		Response(NotFound, ErrorMedia)
 		Response(BadRequest, ErrorMedia)
@@ -61,7 +61,7 @@ var _ = API("appengine", func() {
 		Response(Accepted, Operation)  // 202 完了
 		Response(NoContent, Operation) // 204 エラー
 		Response(NoContent, Operation) // 205 成功(再実行)
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 
 	Trait(OperationResourceTrait, func() {

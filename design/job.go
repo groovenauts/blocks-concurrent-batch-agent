@@ -78,7 +78,7 @@ var _ = Resource("Job", func() {
 		})
 		Payload(JobPayload)
 		Response(Created, Job)
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 	Action("show", func() {
 		Description("show")
@@ -87,7 +87,7 @@ var _ = Resource("Job", func() {
 			Param("id")
 		})
 		Response(OK, Job)
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 	Action("activate", func() {
 		Description("Activate job")
@@ -97,7 +97,7 @@ var _ = Resource("Job", func() {
 		})
 		Response(OK, Job)
 		Response(Created, Job)
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 	Action("inactivate", func() {
 		Description("Inactivate job")
@@ -106,7 +106,7 @@ var _ = Resource("Job", func() {
 			Param("id")
 		})
 		Response(OK, Job)
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 	Action("publishing_task", func() {
 		Description("Publishing job task")
@@ -115,7 +115,7 @@ var _ = Resource("Job", func() {
 			Param("id")
 		})
 		Response(OK, Job)
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 	Action("delete", func() {
 		Description("delete")
@@ -125,6 +125,6 @@ var _ = Resource("Job", func() {
 			Required("id")
 		})
 		Response(OK, Job)
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 })

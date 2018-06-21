@@ -141,7 +141,7 @@ var _ = Resource("IntanceGroup", func() {
 		Description("list")
 		Routing(GET(""))
 		Response(OK, CollectionOf(InstanceGroup))
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 	Action("create", func() {
 		Description("create")
@@ -152,7 +152,7 @@ var _ = Resource("IntanceGroup", func() {
 		})
 		Payload(InstanceGroupPayload)
 		Response(Created, InstanceGroup)
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 	Action("show", func() {
 		Description("show")
@@ -161,7 +161,7 @@ var _ = Resource("IntanceGroup", func() {
 			Param("id")
 		})
 		Response(OK, InstanceGroup)
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 	Action("resize", func() {
 		Description("Resize")
@@ -174,7 +174,7 @@ var _ = Resource("IntanceGroup", func() {
 			Required("new_size")
 		})
 		Response(OK, InstanceGroup)
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 	Action("destruct", func() {
 		Description("Destruct")
@@ -183,7 +183,7 @@ var _ = Resource("IntanceGroup", func() {
 			Param("id")
 		})
 		Response(OK, InstanceGroup)
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 	Action("delete", func() {
 		Description("delete")
@@ -193,7 +193,7 @@ var _ = Resource("IntanceGroup", func() {
 			Required("id")
 		})
 		Response(OK, InstanceGroup)
-		UseTrait(DefineTrait)
+		UseTrait(DefaultResponseTrait)
 	})
 })
 
