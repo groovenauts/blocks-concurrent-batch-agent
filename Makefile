@@ -80,6 +80,9 @@ import:
           -from="../tool/cli" \
           -to="$(REPO)/tool/cli"
 
+test:
+	goapp test github.com/groovenauts/blocks-concurrent-batch-server/model
+
 build:
 	goapp build github.com/groovenauts/blocks-concurrent-batch-server/server
 
