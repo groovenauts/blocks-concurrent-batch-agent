@@ -24,11 +24,11 @@ import (
 	"net/url"
 )
 
-// RefreshInstanceGroupDestructingTaskAccepted runs the method Refresh of the given controller with the given parameters.
+// WatchInstanceGroupDestructingTaskAccepted runs the method Watch of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func RefreshInstanceGroupDestructingTaskAccepted(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
+func WatchInstanceGroupDestructingTaskAccepted(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -61,7 +61,7 @@ func RefreshInstanceGroupDestructingTaskAccepted(t goatest.TInterface, ctx conte
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "InstanceGroupDestructingTaskTest"), rw, req, prms)
-	refreshCtx, _err := app.NewRefreshInstanceGroupDestructingTaskContext(goaCtx, req, service)
+	watchCtx, _err := app.NewWatchInstanceGroupDestructingTaskContext(goaCtx, req, service)
 	if _err != nil {
 		e, ok := _err.(goa.ServiceError)
 		if !ok {
@@ -72,7 +72,7 @@ func RefreshInstanceGroupDestructingTaskAccepted(t goatest.TInterface, ctx conte
 	}
 
 	// Perform action
-	_err = ctrl.Refresh(refreshCtx)
+	_err = ctrl.Watch(watchCtx)
 
 	// Validate response
 	if _err != nil {
@@ -98,11 +98,11 @@ func RefreshInstanceGroupDestructingTaskAccepted(t goatest.TInterface, ctx conte
 	return rw, mt
 }
 
-// RefreshInstanceGroupDestructingTaskBadRequest runs the method Refresh of the given controller with the given parameters.
+// WatchInstanceGroupDestructingTaskBadRequest runs the method Watch of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func RefreshInstanceGroupDestructingTaskBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructingTaskController, id string) (http.ResponseWriter, error) {
+func WatchInstanceGroupDestructingTaskBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructingTaskController, id string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -135,7 +135,7 @@ func RefreshInstanceGroupDestructingTaskBadRequest(t goatest.TInterface, ctx con
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "InstanceGroupDestructingTaskTest"), rw, req, prms)
-	refreshCtx, _err := app.NewRefreshInstanceGroupDestructingTaskContext(goaCtx, req, service)
+	watchCtx, _err := app.NewWatchInstanceGroupDestructingTaskContext(goaCtx, req, service)
 	if _err != nil {
 		e, ok := _err.(goa.ServiceError)
 		if !ok {
@@ -145,7 +145,7 @@ func RefreshInstanceGroupDestructingTaskBadRequest(t goatest.TInterface, ctx con
 	}
 
 	// Perform action
-	_err = ctrl.Refresh(refreshCtx)
+	_err = ctrl.Watch(watchCtx)
 
 	// Validate response
 	if _err != nil {
@@ -167,11 +167,11 @@ func RefreshInstanceGroupDestructingTaskBadRequest(t goatest.TInterface, ctx con
 	return rw, mt
 }
 
-// RefreshInstanceGroupDestructingTaskCreated runs the method Refresh of the given controller with the given parameters.
+// WatchInstanceGroupDestructingTaskCreated runs the method Watch of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func RefreshInstanceGroupDestructingTaskCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
+func WatchInstanceGroupDestructingTaskCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -204,7 +204,7 @@ func RefreshInstanceGroupDestructingTaskCreated(t goatest.TInterface, ctx contex
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "InstanceGroupDestructingTaskTest"), rw, req, prms)
-	refreshCtx, _err := app.NewRefreshInstanceGroupDestructingTaskContext(goaCtx, req, service)
+	watchCtx, _err := app.NewWatchInstanceGroupDestructingTaskContext(goaCtx, req, service)
 	if _err != nil {
 		e, ok := _err.(goa.ServiceError)
 		if !ok {
@@ -215,7 +215,7 @@ func RefreshInstanceGroupDestructingTaskCreated(t goatest.TInterface, ctx contex
 	}
 
 	// Perform action
-	_err = ctrl.Refresh(refreshCtx)
+	_err = ctrl.Watch(watchCtx)
 
 	// Validate response
 	if _err != nil {
@@ -241,11 +241,11 @@ func RefreshInstanceGroupDestructingTaskCreated(t goatest.TInterface, ctx contex
 	return rw, mt
 }
 
-// RefreshInstanceGroupDestructingTaskInternalServerError runs the method Refresh of the given controller with the given parameters.
+// WatchInstanceGroupDestructingTaskInternalServerError runs the method Watch of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func RefreshInstanceGroupDestructingTaskInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructingTaskController, id string) (http.ResponseWriter, error) {
+func WatchInstanceGroupDestructingTaskInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructingTaskController, id string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -278,7 +278,7 @@ func RefreshInstanceGroupDestructingTaskInternalServerError(t goatest.TInterface
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "InstanceGroupDestructingTaskTest"), rw, req, prms)
-	refreshCtx, _err := app.NewRefreshInstanceGroupDestructingTaskContext(goaCtx, req, service)
+	watchCtx, _err := app.NewWatchInstanceGroupDestructingTaskContext(goaCtx, req, service)
 	if _err != nil {
 		e, ok := _err.(goa.ServiceError)
 		if !ok {
@@ -288,7 +288,7 @@ func RefreshInstanceGroupDestructingTaskInternalServerError(t goatest.TInterface
 	}
 
 	// Perform action
-	_err = ctrl.Refresh(refreshCtx)
+	_err = ctrl.Watch(watchCtx)
 
 	// Validate response
 	if _err != nil {
@@ -310,11 +310,11 @@ func RefreshInstanceGroupDestructingTaskInternalServerError(t goatest.TInterface
 	return rw, mt
 }
 
-// RefreshInstanceGroupDestructingTaskNoContent runs the method Refresh of the given controller with the given parameters.
+// WatchInstanceGroupDestructingTaskNoContent runs the method Watch of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func RefreshInstanceGroupDestructingTaskNoContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
+func WatchInstanceGroupDestructingTaskNoContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -347,7 +347,7 @@ func RefreshInstanceGroupDestructingTaskNoContent(t goatest.TInterface, ctx cont
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "InstanceGroupDestructingTaskTest"), rw, req, prms)
-	refreshCtx, _err := app.NewRefreshInstanceGroupDestructingTaskContext(goaCtx, req, service)
+	watchCtx, _err := app.NewWatchInstanceGroupDestructingTaskContext(goaCtx, req, service)
 	if _err != nil {
 		e, ok := _err.(goa.ServiceError)
 		if !ok {
@@ -358,7 +358,7 @@ func RefreshInstanceGroupDestructingTaskNoContent(t goatest.TInterface, ctx cont
 	}
 
 	// Perform action
-	_err = ctrl.Refresh(refreshCtx)
+	_err = ctrl.Watch(watchCtx)
 
 	// Validate response
 	if _err != nil {
@@ -384,11 +384,11 @@ func RefreshInstanceGroupDestructingTaskNoContent(t goatest.TInterface, ctx cont
 	return rw, mt
 }
 
-// RefreshInstanceGroupDestructingTaskNotFound runs the method Refresh of the given controller with the given parameters.
+// WatchInstanceGroupDestructingTaskNotFound runs the method Watch of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func RefreshInstanceGroupDestructingTaskNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructingTaskController, id string) (http.ResponseWriter, error) {
+func WatchInstanceGroupDestructingTaskNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructingTaskController, id string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -421,7 +421,7 @@ func RefreshInstanceGroupDestructingTaskNotFound(t goatest.TInterface, ctx conte
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "InstanceGroupDestructingTaskTest"), rw, req, prms)
-	refreshCtx, _err := app.NewRefreshInstanceGroupDestructingTaskContext(goaCtx, req, service)
+	watchCtx, _err := app.NewWatchInstanceGroupDestructingTaskContext(goaCtx, req, service)
 	if _err != nil {
 		e, ok := _err.(goa.ServiceError)
 		if !ok {
@@ -431,7 +431,7 @@ func RefreshInstanceGroupDestructingTaskNotFound(t goatest.TInterface, ctx conte
 	}
 
 	// Perform action
-	_err = ctrl.Refresh(refreshCtx)
+	_err = ctrl.Watch(watchCtx)
 
 	// Validate response
 	if _err != nil {
@@ -453,11 +453,11 @@ func RefreshInstanceGroupDestructingTaskNotFound(t goatest.TInterface, ctx conte
 	return rw, mt
 }
 
-// RefreshInstanceGroupDestructingTaskOK runs the method Refresh of the given controller with the given parameters.
+// WatchInstanceGroupDestructingTaskOK runs the method Watch of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func RefreshInstanceGroupDestructingTaskOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
+func WatchInstanceGroupDestructingTaskOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -490,7 +490,7 @@ func RefreshInstanceGroupDestructingTaskOK(t goatest.TInterface, ctx context.Con
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "InstanceGroupDestructingTaskTest"), rw, req, prms)
-	refreshCtx, _err := app.NewRefreshInstanceGroupDestructingTaskContext(goaCtx, req, service)
+	watchCtx, _err := app.NewWatchInstanceGroupDestructingTaskContext(goaCtx, req, service)
 	if _err != nil {
 		e, ok := _err.(goa.ServiceError)
 		if !ok {
@@ -501,7 +501,7 @@ func RefreshInstanceGroupDestructingTaskOK(t goatest.TInterface, ctx context.Con
 	}
 
 	// Perform action
-	_err = ctrl.Refresh(refreshCtx)
+	_err = ctrl.Watch(watchCtx)
 
 	// Validate response
 	if _err != nil {
@@ -527,11 +527,11 @@ func RefreshInstanceGroupDestructingTaskOK(t goatest.TInterface, ctx context.Con
 	return rw, mt
 }
 
-// RefreshInstanceGroupDestructingTaskUnauthorized runs the method Refresh of the given controller with the given parameters.
+// WatchInstanceGroupDestructingTaskUnauthorized runs the method Watch of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func RefreshInstanceGroupDestructingTaskUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructingTaskController, id string) (http.ResponseWriter, error) {
+func WatchInstanceGroupDestructingTaskUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructingTaskController, id string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -564,7 +564,7 @@ func RefreshInstanceGroupDestructingTaskUnauthorized(t goatest.TInterface, ctx c
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "InstanceGroupDestructingTaskTest"), rw, req, prms)
-	refreshCtx, _err := app.NewRefreshInstanceGroupDestructingTaskContext(goaCtx, req, service)
+	watchCtx, _err := app.NewWatchInstanceGroupDestructingTaskContext(goaCtx, req, service)
 	if _err != nil {
 		e, ok := _err.(goa.ServiceError)
 		if !ok {
@@ -574,7 +574,7 @@ func RefreshInstanceGroupDestructingTaskUnauthorized(t goatest.TInterface, ctx c
 	}
 
 	// Perform action
-	_err = ctrl.Refresh(refreshCtx)
+	_err = ctrl.Watch(watchCtx)
 
 	// Validate response
 	if _err != nil {

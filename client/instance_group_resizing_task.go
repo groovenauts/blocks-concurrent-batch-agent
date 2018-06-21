@@ -17,24 +17,24 @@ import (
 	"net/url"
 )
 
-// RefreshInstanceGroupResizingTaskPath computes a request path to the refresh action of InstanceGroupResizingTask.
-func RefreshInstanceGroupResizingTaskPath(id string) string {
+// WatchInstanceGroupResizingTaskPath computes a request path to the watch action of InstanceGroupResizingTask.
+func WatchInstanceGroupResizingTaskPath(id string) string {
 	param0 := id
 
 	return fmt.Sprintf("/resizing_tasks/%s", param0)
 }
 
-// Refresh
-func (c *Client) RefreshInstanceGroupResizingTask(ctx context.Context, path string) (*http.Response, error) {
-	req, err := c.NewRefreshInstanceGroupResizingTaskRequest(ctx, path)
+// Watch
+func (c *Client) WatchInstanceGroupResizingTask(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.NewWatchInstanceGroupResizingTaskRequest(ctx, path)
 	if err != nil {
 		return nil, err
 	}
 	return c.Client.Do(ctx, req)
 }
 
-// NewRefreshInstanceGroupResizingTaskRequest create the request corresponding to the refresh action endpoint of the InstanceGroupResizingTask resource.
-func (c *Client) NewRefreshInstanceGroupResizingTaskRequest(ctx context.Context, path string) (*http.Request, error) {
+// NewWatchInstanceGroupResizingTaskRequest create the request corresponding to the watch action endpoint of the InstanceGroupResizingTask resource.
+func (c *Client) NewWatchInstanceGroupResizingTaskRequest(ctx context.Context, path string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "http"

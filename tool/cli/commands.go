@@ -29,22 +29,22 @@ import (
 )
 
 type (
-	// RefreshInstanceGroupConstructingTaskCommand is the command line data structure for the refresh action of InstanceGroupConstructingTask
-	RefreshInstanceGroupConstructingTaskCommand struct {
+	// WatchInstanceGroupConstructingTaskCommand is the command line data structure for the watch action of InstanceGroupConstructingTask
+	WatchInstanceGroupConstructingTaskCommand struct {
 		// ID
 		ID          string
 		PrettyPrint bool
 	}
 
-	// RefreshInstanceGroupDestructingTaskCommand is the command line data structure for the refresh action of InstanceGroupDestructingTask
-	RefreshInstanceGroupDestructingTaskCommand struct {
+	// WatchInstanceGroupDestructingTaskCommand is the command line data structure for the watch action of InstanceGroupDestructingTask
+	WatchInstanceGroupDestructingTaskCommand struct {
 		// ID
 		ID          string
 		PrettyPrint bool
 	}
 
-	// RefreshInstanceGroupResizingTaskCommand is the command line data structure for the refresh action of InstanceGroupResizingTask
-	RefreshInstanceGroupResizingTaskCommand struct {
+	// WatchInstanceGroupResizingTaskCommand is the command line data structure for the watch action of InstanceGroupResizingTask
+	WatchInstanceGroupResizingTaskCommand struct {
 		// ID
 		ID          string
 		PrettyPrint bool
@@ -265,15 +265,15 @@ type (
 		PrettyPrint bool
 	}
 
-	// RefreshPipelineBaseClosingTaskCommand is the command line data structure for the refresh action of PipelineBaseClosingTask
-	RefreshPipelineBaseClosingTaskCommand struct {
+	// WatchPipelineBaseClosingTaskCommand is the command line data structure for the watch action of PipelineBaseClosingTask
+	WatchPipelineBaseClosingTaskCommand struct {
 		// ID
 		ID          string
 		PrettyPrint bool
 	}
 
-	// RefreshPipelineBaseOpeningTaskCommand is the command line data structure for the refresh action of PipelineBaseOpeningTask
-	RefreshPipelineBaseOpeningTaskCommand struct {
+	// WatchPipelineBaseOpeningTaskCommand is the command line data structure for the watch action of PipelineBaseOpeningTask
+	WatchPipelineBaseOpeningTaskCommand struct {
 		// ID
 		ID          string
 		PrettyPrint bool
@@ -664,60 +664,10 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "refresh",
-		Short: `refresh action`,
-	}
-	tmp23 := new(RefreshInstanceGroupConstructingTaskCommand)
-	sub = &cobra.Command{
-		Use:   `instance-group-constructing-task ["/constructing_tasks/ID"]`,
-		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp23.Run(c, args) },
-	}
-	tmp23.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp23.PrettyPrint, "pp", false, "Pretty print response body")
-	command.AddCommand(sub)
-	tmp24 := new(RefreshInstanceGroupDestructingTaskCommand)
-	sub = &cobra.Command{
-		Use:   `instance-group-destructing-task ["/destructing_tasks/ID"]`,
-		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp24.Run(c, args) },
-	}
-	tmp24.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp24.PrettyPrint, "pp", false, "Pretty print response body")
-	command.AddCommand(sub)
-	tmp25 := new(RefreshInstanceGroupResizingTaskCommand)
-	sub = &cobra.Command{
-		Use:   `instance-group-resizing-task ["/resizing_tasks/ID"]`,
-		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp25.Run(c, args) },
-	}
-	tmp25.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp25.PrettyPrint, "pp", false, "Pretty print response body")
-	command.AddCommand(sub)
-	tmp26 := new(RefreshPipelineBaseClosingTaskCommand)
-	sub = &cobra.Command{
-		Use:   `pipeline-base-closing-task ["/closing_tasks/ID"]`,
-		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp26.Run(c, args) },
-	}
-	tmp26.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp26.PrettyPrint, "pp", false, "Pretty print response body")
-	command.AddCommand(sub)
-	tmp27 := new(RefreshPipelineBaseOpeningTaskCommand)
-	sub = &cobra.Command{
-		Use:   `pipeline-base-opening-task ["/opening_tasks/ID"]`,
-		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp27.Run(c, args) },
-	}
-	tmp27.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp27.PrettyPrint, "pp", false, "Pretty print response body")
-	command.AddCommand(sub)
-	app.AddCommand(command)
-	command = &cobra.Command{
 		Use:   "resize",
 		Short: `Resize`,
 	}
-	tmp28 := new(ResizeIntanceGroupCommand)
+	tmp23 := new(ResizeIntanceGroupCommand)
 	sub = &cobra.Command{
 		Use:   `intance-group ["/instance_groups/ID/resize"]`,
 		Short: ``,
@@ -728,74 +678,124 @@ Payload example:
 {
    "new_size": 7184480744315988943
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp28.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp23.Run(c, args) },
 	}
-	tmp28.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp28.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp23.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp23.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
 		Use:   "show",
 		Short: `show action`,
 	}
-	tmp29 := new(ShowIntanceGroupCommand)
+	tmp24 := new(ShowIntanceGroupCommand)
 	sub = &cobra.Command{
 		Use:   `intance-group ["/instance_groups/ID"]`,
 		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp29.Run(c, args) },
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp24.Run(c, args) },
 	}
-	tmp29.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp29.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp24.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp24.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	tmp30 := new(ShowJobCommand)
+	tmp25 := new(ShowJobCommand)
 	sub = &cobra.Command{
 		Use:   `job ["/jobs/ID"]`,
 		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp30.Run(c, args) },
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp25.Run(c, args) },
 	}
-	tmp30.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp30.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp25.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp25.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	tmp31 := new(ShowPipelineCommand)
+	tmp26 := new(ShowPipelineCommand)
 	sub = &cobra.Command{
 		Use:   `pipeline ["/pipelines/ID"]`,
 		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp31.Run(c, args) },
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp26.Run(c, args) },
 	}
-	tmp31.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp31.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp26.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp26.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	tmp32 := new(ShowPipelineBaseCommand)
+	tmp27 := new(ShowPipelineBaseCommand)
 	sub = &cobra.Command{
 		Use:   `pipeline-base ["/pipeline_bases/ID"]`,
 		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp32.Run(c, args) },
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp27.Run(c, args) },
 	}
-	tmp32.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp32.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp27.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp27.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
 		Use:   "stop",
 		Short: `Stop pipeline`,
 	}
-	tmp33 := new(StopPipelineCommand)
+	tmp28 := new(StopPipelineCommand)
 	sub = &cobra.Command{
 		Use:   `pipeline ["/pipelines/ID/stop"]`,
 		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp33.Run(c, args) },
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp28.Run(c, args) },
 	}
-	tmp33.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp33.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp28.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp28.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
 		Use:   "waking-finalize-task",
 		Short: `Task to finalize waking status`,
 	}
-	tmp34 := new(WakingFinalizeTaskPipelineBaseCommand)
+	tmp29 := new(WakingFinalizeTaskPipelineBaseCommand)
 	sub = &cobra.Command{
 		Use:   `pipeline-base ["/pipeline_bases/ID/waking_finalize_task"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp29.Run(c, args) },
+	}
+	tmp29.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp29.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
+		Use:   "watch",
+		Short: `watch action`,
+	}
+	tmp30 := new(WatchInstanceGroupConstructingTaskCommand)
+	sub = &cobra.Command{
+		Use:   `instance-group-constructing-task ["/constructing_tasks/ID"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp30.Run(c, args) },
+	}
+	tmp30.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp30.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	tmp31 := new(WatchInstanceGroupDestructingTaskCommand)
+	sub = &cobra.Command{
+		Use:   `instance-group-destructing-task ["/destructing_tasks/ID"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp31.Run(c, args) },
+	}
+	tmp31.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp31.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	tmp32 := new(WatchInstanceGroupResizingTaskCommand)
+	sub = &cobra.Command{
+		Use:   `instance-group-resizing-task ["/resizing_tasks/ID"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp32.Run(c, args) },
+	}
+	tmp32.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp32.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	tmp33 := new(WatchPipelineBaseClosingTaskCommand)
+	sub = &cobra.Command{
+		Use:   `pipeline-base-closing-task ["/closing_tasks/ID"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp33.Run(c, args) },
+	}
+	tmp33.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp33.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	tmp34 := new(WatchPipelineBaseOpeningTaskCommand)
+	sub = &cobra.Command{
+		Use:   `pipeline-base-opening-task ["/opening_tasks/ID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp34.Run(c, args) },
 	}
@@ -1016,8 +1016,8 @@ found:
 	return nil
 }
 
-// Run makes the HTTP request corresponding to the RefreshInstanceGroupConstructingTaskCommand command.
-func (cmd *RefreshInstanceGroupConstructingTaskCommand) Run(c *client.Client, args []string) error {
+// Run makes the HTTP request corresponding to the WatchInstanceGroupConstructingTaskCommand command.
+func (cmd *WatchInstanceGroupConstructingTaskCommand) Run(c *client.Client, args []string) error {
 	var path string
 	if len(args) > 0 {
 		path = args[0]
@@ -1026,7 +1026,7 @@ func (cmd *RefreshInstanceGroupConstructingTaskCommand) Run(c *client.Client, ar
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.RefreshInstanceGroupConstructingTask(ctx, path)
+	resp, err := c.WatchInstanceGroupConstructingTask(ctx, path)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -1037,13 +1037,13 @@ func (cmd *RefreshInstanceGroupConstructingTaskCommand) Run(c *client.Client, ar
 }
 
 // RegisterFlags registers the command flags with the command line.
-func (cmd *RefreshInstanceGroupConstructingTaskCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+func (cmd *WatchInstanceGroupConstructingTaskCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var id string
 	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
 }
 
-// Run makes the HTTP request corresponding to the RefreshInstanceGroupDestructingTaskCommand command.
-func (cmd *RefreshInstanceGroupDestructingTaskCommand) Run(c *client.Client, args []string) error {
+// Run makes the HTTP request corresponding to the WatchInstanceGroupDestructingTaskCommand command.
+func (cmd *WatchInstanceGroupDestructingTaskCommand) Run(c *client.Client, args []string) error {
 	var path string
 	if len(args) > 0 {
 		path = args[0]
@@ -1052,7 +1052,7 @@ func (cmd *RefreshInstanceGroupDestructingTaskCommand) Run(c *client.Client, arg
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.RefreshInstanceGroupDestructingTask(ctx, path)
+	resp, err := c.WatchInstanceGroupDestructingTask(ctx, path)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -1063,13 +1063,13 @@ func (cmd *RefreshInstanceGroupDestructingTaskCommand) Run(c *client.Client, arg
 }
 
 // RegisterFlags registers the command flags with the command line.
-func (cmd *RefreshInstanceGroupDestructingTaskCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+func (cmd *WatchInstanceGroupDestructingTaskCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var id string
 	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
 }
 
-// Run makes the HTTP request corresponding to the RefreshInstanceGroupResizingTaskCommand command.
-func (cmd *RefreshInstanceGroupResizingTaskCommand) Run(c *client.Client, args []string) error {
+// Run makes the HTTP request corresponding to the WatchInstanceGroupResizingTaskCommand command.
+func (cmd *WatchInstanceGroupResizingTaskCommand) Run(c *client.Client, args []string) error {
 	var path string
 	if len(args) > 0 {
 		path = args[0]
@@ -1078,7 +1078,7 @@ func (cmd *RefreshInstanceGroupResizingTaskCommand) Run(c *client.Client, args [
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.RefreshInstanceGroupResizingTask(ctx, path)
+	resp, err := c.WatchInstanceGroupResizingTask(ctx, path)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -1089,7 +1089,7 @@ func (cmd *RefreshInstanceGroupResizingTaskCommand) Run(c *client.Client, args [
 }
 
 // RegisterFlags registers the command flags with the command line.
-func (cmd *RefreshInstanceGroupResizingTaskCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+func (cmd *WatchInstanceGroupResizingTaskCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var id string
 	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
 }
@@ -1883,8 +1883,8 @@ func (cmd *WakingFinalizeTaskPipelineBaseCommand) RegisterFlags(cc *cobra.Comman
 	cc.Flags().StringVar(&cmd.OperationID, "operation_id", operationID, ``)
 }
 
-// Run makes the HTTP request corresponding to the RefreshPipelineBaseClosingTaskCommand command.
-func (cmd *RefreshPipelineBaseClosingTaskCommand) Run(c *client.Client, args []string) error {
+// Run makes the HTTP request corresponding to the WatchPipelineBaseClosingTaskCommand command.
+func (cmd *WatchPipelineBaseClosingTaskCommand) Run(c *client.Client, args []string) error {
 	var path string
 	if len(args) > 0 {
 		path = args[0]
@@ -1893,7 +1893,7 @@ func (cmd *RefreshPipelineBaseClosingTaskCommand) Run(c *client.Client, args []s
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.RefreshPipelineBaseClosingTask(ctx, path)
+	resp, err := c.WatchPipelineBaseClosingTask(ctx, path)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -1904,13 +1904,13 @@ func (cmd *RefreshPipelineBaseClosingTaskCommand) Run(c *client.Client, args []s
 }
 
 // RegisterFlags registers the command flags with the command line.
-func (cmd *RefreshPipelineBaseClosingTaskCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+func (cmd *WatchPipelineBaseClosingTaskCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var id string
 	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
 }
 
-// Run makes the HTTP request corresponding to the RefreshPipelineBaseOpeningTaskCommand command.
-func (cmd *RefreshPipelineBaseOpeningTaskCommand) Run(c *client.Client, args []string) error {
+// Run makes the HTTP request corresponding to the WatchPipelineBaseOpeningTaskCommand command.
+func (cmd *WatchPipelineBaseOpeningTaskCommand) Run(c *client.Client, args []string) error {
 	var path string
 	if len(args) > 0 {
 		path = args[0]
@@ -1919,7 +1919,7 @@ func (cmd *RefreshPipelineBaseOpeningTaskCommand) Run(c *client.Client, args []s
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.RefreshPipelineBaseOpeningTask(ctx, path)
+	resp, err := c.WatchPipelineBaseOpeningTask(ctx, path)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -1930,7 +1930,7 @@ func (cmd *RefreshPipelineBaseOpeningTaskCommand) Run(c *client.Client, args []s
 }
 
 // RegisterFlags registers the command flags with the command line.
-func (cmd *RefreshPipelineBaseOpeningTaskCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+func (cmd *WatchPipelineBaseOpeningTaskCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var id string
 	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
 }

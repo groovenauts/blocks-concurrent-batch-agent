@@ -24,11 +24,11 @@ import (
 	"net/url"
 )
 
-// RefreshPipelineBaseClosingTaskAccepted runs the method Refresh of the given controller with the given parameters.
+// WatchPipelineBaseClosingTaskAccepted runs the method Watch of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func RefreshPipelineBaseClosingTaskAccepted(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseClosingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
+func WatchPipelineBaseClosingTaskAccepted(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseClosingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -61,7 +61,7 @@ func RefreshPipelineBaseClosingTaskAccepted(t goatest.TInterface, ctx context.Co
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "PipelineBaseClosingTaskTest"), rw, req, prms)
-	refreshCtx, _err := app.NewRefreshPipelineBaseClosingTaskContext(goaCtx, req, service)
+	watchCtx, _err := app.NewWatchPipelineBaseClosingTaskContext(goaCtx, req, service)
 	if _err != nil {
 		e, ok := _err.(goa.ServiceError)
 		if !ok {
@@ -72,7 +72,7 @@ func RefreshPipelineBaseClosingTaskAccepted(t goatest.TInterface, ctx context.Co
 	}
 
 	// Perform action
-	_err = ctrl.Refresh(refreshCtx)
+	_err = ctrl.Watch(watchCtx)
 
 	// Validate response
 	if _err != nil {
@@ -98,11 +98,11 @@ func RefreshPipelineBaseClosingTaskAccepted(t goatest.TInterface, ctx context.Co
 	return rw, mt
 }
 
-// RefreshPipelineBaseClosingTaskBadRequest runs the method Refresh of the given controller with the given parameters.
+// WatchPipelineBaseClosingTaskBadRequest runs the method Watch of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func RefreshPipelineBaseClosingTaskBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseClosingTaskController, id string) (http.ResponseWriter, error) {
+func WatchPipelineBaseClosingTaskBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseClosingTaskController, id string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -135,7 +135,7 @@ func RefreshPipelineBaseClosingTaskBadRequest(t goatest.TInterface, ctx context.
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "PipelineBaseClosingTaskTest"), rw, req, prms)
-	refreshCtx, _err := app.NewRefreshPipelineBaseClosingTaskContext(goaCtx, req, service)
+	watchCtx, _err := app.NewWatchPipelineBaseClosingTaskContext(goaCtx, req, service)
 	if _err != nil {
 		e, ok := _err.(goa.ServiceError)
 		if !ok {
@@ -145,7 +145,7 @@ func RefreshPipelineBaseClosingTaskBadRequest(t goatest.TInterface, ctx context.
 	}
 
 	// Perform action
-	_err = ctrl.Refresh(refreshCtx)
+	_err = ctrl.Watch(watchCtx)
 
 	// Validate response
 	if _err != nil {
@@ -167,11 +167,11 @@ func RefreshPipelineBaseClosingTaskBadRequest(t goatest.TInterface, ctx context.
 	return rw, mt
 }
 
-// RefreshPipelineBaseClosingTaskCreated runs the method Refresh of the given controller with the given parameters.
+// WatchPipelineBaseClosingTaskCreated runs the method Watch of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func RefreshPipelineBaseClosingTaskCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseClosingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
+func WatchPipelineBaseClosingTaskCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseClosingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -204,7 +204,7 @@ func RefreshPipelineBaseClosingTaskCreated(t goatest.TInterface, ctx context.Con
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "PipelineBaseClosingTaskTest"), rw, req, prms)
-	refreshCtx, _err := app.NewRefreshPipelineBaseClosingTaskContext(goaCtx, req, service)
+	watchCtx, _err := app.NewWatchPipelineBaseClosingTaskContext(goaCtx, req, service)
 	if _err != nil {
 		e, ok := _err.(goa.ServiceError)
 		if !ok {
@@ -215,7 +215,7 @@ func RefreshPipelineBaseClosingTaskCreated(t goatest.TInterface, ctx context.Con
 	}
 
 	// Perform action
-	_err = ctrl.Refresh(refreshCtx)
+	_err = ctrl.Watch(watchCtx)
 
 	// Validate response
 	if _err != nil {
@@ -241,11 +241,11 @@ func RefreshPipelineBaseClosingTaskCreated(t goatest.TInterface, ctx context.Con
 	return rw, mt
 }
 
-// RefreshPipelineBaseClosingTaskInternalServerError runs the method Refresh of the given controller with the given parameters.
+// WatchPipelineBaseClosingTaskInternalServerError runs the method Watch of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func RefreshPipelineBaseClosingTaskInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseClosingTaskController, id string) (http.ResponseWriter, error) {
+func WatchPipelineBaseClosingTaskInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseClosingTaskController, id string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -278,7 +278,7 @@ func RefreshPipelineBaseClosingTaskInternalServerError(t goatest.TInterface, ctx
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "PipelineBaseClosingTaskTest"), rw, req, prms)
-	refreshCtx, _err := app.NewRefreshPipelineBaseClosingTaskContext(goaCtx, req, service)
+	watchCtx, _err := app.NewWatchPipelineBaseClosingTaskContext(goaCtx, req, service)
 	if _err != nil {
 		e, ok := _err.(goa.ServiceError)
 		if !ok {
@@ -288,7 +288,7 @@ func RefreshPipelineBaseClosingTaskInternalServerError(t goatest.TInterface, ctx
 	}
 
 	// Perform action
-	_err = ctrl.Refresh(refreshCtx)
+	_err = ctrl.Watch(watchCtx)
 
 	// Validate response
 	if _err != nil {
@@ -310,11 +310,11 @@ func RefreshPipelineBaseClosingTaskInternalServerError(t goatest.TInterface, ctx
 	return rw, mt
 }
 
-// RefreshPipelineBaseClosingTaskNoContent runs the method Refresh of the given controller with the given parameters.
+// WatchPipelineBaseClosingTaskNoContent runs the method Watch of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func RefreshPipelineBaseClosingTaskNoContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseClosingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
+func WatchPipelineBaseClosingTaskNoContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseClosingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -347,7 +347,7 @@ func RefreshPipelineBaseClosingTaskNoContent(t goatest.TInterface, ctx context.C
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "PipelineBaseClosingTaskTest"), rw, req, prms)
-	refreshCtx, _err := app.NewRefreshPipelineBaseClosingTaskContext(goaCtx, req, service)
+	watchCtx, _err := app.NewWatchPipelineBaseClosingTaskContext(goaCtx, req, service)
 	if _err != nil {
 		e, ok := _err.(goa.ServiceError)
 		if !ok {
@@ -358,7 +358,7 @@ func RefreshPipelineBaseClosingTaskNoContent(t goatest.TInterface, ctx context.C
 	}
 
 	// Perform action
-	_err = ctrl.Refresh(refreshCtx)
+	_err = ctrl.Watch(watchCtx)
 
 	// Validate response
 	if _err != nil {
@@ -384,11 +384,11 @@ func RefreshPipelineBaseClosingTaskNoContent(t goatest.TInterface, ctx context.C
 	return rw, mt
 }
 
-// RefreshPipelineBaseClosingTaskNotFound runs the method Refresh of the given controller with the given parameters.
+// WatchPipelineBaseClosingTaskNotFound runs the method Watch of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func RefreshPipelineBaseClosingTaskNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseClosingTaskController, id string) (http.ResponseWriter, error) {
+func WatchPipelineBaseClosingTaskNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseClosingTaskController, id string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -421,7 +421,7 @@ func RefreshPipelineBaseClosingTaskNotFound(t goatest.TInterface, ctx context.Co
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "PipelineBaseClosingTaskTest"), rw, req, prms)
-	refreshCtx, _err := app.NewRefreshPipelineBaseClosingTaskContext(goaCtx, req, service)
+	watchCtx, _err := app.NewWatchPipelineBaseClosingTaskContext(goaCtx, req, service)
 	if _err != nil {
 		e, ok := _err.(goa.ServiceError)
 		if !ok {
@@ -431,7 +431,7 @@ func RefreshPipelineBaseClosingTaskNotFound(t goatest.TInterface, ctx context.Co
 	}
 
 	// Perform action
-	_err = ctrl.Refresh(refreshCtx)
+	_err = ctrl.Watch(watchCtx)
 
 	// Validate response
 	if _err != nil {
@@ -453,11 +453,11 @@ func RefreshPipelineBaseClosingTaskNotFound(t goatest.TInterface, ctx context.Co
 	return rw, mt
 }
 
-// RefreshPipelineBaseClosingTaskOK runs the method Refresh of the given controller with the given parameters.
+// WatchPipelineBaseClosingTaskOK runs the method Watch of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func RefreshPipelineBaseClosingTaskOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseClosingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
+func WatchPipelineBaseClosingTaskOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseClosingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -490,7 +490,7 @@ func RefreshPipelineBaseClosingTaskOK(t goatest.TInterface, ctx context.Context,
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "PipelineBaseClosingTaskTest"), rw, req, prms)
-	refreshCtx, _err := app.NewRefreshPipelineBaseClosingTaskContext(goaCtx, req, service)
+	watchCtx, _err := app.NewWatchPipelineBaseClosingTaskContext(goaCtx, req, service)
 	if _err != nil {
 		e, ok := _err.(goa.ServiceError)
 		if !ok {
@@ -501,7 +501,7 @@ func RefreshPipelineBaseClosingTaskOK(t goatest.TInterface, ctx context.Context,
 	}
 
 	// Perform action
-	_err = ctrl.Refresh(refreshCtx)
+	_err = ctrl.Watch(watchCtx)
 
 	// Validate response
 	if _err != nil {
@@ -527,11 +527,11 @@ func RefreshPipelineBaseClosingTaskOK(t goatest.TInterface, ctx context.Context,
 	return rw, mt
 }
 
-// RefreshPipelineBaseClosingTaskUnauthorized runs the method Refresh of the given controller with the given parameters.
+// WatchPipelineBaseClosingTaskUnauthorized runs the method Watch of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func RefreshPipelineBaseClosingTaskUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseClosingTaskController, id string) (http.ResponseWriter, error) {
+func WatchPipelineBaseClosingTaskUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseClosingTaskController, id string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -564,7 +564,7 @@ func RefreshPipelineBaseClosingTaskUnauthorized(t goatest.TInterface, ctx contex
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "PipelineBaseClosingTaskTest"), rw, req, prms)
-	refreshCtx, _err := app.NewRefreshPipelineBaseClosingTaskContext(goaCtx, req, service)
+	watchCtx, _err := app.NewWatchPipelineBaseClosingTaskContext(goaCtx, req, service)
 	if _err != nil {
 		e, ok := _err.(goa.ServiceError)
 		if !ok {
@@ -574,7 +574,7 @@ func RefreshPipelineBaseClosingTaskUnauthorized(t goatest.TInterface, ctx contex
 	}
 
 	// Perform action
-	_err = ctrl.Refresh(refreshCtx)
+	_err = ctrl.Watch(watchCtx)
 
 	// Validate response
 	if _err != nil {

@@ -1053,8 +1053,8 @@ info:
 paths:
   /closing_tasks/{id}:
     put:
-      description: Refresh
-      operationId: PipelineBaseClosingTask#refresh
+      description: Watch
+      operationId: PipelineBaseClosingTask#watch
       parameters:
       - description: ID
         in: path
@@ -1101,13 +1101,13 @@ paths:
       - http
       security:
       - api_key: []
-      summary: refresh PipelineBaseClosingTask
+      summary: watch PipelineBaseClosingTask
       tags:
       - PipelineBaseClosingTask
   /constructing_tasks/{id}:
     put:
-      description: Refresh
-      operationId: InstanceGroupConstructingTask#refresh
+      description: Watch
+      operationId: InstanceGroupConstructingTask#watch
       parameters:
       - description: ID
         in: path
@@ -1154,13 +1154,13 @@ paths:
       - http
       security:
       - api_key: []
-      summary: refresh InstanceGroupConstructingTask
+      summary: watch InstanceGroupConstructingTask
       tags:
       - InstanceGroupConstructingTask
   /destructing_tasks/{id}:
     put:
-      description: Refresh
-      operationId: InstanceGroupDestructingTask#refresh
+      description: Watch
+      operationId: InstanceGroupDestructingTask#watch
       parameters:
       - description: ID
         in: path
@@ -1207,7 +1207,7 @@ paths:
       - http
       security:
       - api_key: []
-      summary: refresh InstanceGroupDestructingTask
+      summary: watch InstanceGroupDestructingTask
       tags:
       - InstanceGroupDestructingTask
   /dummy-auths:
@@ -1757,8 +1757,8 @@ paths:
       - Job
   /opening_tasks/{id}:
     put:
-      description: Refresh
-      operationId: PipelineBaseOpeningTask#refresh
+      description: Watch
+      operationId: PipelineBaseOpeningTask#watch
       parameters:
       - description: ID
         in: path
@@ -1805,7 +1805,7 @@ paths:
       - http
       security:
       - api_key: []
-      summary: refresh PipelineBaseOpeningTask
+      summary: watch PipelineBaseOpeningTask
       tags:
       - PipelineBaseOpeningTask
   /pipeline_bases:
@@ -2499,8 +2499,8 @@ paths:
       - Pipeline
   /resizing_tasks/{id}:
     put:
-      description: Refresh
-      operationId: InstanceGroupResizingTask#refresh
+      description: Watch
+      operationId: InstanceGroupResizingTask#watch
       parameters:
       - description: ID
         in: path
@@ -2547,7 +2547,7 @@ paths:
       - http
       security:
       - api_key: []
-      summary: refresh InstanceGroupResizingTask
+      summary: watch InstanceGroupResizingTask
       tags:
       - InstanceGroupResizingTask
   /swagger.json:

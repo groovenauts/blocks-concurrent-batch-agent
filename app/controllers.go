@@ -35,7 +35,7 @@ func initService(service *goa.Service) {
 // InstanceGroupConstructingTaskController is the controller interface for the InstanceGroupConstructingTask actions.
 type InstanceGroupConstructingTaskController interface {
 	goa.Muxer
-	Refresh(*RefreshInstanceGroupConstructingTaskContext) error
+	Watch(*WatchInstanceGroupConstructingTaskContext) error
 }
 
 // MountInstanceGroupConstructingTaskController "mounts" a InstanceGroupConstructingTask resource controller on the given service.
@@ -50,16 +50,16 @@ func MountInstanceGroupConstructingTaskController(service *goa.Service, ctrl Ins
 			return err
 		}
 		// Build the context
-		rctx, err := NewRefreshInstanceGroupConstructingTaskContext(ctx, req, service)
+		rctx, err := NewWatchInstanceGroupConstructingTaskContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
-		return ctrl.Refresh(rctx)
+		return ctrl.Watch(rctx)
 	}
 	h = handleSecurity("api_key", h)
 	h = handleInstanceGroupConstructingTaskOrigin(h)
-	service.Mux.Handle("PUT", "/constructing_tasks/:id", ctrl.MuxHandler("refresh", h, nil))
-	service.LogInfo("mount", "ctrl", "InstanceGroupConstructingTask", "action", "Refresh", "route", "PUT /constructing_tasks/:id", "security", "api_key")
+	service.Mux.Handle("PUT", "/constructing_tasks/:id", ctrl.MuxHandler("watch", h, nil))
+	service.LogInfo("mount", "ctrl", "InstanceGroupConstructingTask", "action", "Watch", "route", "PUT /constructing_tasks/:id", "security", "api_key")
 }
 
 // handleInstanceGroupConstructingTaskOrigin applies the CORS response headers corresponding to the origin.
@@ -90,7 +90,7 @@ func handleInstanceGroupConstructingTaskOrigin(h goa.Handler) goa.Handler {
 // InstanceGroupDestructingTaskController is the controller interface for the InstanceGroupDestructingTask actions.
 type InstanceGroupDestructingTaskController interface {
 	goa.Muxer
-	Refresh(*RefreshInstanceGroupDestructingTaskContext) error
+	Watch(*WatchInstanceGroupDestructingTaskContext) error
 }
 
 // MountInstanceGroupDestructingTaskController "mounts" a InstanceGroupDestructingTask resource controller on the given service.
@@ -105,16 +105,16 @@ func MountInstanceGroupDestructingTaskController(service *goa.Service, ctrl Inst
 			return err
 		}
 		// Build the context
-		rctx, err := NewRefreshInstanceGroupDestructingTaskContext(ctx, req, service)
+		rctx, err := NewWatchInstanceGroupDestructingTaskContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
-		return ctrl.Refresh(rctx)
+		return ctrl.Watch(rctx)
 	}
 	h = handleSecurity("api_key", h)
 	h = handleInstanceGroupDestructingTaskOrigin(h)
-	service.Mux.Handle("PUT", "/destructing_tasks/:id", ctrl.MuxHandler("refresh", h, nil))
-	service.LogInfo("mount", "ctrl", "InstanceGroupDestructingTask", "action", "Refresh", "route", "PUT /destructing_tasks/:id", "security", "api_key")
+	service.Mux.Handle("PUT", "/destructing_tasks/:id", ctrl.MuxHandler("watch", h, nil))
+	service.LogInfo("mount", "ctrl", "InstanceGroupDestructingTask", "action", "Watch", "route", "PUT /destructing_tasks/:id", "security", "api_key")
 }
 
 // handleInstanceGroupDestructingTaskOrigin applies the CORS response headers corresponding to the origin.
@@ -145,7 +145,7 @@ func handleInstanceGroupDestructingTaskOrigin(h goa.Handler) goa.Handler {
 // InstanceGroupResizingTaskController is the controller interface for the InstanceGroupResizingTask actions.
 type InstanceGroupResizingTaskController interface {
 	goa.Muxer
-	Refresh(*RefreshInstanceGroupResizingTaskContext) error
+	Watch(*WatchInstanceGroupResizingTaskContext) error
 }
 
 // MountInstanceGroupResizingTaskController "mounts" a InstanceGroupResizingTask resource controller on the given service.
@@ -160,16 +160,16 @@ func MountInstanceGroupResizingTaskController(service *goa.Service, ctrl Instanc
 			return err
 		}
 		// Build the context
-		rctx, err := NewRefreshInstanceGroupResizingTaskContext(ctx, req, service)
+		rctx, err := NewWatchInstanceGroupResizingTaskContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
-		return ctrl.Refresh(rctx)
+		return ctrl.Watch(rctx)
 	}
 	h = handleSecurity("api_key", h)
 	h = handleInstanceGroupResizingTaskOrigin(h)
-	service.Mux.Handle("PUT", "/resizing_tasks/:id", ctrl.MuxHandler("refresh", h, nil))
-	service.LogInfo("mount", "ctrl", "InstanceGroupResizingTask", "action", "Refresh", "route", "PUT /resizing_tasks/:id", "security", "api_key")
+	service.Mux.Handle("PUT", "/resizing_tasks/:id", ctrl.MuxHandler("watch", h, nil))
+	service.LogInfo("mount", "ctrl", "InstanceGroupResizingTask", "action", "Watch", "route", "PUT /resizing_tasks/:id", "security", "api_key")
 }
 
 // handleInstanceGroupResizingTaskOrigin applies the CORS response headers corresponding to the origin.
@@ -975,7 +975,7 @@ func unmarshalCreatePipelineBasePayload(ctx context.Context, service *goa.Servic
 // PipelineBaseClosingTaskController is the controller interface for the PipelineBaseClosingTask actions.
 type PipelineBaseClosingTaskController interface {
 	goa.Muxer
-	Refresh(*RefreshPipelineBaseClosingTaskContext) error
+	Watch(*WatchPipelineBaseClosingTaskContext) error
 }
 
 // MountPipelineBaseClosingTaskController "mounts" a PipelineBaseClosingTask resource controller on the given service.
@@ -990,16 +990,16 @@ func MountPipelineBaseClosingTaskController(service *goa.Service, ctrl PipelineB
 			return err
 		}
 		// Build the context
-		rctx, err := NewRefreshPipelineBaseClosingTaskContext(ctx, req, service)
+		rctx, err := NewWatchPipelineBaseClosingTaskContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
-		return ctrl.Refresh(rctx)
+		return ctrl.Watch(rctx)
 	}
 	h = handleSecurity("api_key", h)
 	h = handlePipelineBaseClosingTaskOrigin(h)
-	service.Mux.Handle("PUT", "/closing_tasks/:id", ctrl.MuxHandler("refresh", h, nil))
-	service.LogInfo("mount", "ctrl", "PipelineBaseClosingTask", "action", "Refresh", "route", "PUT /closing_tasks/:id", "security", "api_key")
+	service.Mux.Handle("PUT", "/closing_tasks/:id", ctrl.MuxHandler("watch", h, nil))
+	service.LogInfo("mount", "ctrl", "PipelineBaseClosingTask", "action", "Watch", "route", "PUT /closing_tasks/:id", "security", "api_key")
 }
 
 // handlePipelineBaseClosingTaskOrigin applies the CORS response headers corresponding to the origin.
@@ -1030,7 +1030,7 @@ func handlePipelineBaseClosingTaskOrigin(h goa.Handler) goa.Handler {
 // PipelineBaseOpeningTaskController is the controller interface for the PipelineBaseOpeningTask actions.
 type PipelineBaseOpeningTaskController interface {
 	goa.Muxer
-	Refresh(*RefreshPipelineBaseOpeningTaskContext) error
+	Watch(*WatchPipelineBaseOpeningTaskContext) error
 }
 
 // MountPipelineBaseOpeningTaskController "mounts" a PipelineBaseOpeningTask resource controller on the given service.
@@ -1045,16 +1045,16 @@ func MountPipelineBaseOpeningTaskController(service *goa.Service, ctrl PipelineB
 			return err
 		}
 		// Build the context
-		rctx, err := NewRefreshPipelineBaseOpeningTaskContext(ctx, req, service)
+		rctx, err := NewWatchPipelineBaseOpeningTaskContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
-		return ctrl.Refresh(rctx)
+		return ctrl.Watch(rctx)
 	}
 	h = handleSecurity("api_key", h)
 	h = handlePipelineBaseOpeningTaskOrigin(h)
-	service.Mux.Handle("PUT", "/opening_tasks/:id", ctrl.MuxHandler("refresh", h, nil))
-	service.LogInfo("mount", "ctrl", "PipelineBaseOpeningTask", "action", "Refresh", "route", "PUT /opening_tasks/:id", "security", "api_key")
+	service.Mux.Handle("PUT", "/opening_tasks/:id", ctrl.MuxHandler("watch", h, nil))
+	service.LogInfo("mount", "ctrl", "PipelineBaseOpeningTask", "action", "Watch", "route", "PUT /opening_tasks/:id", "security", "api_key")
 }
 
 // handlePipelineBaseOpeningTaskOrigin applies the CORS response headers corresponding to the origin.

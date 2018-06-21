@@ -17,24 +17,24 @@ import (
 	"net/url"
 )
 
-// RefreshInstanceGroupDestructingTaskPath computes a request path to the refresh action of InstanceGroupDestructingTask.
-func RefreshInstanceGroupDestructingTaskPath(id string) string {
+// WatchInstanceGroupDestructingTaskPath computes a request path to the watch action of InstanceGroupDestructingTask.
+func WatchInstanceGroupDestructingTaskPath(id string) string {
 	param0 := id
 
 	return fmt.Sprintf("/destructing_tasks/%s", param0)
 }
 
-// Refresh
-func (c *Client) RefreshInstanceGroupDestructingTask(ctx context.Context, path string) (*http.Response, error) {
-	req, err := c.NewRefreshInstanceGroupDestructingTaskRequest(ctx, path)
+// Watch
+func (c *Client) WatchInstanceGroupDestructingTask(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.NewWatchInstanceGroupDestructingTaskRequest(ctx, path)
 	if err != nil {
 		return nil, err
 	}
 	return c.Client.Do(ctx, req)
 }
 
-// NewRefreshInstanceGroupDestructingTaskRequest create the request corresponding to the refresh action endpoint of the InstanceGroupDestructingTask resource.
-func (c *Client) NewRefreshInstanceGroupDestructingTaskRequest(ctx context.Context, path string) (*http.Request, error) {
+// NewWatchInstanceGroupDestructingTaskRequest create the request corresponding to the watch action endpoint of the InstanceGroupDestructingTask resource.
+func (c *Client) NewWatchInstanceGroupDestructingTaskRequest(ctx context.Context, path string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "http"

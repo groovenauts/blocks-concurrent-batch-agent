@@ -24,11 +24,11 @@ import (
 	"net/url"
 )
 
-// RefreshInstanceGroupResizingTaskAccepted runs the method Refresh of the given controller with the given parameters.
+// WatchInstanceGroupResizingTaskAccepted runs the method Watch of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func RefreshInstanceGroupResizingTaskAccepted(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupResizingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
+func WatchInstanceGroupResizingTaskAccepted(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupResizingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -61,7 +61,7 @@ func RefreshInstanceGroupResizingTaskAccepted(t goatest.TInterface, ctx context.
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "InstanceGroupResizingTaskTest"), rw, req, prms)
-	refreshCtx, _err := app.NewRefreshInstanceGroupResizingTaskContext(goaCtx, req, service)
+	watchCtx, _err := app.NewWatchInstanceGroupResizingTaskContext(goaCtx, req, service)
 	if _err != nil {
 		e, ok := _err.(goa.ServiceError)
 		if !ok {
@@ -72,7 +72,7 @@ func RefreshInstanceGroupResizingTaskAccepted(t goatest.TInterface, ctx context.
 	}
 
 	// Perform action
-	_err = ctrl.Refresh(refreshCtx)
+	_err = ctrl.Watch(watchCtx)
 
 	// Validate response
 	if _err != nil {
@@ -98,11 +98,11 @@ func RefreshInstanceGroupResizingTaskAccepted(t goatest.TInterface, ctx context.
 	return rw, mt
 }
 
-// RefreshInstanceGroupResizingTaskBadRequest runs the method Refresh of the given controller with the given parameters.
+// WatchInstanceGroupResizingTaskBadRequest runs the method Watch of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func RefreshInstanceGroupResizingTaskBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupResizingTaskController, id string) (http.ResponseWriter, error) {
+func WatchInstanceGroupResizingTaskBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupResizingTaskController, id string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -135,7 +135,7 @@ func RefreshInstanceGroupResizingTaskBadRequest(t goatest.TInterface, ctx contex
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "InstanceGroupResizingTaskTest"), rw, req, prms)
-	refreshCtx, _err := app.NewRefreshInstanceGroupResizingTaskContext(goaCtx, req, service)
+	watchCtx, _err := app.NewWatchInstanceGroupResizingTaskContext(goaCtx, req, service)
 	if _err != nil {
 		e, ok := _err.(goa.ServiceError)
 		if !ok {
@@ -145,7 +145,7 @@ func RefreshInstanceGroupResizingTaskBadRequest(t goatest.TInterface, ctx contex
 	}
 
 	// Perform action
-	_err = ctrl.Refresh(refreshCtx)
+	_err = ctrl.Watch(watchCtx)
 
 	// Validate response
 	if _err != nil {
@@ -167,11 +167,11 @@ func RefreshInstanceGroupResizingTaskBadRequest(t goatest.TInterface, ctx contex
 	return rw, mt
 }
 
-// RefreshInstanceGroupResizingTaskCreated runs the method Refresh of the given controller with the given parameters.
+// WatchInstanceGroupResizingTaskCreated runs the method Watch of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func RefreshInstanceGroupResizingTaskCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupResizingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
+func WatchInstanceGroupResizingTaskCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupResizingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -204,7 +204,7 @@ func RefreshInstanceGroupResizingTaskCreated(t goatest.TInterface, ctx context.C
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "InstanceGroupResizingTaskTest"), rw, req, prms)
-	refreshCtx, _err := app.NewRefreshInstanceGroupResizingTaskContext(goaCtx, req, service)
+	watchCtx, _err := app.NewWatchInstanceGroupResizingTaskContext(goaCtx, req, service)
 	if _err != nil {
 		e, ok := _err.(goa.ServiceError)
 		if !ok {
@@ -215,7 +215,7 @@ func RefreshInstanceGroupResizingTaskCreated(t goatest.TInterface, ctx context.C
 	}
 
 	// Perform action
-	_err = ctrl.Refresh(refreshCtx)
+	_err = ctrl.Watch(watchCtx)
 
 	// Validate response
 	if _err != nil {
@@ -241,11 +241,11 @@ func RefreshInstanceGroupResizingTaskCreated(t goatest.TInterface, ctx context.C
 	return rw, mt
 }
 
-// RefreshInstanceGroupResizingTaskInternalServerError runs the method Refresh of the given controller with the given parameters.
+// WatchInstanceGroupResizingTaskInternalServerError runs the method Watch of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func RefreshInstanceGroupResizingTaskInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupResizingTaskController, id string) (http.ResponseWriter, error) {
+func WatchInstanceGroupResizingTaskInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupResizingTaskController, id string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -278,7 +278,7 @@ func RefreshInstanceGroupResizingTaskInternalServerError(t goatest.TInterface, c
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "InstanceGroupResizingTaskTest"), rw, req, prms)
-	refreshCtx, _err := app.NewRefreshInstanceGroupResizingTaskContext(goaCtx, req, service)
+	watchCtx, _err := app.NewWatchInstanceGroupResizingTaskContext(goaCtx, req, service)
 	if _err != nil {
 		e, ok := _err.(goa.ServiceError)
 		if !ok {
@@ -288,7 +288,7 @@ func RefreshInstanceGroupResizingTaskInternalServerError(t goatest.TInterface, c
 	}
 
 	// Perform action
-	_err = ctrl.Refresh(refreshCtx)
+	_err = ctrl.Watch(watchCtx)
 
 	// Validate response
 	if _err != nil {
@@ -310,11 +310,11 @@ func RefreshInstanceGroupResizingTaskInternalServerError(t goatest.TInterface, c
 	return rw, mt
 }
 
-// RefreshInstanceGroupResizingTaskNoContent runs the method Refresh of the given controller with the given parameters.
+// WatchInstanceGroupResizingTaskNoContent runs the method Watch of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func RefreshInstanceGroupResizingTaskNoContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupResizingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
+func WatchInstanceGroupResizingTaskNoContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupResizingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -347,7 +347,7 @@ func RefreshInstanceGroupResizingTaskNoContent(t goatest.TInterface, ctx context
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "InstanceGroupResizingTaskTest"), rw, req, prms)
-	refreshCtx, _err := app.NewRefreshInstanceGroupResizingTaskContext(goaCtx, req, service)
+	watchCtx, _err := app.NewWatchInstanceGroupResizingTaskContext(goaCtx, req, service)
 	if _err != nil {
 		e, ok := _err.(goa.ServiceError)
 		if !ok {
@@ -358,7 +358,7 @@ func RefreshInstanceGroupResizingTaskNoContent(t goatest.TInterface, ctx context
 	}
 
 	// Perform action
-	_err = ctrl.Refresh(refreshCtx)
+	_err = ctrl.Watch(watchCtx)
 
 	// Validate response
 	if _err != nil {
@@ -384,11 +384,11 @@ func RefreshInstanceGroupResizingTaskNoContent(t goatest.TInterface, ctx context
 	return rw, mt
 }
 
-// RefreshInstanceGroupResizingTaskNotFound runs the method Refresh of the given controller with the given parameters.
+// WatchInstanceGroupResizingTaskNotFound runs the method Watch of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func RefreshInstanceGroupResizingTaskNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupResizingTaskController, id string) (http.ResponseWriter, error) {
+func WatchInstanceGroupResizingTaskNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupResizingTaskController, id string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -421,7 +421,7 @@ func RefreshInstanceGroupResizingTaskNotFound(t goatest.TInterface, ctx context.
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "InstanceGroupResizingTaskTest"), rw, req, prms)
-	refreshCtx, _err := app.NewRefreshInstanceGroupResizingTaskContext(goaCtx, req, service)
+	watchCtx, _err := app.NewWatchInstanceGroupResizingTaskContext(goaCtx, req, service)
 	if _err != nil {
 		e, ok := _err.(goa.ServiceError)
 		if !ok {
@@ -431,7 +431,7 @@ func RefreshInstanceGroupResizingTaskNotFound(t goatest.TInterface, ctx context.
 	}
 
 	// Perform action
-	_err = ctrl.Refresh(refreshCtx)
+	_err = ctrl.Watch(watchCtx)
 
 	// Validate response
 	if _err != nil {
@@ -453,11 +453,11 @@ func RefreshInstanceGroupResizingTaskNotFound(t goatest.TInterface, ctx context.
 	return rw, mt
 }
 
-// RefreshInstanceGroupResizingTaskOK runs the method Refresh of the given controller with the given parameters.
+// WatchInstanceGroupResizingTaskOK runs the method Watch of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func RefreshInstanceGroupResizingTaskOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupResizingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
+func WatchInstanceGroupResizingTaskOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupResizingTaskController, id string) (http.ResponseWriter, *app.InstanceGroupOperation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -490,7 +490,7 @@ func RefreshInstanceGroupResizingTaskOK(t goatest.TInterface, ctx context.Contex
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "InstanceGroupResizingTaskTest"), rw, req, prms)
-	refreshCtx, _err := app.NewRefreshInstanceGroupResizingTaskContext(goaCtx, req, service)
+	watchCtx, _err := app.NewWatchInstanceGroupResizingTaskContext(goaCtx, req, service)
 	if _err != nil {
 		e, ok := _err.(goa.ServiceError)
 		if !ok {
@@ -501,7 +501,7 @@ func RefreshInstanceGroupResizingTaskOK(t goatest.TInterface, ctx context.Contex
 	}
 
 	// Perform action
-	_err = ctrl.Refresh(refreshCtx)
+	_err = ctrl.Watch(watchCtx)
 
 	// Validate response
 	if _err != nil {
@@ -527,11 +527,11 @@ func RefreshInstanceGroupResizingTaskOK(t goatest.TInterface, ctx context.Contex
 	return rw, mt
 }
 
-// RefreshInstanceGroupResizingTaskUnauthorized runs the method Refresh of the given controller with the given parameters.
+// WatchInstanceGroupResizingTaskUnauthorized runs the method Watch of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func RefreshInstanceGroupResizingTaskUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupResizingTaskController, id string) (http.ResponseWriter, error) {
+func WatchInstanceGroupResizingTaskUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupResizingTaskController, id string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -564,7 +564,7 @@ func RefreshInstanceGroupResizingTaskUnauthorized(t goatest.TInterface, ctx cont
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "InstanceGroupResizingTaskTest"), rw, req, prms)
-	refreshCtx, _err := app.NewRefreshInstanceGroupResizingTaskContext(goaCtx, req, service)
+	watchCtx, _err := app.NewWatchInstanceGroupResizingTaskContext(goaCtx, req, service)
 	if _err != nil {
 		e, ok := _err.(goa.ServiceError)
 		if !ok {
@@ -574,7 +574,7 @@ func RefreshInstanceGroupResizingTaskUnauthorized(t goatest.TInterface, ctx cont
 	}
 
 	// Perform action
-	_err = ctrl.Refresh(refreshCtx)
+	_err = ctrl.Watch(watchCtx)
 
 	// Validate response
 	if _err != nil {

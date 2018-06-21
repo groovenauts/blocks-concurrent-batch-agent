@@ -17,24 +17,24 @@ import (
 	"net/url"
 )
 
-// RefreshPipelineBaseOpeningTaskPath computes a request path to the refresh action of PipelineBaseOpeningTask.
-func RefreshPipelineBaseOpeningTaskPath(id string) string {
+// WatchPipelineBaseOpeningTaskPath computes a request path to the watch action of PipelineBaseOpeningTask.
+func WatchPipelineBaseOpeningTaskPath(id string) string {
 	param0 := id
 
 	return fmt.Sprintf("/opening_tasks/%s", param0)
 }
 
-// Refresh
-func (c *Client) RefreshPipelineBaseOpeningTask(ctx context.Context, path string) (*http.Response, error) {
-	req, err := c.NewRefreshPipelineBaseOpeningTaskRequest(ctx, path)
+// Watch
+func (c *Client) WatchPipelineBaseOpeningTask(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.NewWatchPipelineBaseOpeningTaskRequest(ctx, path)
 	if err != nil {
 		return nil, err
 	}
 	return c.Client.Do(ctx, req)
 }
 
-// NewRefreshPipelineBaseOpeningTaskRequest create the request corresponding to the refresh action endpoint of the PipelineBaseOpeningTask resource.
-func (c *Client) NewRefreshPipelineBaseOpeningTaskRequest(ctx context.Context, path string) (*http.Request, error) {
+// NewWatchPipelineBaseOpeningTaskRequest create the request corresponding to the watch action endpoint of the PipelineBaseOpeningTask resource.
+func (c *Client) NewWatchPipelineBaseOpeningTaskRequest(ctx context.Context, path string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "http"

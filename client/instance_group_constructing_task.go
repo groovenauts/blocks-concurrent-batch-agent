@@ -17,24 +17,24 @@ import (
 	"net/url"
 )
 
-// RefreshInstanceGroupConstructingTaskPath computes a request path to the refresh action of InstanceGroupConstructingTask.
-func RefreshInstanceGroupConstructingTaskPath(id string) string {
+// WatchInstanceGroupConstructingTaskPath computes a request path to the watch action of InstanceGroupConstructingTask.
+func WatchInstanceGroupConstructingTaskPath(id string) string {
 	param0 := id
 
 	return fmt.Sprintf("/constructing_tasks/%s", param0)
 }
 
-// Refresh
-func (c *Client) RefreshInstanceGroupConstructingTask(ctx context.Context, path string) (*http.Response, error) {
-	req, err := c.NewRefreshInstanceGroupConstructingTaskRequest(ctx, path)
+// Watch
+func (c *Client) WatchInstanceGroupConstructingTask(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.NewWatchInstanceGroupConstructingTaskRequest(ctx, path)
 	if err != nil {
 		return nil, err
 	}
 	return c.Client.Do(ctx, req)
 }
 
-// NewRefreshInstanceGroupConstructingTaskRequest create the request corresponding to the refresh action endpoint of the InstanceGroupConstructingTask resource.
-func (c *Client) NewRefreshInstanceGroupConstructingTaskRequest(ctx context.Context, path string) (*http.Request, error) {
+// NewWatchInstanceGroupConstructingTaskRequest create the request corresponding to the watch action endpoint of the InstanceGroupConstructingTask resource.
+func (c *Client) NewWatchInstanceGroupConstructingTaskRequest(ctx context.Context, path string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "http"

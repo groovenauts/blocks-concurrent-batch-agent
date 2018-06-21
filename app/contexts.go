@@ -16,23 +16,23 @@ import (
 	"net/http"
 )
 
-// RefreshInstanceGroupConstructingTaskContext provides the InstanceGroupConstructingTask refresh action context.
-type RefreshInstanceGroupConstructingTaskContext struct {
+// WatchInstanceGroupConstructingTaskContext provides the InstanceGroupConstructingTask watch action context.
+type WatchInstanceGroupConstructingTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
 	ID string
 }
 
-// NewRefreshInstanceGroupConstructingTaskContext parses the incoming request URL and body, performs validations and creates the
-// context used by the InstanceGroupConstructingTask controller refresh action.
-func NewRefreshInstanceGroupConstructingTaskContext(ctx context.Context, r *http.Request, service *goa.Service) (*RefreshInstanceGroupConstructingTaskContext, error) {
+// NewWatchInstanceGroupConstructingTaskContext parses the incoming request URL and body, performs validations and creates the
+// context used by the InstanceGroupConstructingTask controller watch action.
+func NewWatchInstanceGroupConstructingTaskContext(ctx context.Context, r *http.Request, service *goa.Service) (*WatchInstanceGroupConstructingTaskContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := RefreshInstanceGroupConstructingTaskContext{Context: ctx, ResponseData: resp, RequestData: req}
+	rctx := WatchInstanceGroupConstructingTaskContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramID := req.Params["id"]
 	if len(paramID) > 0 {
 		rawID := paramID[0]
@@ -42,7 +42,7 @@ func NewRefreshInstanceGroupConstructingTaskContext(ctx context.Context, r *http
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *RefreshInstanceGroupConstructingTaskContext) OK(r *InstanceGroupOperation) error {
+func (ctx *WatchInstanceGroupConstructingTaskContext) OK(r *InstanceGroupOperation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
 	}
@@ -50,7 +50,7 @@ func (ctx *RefreshInstanceGroupConstructingTaskContext) OK(r *InstanceGroupOpera
 }
 
 // Created sends a HTTP response with status code 201.
-func (ctx *RefreshInstanceGroupConstructingTaskContext) Created(r *InstanceGroupOperation) error {
+func (ctx *WatchInstanceGroupConstructingTaskContext) Created(r *InstanceGroupOperation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
 	}
@@ -58,7 +58,7 @@ func (ctx *RefreshInstanceGroupConstructingTaskContext) Created(r *InstanceGroup
 }
 
 // Accepted sends a HTTP response with status code 202.
-func (ctx *RefreshInstanceGroupConstructingTaskContext) Accepted(r *InstanceGroupOperation) error {
+func (ctx *WatchInstanceGroupConstructingTaskContext) Accepted(r *InstanceGroupOperation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
 	}
@@ -66,7 +66,7 @@ func (ctx *RefreshInstanceGroupConstructingTaskContext) Accepted(r *InstanceGrou
 }
 
 // NoContent sends a HTTP response with status code 204.
-func (ctx *RefreshInstanceGroupConstructingTaskContext) NoContent(r *InstanceGroupOperation) error {
+func (ctx *WatchInstanceGroupConstructingTaskContext) NoContent(r *InstanceGroupOperation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
 	}
@@ -74,7 +74,7 @@ func (ctx *RefreshInstanceGroupConstructingTaskContext) NoContent(r *InstanceGro
 }
 
 // BadRequest sends a HTTP response with status code 400.
-func (ctx *RefreshInstanceGroupConstructingTaskContext) BadRequest(r error) error {
+func (ctx *WatchInstanceGroupConstructingTaskContext) BadRequest(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
@@ -82,7 +82,7 @@ func (ctx *RefreshInstanceGroupConstructingTaskContext) BadRequest(r error) erro
 }
 
 // Unauthorized sends a HTTP response with status code 401.
-func (ctx *RefreshInstanceGroupConstructingTaskContext) Unauthorized(r error) error {
+func (ctx *WatchInstanceGroupConstructingTaskContext) Unauthorized(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
@@ -90,7 +90,7 @@ func (ctx *RefreshInstanceGroupConstructingTaskContext) Unauthorized(r error) er
 }
 
 // NotFound sends a HTTP response with status code 404.
-func (ctx *RefreshInstanceGroupConstructingTaskContext) NotFound(r error) error {
+func (ctx *WatchInstanceGroupConstructingTaskContext) NotFound(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
@@ -98,30 +98,30 @@ func (ctx *RefreshInstanceGroupConstructingTaskContext) NotFound(r error) error 
 }
 
 // InternalServerError sends a HTTP response with status code 500.
-func (ctx *RefreshInstanceGroupConstructingTaskContext) InternalServerError(r error) error {
+func (ctx *WatchInstanceGroupConstructingTaskContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
-// RefreshInstanceGroupDestructingTaskContext provides the InstanceGroupDestructingTask refresh action context.
-type RefreshInstanceGroupDestructingTaskContext struct {
+// WatchInstanceGroupDestructingTaskContext provides the InstanceGroupDestructingTask watch action context.
+type WatchInstanceGroupDestructingTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
 	ID string
 }
 
-// NewRefreshInstanceGroupDestructingTaskContext parses the incoming request URL and body, performs validations and creates the
-// context used by the InstanceGroupDestructingTask controller refresh action.
-func NewRefreshInstanceGroupDestructingTaskContext(ctx context.Context, r *http.Request, service *goa.Service) (*RefreshInstanceGroupDestructingTaskContext, error) {
+// NewWatchInstanceGroupDestructingTaskContext parses the incoming request URL and body, performs validations and creates the
+// context used by the InstanceGroupDestructingTask controller watch action.
+func NewWatchInstanceGroupDestructingTaskContext(ctx context.Context, r *http.Request, service *goa.Service) (*WatchInstanceGroupDestructingTaskContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := RefreshInstanceGroupDestructingTaskContext{Context: ctx, ResponseData: resp, RequestData: req}
+	rctx := WatchInstanceGroupDestructingTaskContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramID := req.Params["id"]
 	if len(paramID) > 0 {
 		rawID := paramID[0]
@@ -131,7 +131,7 @@ func NewRefreshInstanceGroupDestructingTaskContext(ctx context.Context, r *http.
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *RefreshInstanceGroupDestructingTaskContext) OK(r *InstanceGroupOperation) error {
+func (ctx *WatchInstanceGroupDestructingTaskContext) OK(r *InstanceGroupOperation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
 	}
@@ -139,7 +139,7 @@ func (ctx *RefreshInstanceGroupDestructingTaskContext) OK(r *InstanceGroupOperat
 }
 
 // Created sends a HTTP response with status code 201.
-func (ctx *RefreshInstanceGroupDestructingTaskContext) Created(r *InstanceGroupOperation) error {
+func (ctx *WatchInstanceGroupDestructingTaskContext) Created(r *InstanceGroupOperation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
 	}
@@ -147,7 +147,7 @@ func (ctx *RefreshInstanceGroupDestructingTaskContext) Created(r *InstanceGroupO
 }
 
 // Accepted sends a HTTP response with status code 202.
-func (ctx *RefreshInstanceGroupDestructingTaskContext) Accepted(r *InstanceGroupOperation) error {
+func (ctx *WatchInstanceGroupDestructingTaskContext) Accepted(r *InstanceGroupOperation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
 	}
@@ -155,7 +155,7 @@ func (ctx *RefreshInstanceGroupDestructingTaskContext) Accepted(r *InstanceGroup
 }
 
 // NoContent sends a HTTP response with status code 204.
-func (ctx *RefreshInstanceGroupDestructingTaskContext) NoContent(r *InstanceGroupOperation) error {
+func (ctx *WatchInstanceGroupDestructingTaskContext) NoContent(r *InstanceGroupOperation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
 	}
@@ -163,7 +163,7 @@ func (ctx *RefreshInstanceGroupDestructingTaskContext) NoContent(r *InstanceGrou
 }
 
 // BadRequest sends a HTTP response with status code 400.
-func (ctx *RefreshInstanceGroupDestructingTaskContext) BadRequest(r error) error {
+func (ctx *WatchInstanceGroupDestructingTaskContext) BadRequest(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
@@ -171,7 +171,7 @@ func (ctx *RefreshInstanceGroupDestructingTaskContext) BadRequest(r error) error
 }
 
 // Unauthorized sends a HTTP response with status code 401.
-func (ctx *RefreshInstanceGroupDestructingTaskContext) Unauthorized(r error) error {
+func (ctx *WatchInstanceGroupDestructingTaskContext) Unauthorized(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
@@ -179,7 +179,7 @@ func (ctx *RefreshInstanceGroupDestructingTaskContext) Unauthorized(r error) err
 }
 
 // NotFound sends a HTTP response with status code 404.
-func (ctx *RefreshInstanceGroupDestructingTaskContext) NotFound(r error) error {
+func (ctx *WatchInstanceGroupDestructingTaskContext) NotFound(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
@@ -187,30 +187,30 @@ func (ctx *RefreshInstanceGroupDestructingTaskContext) NotFound(r error) error {
 }
 
 // InternalServerError sends a HTTP response with status code 500.
-func (ctx *RefreshInstanceGroupDestructingTaskContext) InternalServerError(r error) error {
+func (ctx *WatchInstanceGroupDestructingTaskContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
-// RefreshInstanceGroupResizingTaskContext provides the InstanceGroupResizingTask refresh action context.
-type RefreshInstanceGroupResizingTaskContext struct {
+// WatchInstanceGroupResizingTaskContext provides the InstanceGroupResizingTask watch action context.
+type WatchInstanceGroupResizingTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
 	ID string
 }
 
-// NewRefreshInstanceGroupResizingTaskContext parses the incoming request URL and body, performs validations and creates the
-// context used by the InstanceGroupResizingTask controller refresh action.
-func NewRefreshInstanceGroupResizingTaskContext(ctx context.Context, r *http.Request, service *goa.Service) (*RefreshInstanceGroupResizingTaskContext, error) {
+// NewWatchInstanceGroupResizingTaskContext parses the incoming request URL and body, performs validations and creates the
+// context used by the InstanceGroupResizingTask controller watch action.
+func NewWatchInstanceGroupResizingTaskContext(ctx context.Context, r *http.Request, service *goa.Service) (*WatchInstanceGroupResizingTaskContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := RefreshInstanceGroupResizingTaskContext{Context: ctx, ResponseData: resp, RequestData: req}
+	rctx := WatchInstanceGroupResizingTaskContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramID := req.Params["id"]
 	if len(paramID) > 0 {
 		rawID := paramID[0]
@@ -220,7 +220,7 @@ func NewRefreshInstanceGroupResizingTaskContext(ctx context.Context, r *http.Req
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *RefreshInstanceGroupResizingTaskContext) OK(r *InstanceGroupOperation) error {
+func (ctx *WatchInstanceGroupResizingTaskContext) OK(r *InstanceGroupOperation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
 	}
@@ -228,7 +228,7 @@ func (ctx *RefreshInstanceGroupResizingTaskContext) OK(r *InstanceGroupOperation
 }
 
 // Created sends a HTTP response with status code 201.
-func (ctx *RefreshInstanceGroupResizingTaskContext) Created(r *InstanceGroupOperation) error {
+func (ctx *WatchInstanceGroupResizingTaskContext) Created(r *InstanceGroupOperation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
 	}
@@ -236,7 +236,7 @@ func (ctx *RefreshInstanceGroupResizingTaskContext) Created(r *InstanceGroupOper
 }
 
 // Accepted sends a HTTP response with status code 202.
-func (ctx *RefreshInstanceGroupResizingTaskContext) Accepted(r *InstanceGroupOperation) error {
+func (ctx *WatchInstanceGroupResizingTaskContext) Accepted(r *InstanceGroupOperation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
 	}
@@ -244,7 +244,7 @@ func (ctx *RefreshInstanceGroupResizingTaskContext) Accepted(r *InstanceGroupOpe
 }
 
 // NoContent sends a HTTP response with status code 204.
-func (ctx *RefreshInstanceGroupResizingTaskContext) NoContent(r *InstanceGroupOperation) error {
+func (ctx *WatchInstanceGroupResizingTaskContext) NoContent(r *InstanceGroupOperation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
 	}
@@ -252,7 +252,7 @@ func (ctx *RefreshInstanceGroupResizingTaskContext) NoContent(r *InstanceGroupOp
 }
 
 // BadRequest sends a HTTP response with status code 400.
-func (ctx *RefreshInstanceGroupResizingTaskContext) BadRequest(r error) error {
+func (ctx *WatchInstanceGroupResizingTaskContext) BadRequest(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
@@ -260,7 +260,7 @@ func (ctx *RefreshInstanceGroupResizingTaskContext) BadRequest(r error) error {
 }
 
 // Unauthorized sends a HTTP response with status code 401.
-func (ctx *RefreshInstanceGroupResizingTaskContext) Unauthorized(r error) error {
+func (ctx *WatchInstanceGroupResizingTaskContext) Unauthorized(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
@@ -268,7 +268,7 @@ func (ctx *RefreshInstanceGroupResizingTaskContext) Unauthorized(r error) error 
 }
 
 // NotFound sends a HTTP response with status code 404.
-func (ctx *RefreshInstanceGroupResizingTaskContext) NotFound(r error) error {
+func (ctx *WatchInstanceGroupResizingTaskContext) NotFound(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
@@ -276,7 +276,7 @@ func (ctx *RefreshInstanceGroupResizingTaskContext) NotFound(r error) error {
 }
 
 // InternalServerError sends a HTTP response with status code 500.
-func (ctx *RefreshInstanceGroupResizingTaskContext) InternalServerError(r error) error {
+func (ctx *WatchInstanceGroupResizingTaskContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
@@ -2214,23 +2214,23 @@ func (ctx *WakingFinalizeTaskPipelineBaseContext) InternalServerError(r error) e
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
-// RefreshPipelineBaseClosingTaskContext provides the PipelineBaseClosingTask refresh action context.
-type RefreshPipelineBaseClosingTaskContext struct {
+// WatchPipelineBaseClosingTaskContext provides the PipelineBaseClosingTask watch action context.
+type WatchPipelineBaseClosingTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
 	ID string
 }
 
-// NewRefreshPipelineBaseClosingTaskContext parses the incoming request URL and body, performs validations and creates the
-// context used by the PipelineBaseClosingTask controller refresh action.
-func NewRefreshPipelineBaseClosingTaskContext(ctx context.Context, r *http.Request, service *goa.Service) (*RefreshPipelineBaseClosingTaskContext, error) {
+// NewWatchPipelineBaseClosingTaskContext parses the incoming request URL and body, performs validations and creates the
+// context used by the PipelineBaseClosingTask controller watch action.
+func NewWatchPipelineBaseClosingTaskContext(ctx context.Context, r *http.Request, service *goa.Service) (*WatchPipelineBaseClosingTaskContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := RefreshPipelineBaseClosingTaskContext{Context: ctx, ResponseData: resp, RequestData: req}
+	rctx := WatchPipelineBaseClosingTaskContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramID := req.Params["id"]
 	if len(paramID) > 0 {
 		rawID := paramID[0]
@@ -2240,7 +2240,7 @@ func NewRefreshPipelineBaseClosingTaskContext(ctx context.Context, r *http.Reque
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *RefreshPipelineBaseClosingTaskContext) OK(r *InstanceGroupOperation) error {
+func (ctx *WatchPipelineBaseClosingTaskContext) OK(r *InstanceGroupOperation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
 	}
@@ -2248,7 +2248,7 @@ func (ctx *RefreshPipelineBaseClosingTaskContext) OK(r *InstanceGroupOperation) 
 }
 
 // Created sends a HTTP response with status code 201.
-func (ctx *RefreshPipelineBaseClosingTaskContext) Created(r *InstanceGroupOperation) error {
+func (ctx *WatchPipelineBaseClosingTaskContext) Created(r *InstanceGroupOperation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
 	}
@@ -2256,7 +2256,7 @@ func (ctx *RefreshPipelineBaseClosingTaskContext) Created(r *InstanceGroupOperat
 }
 
 // Accepted sends a HTTP response with status code 202.
-func (ctx *RefreshPipelineBaseClosingTaskContext) Accepted(r *InstanceGroupOperation) error {
+func (ctx *WatchPipelineBaseClosingTaskContext) Accepted(r *InstanceGroupOperation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
 	}
@@ -2264,7 +2264,7 @@ func (ctx *RefreshPipelineBaseClosingTaskContext) Accepted(r *InstanceGroupOpera
 }
 
 // NoContent sends a HTTP response with status code 204.
-func (ctx *RefreshPipelineBaseClosingTaskContext) NoContent(r *InstanceGroupOperation) error {
+func (ctx *WatchPipelineBaseClosingTaskContext) NoContent(r *InstanceGroupOperation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
 	}
@@ -2272,7 +2272,7 @@ func (ctx *RefreshPipelineBaseClosingTaskContext) NoContent(r *InstanceGroupOper
 }
 
 // BadRequest sends a HTTP response with status code 400.
-func (ctx *RefreshPipelineBaseClosingTaskContext) BadRequest(r error) error {
+func (ctx *WatchPipelineBaseClosingTaskContext) BadRequest(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
@@ -2280,7 +2280,7 @@ func (ctx *RefreshPipelineBaseClosingTaskContext) BadRequest(r error) error {
 }
 
 // Unauthorized sends a HTTP response with status code 401.
-func (ctx *RefreshPipelineBaseClosingTaskContext) Unauthorized(r error) error {
+func (ctx *WatchPipelineBaseClosingTaskContext) Unauthorized(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
@@ -2288,7 +2288,7 @@ func (ctx *RefreshPipelineBaseClosingTaskContext) Unauthorized(r error) error {
 }
 
 // NotFound sends a HTTP response with status code 404.
-func (ctx *RefreshPipelineBaseClosingTaskContext) NotFound(r error) error {
+func (ctx *WatchPipelineBaseClosingTaskContext) NotFound(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
@@ -2296,30 +2296,30 @@ func (ctx *RefreshPipelineBaseClosingTaskContext) NotFound(r error) error {
 }
 
 // InternalServerError sends a HTTP response with status code 500.
-func (ctx *RefreshPipelineBaseClosingTaskContext) InternalServerError(r error) error {
+func (ctx *WatchPipelineBaseClosingTaskContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
-// RefreshPipelineBaseOpeningTaskContext provides the PipelineBaseOpeningTask refresh action context.
-type RefreshPipelineBaseOpeningTaskContext struct {
+// WatchPipelineBaseOpeningTaskContext provides the PipelineBaseOpeningTask watch action context.
+type WatchPipelineBaseOpeningTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
 	ID string
 }
 
-// NewRefreshPipelineBaseOpeningTaskContext parses the incoming request URL and body, performs validations and creates the
-// context used by the PipelineBaseOpeningTask controller refresh action.
-func NewRefreshPipelineBaseOpeningTaskContext(ctx context.Context, r *http.Request, service *goa.Service) (*RefreshPipelineBaseOpeningTaskContext, error) {
+// NewWatchPipelineBaseOpeningTaskContext parses the incoming request URL and body, performs validations and creates the
+// context used by the PipelineBaseOpeningTask controller watch action.
+func NewWatchPipelineBaseOpeningTaskContext(ctx context.Context, r *http.Request, service *goa.Service) (*WatchPipelineBaseOpeningTaskContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := RefreshPipelineBaseOpeningTaskContext{Context: ctx, ResponseData: resp, RequestData: req}
+	rctx := WatchPipelineBaseOpeningTaskContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramID := req.Params["id"]
 	if len(paramID) > 0 {
 		rawID := paramID[0]
@@ -2329,7 +2329,7 @@ func NewRefreshPipelineBaseOpeningTaskContext(ctx context.Context, r *http.Reque
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *RefreshPipelineBaseOpeningTaskContext) OK(r *InstanceGroupOperation) error {
+func (ctx *WatchPipelineBaseOpeningTaskContext) OK(r *InstanceGroupOperation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
 	}
@@ -2337,7 +2337,7 @@ func (ctx *RefreshPipelineBaseOpeningTaskContext) OK(r *InstanceGroupOperation) 
 }
 
 // Created sends a HTTP response with status code 201.
-func (ctx *RefreshPipelineBaseOpeningTaskContext) Created(r *InstanceGroupOperation) error {
+func (ctx *WatchPipelineBaseOpeningTaskContext) Created(r *InstanceGroupOperation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
 	}
@@ -2345,7 +2345,7 @@ func (ctx *RefreshPipelineBaseOpeningTaskContext) Created(r *InstanceGroupOperat
 }
 
 // Accepted sends a HTTP response with status code 202.
-func (ctx *RefreshPipelineBaseOpeningTaskContext) Accepted(r *InstanceGroupOperation) error {
+func (ctx *WatchPipelineBaseOpeningTaskContext) Accepted(r *InstanceGroupOperation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
 	}
@@ -2353,7 +2353,7 @@ func (ctx *RefreshPipelineBaseOpeningTaskContext) Accepted(r *InstanceGroupOpera
 }
 
 // NoContent sends a HTTP response with status code 204.
-func (ctx *RefreshPipelineBaseOpeningTaskContext) NoContent(r *InstanceGroupOperation) error {
+func (ctx *WatchPipelineBaseOpeningTaskContext) NoContent(r *InstanceGroupOperation) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-operation+json")
 	}
@@ -2361,7 +2361,7 @@ func (ctx *RefreshPipelineBaseOpeningTaskContext) NoContent(r *InstanceGroupOper
 }
 
 // BadRequest sends a HTTP response with status code 400.
-func (ctx *RefreshPipelineBaseOpeningTaskContext) BadRequest(r error) error {
+func (ctx *WatchPipelineBaseOpeningTaskContext) BadRequest(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
@@ -2369,7 +2369,7 @@ func (ctx *RefreshPipelineBaseOpeningTaskContext) BadRequest(r error) error {
 }
 
 // Unauthorized sends a HTTP response with status code 401.
-func (ctx *RefreshPipelineBaseOpeningTaskContext) Unauthorized(r error) error {
+func (ctx *WatchPipelineBaseOpeningTaskContext) Unauthorized(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
@@ -2377,7 +2377,7 @@ func (ctx *RefreshPipelineBaseOpeningTaskContext) Unauthorized(r error) error {
 }
 
 // NotFound sends a HTTP response with status code 404.
-func (ctx *RefreshPipelineBaseOpeningTaskContext) NotFound(r error) error {
+func (ctx *WatchPipelineBaseOpeningTaskContext) NotFound(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
@@ -2385,7 +2385,7 @@ func (ctx *RefreshPipelineBaseOpeningTaskContext) NotFound(r error) error {
 }
 
 // InternalServerError sends a HTTP response with status code 500.
-func (ctx *RefreshPipelineBaseOpeningTaskContext) InternalServerError(r error) error {
+func (ctx *WatchPipelineBaseOpeningTaskContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}

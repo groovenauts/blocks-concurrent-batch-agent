@@ -17,24 +17,24 @@ import (
 	"net/url"
 )
 
-// RefreshPipelineBaseClosingTaskPath computes a request path to the refresh action of PipelineBaseClosingTask.
-func RefreshPipelineBaseClosingTaskPath(id string) string {
+// WatchPipelineBaseClosingTaskPath computes a request path to the watch action of PipelineBaseClosingTask.
+func WatchPipelineBaseClosingTaskPath(id string) string {
 	param0 := id
 
 	return fmt.Sprintf("/closing_tasks/%s", param0)
 }
 
-// Refresh
-func (c *Client) RefreshPipelineBaseClosingTask(ctx context.Context, path string) (*http.Response, error) {
-	req, err := c.NewRefreshPipelineBaseClosingTaskRequest(ctx, path)
+// Watch
+func (c *Client) WatchPipelineBaseClosingTask(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.NewWatchPipelineBaseClosingTaskRequest(ctx, path)
 	if err != nil {
 		return nil, err
 	}
 	return c.Client.Do(ctx, req)
 }
 
-// NewRefreshPipelineBaseClosingTaskRequest create the request corresponding to the refresh action endpoint of the PipelineBaseClosingTask resource.
-func (c *Client) NewRefreshPipelineBaseClosingTaskRequest(ctx context.Context, path string) (*http.Request, error) {
+// NewWatchPipelineBaseClosingTaskRequest create the request corresponding to the watch action endpoint of the PipelineBaseClosingTask resource.
+func (c *Client) NewWatchPipelineBaseClosingTaskRequest(ctx context.Context, path string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "http"
