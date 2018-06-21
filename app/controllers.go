@@ -36,7 +36,6 @@ func initService(service *goa.Service) {
 type InstanceGroupConstructingTaskController interface {
 	goa.Muxer
 	Refresh(*RefreshInstanceGroupConstructingTaskContext) error
-	Start(*StartInstanceGroupConstructingTaskContext) error
 }
 
 // MountInstanceGroupConstructingTaskController "mounts" a InstanceGroupConstructingTask resource controller on the given service.
@@ -44,7 +43,6 @@ func MountInstanceGroupConstructingTaskController(service *goa.Service, ctrl Ins
 	initService(service)
 	var h goa.Handler
 	service.Mux.Handle("OPTIONS", "/constructing_tasks/:id", ctrl.MuxHandler("preflight", handleInstanceGroupConstructingTaskOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/constructing_tasks", ctrl.MuxHandler("preflight", handleInstanceGroupConstructingTaskOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -62,29 +60,6 @@ func MountInstanceGroupConstructingTaskController(service *goa.Service, ctrl Ins
 	h = handleInstanceGroupConstructingTaskOrigin(h)
 	service.Mux.Handle("PUT", "/constructing_tasks/:id", ctrl.MuxHandler("refresh", h, nil))
 	service.LogInfo("mount", "ctrl", "InstanceGroupConstructingTask", "action", "Refresh", "route", "PUT /constructing_tasks/:id", "security", "api_key")
-
-	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
-		// Check if there was an error loading the request
-		if err := goa.ContextError(ctx); err != nil {
-			return err
-		}
-		// Build the context
-		rctx, err := NewStartInstanceGroupConstructingTaskContext(ctx, req, service)
-		if err != nil {
-			return err
-		}
-		// Build the payload
-		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
-			rctx.Payload = rawPayload.(*OperationPayload)
-		} else {
-			return goa.MissingPayloadError()
-		}
-		return ctrl.Start(rctx)
-	}
-	h = handleSecurity("api_key", h)
-	h = handleInstanceGroupConstructingTaskOrigin(h)
-	service.Mux.Handle("POST", "/constructing_tasks", ctrl.MuxHandler("start", h, unmarshalStartInstanceGroupConstructingTaskPayload))
-	service.LogInfo("mount", "ctrl", "InstanceGroupConstructingTask", "action", "Start", "route", "POST /constructing_tasks", "security", "api_key")
 }
 
 // handleInstanceGroupConstructingTaskOrigin applies the CORS response headers corresponding to the origin.
@@ -112,26 +87,10 @@ func handleInstanceGroupConstructingTaskOrigin(h goa.Handler) goa.Handler {
 	}
 }
 
-// unmarshalStartInstanceGroupConstructingTaskPayload unmarshals the request body into the context request data Payload field.
-func unmarshalStartInstanceGroupConstructingTaskPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
-	payload := &operationPayload{}
-	if err := service.DecodeRequest(req, payload); err != nil {
-		return err
-	}
-	if err := payload.Validate(); err != nil {
-		// Initialize payload with private data structure so it can be logged
-		goa.ContextRequest(ctx).Payload = payload
-		return err
-	}
-	goa.ContextRequest(ctx).Payload = payload.Publicize()
-	return nil
-}
-
 // InstanceGroupDestructingTaskController is the controller interface for the InstanceGroupDestructingTask actions.
 type InstanceGroupDestructingTaskController interface {
 	goa.Muxer
 	Refresh(*RefreshInstanceGroupDestructingTaskContext) error
-	Start(*StartInstanceGroupDestructingTaskContext) error
 }
 
 // MountInstanceGroupDestructingTaskController "mounts" a InstanceGroupDestructingTask resource controller on the given service.
@@ -139,7 +98,6 @@ func MountInstanceGroupDestructingTaskController(service *goa.Service, ctrl Inst
 	initService(service)
 	var h goa.Handler
 	service.Mux.Handle("OPTIONS", "/destructing_tasks/:id", ctrl.MuxHandler("preflight", handleInstanceGroupDestructingTaskOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/destructing_tasks", ctrl.MuxHandler("preflight", handleInstanceGroupDestructingTaskOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -157,29 +115,6 @@ func MountInstanceGroupDestructingTaskController(service *goa.Service, ctrl Inst
 	h = handleInstanceGroupDestructingTaskOrigin(h)
 	service.Mux.Handle("PUT", "/destructing_tasks/:id", ctrl.MuxHandler("refresh", h, nil))
 	service.LogInfo("mount", "ctrl", "InstanceGroupDestructingTask", "action", "Refresh", "route", "PUT /destructing_tasks/:id", "security", "api_key")
-
-	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
-		// Check if there was an error loading the request
-		if err := goa.ContextError(ctx); err != nil {
-			return err
-		}
-		// Build the context
-		rctx, err := NewStartInstanceGroupDestructingTaskContext(ctx, req, service)
-		if err != nil {
-			return err
-		}
-		// Build the payload
-		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
-			rctx.Payload = rawPayload.(*OperationPayload)
-		} else {
-			return goa.MissingPayloadError()
-		}
-		return ctrl.Start(rctx)
-	}
-	h = handleSecurity("api_key", h)
-	h = handleInstanceGroupDestructingTaskOrigin(h)
-	service.Mux.Handle("POST", "/destructing_tasks", ctrl.MuxHandler("start", h, unmarshalStartInstanceGroupDestructingTaskPayload))
-	service.LogInfo("mount", "ctrl", "InstanceGroupDestructingTask", "action", "Start", "route", "POST /destructing_tasks", "security", "api_key")
 }
 
 // handleInstanceGroupDestructingTaskOrigin applies the CORS response headers corresponding to the origin.
@@ -207,26 +142,10 @@ func handleInstanceGroupDestructingTaskOrigin(h goa.Handler) goa.Handler {
 	}
 }
 
-// unmarshalStartInstanceGroupDestructingTaskPayload unmarshals the request body into the context request data Payload field.
-func unmarshalStartInstanceGroupDestructingTaskPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
-	payload := &operationPayload{}
-	if err := service.DecodeRequest(req, payload); err != nil {
-		return err
-	}
-	if err := payload.Validate(); err != nil {
-		// Initialize payload with private data structure so it can be logged
-		goa.ContextRequest(ctx).Payload = payload
-		return err
-	}
-	goa.ContextRequest(ctx).Payload = payload.Publicize()
-	return nil
-}
-
 // InstanceGroupResizingTaskController is the controller interface for the InstanceGroupResizingTask actions.
 type InstanceGroupResizingTaskController interface {
 	goa.Muxer
 	Refresh(*RefreshInstanceGroupResizingTaskContext) error
-	Start(*StartInstanceGroupResizingTaskContext) error
 }
 
 // MountInstanceGroupResizingTaskController "mounts" a InstanceGroupResizingTask resource controller on the given service.
@@ -234,7 +153,6 @@ func MountInstanceGroupResizingTaskController(service *goa.Service, ctrl Instanc
 	initService(service)
 	var h goa.Handler
 	service.Mux.Handle("OPTIONS", "/resizing_tasks/:id", ctrl.MuxHandler("preflight", handleInstanceGroupResizingTaskOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/resizing_tasks", ctrl.MuxHandler("preflight", handleInstanceGroupResizingTaskOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -252,29 +170,6 @@ func MountInstanceGroupResizingTaskController(service *goa.Service, ctrl Instanc
 	h = handleInstanceGroupResizingTaskOrigin(h)
 	service.Mux.Handle("PUT", "/resizing_tasks/:id", ctrl.MuxHandler("refresh", h, nil))
 	service.LogInfo("mount", "ctrl", "InstanceGroupResizingTask", "action", "Refresh", "route", "PUT /resizing_tasks/:id", "security", "api_key")
-
-	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
-		// Check if there was an error loading the request
-		if err := goa.ContextError(ctx); err != nil {
-			return err
-		}
-		// Build the context
-		rctx, err := NewStartInstanceGroupResizingTaskContext(ctx, req, service)
-		if err != nil {
-			return err
-		}
-		// Build the payload
-		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
-			rctx.Payload = rawPayload.(*OperationPayload)
-		} else {
-			return goa.MissingPayloadError()
-		}
-		return ctrl.Start(rctx)
-	}
-	h = handleSecurity("api_key", h)
-	h = handleInstanceGroupResizingTaskOrigin(h)
-	service.Mux.Handle("POST", "/resizing_tasks", ctrl.MuxHandler("start", h, unmarshalStartInstanceGroupResizingTaskPayload))
-	service.LogInfo("mount", "ctrl", "InstanceGroupResizingTask", "action", "Start", "route", "POST /resizing_tasks", "security", "api_key")
 }
 
 // handleInstanceGroupResizingTaskOrigin applies the CORS response headers corresponding to the origin.
@@ -300,21 +195,6 @@ func handleInstanceGroupResizingTaskOrigin(h goa.Handler) goa.Handler {
 
 		return h(ctx, rw, req)
 	}
-}
-
-// unmarshalStartInstanceGroupResizingTaskPayload unmarshals the request body into the context request data Payload field.
-func unmarshalStartInstanceGroupResizingTaskPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
-	payload := &operationPayload{}
-	if err := service.DecodeRequest(req, payload); err != nil {
-		return err
-	}
-	if err := payload.Validate(); err != nil {
-		// Initialize payload with private data structure so it can be logged
-		goa.ContextRequest(ctx).Payload = payload
-		return err
-	}
-	goa.ContextRequest(ctx).Payload = payload.Publicize()
-	return nil
 }
 
 // IntanceGroupController is the controller interface for the IntanceGroup actions.
@@ -1096,7 +976,6 @@ func unmarshalCreatePipelineBasePayload(ctx context.Context, service *goa.Servic
 type PipelineBaseClosingTaskController interface {
 	goa.Muxer
 	Refresh(*RefreshPipelineBaseClosingTaskContext) error
-	Start(*StartPipelineBaseClosingTaskContext) error
 }
 
 // MountPipelineBaseClosingTaskController "mounts" a PipelineBaseClosingTask resource controller on the given service.
@@ -1104,7 +983,6 @@ func MountPipelineBaseClosingTaskController(service *goa.Service, ctrl PipelineB
 	initService(service)
 	var h goa.Handler
 	service.Mux.Handle("OPTIONS", "/closing_tasks/:id", ctrl.MuxHandler("preflight", handlePipelineBaseClosingTaskOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/closing_tasks", ctrl.MuxHandler("preflight", handlePipelineBaseClosingTaskOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -1122,29 +1000,6 @@ func MountPipelineBaseClosingTaskController(service *goa.Service, ctrl PipelineB
 	h = handlePipelineBaseClosingTaskOrigin(h)
 	service.Mux.Handle("PUT", "/closing_tasks/:id", ctrl.MuxHandler("refresh", h, nil))
 	service.LogInfo("mount", "ctrl", "PipelineBaseClosingTask", "action", "Refresh", "route", "PUT /closing_tasks/:id", "security", "api_key")
-
-	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
-		// Check if there was an error loading the request
-		if err := goa.ContextError(ctx); err != nil {
-			return err
-		}
-		// Build the context
-		rctx, err := NewStartPipelineBaseClosingTaskContext(ctx, req, service)
-		if err != nil {
-			return err
-		}
-		// Build the payload
-		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
-			rctx.Payload = rawPayload.(*OperationPayload)
-		} else {
-			return goa.MissingPayloadError()
-		}
-		return ctrl.Start(rctx)
-	}
-	h = handleSecurity("api_key", h)
-	h = handlePipelineBaseClosingTaskOrigin(h)
-	service.Mux.Handle("POST", "/closing_tasks", ctrl.MuxHandler("start", h, unmarshalStartPipelineBaseClosingTaskPayload))
-	service.LogInfo("mount", "ctrl", "PipelineBaseClosingTask", "action", "Start", "route", "POST /closing_tasks", "security", "api_key")
 }
 
 // handlePipelineBaseClosingTaskOrigin applies the CORS response headers corresponding to the origin.
@@ -1172,26 +1027,10 @@ func handlePipelineBaseClosingTaskOrigin(h goa.Handler) goa.Handler {
 	}
 }
 
-// unmarshalStartPipelineBaseClosingTaskPayload unmarshals the request body into the context request data Payload field.
-func unmarshalStartPipelineBaseClosingTaskPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
-	payload := &operationPayload{}
-	if err := service.DecodeRequest(req, payload); err != nil {
-		return err
-	}
-	if err := payload.Validate(); err != nil {
-		// Initialize payload with private data structure so it can be logged
-		goa.ContextRequest(ctx).Payload = payload
-		return err
-	}
-	goa.ContextRequest(ctx).Payload = payload.Publicize()
-	return nil
-}
-
 // PipelineBaseOpeningTaskController is the controller interface for the PipelineBaseOpeningTask actions.
 type PipelineBaseOpeningTaskController interface {
 	goa.Muxer
 	Refresh(*RefreshPipelineBaseOpeningTaskContext) error
-	Start(*StartPipelineBaseOpeningTaskContext) error
 }
 
 // MountPipelineBaseOpeningTaskController "mounts" a PipelineBaseOpeningTask resource controller on the given service.
@@ -1199,7 +1038,6 @@ func MountPipelineBaseOpeningTaskController(service *goa.Service, ctrl PipelineB
 	initService(service)
 	var h goa.Handler
 	service.Mux.Handle("OPTIONS", "/opening_tasks/:id", ctrl.MuxHandler("preflight", handlePipelineBaseOpeningTaskOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/opening_tasks", ctrl.MuxHandler("preflight", handlePipelineBaseOpeningTaskOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -1217,29 +1055,6 @@ func MountPipelineBaseOpeningTaskController(service *goa.Service, ctrl PipelineB
 	h = handlePipelineBaseOpeningTaskOrigin(h)
 	service.Mux.Handle("PUT", "/opening_tasks/:id", ctrl.MuxHandler("refresh", h, nil))
 	service.LogInfo("mount", "ctrl", "PipelineBaseOpeningTask", "action", "Refresh", "route", "PUT /opening_tasks/:id", "security", "api_key")
-
-	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
-		// Check if there was an error loading the request
-		if err := goa.ContextError(ctx); err != nil {
-			return err
-		}
-		// Build the context
-		rctx, err := NewStartPipelineBaseOpeningTaskContext(ctx, req, service)
-		if err != nil {
-			return err
-		}
-		// Build the payload
-		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
-			rctx.Payload = rawPayload.(*OperationPayload)
-		} else {
-			return goa.MissingPayloadError()
-		}
-		return ctrl.Start(rctx)
-	}
-	h = handleSecurity("api_key", h)
-	h = handlePipelineBaseOpeningTaskOrigin(h)
-	service.Mux.Handle("POST", "/opening_tasks", ctrl.MuxHandler("start", h, unmarshalStartPipelineBaseOpeningTaskPayload))
-	service.LogInfo("mount", "ctrl", "PipelineBaseOpeningTask", "action", "Start", "route", "POST /opening_tasks", "security", "api_key")
 }
 
 // handlePipelineBaseOpeningTaskOrigin applies the CORS response headers corresponding to the origin.
@@ -1265,21 +1080,6 @@ func handlePipelineBaseOpeningTaskOrigin(h goa.Handler) goa.Handler {
 
 		return h(ctx, rw, req)
 	}
-}
-
-// unmarshalStartPipelineBaseOpeningTaskPayload unmarshals the request body into the context request data Payload field.
-func unmarshalStartPipelineBaseOpeningTaskPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
-	payload := &operationPayload{}
-	if err := service.DecodeRequest(req, payload); err != nil {
-		return err
-	}
-	if err := payload.Validate(); err != nil {
-		// Initialize payload with private data structure so it can be logged
-		goa.ContextRequest(ctx).Payload = payload
-		return err
-	}
-	goa.ContextRequest(ctx).Payload = payload.Publicize()
-	return nil
 }
 
 // DummyAuthsController is the controller interface for the DummyAuths actions.

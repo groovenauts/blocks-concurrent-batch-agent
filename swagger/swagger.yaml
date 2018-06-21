@@ -136,6 +136,8 @@ definitions:
       id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
       name: instancegroup-ope1
       operation_type: Saepe et quia.
+      owner_id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+      owner_type: InstanceGroup
       project_id: dummy-proj-999
       service: deploymentmanager
       status: Est quas repudiandae.
@@ -158,6 +160,14 @@ definitions:
       operation_type:
         description: Operation Type
         example: Saepe et quia.
+        type: string
+      owner_id:
+        description: Owner id
+        example: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+        type: string
+      owner_type:
+        description: Owner type name
+        example: InstanceGroup
         type: string
       project_id:
         description: GCP Project ID
@@ -182,6 +192,8 @@ definitions:
         type: string
     required:
     - id
+    - owner_type
+    - owner_id
     - name
     - service
     - operation_type
@@ -194,6 +206,26 @@ definitions:
     description: Instance-GroupCollection is the media type for an array of Instance-Group
       (default view)
     example:
+    - boot_disk:
+        disk_size_gb: 50
+        disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
+        source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
+      created_at: "1978-07-31T11:14:35Z"
+      deployment_name: Blanditiis numquam consequatur.
+      gpu_accelerators:
+        count: 2
+        type: nvidia-tesla-p100
+      id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+      instance_size: 3
+      machine_type: f1-micro
+      name: pipeline1-123-ig-456
+      preemptible: true
+      project_id: dummy-proj-999
+      startup_script: Non culpa.
+      status: constructing
+      token_consumption: 2
+      updated_at: "1971-07-05T07:47:01Z"
+      zone: us-central1-f
     - boot_disk:
         disk_size_gb: 50
         disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
@@ -264,7 +296,7 @@ definitions:
         disk_size_gb: 50
         disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
         source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
-      deployment_name: Voluptatem quaerat.
+      deployment_name: Velit voluptatem quidem laudantium voluptatem.
       gpu_accelerators:
         count: 2
         type: nvidia-tesla-p100
@@ -272,9 +304,9 @@ definitions:
       machine_type: f1-micro
       name: pipeline1-123-ig-456
       pipeline_base_id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
-      preemptible: true
+      preemptible: false
       project_id: dummy-proj-999
-      startup_script: Corrupti nihil cupiditate voluptatum omnis.
+      startup_script: Culpa magni ea.
       token_consumption: 2
       zone: us-central1-f
     properties:
@@ -282,7 +314,7 @@ definitions:
         $ref: '#/definitions/InstanceGroupVmDisk'
       deployment_name:
         description: Deployment name
-        example: Voluptatem quaerat.
+        example: Velit voluptatem quidem laudantium voluptatem.
         type: string
       gpu_accelerators:
         $ref: '#/definitions/InstanceGroupAccelerators'
@@ -305,7 +337,7 @@ definitions:
         type: string
       preemptible:
         description: Use preemptible VMs
-        example: true
+        example: false
         type: boolean
       project_id:
         description: GCP Project ID
@@ -313,7 +345,7 @@ definitions:
         type: string
       startup_script:
         description: Startup script
-        example: Corrupti nihil cupiditate voluptatum omnis.
+        example: Culpa magni ea.
         type: string
       token_consumption:
         description: Token Consumption
@@ -528,7 +560,7 @@ definitions:
     type: object
   JobPayload:
     example:
-      id_by_client: Id culpa quo quae commodi beatae.
+      id_by_client: Molestiae et voluptatem quaerat unde.
       message:
         attributes:
           Et aspernatur et.: Aut et similique consectetur corporis aut ratione.
@@ -536,70 +568,13 @@ definitions:
     properties:
       id_by_client:
         description: ID assigned by client
-        example: Id culpa quo quae commodi beatae.
+        example: Molestiae et voluptatem quaerat unde.
         type: string
       message:
         $ref: '#/definitions/JobMessage'
     required:
     - message
     title: JobPayload
-    type: object
-  OperationPayload:
-    example:
-      finalize_task_path: Velit voluptatem quidem laudantium voluptatem.
-      name: instancegroup-ope1
-      operation_type: Consequatur culpa magni ea.
-      owner_id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
-      owner_type: InstanceGroup
-      project_id: dummy-proj-999
-      service: deploymentmanager
-      status: Quia molestiae.
-      zone: us-central1-f
-    properties:
-      finalize_task_path:
-        description: Callback task path
-        example: Velit voluptatem quidem laudantium voluptatem.
-        type: string
-      name:
-        description: Name
-        example: instancegroup-ope1
-        type: string
-      operation_type:
-        description: Operation Type
-        example: Consequatur culpa magni ea.
-        type: string
-      owner_id:
-        description: Owner id
-        example: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
-        type: string
-      owner_type:
-        description: Owner type name
-        example: InstanceGroup
-        type: string
-      project_id:
-        description: GCP Project ID
-        example: dummy-proj-999
-        type: string
-      service:
-        description: Service name
-        example: deploymentmanager
-        type: string
-      status:
-        description: Operation Status
-        example: Quia molestiae.
-        type: string
-      zone:
-        description: GCP zone
-        example: us-central1-f
-        type: string
-    required:
-    - name
-    - service
-    - operation_type
-    - status
-    - project_id
-    - zone
-    title: OperationPayload
     type: object
   Pipeline:
     description: pipeline (default view)
@@ -812,35 +787,6 @@ definitions:
       instance_group_id: Quia suscipit autem.
       status: waking
       updated_at: "1990-04-06T23:52:53Z"
-    - container:
-        command: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
-          %{uploads_dir}
-        name: Aut illo.
-        options: --restart=on-failure:3
-        size: 2
-        stackdriver_agent: true
-      created_at: "2008-04-05T13:55:19Z"
-      hibernation_delay: 5.381996241518079e+18
-      id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
-      instance_group:
-        boot_disk:
-          disk_size_gb: 50
-          disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
-          source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
-        deployment_name: Veritatis corporis aliquam.
-        gpu_accelerators:
-          count: 2
-          type: nvidia-tesla-p100
-        instance_size: 3
-        machine_type: f1-micro
-        preemptible: true
-        project_id: dummy-proj-999
-        startup_script: Sed id eveniet quis sit.
-        token_consumption: 2
-        zone: us-central1-f
-      instance_group_id: Quia suscipit autem.
-      status: waking
-      updated_at: "1990-04-06T23:52:53Z"
     items:
       $ref: '#/definitions/Pipeline-Base'
     title: 'Mediatype identifier: application/vnd.pipeline-base+json; type=collection;
@@ -855,7 +801,7 @@ definitions:
         options: --restart=on-failure:3
         size: 2
         stackdriver_agent: true
-      hibernation_delay: 4.2511476455711473e+18
+      hibernation_delay: 3.2465866523704847e+18
       instance_group:
         boot_disk:
           disk_size_gb: 50
@@ -878,7 +824,7 @@ definitions:
         $ref: '#/definitions/PipelineContainerPayload'
       hibernation_delay:
         description: Hibernation delay in seconds since last job finsihed
-        example: 4.2511476455711473e+18
+        example: 3.2465866523704847e+18
         format: int64
         type: integer
       instance_group:
@@ -897,6 +843,38 @@ definitions:
     description: PipelineCollection is the media type for an array of Pipeline (default
       view)
     example:
+    - container:
+        command: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
+          %{uploads_dir}
+        name: Aut illo.
+        options: --restart=on-failure:3
+        size: 2
+        stackdriver_agent: true
+      created_at: "2012-06-23T20:46:41Z"
+      curr_base_id: Quaerat perspiciatis nulla esse enim animi.
+      hibernation_delay: 4.114757804227385e+18
+      id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+      instance_group:
+        boot_disk:
+          disk_size_gb: 50
+          disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
+          source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
+        deployment_name: Veritatis corporis aliquam.
+        gpu_accelerators:
+          count: 2
+          type: nvidia-tesla-p100
+        instance_size: 3
+        machine_type: f1-micro
+        preemptible: true
+        project_id: dummy-proj-999
+        startup_script: Sed id eveniet quis sit.
+        token_consumption: 2
+        zone: us-central1-f
+      name: pipeline1
+      next_base_id: Magnam mollitia laboriosam.
+      prev_base_id: Labore et.
+      status: running
+      updated_at: "1995-08-27T14:57:49Z"
     - container:
         command: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
           %{uploads_dir}
@@ -979,7 +957,7 @@ definitions:
         options: --restart=on-failure:3
         size: 2
         stackdriver_agent: true
-      hibernation_delay: 8.598421964078057e+18
+      hibernation_delay: 9.478327256946245e+17
       instance_group:
         boot_disk:
           disk_size_gb: 50
@@ -1002,7 +980,7 @@ definitions:
         $ref: '#/definitions/PipelineContainerPayload'
       hibernation_delay:
         description: Hibernation delay in seconds since last job finsihed
-        example: 8.598421964078057e+18
+        example: 9.478327256946245e+17
         format: int64
         type: integer
       instance_group:
@@ -1019,11 +997,11 @@ definitions:
     type: object
   ResizeIntanceGroupPayload:
     example:
-      new_size: 5.041815502873884e+18
+      new_size: 7.184480744315989e+18
     properties:
       new_size:
         description: New Instance Size
-        example: 5.041815502873884e+18
+        example: 7.184480744315989e+18
         format: int64
         type: integer
     required:
@@ -1073,52 +1051,6 @@ info:
   title: The appengine example
   version: ""
 paths:
-  /closing_tasks:
-    post:
-      description: Start refreshing
-      operationId: PipelineBaseClosingTask#start
-      parameters:
-      - description: Resource ID
-        in: query
-        name: id
-        required: false
-        type: string
-      - in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/OperationPayload'
-      produces:
-      - application/vnd.goa.error
-      - application/vnd.instance-group-operation+json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/Instance-Group-Operation'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/error'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/error'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/error'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/error'
-      schemes:
-      - http
-      security:
-      - api_key: []
-      summary: start PipelineBaseClosingTask
-      tags:
-      - PipelineBaseClosingTask
   /closing_tasks/{id}:
     put:
       description: Refresh
@@ -1172,52 +1104,6 @@ paths:
       summary: refresh PipelineBaseClosingTask
       tags:
       - PipelineBaseClosingTask
-  /constructing_tasks:
-    post:
-      description: Start refreshing
-      operationId: InstanceGroupConstructingTask#start
-      parameters:
-      - description: Resource ID
-        in: query
-        name: id
-        required: false
-        type: string
-      - in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/OperationPayload'
-      produces:
-      - application/vnd.goa.error
-      - application/vnd.instance-group-operation+json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/Instance-Group-Operation'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/error'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/error'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/error'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/error'
-      schemes:
-      - http
-      security:
-      - api_key: []
-      summary: start InstanceGroupConstructingTask
-      tags:
-      - InstanceGroupConstructingTask
   /constructing_tasks/{id}:
     put:
       description: Refresh
@@ -1271,52 +1157,6 @@ paths:
       summary: refresh InstanceGroupConstructingTask
       tags:
       - InstanceGroupConstructingTask
-  /destructing_tasks:
-    post:
-      description: Start refreshing
-      operationId: InstanceGroupDestructingTask#start
-      parameters:
-      - description: Resource ID
-        in: query
-        name: id
-        required: false
-        type: string
-      - in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/OperationPayload'
-      produces:
-      - application/vnd.goa.error
-      - application/vnd.instance-group-operation+json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/Instance-Group-Operation'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/error'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/error'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/error'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/error'
-      schemes:
-      - http
-      security:
-      - api_key: []
-      summary: start InstanceGroupDestructingTask
-      tags:
-      - InstanceGroupDestructingTask
   /destructing_tasks/{id}:
     put:
       description: Refresh
@@ -1915,52 +1755,6 @@ paths:
       summary: publishing_task Job
       tags:
       - Job
-  /opening_tasks:
-    post:
-      description: Start refreshing
-      operationId: PipelineBaseOpeningTask#start
-      parameters:
-      - description: Resource ID
-        in: query
-        name: id
-        required: false
-        type: string
-      - in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/OperationPayload'
-      produces:
-      - application/vnd.goa.error
-      - application/vnd.instance-group-operation+json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/Instance-Group-Operation'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/error'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/error'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/error'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/error'
-      schemes:
-      - http
-      security:
-      - api_key: []
-      summary: start PipelineBaseOpeningTask
-      tags:
-      - PipelineBaseOpeningTask
   /opening_tasks/{id}:
     put:
       description: Refresh
@@ -2703,52 +2497,6 @@ paths:
       summary: stop Pipeline
       tags:
       - Pipeline
-  /resizing_tasks:
-    post:
-      description: Start refreshing
-      operationId: InstanceGroupResizingTask#start
-      parameters:
-      - description: Resource ID
-        in: query
-        name: id
-        required: false
-        type: string
-      - in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/OperationPayload'
-      produces:
-      - application/vnd.goa.error
-      - application/vnd.instance-group-operation+json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/Instance-Group-Operation'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/error'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/error'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/error'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/error'
-      schemes:
-      - http
-      security:
-      - api_key: []
-      summary: start InstanceGroupResizingTask
-      tags:
-      - InstanceGroupResizingTask
   /resizing_tasks/{id}:
     put:
       description: Refresh

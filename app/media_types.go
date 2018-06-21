@@ -132,6 +132,10 @@ type InstanceGroupOperation struct {
 	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
 	// Operation Type
 	OperationType string `form:"operation_type" json:"operation_type" yaml:"operation_type" xml:"operation_type"`
+	// Owner id
+	OwnerID string `form:"owner_id" json:"owner_id" yaml:"owner_id" xml:"owner_id"`
+	// Owner type name
+	OwnerType string `form:"owner_type" json:"owner_type" yaml:"owner_type" xml:"owner_type"`
 	// GCP Project ID
 	ProjectID string `form:"project_id" json:"project_id" yaml:"project_id" xml:"project_id"`
 	// Service name
@@ -148,6 +152,12 @@ type InstanceGroupOperation struct {
 func (mt *InstanceGroupOperation) Validate() (err error) {
 	if mt.ID == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "id"))
+	}
+	if mt.OwnerType == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "owner_type"))
+	}
+	if mt.OwnerID == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "owner_id"))
 	}
 	if mt.Name == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "name"))

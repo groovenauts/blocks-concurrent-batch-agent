@@ -36,15 +36,6 @@ type (
 		PrettyPrint bool
 	}
 
-	// StartInstanceGroupConstructingTaskCommand is the command line data structure for the start action of InstanceGroupConstructingTask
-	StartInstanceGroupConstructingTaskCommand struct {
-		Payload     string
-		ContentType string
-		// Resource ID
-		ID          string
-		PrettyPrint bool
-	}
-
 	// RefreshInstanceGroupDestructingTaskCommand is the command line data structure for the refresh action of InstanceGroupDestructingTask
 	RefreshInstanceGroupDestructingTaskCommand struct {
 		// ID
@@ -52,27 +43,9 @@ type (
 		PrettyPrint bool
 	}
 
-	// StartInstanceGroupDestructingTaskCommand is the command line data structure for the start action of InstanceGroupDestructingTask
-	StartInstanceGroupDestructingTaskCommand struct {
-		Payload     string
-		ContentType string
-		// Resource ID
-		ID          string
-		PrettyPrint bool
-	}
-
 	// RefreshInstanceGroupResizingTaskCommand is the command line data structure for the refresh action of InstanceGroupResizingTask
 	RefreshInstanceGroupResizingTaskCommand struct {
 		// ID
-		ID          string
-		PrettyPrint bool
-	}
-
-	// StartInstanceGroupResizingTaskCommand is the command line data structure for the start action of InstanceGroupResizingTask
-	StartInstanceGroupResizingTaskCommand struct {
-		Payload     string
-		ContentType string
-		// Resource ID
 		ID          string
 		PrettyPrint bool
 	}
@@ -299,27 +272,9 @@ type (
 		PrettyPrint bool
 	}
 
-	// StartPipelineBaseClosingTaskCommand is the command line data structure for the start action of PipelineBaseClosingTask
-	StartPipelineBaseClosingTaskCommand struct {
-		Payload     string
-		ContentType string
-		// Resource ID
-		ID          string
-		PrettyPrint bool
-	}
-
 	// RefreshPipelineBaseOpeningTaskCommand is the command line data structure for the refresh action of PipelineBaseOpeningTask
 	RefreshPipelineBaseOpeningTaskCommand struct {
 		// ID
-		ID          string
-		PrettyPrint bool
-	}
-
-	// StartPipelineBaseOpeningTaskCommand is the command line data structure for the start action of PipelineBaseOpeningTask
-	StartPipelineBaseOpeningTaskCommand struct {
-		Payload     string
-		ContentType string
-		// Resource ID
 		ID          string
 		PrettyPrint bool
 	}
@@ -385,7 +340,7 @@ Payload example:
       "disk_type": "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
       "source_image": "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable"
    },
-   "deployment_name": "Voluptatem quaerat.",
+   "deployment_name": "Velit voluptatem quidem laudantium voluptatem.",
    "gpu_accelerators": {
       "count": 2,
       "type": "nvidia-tesla-p100"
@@ -394,9 +349,9 @@ Payload example:
    "machine_type": "f1-micro",
    "name": "pipeline1-123-ig-456",
    "pipeline_base_id": "bd2d5ee3-d8be-4024-85a7-334dee9c1c88",
-   "preemptible": true,
+   "preemptible": false,
    "project_id": "dummy-proj-999",
-   "startup_script": "Corrupti nihil cupiditate voluptatum omnis.",
+   "startup_script": "Culpa magni ea.",
    "token_consumption": 2,
    "zone": "us-central1-f"
 }`,
@@ -414,7 +369,7 @@ Payload example:
 Payload example:
 
 {
-   "id_by_client": "Id culpa quo quae commodi beatae.",
+   "id_by_client": "Molestiae et voluptatem quaerat unde.",
    "message": {
       "attributes": {
          "Et aspernatur et.": "Aut et similique consectetur corporis aut ratione."
@@ -443,7 +398,7 @@ Payload example:
       "size": 2,
       "stackdriver_agent": true
    },
-   "hibernation_delay": 8598421964078057100,
+   "hibernation_delay": 947832725694624549,
    "instance_group": {
       "boot_disk": {
          "disk_size_gb": 50,
@@ -486,7 +441,7 @@ Payload example:
       "size": 2,
       "stackdriver_agent": true
    },
-   "hibernation_delay": 4251147645571147493,
+   "hibernation_delay": 3246586652370484891,
    "instance_group": {
       "boot_disk": {
          "disk_size_gb": 50,
@@ -771,7 +726,7 @@ Payload example:
 Payload example:
 
 {
-   "new_size": 5041815502873883296
+   "new_size": 7184480744315988943
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp28.Run(c, args) },
 	}
@@ -821,156 +776,31 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "start",
-		Short: `start action`,
-	}
-	tmp33 := new(StartInstanceGroupConstructingTaskCommand)
-	sub = &cobra.Command{
-		Use:   `instance-group-constructing-task ["/constructing_tasks"]`,
-		Short: ``,
-		Long: `
-
-Payload example:
-
-{
-   "finalize_task_path": "Velit voluptatem quidem laudantium voluptatem.",
-   "name": "instancegroup-ope1",
-   "operation_type": "Consequatur culpa magni ea.",
-   "owner_id": "bd2d5ee3-d8be-4024-85a7-334dee9c1c88",
-   "owner_type": "InstanceGroup",
-   "project_id": "dummy-proj-999",
-   "service": "deploymentmanager",
-   "status": "Quia molestiae.",
-   "zone": "us-central1-f"
-}`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp33.Run(c, args) },
-	}
-	tmp33.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp33.PrettyPrint, "pp", false, "Pretty print response body")
-	command.AddCommand(sub)
-	tmp34 := new(StartInstanceGroupDestructingTaskCommand)
-	sub = &cobra.Command{
-		Use:   `instance-group-destructing-task ["/destructing_tasks"]`,
-		Short: ``,
-		Long: `
-
-Payload example:
-
-{
-   "finalize_task_path": "Velit voluptatem quidem laudantium voluptatem.",
-   "name": "instancegroup-ope1",
-   "operation_type": "Consequatur culpa magni ea.",
-   "owner_id": "bd2d5ee3-d8be-4024-85a7-334dee9c1c88",
-   "owner_type": "InstanceGroup",
-   "project_id": "dummy-proj-999",
-   "service": "deploymentmanager",
-   "status": "Quia molestiae.",
-   "zone": "us-central1-f"
-}`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp34.Run(c, args) },
-	}
-	tmp34.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp34.PrettyPrint, "pp", false, "Pretty print response body")
-	command.AddCommand(sub)
-	tmp35 := new(StartInstanceGroupResizingTaskCommand)
-	sub = &cobra.Command{
-		Use:   `instance-group-resizing-task ["/resizing_tasks"]`,
-		Short: ``,
-		Long: `
-
-Payload example:
-
-{
-   "finalize_task_path": "Velit voluptatem quidem laudantium voluptatem.",
-   "name": "instancegroup-ope1",
-   "operation_type": "Consequatur culpa magni ea.",
-   "owner_id": "bd2d5ee3-d8be-4024-85a7-334dee9c1c88",
-   "owner_type": "InstanceGroup",
-   "project_id": "dummy-proj-999",
-   "service": "deploymentmanager",
-   "status": "Quia molestiae.",
-   "zone": "us-central1-f"
-}`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp35.Run(c, args) },
-	}
-	tmp35.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp35.PrettyPrint, "pp", false, "Pretty print response body")
-	command.AddCommand(sub)
-	tmp36 := new(StartPipelineBaseClosingTaskCommand)
-	sub = &cobra.Command{
-		Use:   `pipeline-base-closing-task ["/closing_tasks"]`,
-		Short: ``,
-		Long: `
-
-Payload example:
-
-{
-   "finalize_task_path": "Velit voluptatem quidem laudantium voluptatem.",
-   "name": "instancegroup-ope1",
-   "operation_type": "Consequatur culpa magni ea.",
-   "owner_id": "bd2d5ee3-d8be-4024-85a7-334dee9c1c88",
-   "owner_type": "InstanceGroup",
-   "project_id": "dummy-proj-999",
-   "service": "deploymentmanager",
-   "status": "Quia molestiae.",
-   "zone": "us-central1-f"
-}`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp36.Run(c, args) },
-	}
-	tmp36.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp36.PrettyPrint, "pp", false, "Pretty print response body")
-	command.AddCommand(sub)
-	tmp37 := new(StartPipelineBaseOpeningTaskCommand)
-	sub = &cobra.Command{
-		Use:   `pipeline-base-opening-task ["/opening_tasks"]`,
-		Short: ``,
-		Long: `
-
-Payload example:
-
-{
-   "finalize_task_path": "Velit voluptatem quidem laudantium voluptatem.",
-   "name": "instancegroup-ope1",
-   "operation_type": "Consequatur culpa magni ea.",
-   "owner_id": "bd2d5ee3-d8be-4024-85a7-334dee9c1c88",
-   "owner_type": "InstanceGroup",
-   "project_id": "dummy-proj-999",
-   "service": "deploymentmanager",
-   "status": "Quia molestiae.",
-   "zone": "us-central1-f"
-}`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp37.Run(c, args) },
-	}
-	tmp37.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp37.PrettyPrint, "pp", false, "Pretty print response body")
-	command.AddCommand(sub)
-	app.AddCommand(command)
-	command = &cobra.Command{
 		Use:   "stop",
 		Short: `Stop pipeline`,
 	}
-	tmp38 := new(StopPipelineCommand)
+	tmp33 := new(StopPipelineCommand)
 	sub = &cobra.Command{
 		Use:   `pipeline ["/pipelines/ID/stop"]`,
 		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp38.Run(c, args) },
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp33.Run(c, args) },
 	}
-	tmp38.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp38.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp33.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp33.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
 		Use:   "waking-finalize-task",
 		Short: `Task to finalize waking status`,
 	}
-	tmp39 := new(WakingFinalizeTaskPipelineBaseCommand)
+	tmp34 := new(WakingFinalizeTaskPipelineBaseCommand)
 	sub = &cobra.Command{
 		Use:   `pipeline-base ["/pipeline_bases/ID/waking_finalize_task"]`,
 		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp39.Run(c, args) },
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp34.Run(c, args) },
 	}
-	tmp39.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp39.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp34.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp34.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 
@@ -1212,41 +1042,6 @@ func (cmd *RefreshInstanceGroupConstructingTaskCommand) RegisterFlags(cc *cobra.
 	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
 }
 
-// Run makes the HTTP request corresponding to the StartInstanceGroupConstructingTaskCommand command.
-func (cmd *StartInstanceGroupConstructingTaskCommand) Run(c *client.Client, args []string) error {
-	var path string
-	if len(args) > 0 {
-		path = args[0]
-	} else {
-		path = "/constructing_tasks"
-	}
-	var payload client.OperationPayload
-	if cmd.Payload != "" {
-		err := json.Unmarshal([]byte(cmd.Payload), &payload)
-		if err != nil {
-			return fmt.Errorf("failed to deserialize payload: %s", err)
-		}
-	}
-	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
-	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.StartInstanceGroupConstructingTask(ctx, path, &payload, stringFlagVal("id", cmd.ID), cmd.ContentType)
-	if err != nil {
-		goa.LogError(ctx, "failed", "err", err)
-		return err
-	}
-
-	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
-	return nil
-}
-
-// RegisterFlags registers the command flags with the command line.
-func (cmd *StartInstanceGroupConstructingTaskCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
-	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
-	var id string
-	cc.Flags().StringVar(&cmd.ID, "id", id, `Resource ID`)
-}
-
 // Run makes the HTTP request corresponding to the RefreshInstanceGroupDestructingTaskCommand command.
 func (cmd *RefreshInstanceGroupDestructingTaskCommand) Run(c *client.Client, args []string) error {
 	var path string
@@ -1273,41 +1068,6 @@ func (cmd *RefreshInstanceGroupDestructingTaskCommand) RegisterFlags(cc *cobra.C
 	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
 }
 
-// Run makes the HTTP request corresponding to the StartInstanceGroupDestructingTaskCommand command.
-func (cmd *StartInstanceGroupDestructingTaskCommand) Run(c *client.Client, args []string) error {
-	var path string
-	if len(args) > 0 {
-		path = args[0]
-	} else {
-		path = "/destructing_tasks"
-	}
-	var payload client.OperationPayload
-	if cmd.Payload != "" {
-		err := json.Unmarshal([]byte(cmd.Payload), &payload)
-		if err != nil {
-			return fmt.Errorf("failed to deserialize payload: %s", err)
-		}
-	}
-	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
-	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.StartInstanceGroupDestructingTask(ctx, path, &payload, stringFlagVal("id", cmd.ID), cmd.ContentType)
-	if err != nil {
-		goa.LogError(ctx, "failed", "err", err)
-		return err
-	}
-
-	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
-	return nil
-}
-
-// RegisterFlags registers the command flags with the command line.
-func (cmd *StartInstanceGroupDestructingTaskCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
-	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
-	var id string
-	cc.Flags().StringVar(&cmd.ID, "id", id, `Resource ID`)
-}
-
 // Run makes the HTTP request corresponding to the RefreshInstanceGroupResizingTaskCommand command.
 func (cmd *RefreshInstanceGroupResizingTaskCommand) Run(c *client.Client, args []string) error {
 	var path string
@@ -1332,41 +1092,6 @@ func (cmd *RefreshInstanceGroupResizingTaskCommand) Run(c *client.Client, args [
 func (cmd *RefreshInstanceGroupResizingTaskCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var id string
 	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
-}
-
-// Run makes the HTTP request corresponding to the StartInstanceGroupResizingTaskCommand command.
-func (cmd *StartInstanceGroupResizingTaskCommand) Run(c *client.Client, args []string) error {
-	var path string
-	if len(args) > 0 {
-		path = args[0]
-	} else {
-		path = "/resizing_tasks"
-	}
-	var payload client.OperationPayload
-	if cmd.Payload != "" {
-		err := json.Unmarshal([]byte(cmd.Payload), &payload)
-		if err != nil {
-			return fmt.Errorf("failed to deserialize payload: %s", err)
-		}
-	}
-	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
-	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.StartInstanceGroupResizingTask(ctx, path, &payload, stringFlagVal("id", cmd.ID), cmd.ContentType)
-	if err != nil {
-		goa.LogError(ctx, "failed", "err", err)
-		return err
-	}
-
-	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
-	return nil
-}
-
-// RegisterFlags registers the command flags with the command line.
-func (cmd *StartInstanceGroupResizingTaskCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
-	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
-	var id string
-	cc.Flags().StringVar(&cmd.ID, "id", id, `Resource ID`)
 }
 
 // Run makes the HTTP request corresponding to the CreateIntanceGroupCommand command.
@@ -2184,41 +1909,6 @@ func (cmd *RefreshPipelineBaseClosingTaskCommand) RegisterFlags(cc *cobra.Comman
 	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
 }
 
-// Run makes the HTTP request corresponding to the StartPipelineBaseClosingTaskCommand command.
-func (cmd *StartPipelineBaseClosingTaskCommand) Run(c *client.Client, args []string) error {
-	var path string
-	if len(args) > 0 {
-		path = args[0]
-	} else {
-		path = "/closing_tasks"
-	}
-	var payload client.OperationPayload
-	if cmd.Payload != "" {
-		err := json.Unmarshal([]byte(cmd.Payload), &payload)
-		if err != nil {
-			return fmt.Errorf("failed to deserialize payload: %s", err)
-		}
-	}
-	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
-	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.StartPipelineBaseClosingTask(ctx, path, &payload, stringFlagVal("id", cmd.ID), cmd.ContentType)
-	if err != nil {
-		goa.LogError(ctx, "failed", "err", err)
-		return err
-	}
-
-	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
-	return nil
-}
-
-// RegisterFlags registers the command flags with the command line.
-func (cmd *StartPipelineBaseClosingTaskCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
-	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
-	var id string
-	cc.Flags().StringVar(&cmd.ID, "id", id, `Resource ID`)
-}
-
 // Run makes the HTTP request corresponding to the RefreshPipelineBaseOpeningTaskCommand command.
 func (cmd *RefreshPipelineBaseOpeningTaskCommand) Run(c *client.Client, args []string) error {
 	var path string
@@ -2243,41 +1933,6 @@ func (cmd *RefreshPipelineBaseOpeningTaskCommand) Run(c *client.Client, args []s
 func (cmd *RefreshPipelineBaseOpeningTaskCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var id string
 	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
-}
-
-// Run makes the HTTP request corresponding to the StartPipelineBaseOpeningTaskCommand command.
-func (cmd *StartPipelineBaseOpeningTaskCommand) Run(c *client.Client, args []string) error {
-	var path string
-	if len(args) > 0 {
-		path = args[0]
-	} else {
-		path = "/opening_tasks"
-	}
-	var payload client.OperationPayload
-	if cmd.Payload != "" {
-		err := json.Unmarshal([]byte(cmd.Payload), &payload)
-		if err != nil {
-			return fmt.Errorf("failed to deserialize payload: %s", err)
-		}
-	}
-	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
-	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.StartPipelineBaseOpeningTask(ctx, path, &payload, stringFlagVal("id", cmd.ID), cmd.ContentType)
-	if err != nil {
-		goa.LogError(ctx, "failed", "err", err)
-		return err
-	}
-
-	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
-	return nil
-}
-
-// RegisterFlags registers the command flags with the command line.
-func (cmd *StartPipelineBaseOpeningTaskCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
-	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
-	var id string
-	cc.Flags().StringVar(&cmd.ID, "id", id, `Resource ID`)
 }
 
 // Run makes the HTTP request corresponding to the CreateDummyAuthsCommand command.

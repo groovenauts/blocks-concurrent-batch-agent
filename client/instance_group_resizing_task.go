@@ -11,7 +11,6 @@
 package client
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"net/http"
@@ -44,59 +43,6 @@ func (c *Client) NewRefreshInstanceGroupResizingTaskRequest(ctx context.Context,
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
 		return nil, err
-	}
-	if c.APIKeySigner != nil {
-		if err := c.APIKeySigner.Sign(req); err != nil {
-			return nil, err
-		}
-	}
-	return req, nil
-}
-
-// StartInstanceGroupResizingTaskPath computes a request path to the start action of InstanceGroupResizingTask.
-func StartInstanceGroupResizingTaskPath() string {
-
-	return fmt.Sprintf("/resizing_tasks")
-}
-
-// Start refreshing
-func (c *Client) StartInstanceGroupResizingTask(ctx context.Context, path string, payload *OperationPayload, id *string, contentType string) (*http.Response, error) {
-	req, err := c.NewStartInstanceGroupResizingTaskRequest(ctx, path, payload, id, contentType)
-	if err != nil {
-		return nil, err
-	}
-	return c.Client.Do(ctx, req)
-}
-
-// NewStartInstanceGroupResizingTaskRequest create the request corresponding to the start action endpoint of the InstanceGroupResizingTask resource.
-func (c *Client) NewStartInstanceGroupResizingTaskRequest(ctx context.Context, path string, payload *OperationPayload, id *string, contentType string) (*http.Request, error) {
-	var body bytes.Buffer
-	if contentType == "" {
-		contentType = "*/*" // Use default encoder
-	}
-	err := c.Encoder.Encode(payload, &body, contentType)
-	if err != nil {
-		return nil, fmt.Errorf("failed to encode body: %s", err)
-	}
-	scheme := c.Scheme
-	if scheme == "" {
-		scheme = "http"
-	}
-	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
-	values := u.Query()
-	if id != nil {
-		values.Set("id", *id)
-	}
-	u.RawQuery = values.Encode()
-	req, err := http.NewRequest("POST", u.String(), &body)
-	if err != nil {
-		return nil, err
-	}
-	header := req.Header
-	if contentType == "*/*" {
-		header.Set("Content-Type", "application/json")
-	} else {
-		header.Set("Content-Type", contentType)
 	}
 	if c.APIKeySigner != nil {
 		if err := c.APIKeySigner.Sign(req); err != nil {
