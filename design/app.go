@@ -55,8 +55,8 @@ var _ = API("appengine", func() {
 
 	Trait(OperationResourceTrait, func() {
 		DefaultMedia(Operation)
-		Action("refresh", func() {
-			Description("Refresh")
+		Action("watch", func() {
+			Description("Watch")
 			Routing(PUT("/:id"))
 			Params(func() {
 				Param("id")
