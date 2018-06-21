@@ -37,11 +37,19 @@ app:
 	@goagen app -d $(REPO)/design
 	@mv vendor.bak vendor
 
-controller:
+controller: goa_controller converter
+
+goa_controller:
 	@mv vendor vendor.bak
 	@mkdir -p controller
 	@goagen controller  -d $(REPO)/design --pkg controller --out controller --app-pkg ../app
 	@mv vendor.bak vendor
+
+converter:
+	@goa_model_gen converter design/*.yaml
+
+model:
+	@goa_model_gen model design/*.yaml
 
 clean:
 	@rm -rf app
