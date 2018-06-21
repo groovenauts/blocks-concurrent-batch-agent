@@ -16,6 +16,8 @@ const TimestampUpdatedAt = "updated_at"
 const TimestampsAttrTrait = "TimestampsAttrTrait"
 const TimestampsViewTrait = "TimestampsViewTrait"
 
+const TaskResponsesTrait = "TaskResponsesTrait"
+
 const OperationResourceTrait = "OperationResourceTrait"
 
 var _ = API("appengine", func() {
@@ -53,19 +55,33 @@ var _ = API("appengine", func() {
 		Attribute(TimestampUpdatedAt)
 	})
 
+	Trait(TaskResponsesTrait, func() {
+		Response(OK, Operation)        // 200 (他のなにかによって)既に完了済み
+		Response(Created, Operation)   // 201 継続
+		Response(Accepted, Operation)  // 202 完了
+		Response(NoContent, Operation) // 204 エラー
+		Response(NoContent, Operation) // 205 成功(再実行)
+		UseTrait(DefineTrait)
+	})
+
 	Trait(OperationResourceTrait, func() {
 		DefaultMedia(Operation)
+		Action("start", func() {
+			Description("Start operation")
+			Routing(POST(""))
+			Params(func() {
+				Param("resource_id", String, "Resource ID")
+			})
+			UseTrait(TaskResponsesTrait)
+		})
+
 		Action("watch", func() {
 			Description("Watch")
 			Routing(PUT("/:id"))
 			Params(func() {
 				Param("id")
 			})
-			Response(OK, Operation)        // 200 (他のなにかによって)既に完了済み
-			Response(Created, Operation)   // 201 継続
-			Response(Accepted, Operation)  // 202 完了
-			Response(NoContent, Operation) // 204 エラー
-			UseTrait(DefineTrait)
+			UseTrait(TaskResponsesTrait)
 		})
 	})
 })

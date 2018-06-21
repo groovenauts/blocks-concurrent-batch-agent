@@ -78,7 +78,7 @@ var InstanceGroupPayload = Type("InstanceGroupPayload", func() {
 		"machine_type",
 		"gpu_accelerators",
 		"preemptible",
-		"instance_size",
+		"instance_size_requested",
 		"startup_script",
 		"deployment_name",
 		"token_consumption",
@@ -101,6 +101,7 @@ var InstanceGroup = MediaType("application/vnd.instance-group+json", func() {
 		"gpu_accelerators",
 		"preemptible",
 		"instance_size",
+		"instance_size_requested",
 		"startup_script",
 		"deployment_name",
 		"token_consumption",
@@ -108,9 +109,10 @@ var InstanceGroup = MediaType("application/vnd.instance-group+json", func() {
 	Attributes(func() {
 		UseTrait(IdTrait)
 		Attribute("status", String, "Instance Group Status", func() {
-			Enum("constructing", "constructing_error", "constructed", "resizing",
-				"destructing", "destructing_error", "destructed")
-			Example("constructing")
+			Enum("construction_starting", "construction_running", "construction_error", "constructed",
+				"resize_starting", "resize_running",
+				"destruction_starting", "destruction_running", "destruction_error", "destructed")
+			Example("construction_starting")
 		})
 		for _, attrName := range attrNames {
 			Attribute(attrName)
@@ -176,7 +178,7 @@ var _ = Resource("IntanceGroup", func() {
 	})
 	Action("destruct", func() {
 		Description("Destruct")
-		Routing(PUT("/:id/restruct"))
+		Routing(PUT("/:id/destruct"))
 		Params(func() {
 			Param("id")
 		})
@@ -196,19 +198,19 @@ var _ = Resource("IntanceGroup", func() {
 })
 
 var _ = Resource("InstanceGroupConstructingTask", func() {
-	BasePath("/constructing_tasks")
+	BasePath("/construction_tasks")
 	UseTrait(DefineResourceTrait)
 	UseTrait(OperationResourceTrait)
 })
 
 var _ = Resource("InstanceGroupDestructingTask", func() {
-	BasePath("/destructing_tasks")
+	BasePath("/destruction_tasks")
 	UseTrait(DefineResourceTrait)
 	UseTrait(OperationResourceTrait)
 })
 
 var _ = Resource("InstanceGroupResizingTask", func() {
-	BasePath("/resizing_tasks")
+	BasePath("/resize_tasks")
 	UseTrait(DefineResourceTrait)
 	UseTrait(OperationResourceTrait)
 })

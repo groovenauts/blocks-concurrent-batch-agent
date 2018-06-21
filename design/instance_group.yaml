@@ -38,6 +38,7 @@ types:
       MachineType: *string_required
       GpuAccelerators: InstanceGroupAccelerators
       Preemptible: bool
+      InstanceSizeRequested: int
       InstanceSize: int
       StartupScript: {}
       Status:
