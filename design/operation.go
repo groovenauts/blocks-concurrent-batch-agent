@@ -5,8 +5,8 @@ import (
 	. "github.com/goadesign/goa/design/apidsl"
 )
 
-var Operation = MediaType("application/vnd.instance-group-operation+json", func() {
-	Description("instance-group-operation")
+var Operation = MediaType("application/vnd.operation+json", func() {
+	Description("Operation")
 	attrNames := []string{
 		"id",
 		"owner_type",
