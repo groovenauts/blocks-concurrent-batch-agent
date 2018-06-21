@@ -24,22 +24,22 @@ func NewBuilder(ctx context.Context) (*Builder, error) {
 	return &Builder{deployer: deployer}, nil
 }
 
-func (b *Builder) Process(ctx context.Context, pl *Pipeline) (*PipelineOperation, error) {
+func (b *Builder) Process(ctx context.Context, pl *InstanceGroup) (*Operation, error) {
 	err := pl.LoadOrganization(ctx)
 	if err != nil {
-		log.Errorf(ctx, "Failed to load Organization for Pipeline: %v\npl: %v\n", err, pl)
+		log.Errorf(ctx, "Failed to load Organization for InstanceGroup: %v\npl: %v\n", err, pl)
 		return nil, err
 	}
 
 	err = pl.StartBuilding(ctx)
 	if err != nil {
-		log.Errorf(ctx, "Failed to update Pipeline status to 'building': %v\npl: %v\n", err, pl)
+		log.Errorf(ctx, "Failed to update InstanceGroup status to 'building': %v\npl: %v\n", err, pl)
 		return nil, err
 	}
 
 	deployment, err := b.BuildDeployment(pl)
 	if err != nil {
-		log.Errorf(ctx, "Failed to BuildDeployment: %v\nPipeline: %v\n", err, pl)
+		log.Errorf(ctx, "Failed to BuildDeployment: %v\nInstanceGroup: %v\n", err, pl)
 		return nil, err
 	}
 	ope, err := b.deployer.Insert(ctx, pl.ProjectID, deployment)
@@ -52,12 +52,13 @@ func (b *Builder) Process(ctx context.Context, pl *Pipeline) (*PipelineOperation
 
 	err = pl.StartDeploying(ctx, deployment.Name)
 	if err != nil {
-		log.Errorf(ctx, "Failed to update Pipeline deployment name to %v: %v\npl: %v\n", ope.Name, err, pl)
+		log.Errorf(ctx, "Failed to update InstanceGroup deployment name to %v: %v\npl: %v\n", ope.Name, err, pl)
 		return nil, err
 	}
 
-	operation := &PipelineOperation{
-		Pipeline:      pl,
+	operation := &Operation{
+		OwnerType:     "InstanceGroup",
+		OwnerId:       pl.ID,
 		ProjectID:     pl.ProjectID,
 		Zone:          pl.Zone,
 		Service:       "deploymentmanager",
@@ -70,14 +71,14 @@ func (b *Builder) Process(ctx context.Context, pl *Pipeline) (*PipelineOperation
 	}
 	err = operation.Create(ctx)
 	if err != nil {
-		log.Errorf(ctx, "Failed to create PipelineOperation: %v because of %v\n", operation, err)
+		log.Errorf(ctx, "Failed to create Operation: %v because of %v\n", operation, err)
 		return nil, err
 	}
 
 	return operation, nil
 }
 
-func (b *Builder) BuildDeployment(pl *Pipeline) (*deploymentmanager.Deployment, error) {
+func (b *Builder) BuildDeployment(pl *InstanceGroup) (*deploymentmanager.Deployment, error) {
 	r := b.GenerateDeploymentResources(pl)
 	d, err := json.Marshal(r)
 	if err != nil {
@@ -114,7 +115,7 @@ type (
 	}
 )
 
-func (b *Builder) GenerateDeploymentResources(pl *Pipeline) *Resources {
+func (b *Builder) GenerateDeploymentResources(pl *InstanceGroup) *Resources {
 	t := []Resource{}
 	pubsubs := []Pubsub{
 		Pubsub{Name: "job", AckDeadline: 600},
@@ -148,7 +149,7 @@ func (b *Builder) GenerateDeploymentResources(pl *Pipeline) *Resources {
 	return &Resources{Resources: t}
 }
 
-func (b *Builder) buildItResource(pl *Pipeline) Resource {
+func (b *Builder) buildItResource(pl *InstanceGroup) Resource {
 	return Resource{
 		Type: "compute.v1.instanceTemplate",
 		Name: pl.Name + "-it",
@@ -159,7 +160,7 @@ func (b *Builder) buildItResource(pl *Pipeline) Resource {
 	}
 }
 
-func (b *Builder) buildItProperties(pl *Pipeline) map[string]interface{} {
+func (b *Builder) buildItProperties(pl *InstanceGroup) map[string]interface{} {
 	scheduling := map[string]interface{}{
 		"preemptible": pl.Preemptible,
 	}
@@ -193,7 +194,7 @@ func (b *Builder) buildItProperties(pl *Pipeline) map[string]interface{} {
 	return it_properties
 }
 
-func (b *Builder) buildGuestAccelerators(pl *Pipeline) map[string]interface{} {
+func (b *Builder) buildGuestAccelerators(pl *InstanceGroup) map[string]interface{} {
 	ga := pl.GpuAccelerators
 	return map[string]interface{}{
 		"acceleratorCount": float64(ga.Count),
@@ -201,7 +202,7 @@ func (b *Builder) buildGuestAccelerators(pl *Pipeline) map[string]interface{} {
 	}
 }
 
-func (b *Builder) buildIgmResource(pl *Pipeline) Resource {
+func (b *Builder) buildIgmResource(pl *InstanceGroup) Resource {
 	return Resource{
 		Type: "compute.v1.instanceGroupManagers",
 		Name: pl.Name + "-igm",
@@ -214,7 +215,7 @@ func (b *Builder) buildIgmResource(pl *Pipeline) Resource {
 	}
 }
 
-func (b *Builder) buildStartupScriptMetadataItem(pl *Pipeline) map[string]interface{} {
+func (b *Builder) buildStartupScriptMetadataItem(pl *InstanceGroup) map[string]interface{} {
 	startup_script := b.buildStartupScript(pl)
 	return map[string]interface{}{
 		"key":   "startup-script",
@@ -222,7 +223,7 @@ func (b *Builder) buildStartupScriptMetadataItem(pl *Pipeline) map[string]interf
 	}
 }
 
-func (b *Builder) buildDefaultNetwork(pl *Pipeline) map[string]interface{} {
+func (b *Builder) buildDefaultNetwork(pl *InstanceGroup) map[string]interface{} {
 	return map[string]interface{}{
 		"network": "https://www.googleapis.com/compute/v1/projects/" + pl.ProjectID + "/global/networks/default",
 		"accessConfigs": []interface{}{
@@ -246,7 +247,7 @@ func (b *Builder) buildScopes() map[string]interface{} {
 	}
 }
 
-func (b *Builder) buildBootDisk(disk *PipelineVmDisk) map[string]interface{} {
+func (b *Builder) buildBootDisk(disk *InstanceGroupVMDisk) map[string]interface{} {
 	initParams := map[string]interface{}{
 		"sourceImage": disk.SourceImage,
 	}
@@ -275,7 +276,7 @@ var (
 
 const StackdriverAgentCommand = "docker run -d -e MONITOR_HOST=true -v /proc:/mnt/proc:ro --privileged wikiwi/stackdriver-agent"
 
-func (b *Builder) buildStartupScript(pl *Pipeline) string {
+func (b *Builder) buildStartupScript(pl *InstanceGroup) string {
 	r := []string{StartupScriptHeader}
 
 	docker := "docker"
@@ -329,7 +330,7 @@ func (b *Builder) buildStartupScript(pl *Pipeline) string {
 	return strings.Join(r, "\n")
 }
 
-func (b *Builder) buildInstallCuda(pl *Pipeline) string {
+func (b *Builder) buildInstallCuda(pl *InstanceGroup) string {
 	return `
 if ! dpkg-query -W cuda; then
    curl -O http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_8.0.61-1_amd64.deb
@@ -341,7 +342,7 @@ nvidia-smi
 `
 }
 
-func (b *Builder) buildInstallDocker(pl *Pipeline) string {
+func (b *Builder) buildInstallDocker(pl *InstanceGroup) string {
 	return `
 apt-get update
 apt-get -y install \
@@ -358,7 +359,7 @@ docker run hello-world
 `
 }
 
-func (b *Builder) buildInstallNvidiaDocker(pl *Pipeline) string {
+func (b *Builder) buildInstallNvidiaDocker(pl *InstanceGroup) string {
 	return `
 wget -P /tmp https://github.com/NVIDIA/nvidia-docker/releases/download/v1.0.1/nvidia-docker_1.0.1-1_amd64.deb
 dpkg -i /tmp/nvidia-docker*.deb && rm /tmp/nvidia-docker*.deb
