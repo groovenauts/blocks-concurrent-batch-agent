@@ -18,8 +18,6 @@ const TimestampsViewTrait = "TimestampsViewTrait"
 
 const TaskResponsesTrait = "TaskResponsesTrait"
 
-const OperationResourceTrait = "OperationResourceTrait"
-
 var _ = API("appengine", func() {
 	Title("The appengine example")
 	Description("A simple appengine example")
@@ -64,26 +62,7 @@ var _ = API("appengine", func() {
 		UseTrait(DefaultResponseTrait)
 	})
 
-	Trait(OperationResourceTrait, func() {
-		DefaultMedia(Operation)
-		Action("start", func() {
-			Description("Start operation")
-			Routing(POST(""))
-			Params(func() {
-				Param("resource_id", String, "Resource ID")
-			})
-			UseTrait(TaskResponsesTrait)
-		})
-
-		Action("watch", func() {
-			Description("Watch")
-			Routing(PUT("/:id"))
-			Params(func() {
-				Param("id")
-			})
-			UseTrait(TaskResponsesTrait)
-		})
-	})
+	Trait(OperationResourceTrait, OperationResourceTraitFunc)
 })
 var _ = Resource("swagger", func() {
 	Origin("*", func() {

@@ -54,3 +54,26 @@ var Operation = MediaType("application/vnd.operation+json", func() {
 		UseTrait(TimestampsViewTrait)
 	})
 })
+
+const OperationResourceTrait = "OperationResourceTrait"
+
+func OperationResourceTraitFunc() {
+	DefaultMedia(Operation)
+	Action("start", func() {
+		Description("Start operation")
+		Routing(POST(""))
+		Params(func() {
+			Param("resource_id", String, "Resource ID")
+		})
+		UseTrait(TaskResponsesTrait)
+	})
+
+	Action("watch", func() {
+		Description("Watch")
+		Routing(PUT("/:id"))
+		Params(func() {
+			Param("id")
+		})
+		UseTrait(TaskResponsesTrait)
+	})
+}
