@@ -183,14 +183,15 @@ var _ = Resource("PipelineBase", func() {
 	})
 })
 
+// For pubsub (topic + subscription) * (job + progress)
 var _ = Resource("PipelineBaseOpeningTask", func() {
 	BasePath("/opening_tasks")
 	UseTrait(DefineResourceTrait)
-	UseTrait(OperationResourceTrait)
+	UseTrait(CloudAsyncOperationResourceTrait)
 })
 
 var _ = Resource("PipelineBaseClosingTask", func() {
 	BasePath("/closing_tasks")
 	UseTrait(DefineResourceTrait)
-	UseTrait(OperationResourceTrait)
+	UseTrait(CloudAsyncOperationResourceTrait)
 })

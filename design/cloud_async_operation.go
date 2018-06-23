@@ -5,8 +5,8 @@ import (
 	. "github.com/goadesign/goa/design/apidsl"
 )
 
-var Operation = MediaType("application/vnd.operation+json", func() {
-	Description("Operation")
+var CloudAsyncOperation = MediaType("application/vnd.cloud-async-operation+json", func() {
+	Description("CloudAsyncOperation")
 	attrNames := []string{
 		"id",
 		"owner_type",
@@ -55,10 +55,10 @@ var Operation = MediaType("application/vnd.operation+json", func() {
 	})
 })
 
-const OperationResourceTrait = "OperationResourceTrait"
+const CloudAsyncOperationResourceTrait = "CloudAsyncOperationResourceTrait"
 
-func OperationResourceTraitFunc() {
-	DefaultMedia(Operation)
+func CloudAsyncOperationResourceTraitFunc() {
+	DefaultMedia(CloudAsyncOperation)
 	Action("start", func() {
 		Description("Start operation")
 		Routing(POST(""))

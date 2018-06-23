@@ -54,15 +54,15 @@ var _ = API("appengine", func() {
 	})
 
 	Trait(TaskResponsesTrait, func() {
-		Response(OK, Operation)           // 200 (他のなにかによって)既に完了済み
-		Response(Created, Operation)      // 201 継続
-		Response(Accepted, Operation)     // 202 完了
-		Response(NoContent, Operation)    // 204 エラー
-		Response(ResetContent, Operation) // 205 成功(再実行)
+		Response(OK, CloudAsyncOperation)           // 200 (他のなにかによって)既に完了済み
+		Response(Created, CloudAsyncOperation)      // 201 継続
+		Response(Accepted, CloudAsyncOperation)     // 202 完了
+		Response(NoContent, CloudAsyncOperation)    // 204 エラー
+		Response(ResetContent, CloudAsyncOperation) // 205 成功(再実行)
 		UseTrait(DefaultResponseTrait)
 	})
 
-	Trait(OperationResourceTrait, OperationResourceTraitFunc)
+	Trait(CloudAsyncOperationResourceTrait, CloudAsyncOperationResourceTraitFunc)
 })
 var _ = Resource("swagger", func() {
 	Origin("*", func() {

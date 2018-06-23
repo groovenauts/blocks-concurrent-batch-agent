@@ -200,17 +200,17 @@ var _ = Resource("IntanceGroup", func() {
 var _ = Resource("InstanceGroupConstructingTask", func() {
 	BasePath("/construction_tasks")
 	UseTrait(DefineResourceTrait)
-	UseTrait(OperationResourceTrait)
+	UseTrait(CloudAsyncOperationResourceTrait)
 })
 
 var _ = Resource("InstanceGroupDestructingTask", func() {
 	BasePath("/destruction_tasks")
 	UseTrait(DefineResourceTrait)
-	UseTrait(OperationResourceTrait)
+	UseTrait(CloudAsyncOperationResourceTrait)
 })
 
 var _ = Resource("InstanceGroupResizingTask", func() {
 	BasePath("/resize_tasks")
 	UseTrait(DefineResourceTrait)
-	UseTrait(OperationResourceTrait)
+	UseTrait(CloudAsyncOperationResourceTrait)
 })
