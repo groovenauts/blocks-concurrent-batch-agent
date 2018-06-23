@@ -55,6 +55,7 @@ var PipelineBase = MediaType("application/vnd.pipeline-base+json", func() {
 	Reference(PipelineBasePayload)
 
 	attrNames := []string{
+		"name",
 		"instance_group",
 		"container",
 		"hibernation_delay",
