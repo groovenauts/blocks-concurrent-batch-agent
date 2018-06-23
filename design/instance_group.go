@@ -197,20 +197,20 @@ var _ = Resource("IntanceGroup", func() {
 	})
 })
 
-var _ = Resource("InstanceGroupConstructingTask", func() {
+var _ = Resource("InstanceGroupConstructionTask", func() {
 	BasePath("/construction_tasks")
 	UseTrait(DefineResourceTrait)
 	UseTrait(CloudAsyncOperationResourceTrait)
 })
 
-var _ = Resource("InstanceGroupDestructingTask", func() {
+var _ = Resource("InstanceGroupDestructionTask", func() {
 	BasePath("/destruction_tasks")
 	UseTrait(DefineResourceTrait)
 	UseTrait(CloudAsyncOperationResourceTrait)
 })
 
 var _ = Resource("InstanceGroupResizingTask", func() {
-	BasePath("/resize_tasks")
+	BasePath("/resizing_tasks")
 	UseTrait(DefineResourceTrait)
 	UseTrait(CloudAsyncOperationResourceTrait)
 })
