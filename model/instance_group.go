@@ -16,13 +16,16 @@ import (
 type InstanceGroupStatus string
 
 const (
-	Constructing      InstanceGroupStatus = "constructing"
-	ConstructingError InstanceGroupStatus = "constructing_error"
-	Constructed       InstanceGroupStatus = "constructed"
-	Resizing          InstanceGroupStatus = "resizing"
-	Destructing       InstanceGroupStatus = "destructing"
-	DestructingError  InstanceGroupStatus = "destructing_error"
-	Destructed        InstanceGroupStatus = "destructed"
+	ConstructionStarting InstanceGroupStatus = "construction_starting"
+	ConstructionRunning  InstanceGroupStatus = "construction_running"
+	ConstructionError    InstanceGroupStatus = "construction_error"
+	Constructed          InstanceGroupStatus = "constructed"
+	ResizeStarting       InstanceGroupStatus = "resize_starting"
+	ResizeRunning        InstanceGroupStatus = "resize_running"
+	DestructionStarting  InstanceGroupStatus = "destruction_starting"
+	DestructionRunning   InstanceGroupStatus = "destruction_running"
+	DestructionError     InstanceGroupStatus = "destruction_error"
+	Destructed           InstanceGroupStatus = "destructed"
 )
 
 type InstanceGroupVMDisk struct {
@@ -36,23 +39,39 @@ type InstanceGroupAccelerators struct {
 	Type  string
 }
 
+type InstanceGroupBody struct {
+	ProjectID             string
+	Zone                  string
+	BootDisk              InstanceGroupVMDisk
+	MachineType           string
+	GpuAccelerators       InstanceGroupAccelerators
+	Preemptible           bool
+	InstanceSizeRequested int
+	InstanceSize          int
+	StartupScript         string
+	Status                InstanceGroupStatus
+	DeploymentName        string
+	TokenConsumption      int
+}
+
 type InstanceGroup struct {
-	Id               string         `datastore:"-" goon:"id"`
-	Parent           *datastore.Key `datastore:"-" goon:"parent"`
-	Name             string
-	ProjectID        string
-	Zone             string
-	BootDisk         InstanceGroupVMDisk
-	MachineType      string
-	GpuAccelerators  InstanceGroupAccelerators
-	Preemptible      bool
-	InstanceSize     int
-	StartupScript    string
-	Status           InstanceGroupStatus
-	DeploymentName   string
-	TokenConsumption int
-	CreatedAt        time.Time
-	UpdatedAt        time.Time
+	Id                    string         `datastore:"-" goon:"id"`
+	Parent                *datastore.Key `datastore:"-" goon:"parent"`
+	Name                  string
+	ProjectID             string
+	Zone                  string
+	BootDisk              InstanceGroupVMDisk
+	MachineType           string
+	GpuAccelerators       InstanceGroupAccelerators
+	Preemptible           bool
+	InstanceSizeRequested int
+	InstanceSize          int
+	StartupScript         string
+	Status                InstanceGroupStatus
+	DeploymentName        string
+	TokenConsumption      int
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
 }
 
 type InstanceGroupStore struct {
