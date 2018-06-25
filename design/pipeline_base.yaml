@@ -7,6 +7,9 @@ anchors:
   required: true
 
 types:
+  PipelineBaseStatus:
+    base: string
+    enum: "definitions/PipelineBase/properties/status/enum"
   PipelineContainer:
     fields:
       name: *string_required
@@ -16,6 +19,15 @@ types:
       command: string
       options: string
       stackdriver_agent: boolean
-  PipelineBasePayloadBody:
+  PipelineBase:
     fields:
-      
+      Name: *string_required
+      InstanceGroup: InstanceGroupBody
+      Container: PipelineContainer
+      HibernationDelay:
+        type: int
+        required: true
+      Status:
+        type: PipelineBaseStatus
+        required: true
+      IntanceGroupID: *string_required
