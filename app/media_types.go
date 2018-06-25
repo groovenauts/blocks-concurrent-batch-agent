@@ -107,9 +107,11 @@ type InstanceGroup struct {
 	// GPU Accelerators
 	GpuAccelerators *InstanceGroupAccelerators `form:"gpu_accelerators" json:"gpu_accelerators" yaml:"gpu_accelerators" xml:"gpu_accelerators"`
 	// ID
-	ID                    string `form:"id" json:"id" yaml:"id" xml:"id"`
-	InstanceSize          string `form:"instance_size" json:"instance_size" yaml:"instance_size" xml:"instance_size"`
-	InstanceSizeRequested string `form:"instance_size_requested" json:"instance_size_requested" yaml:"instance_size_requested" xml:"instance_size_requested"`
+	ID string `form:"id" json:"id" yaml:"id" xml:"id"`
+	// Instance size
+	InstanceSize int `form:"instance_size" json:"instance_size" yaml:"instance_size" xml:"instance_size"`
+	// Instance size requested
+	InstanceSizeRequested int `form:"instance_size_requested" json:"instance_size_requested" yaml:"instance_size_requested" xml:"instance_size_requested"`
 	// GCE Machine Type
 	MachineType string `form:"machine_type" json:"machine_type" yaml:"machine_type" xml:"machine_type"`
 	// Name
@@ -157,12 +159,6 @@ func (mt *InstanceGroup) Validate() (err error) {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "gpu_accelerators"))
 	}
 
-	if mt.InstanceSize == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "instance_size"))
-	}
-	if mt.InstanceSizeRequested == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "instance_size_requested"))
-	}
 	if mt.StartupScript == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "startup_script"))
 	}
@@ -259,17 +255,17 @@ func (mt *Job) Validate() (err error) {
 // Identifier: application/vnd.pipeline+json; view=default
 type Pipeline struct {
 	// Container configuration
-	Container *PipelineContainerPayload `form:"container" json:"container" yaml:"container" xml:"container"`
+	Container *PipelineContainer `form:"container" json:"container" yaml:"container" xml:"container"`
 	// Datetime created
-	CreatedAt *time.Time `form:"created_at,omitempty" json:"created_at,omitempty" yaml:"created_at,omitempty" xml:"created_at,omitempty"`
+	CreatedAt time.Time `form:"created_at" json:"created_at" yaml:"created_at" xml:"created_at"`
 	// Current pipeline base ID
-	CurrBaseID *string `form:"curr_base_id,omitempty" json:"curr_base_id,omitempty" yaml:"curr_base_id,omitempty" xml:"curr_base_id,omitempty"`
+	CurrBaseID string `form:"curr_base_id" json:"curr_base_id" yaml:"curr_base_id" xml:"curr_base_id"`
 	// Hibernation delay in seconds since last job finsihed
 	HibernationDelay int `form:"hibernation_delay" json:"hibernation_delay" yaml:"hibernation_delay" xml:"hibernation_delay"`
 	// ID
 	ID *string `form:"id,omitempty" json:"id,omitempty" yaml:"id,omitempty" xml:"id,omitempty"`
 	// Instance Group configuration
-	InstanceGroup *InstanceGroupPayloadBody `form:"instance_group" json:"instance_group" yaml:"instance_group" xml:"instance_group"`
+	InstanceGroup *InstanceGroupBody `form:"instance_group" json:"instance_group" yaml:"instance_group" xml:"instance_group"`
 	// Name of pipeline_base
 	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
 	// Next pipeline base ID
@@ -277,13 +273,20 @@ type Pipeline struct {
 	// Previous pipeline base ID
 	PrevBaseID *string `form:"prev_base_id,omitempty" json:"prev_base_id,omitempty" yaml:"prev_base_id,omitempty" xml:"prev_base_id,omitempty"`
 	// Pipeline Status
-	Status *string `form:"status,omitempty" json:"status,omitempty" yaml:"status,omitempty" xml:"status,omitempty"`
+	Status string `form:"status" json:"status" yaml:"status" xml:"status"`
 	// Datetime updated
-	UpdatedAt *time.Time `form:"updated_at,omitempty" json:"updated_at,omitempty" yaml:"updated_at,omitempty" xml:"updated_at,omitempty"`
+	UpdatedAt time.Time `form:"updated_at" json:"updated_at" yaml:"updated_at" xml:"updated_at"`
 }
 
 // Validate validates the Pipeline media type instance.
 func (mt *Pipeline) Validate() (err error) {
+	if mt.CurrBaseID == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "curr_base_id"))
+	}
+	if mt.Status == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "status"))
+	}
+
 	if mt.Name == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "name"))
 	}
@@ -304,10 +307,8 @@ func (mt *Pipeline) Validate() (err error) {
 			err = goa.MergeErrors(err, err2)
 		}
 	}
-	if mt.Status != nil {
-		if !(*mt.Status == "current_preparing" || *mt.Status == "current_preparing_error" || *mt.Status == "running" || *mt.Status == "next_preparing" || *mt.Status == "stopping" || *mt.Status == "stopping_error" || *mt.Status == "stopped") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError(`response.status`, *mt.Status, []interface{}{"current_preparing", "current_preparing_error", "running", "next_preparing", "stopping", "stopping_error", "stopped"}))
-		}
+	if !(mt.Status == "current_preparing" || mt.Status == "current_preparing_error" || mt.Status == "running" || mt.Status == "next_preparing" || mt.Status == "stopping" || mt.Status == "stopping_error" || mt.Status == "stopped") {
+		err = goa.MergeErrors(err, goa.InvalidEnumValueError(`response.status`, mt.Status, []interface{}{"current_preparing", "current_preparing_error", "running", "next_preparing", "stopping", "stopping_error", "stopped"}))
 	}
 	return
 }
@@ -317,23 +318,23 @@ func (mt *Pipeline) Validate() (err error) {
 // Identifier: application/vnd.pipeline-base+json; view=default
 type PipelineBase struct {
 	// Container configuration
-	Container *PipelineContainerPayload `form:"container" json:"container" yaml:"container" xml:"container"`
+	Container *PipelineContainer `form:"container" json:"container" yaml:"container" xml:"container"`
 	// Datetime created
-	CreatedAt *time.Time `form:"created_at,omitempty" json:"created_at,omitempty" yaml:"created_at,omitempty" xml:"created_at,omitempty"`
+	CreatedAt time.Time `form:"created_at" json:"created_at" yaml:"created_at" xml:"created_at"`
 	// Hibernation delay in seconds since last job finsihed
 	HibernationDelay int `form:"hibernation_delay" json:"hibernation_delay" yaml:"hibernation_delay" xml:"hibernation_delay"`
 	// ID
 	ID string `form:"id" json:"id" yaml:"id" xml:"id"`
 	// Instance Group configuration
-	InstanceGroup *InstanceGroupPayloadBody `form:"instance_group" json:"instance_group" yaml:"instance_group" xml:"instance_group"`
+	InstanceGroup *InstanceGroupBody `form:"instance_group" json:"instance_group" yaml:"instance_group" xml:"instance_group"`
 	// ID of instance group
-	InstanceGroupID *string `form:"instance_group_id,omitempty" json:"instance_group_id,omitempty" yaml:"instance_group_id,omitempty" xml:"instance_group_id,omitempty"`
+	InstanceGroupID string `form:"instance_group_id" json:"instance_group_id" yaml:"instance_group_id" xml:"instance_group_id"`
 	// Name of pipeline_base
 	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
 	// Pipeline Base Status
-	Status *string `form:"status,omitempty" json:"status,omitempty" yaml:"status,omitempty" xml:"status,omitempty"`
+	Status string `form:"status" json:"status" yaml:"status" xml:"status"`
 	// Datetime updated
-	UpdatedAt *time.Time `form:"updated_at,omitempty" json:"updated_at,omitempty" yaml:"updated_at,omitempty" xml:"updated_at,omitempty"`
+	UpdatedAt time.Time `form:"updated_at" json:"updated_at" yaml:"updated_at" xml:"updated_at"`
 }
 
 // Validate validates the PipelineBase media type instance.
@@ -341,6 +342,13 @@ func (mt *PipelineBase) Validate() (err error) {
 	if mt.ID == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "id"))
 	}
+	if mt.Status == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "status"))
+	}
+	if mt.InstanceGroupID == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "instance_group_id"))
+	}
+
 	if mt.Name == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "name"))
 	}
@@ -361,10 +369,8 @@ func (mt *PipelineBase) Validate() (err error) {
 			err = goa.MergeErrors(err, err2)
 		}
 	}
-	if mt.Status != nil {
-		if !(*mt.Status == "opening" || *mt.Status == "opening_error" || *mt.Status == "hibernating" || *mt.Status == "waking" || *mt.Status == "waking_error" || *mt.Status == "awake" || *mt.Status == "hibernation_checking" || *mt.Status == "hibernation_going" || *mt.Status == "hibernation_going_error" || *mt.Status == "closing" || *mt.Status == "closing_error" || *mt.Status == "closed") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError(`response.status`, *mt.Status, []interface{}{"opening", "opening_error", "hibernating", "waking", "waking_error", "awake", "hibernation_checking", "hibernation_going", "hibernation_going_error", "closing", "closing_error", "closed"}))
-		}
+	if !(mt.Status == "opening" || mt.Status == "opening_error" || mt.Status == "hibernating" || mt.Status == "waking" || mt.Status == "waking_error" || mt.Status == "awake" || mt.Status == "hibernation_checking" || mt.Status == "hibernation_going" || mt.Status == "hibernation_going_error" || mt.Status == "closing" || mt.Status == "closing_error" || mt.Status == "closed") {
+		err = goa.MergeErrors(err, goa.InvalidEnumValueError(`response.status`, mt.Status, []interface{}{"opening", "opening_error", "hibernating", "waking", "waking_error", "awake", "hibernation_checking", "hibernation_going", "hibernation_going_error", "closing", "closing_error", "closed"}))
 	}
 	return
 }

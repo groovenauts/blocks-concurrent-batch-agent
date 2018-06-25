@@ -380,13 +380,13 @@ Payload example:
       "count": 2,
       "type": "nvidia-tesla-p100"
    },
-   "instance_size_requested": "Commodi beatae quod magni ea ducimus aspernatur.",
+   "instance_size_requested": 3,
    "machine_type": "f1-micro",
    "name": "pipeline1-123-ig-456",
    "pipeline_base_id": "bd2d5ee3-d8be-4024-85a7-334dee9c1c88",
-   "preemptible": false,
+   "preemptible": true,
    "project_id": "dummy-proj-999",
-   "startup_script": "Est accusamus a perferendis.",
+   "startup_script": "Beatae quod.",
    "token_consumption": 2,
    "zone": "us-central1-f"
 }`,
@@ -404,12 +404,12 @@ Payload example:
 Payload example:
 
 {
-   "id_by_client": "Voluptatem et.",
+   "id_by_client": "Ducimus aspernatur perspiciatis aperiam.",
    "message": {
       "attributes": {
-         "Eum enim eum aliquam eaque.": "Consequuntur dignissimos."
+         "Dolor ut iusto.": "Sequi adipisci eius temporibus adipisci quis."
       },
-      "data": "Delectus cum veritatis."
+      "data": "Ut eum enim eum aliquam."
    }
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
@@ -428,28 +428,29 @@ Payload example:
 {
    "container": {
       "command": "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
-      "name": "Vero sed id.",
+      "name": "Enim animi veritatis nisi veritatis corporis.",
       "options": "--restart=on-failure:3",
       "size": 2,
-      "stackdriver_agent": true
+      "stackdriver_agent": false
    },
-   "hibernation_delay": 7922078294774548750,
+   "hibernation_delay": 7797336613342039318,
    "instance_group": {
       "boot_disk": {
          "disk_size_gb": 50,
          "disk_type": "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
          "source_image": "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable"
       },
-      "deployment_name": "Aut possimus optio et voluptas.",
+      "deployment_name": "Mollitia laboriosam iure labore.",
       "gpu_accelerators": {
          "count": 2,
          "type": "nvidia-tesla-p100"
       },
       "instance_size": 3,
+      "instance_size_requested": 3,
       "machine_type": "f1-micro",
-      "preemptible": true,
+      "preemptible": false,
       "project_id": "dummy-proj-999",
-      "startup_script": "Autem dolor rem repellendus.",
+      "startup_script": "Possimus optio et voluptas quia suscipit autem.",
       "token_consumption": 2,
       "zone": "us-central1-f"
    },
@@ -471,28 +472,29 @@ Payload example:
 {
    "container": {
       "command": "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
-      "name": "Vero sed id.",
+      "name": "Enim animi veritatis nisi veritatis corporis.",
       "options": "--restart=on-failure:3",
       "size": 2,
-      "stackdriver_agent": true
+      "stackdriver_agent": false
    },
-   "hibernation_delay": 5352612480003142424,
+   "hibernation_delay": 7212691683500624276,
    "instance_group": {
       "boot_disk": {
          "disk_size_gb": 50,
          "disk_type": "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
          "source_image": "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable"
       },
-      "deployment_name": "Aut possimus optio et voluptas.",
+      "deployment_name": "Mollitia laboriosam iure labore.",
       "gpu_accelerators": {
          "count": 2,
          "type": "nvidia-tesla-p100"
       },
       "instance_size": 3,
+      "instance_size_requested": 3,
       "machine_type": "f1-micro",
-      "preemptible": true,
+      "preemptible": false,
       "project_id": "dummy-proj-999",
-      "startup_script": "Autem dolor rem repellendus.",
+      "startup_script": "Possimus optio et voluptas quia suscipit autem.",
       "token_consumption": 2,
       "zone": "us-central1-f"
    },
@@ -711,7 +713,7 @@ Payload example:
 Payload example:
 
 {
-   "new_size": 2361093690673464986
+   "new_size": 4251147645571147493
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp23.Run(c, args) },
 	}
