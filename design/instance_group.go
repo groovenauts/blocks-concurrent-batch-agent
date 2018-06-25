@@ -120,6 +120,10 @@ var InstanceGroup = MediaType("application/vnd.instance-group+json", func() {
 		for _, attrName := range attrNames {
 			Attribute(attrName)
 		}
+		// Re-define instance_size because InstanceGroupPayload doesn't include it
+		Attribute("instance_size", Integer, "Instance size", func() {
+			Example(3)
+		})
 		UseTrait(TimestampsAttrTrait)
 
 		requiredAttrs := append([]string{"id", "status"}, attrNames...)
