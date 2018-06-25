@@ -21,15 +21,12 @@ func init() {
 	service.Use(middleware.ErrorHandler(service, true))
 	service.Use(middleware.Recover())
 
-	// Mount security middleware
-	app.UseAPIKeyMiddleware(service, controller.NewAuthorizationMiddleware())
-
-	// Mount "InstanceGroupConstructingTask" controller
-	c := controller.NewInstanceGroupConstructingTaskController(service)
-	app.MountInstanceGroupConstructingTaskController(service, c)
-	// Mount "InstanceGroupDestructingTask" controller
-	c2 := controller.NewInstanceGroupDestructingTaskController(service)
-	app.MountInstanceGroupDestructingTaskController(service, c2)
+	// Mount "InstanceGroupConstructionTask" controller
+	c := controller.NewInstanceGroupConstructionTaskController(service)
+	app.MountInstanceGroupConstructionTaskController(service, c)
+	// Mount "InstanceGroupDestructionTask" controller
+	c2 := controller.NewInstanceGroupDestructionTaskController(service)
+	app.MountInstanceGroupDestructionTaskController(service, c2)
 	// Mount "InstanceGroupResizingTask" controller
 	c3 := controller.NewInstanceGroupResizingTaskController(service)
 	app.MountInstanceGroupResizingTaskController(service, c3)
@@ -51,12 +48,12 @@ func init() {
 	// Mount "PipelineBaseOpeningTask" controller
 	c9 := controller.NewPipelineBaseOpeningTaskController(service)
 	app.MountPipelineBaseOpeningTaskController(service, c9)
-	// Mount "swagger" controller
-	c10 := controller.NewSwaggerController(service)
-	app.MountSwaggerController(service, c10)
 	// Mount "dummy-auths" controller
-	c11 := controller.NewDummyAuthsController(service)
-	app.MountDummyAuthsController(service, c11)
+	c10 := controller.NewDummyAuthsController(service)
+	app.MountDummyAuthsController(service, c10)
+	// Mount "swagger" controller
+	c11 := controller.NewSwaggerController(service)
+	app.MountSwaggerController(service, c11)
 
 	// // Start service
 	// if err := service.ListenAndServe(":8080"); err != nil {
