@@ -11,6 +11,7 @@ types:
     base: string
     enum: "definitions/Instance-Group/properties/status/enum"
   InstanceGroupVMDisk:
+    media_type: InstanceGroupVmDisk
     fields:
       DiskSizeGb: int
       DiskType: {}

@@ -12,14 +12,22 @@ types:
     enum: "definitions/Pipeline-Base/properties/status/enum"
   PipelineContainer:
     fields:
-      name: *string_required
-      size:
+      Name: *string_required
+      Size:
         type: int
         default: 1
-      command: string
-      options: string
-      stackdriver_agent: boolean
+      Command: string
+      Options: string
+      StackdriverAgent: bool
   PipelineBase:
+    goon:
+      # id: int64
+      # id: string
+      # id: UUID (type: string)
+      id: UUID
+      ancestor: Organization
+    # payload: PipelineBasePayload
+    media_type: Pipeline-Base
     fields:
       Name: *string_required
       InstanceGroup: InstanceGroupBody

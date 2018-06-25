@@ -29,11 +29,11 @@ var InstanceGroupAccelerators = Type("InstanceGroupAccelerators", func() {
 	Required("count", "type")
 })
 
-var instanceGroupPayloadBodyRequired = []string{
+var instanceGroupBodyRequired = []string{
 	"project_id", "zone", "boot_disk", "machine_type",
 }
 
-var InstanceGroupPayloadBody = Type("InstanceGroupPayloadBody", func() {
+var InstanceGroupBody = Type("InstanceGroupBody", func() {
 	Member("project_id", String, "GCP Project ID", func() {
 		Example("dummy-proj-999")
 	})
@@ -50,6 +50,9 @@ var InstanceGroupPayloadBody = Type("InstanceGroupPayloadBody", func() {
 	Member("instance_size", Integer, "Instance size", func() {
 		Example(3)
 	})
+	Member("instance_size_requested", Integer, "Instance size requested", func() {
+		Example(3)
+	})
 	Member("startup_script", String, "Startup script")
 
 	Member("deployment_name", String, "Deployment name")
@@ -57,7 +60,7 @@ var InstanceGroupPayloadBody = Type("InstanceGroupPayloadBody", func() {
 	Member("token_consumption", Integer, "Token Consumption", func() {
 		Example(2)
 	})
-	Required(instanceGroupPayloadBodyRequired...)
+	Required(instanceGroupBodyRequired...)
 })
 
 var InstanceGroupPayload = Type("InstanceGroupPayload", func() {
@@ -70,7 +73,7 @@ var InstanceGroupPayload = Type("InstanceGroupPayload", func() {
 	})
 	Required("name")
 
-	Reference(InstanceGroupPayloadBody)
+	Reference(InstanceGroupBody)
 	members := []string{
 		"project_id",
 		"zone",
@@ -86,7 +89,7 @@ var InstanceGroupPayload = Type("InstanceGroupPayload", func() {
 	for _, m := range members {
 		Member(m)
 	}
-	Required(instanceGroupPayloadBodyRequired...)
+	Required(instanceGroupBodyRequired...)
 })
 
 var InstanceGroup = MediaType("application/vnd.instance-group+json", func() {

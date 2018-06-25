@@ -5,7 +5,7 @@ import (
 	. "github.com/goadesign/goa/design/apidsl"
 )
 
-var PipelineContainerPayload = Type("PipelineContainerPayload", func() {
+var PipelineContainer = Type("PipelineContainer", func() {
 	Member("name", String, "Container name")
 	Member("size", Integer, "Container size per VM", func() {
 		Default(1)
@@ -25,8 +25,8 @@ var pipelineBasePayloadBodyRequired = []string{
 	"instance_group", "container",
 }
 var PipelineBasePayloadBody = Type("PipelineBasePayloadBody", func() {
-	Member("instance_group", InstanceGroupPayloadBody, "Instance Group configuration")
-	Member("container", PipelineContainerPayload, "Container configuration")
+	Member("instance_group", InstanceGroupBody, "Instance Group configuration")
+	Member("container", PipelineContainer, "Container configuration")
 	Member("hibernation_delay", Integer, "Hibernation delay in seconds since last job finsihed")
 
 	Required(pipelineBasePayloadBodyRequired...)

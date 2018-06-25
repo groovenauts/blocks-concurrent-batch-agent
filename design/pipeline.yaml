@@ -11,6 +11,14 @@ types:
     base: string
     enum: "definitions/Pipeline/properties/status/enum"
   Pipeline:
+    goon:
+      # id: int64
+      # id: string
+      # id: UUID (type: string)
+      id: UUID
+      ancestor: Organization
+    # payload: PipelinePayload
+    media_type: Pipeline
     fields:
       Name: *string_required
       InstanceGroup: InstanceGroupBody
