@@ -47,6 +47,20 @@ func (aa *JobAccessor) Find(ctx context.Context, id string) (*Job, error) {
 	return m, nil
 }
 
+func (aa *JobAccessor) BulkGet(ctx context.Context, ids []string) (map[string]*Job, map[string]error) {
+	jobs := map[string]*Job{}
+	errors := map[string]error{}
+	for _, id := range ids {
+		job, err := aa.Find(ctx, id)
+		if err != nil {
+			errors[id] = err
+		} else {
+			jobs[id] = job
+		}
+	}
+	return jobs, errors
+}
+
 func (aa *JobAccessor) Query() (*datastore.Query, error) {
 	q := datastore.NewQuery("Jobs")
 	if aa.Parent != nil {
