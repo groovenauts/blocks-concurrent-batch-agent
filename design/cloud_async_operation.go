@@ -64,6 +64,7 @@ func CloudAsyncOperationResourceTraitFunc() {
 		Routing(POST(""))
 		Params(func() {
 			Param("resource_id", String, "Resource ID")
+			Required("resource_id")
 		})
 		UseTrait(TaskResponsesTrait)
 	})
