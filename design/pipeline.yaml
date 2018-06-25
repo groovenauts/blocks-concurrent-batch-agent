@@ -30,3 +30,5 @@ types:
         type: PipelineStatus
         required: true
       IntanceGroupID: *string_required
+      CreatedAt: *time_required
+      UpdatedAt: *time_required
