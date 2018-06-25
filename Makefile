@@ -45,10 +45,12 @@ goa_controller:
 	@goagen controller  -d $(REPO)/design --pkg controller --out controller --app-pkg ../app
 	@mv vendor.bak vendor
 
-converter:
+converter: converter_gen
+converter_gen:
 	@goa_model_gen converter design/*.yaml
 
-model:
+model: model_gen
+model_gen:
 	@goa_model_gen model design/*.yaml
 
 clean:
@@ -57,7 +59,7 @@ clean:
 	@rm -rf tool
 	@rm -rf swagger
 
-generate:
+generate: model_gen converter_gen
 	@mv vendor vendor.bak
 	@goagen app     -d $(REPO)/design
 	@goagen swagger -d $(REPO)/design
