@@ -252,6 +252,53 @@ func TestJobHandlerActions(t *testing.T) {
 			}
 		}
 
+		// Test for bulk_get_jobs
+		type BulkGetJobsPattern struct {
+			jobId     string
+			assertion func(map[string]interface{})
+		}
+		patterns := []BulkGetJobsPattern{
+			BulkGetJobsPattern{
+				jobId: job.ID,
+				assertion: func(res map[string]interface{}) {
+					assert.Empty(t, res["errors"])
+					assert.NotEmpty(t, res["jobs"])
+				},
+			},
+			BulkGetJobsPattern{
+				jobId: "invalid-job-id",
+				assertion: func(res map[string]interface{}) {
+					assert.NotEmpty(t, res["errors"])
+					assert.Empty(t, res["jobs"])
+				},
+			},
+		}
+		for _, ptn := range patterns {
+			bulkGetJobsPayload1, err := json.Marshal(map[string][]string{
+				"job_ids": []string{ptn.jobId},
+			})
+			assert.NoError(t, err)
+
+			url := "/pipelines/" + pl1.ID + "/bulk_get_jobs"
+			req, err = inst.NewRequest(echo.POST, url, strings.NewReader(string(bulkGetJobsPayload1)))
+			assert.NoError(t, err)
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			req.Header.Set(auth_header, token)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			c.SetPath(url)
+			c.SetParamNames("pipeline_id")
+			c.SetParamValues(pl1.ID)
+
+			assert.NoError(t, h.collection(h.BulkGetJobs)(c))
+			assert.Equal(t, http.StatusOK, rec.Code)
+
+			var res map[string]interface{}
+			s := rec.Body.String()
+			assert.NoError(t, json.Unmarshal([]byte(s), &res))
+			ptn.assertion(res)
+		}
+
 		// POST /jobs/:id/getready
 		path = "/jobs/" + job.ID + "/getready"
 		req, err = inst.NewRequest(echo.POST, path, strings.NewReader(""))
