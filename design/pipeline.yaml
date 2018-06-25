@@ -1,0 +1,24 @@
+anchors:
+- &string_required
+  type: string
+  required: true
+- &time_required
+  type: time.Time
+  required: true
+
+types:
+  PipelineStatus:
+    base: string
+    enum: "definitions/Pipeline/properties/status/enum"
+  Pipeline:
+    fields:
+      Name: *string_required
+      InstanceGroup: InstanceGroupBody
+      Container: PipelineContainer
+      HibernationDelay:
+        type: int
+        required: true
+      Status:
+        type: PipelineStatus
+        required: true
+      IntanceGroupID: *string_required
