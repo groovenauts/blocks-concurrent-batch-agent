@@ -19,17 +19,8 @@ types:
     fields:
       Count: int
       Type: {}
-  InstanceGroup:
-    goon:
-      # id: int64
-      # id: string
-      # id: UUID (type: string)
-      id: UUID
-      ancestor: Organization
-    # payload: InstanceGroupPayload
-    media_type: Instance-Group
-    fields:
-      Name: *string_required
+  InstanceGroupBody:
+    fields: &InstanceGroupBodyFields
       ProjectID: *string_required
       Zone: *string_required
       BootDisk:
@@ -48,3 +39,15 @@ types:
       TokenConsumption: int
       CreatedAt: *time_required
       UpdatedAt: *time_required
+  InstanceGroup:
+    goon:
+      # id: int64
+      # id: string
+      # id: UUID (type: string)
+      id: UUID
+      ancestor: Organization
+    # payload: InstanceGroupPayload
+    media_type: Instance-Group
+    fields:
+      Name: *string_required
+      <<: *InstanceGroupBodyFields
