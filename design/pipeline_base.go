@@ -122,9 +122,9 @@ var _ = Resource("PipelineBase", func() {
 		Response(OK, PipelineBase)
 		UseTrait(DefaultResponseTrait)
 	})
-	Action("waking_finalize_task", func() {
-		Description("Task to finalize waking status")
-		Routing(PUT("/:id/waking_finalize_task"))
+	Action("wakeup_done_task", func() {
+		Description("Task to accept wakeup(construction) done notification")
+		Routing(PUT("/:id/wakeup_done_task"))
 		Params(func() {
 			Param("id")
 			Param("operation_id")
@@ -142,18 +142,18 @@ var _ = Resource("PipelineBase", func() {
 		Response(OK, PipelineBase)
 		UseTrait(DefaultResponseTrait)
 	})
-	Action("hibernation_checking_finalize_task", func() {
-		Description("Task to finalize hibernation_checking status")
-		Routing(PUT("/:id/hibernation_checking_finalize_task"))
+	Action("hibernation_checking_task", func() {
+		Description("Task to check if it starts hibernation")
+		Routing(PUT("/:id/hibernation_checking_task"))
 		Params(func() {
 			Param("id")
 		})
 		Response(OK, PipelineBase)
 		UseTrait(DefaultResponseTrait)
 	})
-	Action("hibernation_going_finalize_task", func() {
-		Description("Task to finalize hibernation_going status")
-		Routing(PUT("/:id/hibernation_going_finalize_task"))
+	Action("hibernation_done_task", func() {
+		Description("Task to accept hibernation(destruction) done notification")
+		Routing(PUT("/:id/hibernation_done_task"))
 		Params(func() {
 			Param("id")
 			Param("operation_id")

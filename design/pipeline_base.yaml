@@ -1,0 +1,21 @@
+anchors:
+- &string_required
+  type: string
+  required: true
+- &time_required
+  type: time.Time
+  required: true
+
+types:
+  PipelineContainer:
+    fields:
+      name: *string_required
+      size:
+        type: int
+        default: 1
+      command: string
+      options: string
+      stackdriver_agent: boolean
+  PipelineBasePayloadBody:
+    fields:
+      
