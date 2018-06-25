@@ -37,8 +37,6 @@ types:
         required: true
       DeploymentName: {}
       TokenConsumption: int
-      CreatedAt: *time_required
-      UpdatedAt: *time_required
   InstanceGroup:
     goon:
       # id: int64
@@ -51,3 +49,5 @@ types:
     fields:
       Name: *string_required
       <<: *InstanceGroupBodyFields
+      CreatedAt: *time_required
+      UpdatedAt: *time_required
