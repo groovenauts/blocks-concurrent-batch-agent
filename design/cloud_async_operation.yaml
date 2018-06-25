@@ -15,7 +15,7 @@ types:
       id: UUID
       ancestor: Organization
     payload: ""
-    mediatype: CloudAsyncOperation
+    mediatype: Cloud-Async-Operation
     fields:
       OwnerType: *string_required
       OwnerID: *string_required

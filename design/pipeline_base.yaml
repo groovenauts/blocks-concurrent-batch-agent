@@ -9,7 +9,7 @@ anchors:
 types:
   PipelineBaseStatus:
     base: string
-    enum: "definitions/PipelineBase/properties/status/enum"
+    enum: "definitions/Pipeline-Base/properties/status/enum"
   PipelineContainer:
     fields:
       name: *string_required
