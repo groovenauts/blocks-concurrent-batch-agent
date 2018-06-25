@@ -49,7 +49,8 @@ var Pipeline = MediaType("application/vnd.pipeline+json", func() {
 		})
 		UseTrait(TimestampsAttrTrait)
 
-		Required(inheritedAttrs...)
+		requiredAttrs := append([]string{"curr_base_id", "status", TimestampCreatedAt, TimestampUpdatedAt}, inheritedAttrs...)
+		Required(requiredAttrs...)
 	})
 	View("default", func() {
 		Attribute("id")

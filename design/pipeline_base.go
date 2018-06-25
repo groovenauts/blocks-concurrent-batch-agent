@@ -73,7 +73,7 @@ var PipelineBase = MediaType("application/vnd.pipeline-base+json", func() {
 		Attribute("instance_group_id", String, "ID of instance group")
 		UseTrait(TimestampsAttrTrait)
 
-		requiredAttrs := append([]string{"id"}, attrNames...)
+		requiredAttrs := append([]string{"id", "status", "instance_group_id", TimestampCreatedAt, TimestampUpdatedAt}, attrNames...)
 		Required(requiredAttrs...)
 	})
 	View("default", func() {
