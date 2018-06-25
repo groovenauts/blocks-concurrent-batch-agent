@@ -59,12 +59,14 @@ clean:
 	@rm -rf tool
 	@rm -rf swagger
 
-generate: model_gen converter_gen
+goa_gen:
 	@mv vendor vendor.bak
 	@goagen app     -d $(REPO)/design
 	@goagen swagger -d $(REPO)/design
 	@goagen client  -d $(REPO)/design
 	@mv vendor.bak vendor
+
+generate: goa_gen model_gen converter_gen
 
 install:
 	@which dep || go get -u github.com/golang/dep/cmd/dep
