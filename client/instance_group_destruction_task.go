@@ -24,7 +24,7 @@ func StartInstanceGroupDestructionTaskPath() string {
 }
 
 // Start operation
-func (c *Client) StartInstanceGroupDestructionTask(ctx context.Context, path string, resourceID *string) (*http.Response, error) {
+func (c *Client) StartInstanceGroupDestructionTask(ctx context.Context, path string, resourceID string) (*http.Response, error) {
 	req, err := c.NewStartInstanceGroupDestructionTaskRequest(ctx, path, resourceID)
 	if err != nil {
 		return nil, err
@@ -33,16 +33,14 @@ func (c *Client) StartInstanceGroupDestructionTask(ctx context.Context, path str
 }
 
 // NewStartInstanceGroupDestructionTaskRequest create the request corresponding to the start action endpoint of the InstanceGroupDestructionTask resource.
-func (c *Client) NewStartInstanceGroupDestructionTaskRequest(ctx context.Context, path string, resourceID *string) (*http.Request, error) {
+func (c *Client) NewStartInstanceGroupDestructionTaskRequest(ctx context.Context, path string, resourceID string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "http"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
 	values := u.Query()
-	if resourceID != nil {
-		values.Set("resource_id", *resourceID)
-	}
+	values.Set("resource_id", resourceID)
 	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {

@@ -1162,7 +1162,7 @@ paths:
       - description: Resource ID
         in: query
         name: resource_id
-        required: false
+        required: true
         type: string
       produces:
       - application/vnd.cloud-async-operation+json
@@ -1276,7 +1276,7 @@ paths:
       - description: Resource ID
         in: query
         name: resource_id
-        required: false
+        required: true
         type: string
       produces:
       - application/vnd.cloud-async-operation+json
@@ -1390,7 +1390,7 @@ paths:
       - description: Resource ID
         in: query
         name: resource_id
-        required: false
+        required: true
         type: string
       produces:
       - application/vnd.cloud-async-operation+json
@@ -2049,7 +2049,7 @@ paths:
       - description: Resource ID
         in: query
         name: resource_id
-        required: false
+        required: true
         type: string
       produces:
       - application/vnd.cloud-async-operation+json
@@ -2852,7 +2852,7 @@ paths:
       - description: Resource ID
         in: query
         name: resource_id
-        required: false
+        required: true
         type: string
       produces:
       - application/vnd.cloud-async-operation+json

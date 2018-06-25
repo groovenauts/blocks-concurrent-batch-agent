@@ -24,7 +24,7 @@ func StartInstanceGroupResizingTaskPath() string {
 }
 
 // Start operation
-func (c *Client) StartInstanceGroupResizingTask(ctx context.Context, path string, resourceID *string) (*http.Response, error) {
+func (c *Client) StartInstanceGroupResizingTask(ctx context.Context, path string, resourceID string) (*http.Response, error) {
 	req, err := c.NewStartInstanceGroupResizingTaskRequest(ctx, path, resourceID)
 	if err != nil {
 		return nil, err
@@ -33,16 +33,14 @@ func (c *Client) StartInstanceGroupResizingTask(ctx context.Context, path string
 }
 
 // NewStartInstanceGroupResizingTaskRequest create the request corresponding to the start action endpoint of the InstanceGroupResizingTask resource.
-func (c *Client) NewStartInstanceGroupResizingTaskRequest(ctx context.Context, path string, resourceID *string) (*http.Request, error) {
+func (c *Client) NewStartInstanceGroupResizingTaskRequest(ctx context.Context, path string, resourceID string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "http"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
 	values := u.Query()
-	if resourceID != nil {
-		values.Set("resource_id", *resourceID)
-	}
+	values.Set("resource_id", resourceID)
 	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {

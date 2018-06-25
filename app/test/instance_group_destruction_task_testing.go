@@ -28,7 +28,7 @@ import (
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func StartInstanceGroupDestructionTaskAccepted(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, resourceID *string) (http.ResponseWriter, *app.CloudAsyncOperation) {
+func StartInstanceGroupDestructionTaskAccepted(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, resourceID string) (http.ResponseWriter, *app.CloudAsyncOperation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -49,8 +49,8 @@ func StartInstanceGroupDestructionTaskAccepted(t goatest.TInterface, ctx context
 	// Setup request context
 	rw := httptest.NewRecorder()
 	query := url.Values{}
-	if resourceID != nil {
-		sliceVal := []string{*resourceID}
+	{
+		sliceVal := []string{resourceID}
 		query["resource_id"] = sliceVal
 	}
 	u := &url.URL{
@@ -62,8 +62,8 @@ func StartInstanceGroupDestructionTaskAccepted(t goatest.TInterface, ctx context
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	if resourceID != nil {
-		sliceVal := []string{*resourceID}
+	{
+		sliceVal := []string{resourceID}
 		prms["resource_id"] = sliceVal
 	}
 	if ctx == nil {
@@ -111,7 +111,7 @@ func StartInstanceGroupDestructionTaskAccepted(t goatest.TInterface, ctx context
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func StartInstanceGroupDestructionTaskBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, resourceID *string) (http.ResponseWriter, error) {
+func StartInstanceGroupDestructionTaskBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, resourceID string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -132,8 +132,8 @@ func StartInstanceGroupDestructionTaskBadRequest(t goatest.TInterface, ctx conte
 	// Setup request context
 	rw := httptest.NewRecorder()
 	query := url.Values{}
-	if resourceID != nil {
-		sliceVal := []string{*resourceID}
+	{
+		sliceVal := []string{resourceID}
 		query["resource_id"] = sliceVal
 	}
 	u := &url.URL{
@@ -145,8 +145,8 @@ func StartInstanceGroupDestructionTaskBadRequest(t goatest.TInterface, ctx conte
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	if resourceID != nil {
-		sliceVal := []string{*resourceID}
+	{
+		sliceVal := []string{resourceID}
 		prms["resource_id"] = sliceVal
 	}
 	if ctx == nil {
@@ -189,7 +189,7 @@ func StartInstanceGroupDestructionTaskBadRequest(t goatest.TInterface, ctx conte
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func StartInstanceGroupDestructionTaskCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, resourceID *string) (http.ResponseWriter, *app.CloudAsyncOperation) {
+func StartInstanceGroupDestructionTaskCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, resourceID string) (http.ResponseWriter, *app.CloudAsyncOperation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -210,8 +210,8 @@ func StartInstanceGroupDestructionTaskCreated(t goatest.TInterface, ctx context.
 	// Setup request context
 	rw := httptest.NewRecorder()
 	query := url.Values{}
-	if resourceID != nil {
-		sliceVal := []string{*resourceID}
+	{
+		sliceVal := []string{resourceID}
 		query["resource_id"] = sliceVal
 	}
 	u := &url.URL{
@@ -223,8 +223,8 @@ func StartInstanceGroupDestructionTaskCreated(t goatest.TInterface, ctx context.
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	if resourceID != nil {
-		sliceVal := []string{*resourceID}
+	{
+		sliceVal := []string{resourceID}
 		prms["resource_id"] = sliceVal
 	}
 	if ctx == nil {
@@ -272,7 +272,7 @@ func StartInstanceGroupDestructionTaskCreated(t goatest.TInterface, ctx context.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func StartInstanceGroupDestructionTaskInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, resourceID *string) (http.ResponseWriter, error) {
+func StartInstanceGroupDestructionTaskInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, resourceID string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -293,8 +293,8 @@ func StartInstanceGroupDestructionTaskInternalServerError(t goatest.TInterface, 
 	// Setup request context
 	rw := httptest.NewRecorder()
 	query := url.Values{}
-	if resourceID != nil {
-		sliceVal := []string{*resourceID}
+	{
+		sliceVal := []string{resourceID}
 		query["resource_id"] = sliceVal
 	}
 	u := &url.URL{
@@ -306,8 +306,8 @@ func StartInstanceGroupDestructionTaskInternalServerError(t goatest.TInterface, 
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	if resourceID != nil {
-		sliceVal := []string{*resourceID}
+	{
+		sliceVal := []string{resourceID}
 		prms["resource_id"] = sliceVal
 	}
 	if ctx == nil {
@@ -350,7 +350,7 @@ func StartInstanceGroupDestructionTaskInternalServerError(t goatest.TInterface, 
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func StartInstanceGroupDestructionTaskNoContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, resourceID *string) (http.ResponseWriter, *app.CloudAsyncOperation) {
+func StartInstanceGroupDestructionTaskNoContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, resourceID string) (http.ResponseWriter, *app.CloudAsyncOperation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -371,8 +371,8 @@ func StartInstanceGroupDestructionTaskNoContent(t goatest.TInterface, ctx contex
 	// Setup request context
 	rw := httptest.NewRecorder()
 	query := url.Values{}
-	if resourceID != nil {
-		sliceVal := []string{*resourceID}
+	{
+		sliceVal := []string{resourceID}
 		query["resource_id"] = sliceVal
 	}
 	u := &url.URL{
@@ -384,8 +384,8 @@ func StartInstanceGroupDestructionTaskNoContent(t goatest.TInterface, ctx contex
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	if resourceID != nil {
-		sliceVal := []string{*resourceID}
+	{
+		sliceVal := []string{resourceID}
 		prms["resource_id"] = sliceVal
 	}
 	if ctx == nil {
@@ -433,7 +433,7 @@ func StartInstanceGroupDestructionTaskNoContent(t goatest.TInterface, ctx contex
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func StartInstanceGroupDestructionTaskNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, resourceID *string) (http.ResponseWriter, error) {
+func StartInstanceGroupDestructionTaskNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, resourceID string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -454,8 +454,8 @@ func StartInstanceGroupDestructionTaskNotFound(t goatest.TInterface, ctx context
 	// Setup request context
 	rw := httptest.NewRecorder()
 	query := url.Values{}
-	if resourceID != nil {
-		sliceVal := []string{*resourceID}
+	{
+		sliceVal := []string{resourceID}
 		query["resource_id"] = sliceVal
 	}
 	u := &url.URL{
@@ -467,8 +467,8 @@ func StartInstanceGroupDestructionTaskNotFound(t goatest.TInterface, ctx context
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	if resourceID != nil {
-		sliceVal := []string{*resourceID}
+	{
+		sliceVal := []string{resourceID}
 		prms["resource_id"] = sliceVal
 	}
 	if ctx == nil {
@@ -511,7 +511,7 @@ func StartInstanceGroupDestructionTaskNotFound(t goatest.TInterface, ctx context
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func StartInstanceGroupDestructionTaskOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, resourceID *string) (http.ResponseWriter, *app.CloudAsyncOperation) {
+func StartInstanceGroupDestructionTaskOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, resourceID string) (http.ResponseWriter, *app.CloudAsyncOperation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -532,8 +532,8 @@ func StartInstanceGroupDestructionTaskOK(t goatest.TInterface, ctx context.Conte
 	// Setup request context
 	rw := httptest.NewRecorder()
 	query := url.Values{}
-	if resourceID != nil {
-		sliceVal := []string{*resourceID}
+	{
+		sliceVal := []string{resourceID}
 		query["resource_id"] = sliceVal
 	}
 	u := &url.URL{
@@ -545,8 +545,8 @@ func StartInstanceGroupDestructionTaskOK(t goatest.TInterface, ctx context.Conte
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	if resourceID != nil {
-		sliceVal := []string{*resourceID}
+	{
+		sliceVal := []string{resourceID}
 		prms["resource_id"] = sliceVal
 	}
 	if ctx == nil {
@@ -594,7 +594,7 @@ func StartInstanceGroupDestructionTaskOK(t goatest.TInterface, ctx context.Conte
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func StartInstanceGroupDestructionTaskResetContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, resourceID *string) (http.ResponseWriter, *app.CloudAsyncOperation) {
+func StartInstanceGroupDestructionTaskResetContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, resourceID string) (http.ResponseWriter, *app.CloudAsyncOperation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -615,8 +615,8 @@ func StartInstanceGroupDestructionTaskResetContent(t goatest.TInterface, ctx con
 	// Setup request context
 	rw := httptest.NewRecorder()
 	query := url.Values{}
-	if resourceID != nil {
-		sliceVal := []string{*resourceID}
+	{
+		sliceVal := []string{resourceID}
 		query["resource_id"] = sliceVal
 	}
 	u := &url.URL{
@@ -628,8 +628,8 @@ func StartInstanceGroupDestructionTaskResetContent(t goatest.TInterface, ctx con
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	if resourceID != nil {
-		sliceVal := []string{*resourceID}
+	{
+		sliceVal := []string{resourceID}
 		prms["resource_id"] = sliceVal
 	}
 	if ctx == nil {
@@ -677,7 +677,7 @@ func StartInstanceGroupDestructionTaskResetContent(t goatest.TInterface, ctx con
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func StartInstanceGroupDestructionTaskUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, resourceID *string) (http.ResponseWriter, error) {
+func StartInstanceGroupDestructionTaskUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, resourceID string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -698,8 +698,8 @@ func StartInstanceGroupDestructionTaskUnauthorized(t goatest.TInterface, ctx con
 	// Setup request context
 	rw := httptest.NewRecorder()
 	query := url.Values{}
-	if resourceID != nil {
-		sliceVal := []string{*resourceID}
+	{
+		sliceVal := []string{resourceID}
 		query["resource_id"] = sliceVal
 	}
 	u := &url.URL{
@@ -711,8 +711,8 @@ func StartInstanceGroupDestructionTaskUnauthorized(t goatest.TInterface, ctx con
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	if resourceID != nil {
-		sliceVal := []string{*resourceID}
+	{
+		sliceVal := []string{resourceID}
 		prms["resource_id"] = sliceVal
 	}
 	if ctx == nil {

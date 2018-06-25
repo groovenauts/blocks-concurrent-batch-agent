@@ -21,7 +21,7 @@ type StartInstanceGroupConstructionTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ResourceID *string
+	ResourceID string
 }
 
 // NewStartInstanceGroupConstructionTaskContext parses the incoming request URL and body, performs validations and creates the
@@ -34,9 +34,11 @@ func NewStartInstanceGroupConstructionTaskContext(ctx context.Context, r *http.R
 	req.Request = r
 	rctx := StartInstanceGroupConstructionTaskContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramResourceID := req.Params["resource_id"]
-	if len(paramResourceID) > 0 {
+	if len(paramResourceID) == 0 {
+		err = goa.MergeErrors(err, goa.MissingParamError("resource_id"))
+	} else {
 		rawResourceID := paramResourceID[0]
-		rctx.ResourceID = &rawResourceID
+		rctx.ResourceID = rawResourceID
 	}
 	return &rctx, err
 }
@@ -215,7 +217,7 @@ type StartInstanceGroupDestructionTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ResourceID *string
+	ResourceID string
 }
 
 // NewStartInstanceGroupDestructionTaskContext parses the incoming request URL and body, performs validations and creates the
@@ -228,9 +230,11 @@ func NewStartInstanceGroupDestructionTaskContext(ctx context.Context, r *http.Re
 	req.Request = r
 	rctx := StartInstanceGroupDestructionTaskContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramResourceID := req.Params["resource_id"]
-	if len(paramResourceID) > 0 {
+	if len(paramResourceID) == 0 {
+		err = goa.MergeErrors(err, goa.MissingParamError("resource_id"))
+	} else {
 		rawResourceID := paramResourceID[0]
-		rctx.ResourceID = &rawResourceID
+		rctx.ResourceID = rawResourceID
 	}
 	return &rctx, err
 }
@@ -409,7 +413,7 @@ type StartInstanceGroupResizingTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ResourceID *string
+	ResourceID string
 }
 
 // NewStartInstanceGroupResizingTaskContext parses the incoming request URL and body, performs validations and creates the
@@ -422,9 +426,11 @@ func NewStartInstanceGroupResizingTaskContext(ctx context.Context, r *http.Reque
 	req.Request = r
 	rctx := StartInstanceGroupResizingTaskContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramResourceID := req.Params["resource_id"]
-	if len(paramResourceID) > 0 {
+	if len(paramResourceID) == 0 {
+		err = goa.MergeErrors(err, goa.MissingParamError("resource_id"))
+	} else {
 		rawResourceID := paramResourceID[0]
-		rctx.ResourceID = &rawResourceID
+		rctx.ResourceID = rawResourceID
 	}
 	return &rctx, err
 }
@@ -2534,7 +2540,7 @@ type StartPipelineBaseClosingTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ResourceID *string
+	ResourceID string
 }
 
 // NewStartPipelineBaseClosingTaskContext parses the incoming request URL and body, performs validations and creates the
@@ -2547,9 +2553,11 @@ func NewStartPipelineBaseClosingTaskContext(ctx context.Context, r *http.Request
 	req.Request = r
 	rctx := StartPipelineBaseClosingTaskContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramResourceID := req.Params["resource_id"]
-	if len(paramResourceID) > 0 {
+	if len(paramResourceID) == 0 {
+		err = goa.MergeErrors(err, goa.MissingParamError("resource_id"))
+	} else {
 		rawResourceID := paramResourceID[0]
-		rctx.ResourceID = &rawResourceID
+		rctx.ResourceID = rawResourceID
 	}
 	return &rctx, err
 }
@@ -2728,7 +2736,7 @@ type StartPipelineBaseOpeningTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ResourceID *string
+	ResourceID string
 }
 
 // NewStartPipelineBaseOpeningTaskContext parses the incoming request URL and body, performs validations and creates the
@@ -2741,9 +2749,11 @@ func NewStartPipelineBaseOpeningTaskContext(ctx context.Context, r *http.Request
 	req.Request = r
 	rctx := StartPipelineBaseOpeningTaskContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramResourceID := req.Params["resource_id"]
-	if len(paramResourceID) > 0 {
+	if len(paramResourceID) == 0 {
+		err = goa.MergeErrors(err, goa.MissingParamError("resource_id"))
+	} else {
 		rawResourceID := paramResourceID[0]
-		rctx.ResourceID = &rawResourceID
+		rctx.ResourceID = rawResourceID
 	}
 	return &rctx, err
 }

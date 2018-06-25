@@ -1113,7 +1113,7 @@ func (cmd *StartInstanceGroupConstructionTaskCommand) Run(c *client.Client, args
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.StartInstanceGroupConstructionTask(ctx, path, stringFlagVal("resource_id", cmd.ResourceID))
+	resp, err := c.StartInstanceGroupConstructionTask(ctx, path, cmd.ResourceID)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -1165,7 +1165,7 @@ func (cmd *StartInstanceGroupDestructionTaskCommand) Run(c *client.Client, args 
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.StartInstanceGroupDestructionTask(ctx, path, stringFlagVal("resource_id", cmd.ResourceID))
+	resp, err := c.StartInstanceGroupDestructionTask(ctx, path, cmd.ResourceID)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -1217,7 +1217,7 @@ func (cmd *StartInstanceGroupResizingTaskCommand) Run(c *client.Client, args []s
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.StartInstanceGroupResizingTask(ctx, path, stringFlagVal("resource_id", cmd.ResourceID))
+	resp, err := c.StartInstanceGroupResizingTask(ctx, path, cmd.ResourceID)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -2058,7 +2058,7 @@ func (cmd *StartPipelineBaseClosingTaskCommand) Run(c *client.Client, args []str
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.StartPipelineBaseClosingTask(ctx, path, stringFlagVal("resource_id", cmd.ResourceID))
+	resp, err := c.StartPipelineBaseClosingTask(ctx, path, cmd.ResourceID)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -2110,7 +2110,7 @@ func (cmd *StartPipelineBaseOpeningTaskCommand) Run(c *client.Client, args []str
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.StartPipelineBaseOpeningTask(ctx, path, stringFlagVal("resource_id", cmd.ResourceID))
+	resp, err := c.StartPipelineBaseOpeningTask(ctx, path, cmd.ResourceID)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
