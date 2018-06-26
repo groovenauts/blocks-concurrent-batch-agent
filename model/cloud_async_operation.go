@@ -13,19 +13,32 @@ import (
 	"github.com/mjibson/goon"
 )
 
+type CloudAsyncOperationError struct {
+	Code     string `json:"code" validate:"required"`
+	Location string `json:"location,omitempty" `
+	Message  string `json:"message,omitempty" `
+}
+
+type CloudAsyncOperationLog struct {
+	Message   string    `json:"message" validate:"required"`
+	CreatedAt time.Time `json:"created_at" validate:"required"`
+}
+
 type CloudAsyncOperation struct {
-	Id            string         `datastore:"-" goon:"id" json:"id"`
-	Parent        *datastore.Key `datastore:"-" goon:"parent" json:"-"`
-	OwnerType     string         `json:"owner_type" validate:"required"`
-	OwnerID       string         `json:"owner_id" validate:"required"`
-	Name          string         `json:"name" validate:"required"`
-	Service       string         `json:"service" validate:"required"`
-	OperationType string         `json:"operation_type" validate:"required"`
-	Status        string         `json:"status" validate:"required"`
-	ProjectId     string         `json:"project_id" validate:"required"`
-	Zone          string         `json:"zone" validate:"required"`
-	CreatedAt     time.Time      `json:"created_at" validate:"required"`
-	UpdatedAt     time.Time      `json:"updated_at" validate:"required"`
+	Id            string                     `datastore:"-" goon:"id" json:"id"`
+	Parent        *datastore.Key             `datastore:"-" goon:"parent" json:"-"`
+	OwnerType     string                     `json:"owner_type" validate:"required"`
+	OwnerID       string                     `json:"owner_id" validate:"required"`
+	Name          string                     `json:"name" validate:"required"`
+	Service       string                     `json:"service" validate:"required"`
+	OperationType string                     `json:"operation_type" validate:"required"`
+	Status        string                     `json:"status" validate:"required"`
+	ProjectId     string                     `json:"project_id" validate:"required"`
+	Zone          string                     `json:"zone" validate:"required"`
+	Errors        []CloudAsyncOperationError `json:"errors,omitempty" `
+	Logs          []CloudAsyncOperationLog   `json:"logs,omitempty" `
+	CreatedAt     time.Time                  `json:"created_at" validate:"required"`
+	UpdatedAt     time.Time                  `json:"updated_at" validate:"required"`
 }
 
 func (m *CloudAsyncOperation) PrepareToCreate() error {
