@@ -7,6 +7,19 @@ anchors:
   required: true
 
 types:
+  # See https://godoc.org/google.golang.org/api/deploymentmanager/v2#OperationErrorErrors
+  #     https://godoc.org/google.golang.org/api/compute/v1#OperationErrorErrors
+  CloudAsyncOperationError:
+    fields:
+      Code: *string_required
+      Location: string
+      Message: string
+  CloudAsyncOperationLog:
+    fields:
+      Message: *string_required
+      CreatedAt: *time_required
+  # See https://godoc.org/google.golang.org/api/deploymentmanager/v2#Operation
+  #     https://godoc.org/google.golang.org/api/compute/v1#Operation
   CloudAsyncOperation:
     goon:
       # id: int64
@@ -25,5 +38,7 @@ types:
       Status: *string_required
       ProjectId: *string_required
       Zone: *string_required
+      Errors: "[]CloudAsyncOperationError"
+      Logs: "[]CloudAsyncOperationLog"
       CreatedAt: *time_required
       UpdatedAt: *time_required
