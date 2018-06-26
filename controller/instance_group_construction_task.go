@@ -37,7 +37,7 @@ func (c *InstanceGroupConstructionTaskController) Start(ctx *app.StartInstanceGr
 		}
 		switch m.Status {
 		case model.ConstructionStarting:
-			b, err := model.NewBuilder(c)
+			b, err := model.NewConstructor(c)
 			if err != nil {
 				return err
 			}
