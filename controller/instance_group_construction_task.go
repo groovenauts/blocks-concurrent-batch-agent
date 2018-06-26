@@ -31,29 +31,29 @@ func (c *InstanceGroupConstructionTaskController) Start(ctx *app.StartInstanceGr
 
 	// Put your logic here
 	appCtx := appengine.NewContext(ctx.Request)
-	return datastore.RunInTransaction(appCtx, func(c context.Context) error {
-		store := &model.InstanceGroupStore{}
-		m, err := store.Get(c, ctx.ResourceID)
+	store := &model.InstanceGroupStore{}
+	m, err := store.Get(c, ctx.ResourceID)
+	if err != nil {
+		return err
+	}
+	switch m.Status {
+	case model.ConstructionStarting:
+		b, err := model.NewConstructor(appCtx)
 		if err != nil {
 			return err
 		}
-		switch m.Status {
-		case model.ConstructionStarting:
-			b, err := model.NewConstructor(c)
-			if err != nil {
-				return err
-			}
-			ope, err := b.Process(c, m)
-			if err != nil {
-				return err
-			}
+		ope, err := b.Process(appCtx, m)
+		if err != nil {
+			return err
+		}
+		opeStore := &model.CloudAsyncOperationStore{}
+		_, err = opeStore.Put(appCtx, ope)
+		if err != nil {
+			return err
+		}
+		return datastore.RunInTransaction(appCtx, func(c context.Context) error {
 			m.Status = model.ConstructionRunning
 			_, err = store.Put(c, m)
-			if err != nil {
-				return err
-			}
-			opeStore := &model.CloudAsyncOperationStore{}
-			_, err = opeStore.Put(c, ope)
 			if err != nil {
 				return err
 			}
@@ -62,18 +62,17 @@ func (c *InstanceGroupConstructionTaskController) Start(ctx *app.StartInstanceGr
 				return err
 			}
 			return ctx.Created(CloudAsyncOperationModelToMediaType(ope))
-		case
-			model.ConstructionRunning,
-			model.ConstructionError,
-			model.Constructed:
-			log.Infof(c, "SKIPPING because InstanceGroup %s is already %v\n", m.Id, m.Status)
-			return ctx.OK(nil)
-		default:
-			log.Warningf(c, "Invalid request because InstanceGroup %s is already %v\n", m.Id, m.Status)
-			return ctx.NoContent(nil)
-		}
-
-	}, nil)
+		}, nil)
+	case
+		model.ConstructionRunning,
+		model.ConstructionError,
+		model.Constructed:
+		log.Infof(c, "SKIPPING because InstanceGroup %s is already %v\n", m.Id, m.Status)
+		return ctx.OK(nil)
+	default:
+		log.Warningf(c, "Invalid request because InstanceGroup %s is already %v\n", m.Id, m.Status)
+		return ctx.NoContent(nil)
+	}
 
 	// InstanceGroupConstructionTaskController_Start: end_implement
 }
