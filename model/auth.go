@@ -101,3 +101,11 @@ func (m *Auth) generatePassword() {
 	rand.Read(b)
 	m.Password = base64.StdEncoding.EncodeToString(b)
 }
+
+func (m *Auth) OrganizationKey() (*datastore.Key, error) {
+	key, err := datastore.DecodeKey(m.ID)
+	if err != nil {
+		return nil, err
+	}
+	return key.Parent(), nil
+}
