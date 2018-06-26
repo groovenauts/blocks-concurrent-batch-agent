@@ -2,7 +2,6 @@ package model
 
 import (
 	"fmt"
-	"regexp"
 	"testing"
 	// "golang.org/x/net/context"
 	"encoding/json"
@@ -31,18 +30,15 @@ func TestGenerateContent(t *testing.T) {
 		}
 	}
 
-	pl := Pipeline{
+	pl := InstanceGroup{
 		Name:      "pipeline01",
 		ProjectID: "dummy-proj-999",
 		Zone:      "us-central1-f",
-		BootDisk: PipelineVmDisk{
+		BootDisk: InstanceGroupVMDisk{
 			SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
 		},
-		MachineType:   "f1-micro",
-		TargetSize:    2,
-		ContainerSize: 2,
-		ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
-		Command:       "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
+		MachineType:           "f1-micro",
+		InstanceSizeRequested: 2,
 	}
 	result := b.GenerateDeploymentResources(&pl)
 
@@ -75,26 +71,17 @@ func TestGenerateContent(t *testing.T) {
 	assert.Equal(t, true, props2["preemptible"])
 }
 
-func setupForBuildDeployment() (*Builder, *Pipeline) {
-	org1 := &Organization{
-		Name:        "org01",
-		TokenAmount: 10,
-	}
-
+func setupForBuildDeployment() (*Builder, *InstanceGroup) {
 	b := &Builder{}
-	pl := &Pipeline{
-		Organization: org1,
-		Name:         "pipeline01",
-		ProjectID:    "dummy-proj-999",
-		Zone:         "us-central1-f",
-		BootDisk: PipelineVmDisk{
+	pl := &InstanceGroup{
+		Name:      "pipeline01",
+		ProjectID: "dummy-proj-999",
+		Zone:      "us-central1-f",
+		BootDisk: InstanceGroupVMDisk{
 			SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
 		},
-		MachineType:   "f1-micro",
-		TargetSize:    2,
-		ContainerSize: 2,
-		ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
-		Command:       "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
+		MachineType:           "f1-micro",
+		InstanceSizeRequested: 2,
 	}
 	return b, pl
 }
@@ -141,14 +128,14 @@ func TestBuildDeployment(t *testing.T) {
 
 func TestBuildDeploymentWithGPU(t *testing.T) {
 	b, pl := setupForBuildDeployment()
-	pl.GpuAccelerators = Accelerators{
+	pl.GpuAccelerators = InstanceGroupAccelerators{
 		Count: 2,
 		Type:  "nvidia-tesla-p100",
 	}
 	err := pl.Validate()
 	assert.Error(t, err)
 	errors := err.(validator.ValidationErrors)
-	fmt.Printf("pl.BootDisk.SourceImage: %v\n", pl.BootDisk.SourceImage)
+	fmt.Printf("pl.BootDisk.SourceImage: %v\n", "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts")
 	fmt.Printf("errors: %v\n", errors)
 	assert.Equal(t, len(errors), 1)
 
@@ -167,106 +154,9 @@ func TestBuildDeploymentWithGPU(t *testing.T) {
 	assert.Equal(t, expected.Resources[4].Properties["properties"], actual)
 }
 
-func setupTestBuildStartupScript() (*Builder, *Pipeline) {
-	b := Builder{}
-	pl := Pipeline{
-		Name:      "pipeline01",
-		ProjectID: "dummy-proj-999",
-		Zone:      "us-central1-f",
-		BootDisk: PipelineVmDisk{
-			SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
-		},
-		MachineType:   "f1-micro",
-		TargetSize:    2,
-		ContainerSize: 2,
-		ContainerName: "groovenauts/batch_type_iot_example:0.3.1",
-		Command:       "",
-	}
-	return &b, &pl
-}
-
-func TestBuildStartupScript1(t *testing.T) {
-	b, pl := setupTestBuildStartupScript()
-	ss := b.buildStartupScript(pl)
-	startupScriptBodyBase :=
-		"with_backoff docker pull groovenauts/batch_type_iot_example:0.3.1\n" +
-			"for i in {1..2}; do" +
-			"\n  docker run -d" +
-			" \\\n    -e PROJECT=" + pl.ProjectID +
-			" \\\n    -e DOCKER_HOSTNAME=$(hostname)" +
-			" \\\n    -e PIPELINE=" + pl.Name +
-			" \\\n    -e ZONE=" + pl.Zone +
-			" \\\n    -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + pl.Name + "-job-subscription.name)" +
-			" \\\n    -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + pl.Name + "-progress-topic.name)"
-	startupScriptBody0 := startupScriptBodyBase +
-		" \\\n    " + pl.ContainerName +
-		" \\\n    " + pl.Command +
-		"\ndone"
-
-	assert.Equal(t, StartupScriptHeader+"\n"+startupScriptBody0, ss)
-
-	// Use with DockerRunOptions
-	// https://docs.docker.com/engine/reference/commandline/run/#restart-policies---restart
-	pl.DockerRunOptions = "--restart=on-failure:3"
-	ss1 := b.buildStartupScript(pl)
-	startupScriptBody1 := startupScriptBodyBase +
-		" \\\n    " + pl.DockerRunOptions +
-		" \\\n    " + pl.ContainerName +
-		" \\\n    " + pl.Command +
-		"\ndone"
-	assert.Equal(t, StartupScriptHeader+"\n"+startupScriptBody1, ss1)
-	pl.DockerRunOptions = "" // Reset
-
-	// Use cos-cloud project's image
-	pl.BootDisk.SourceImage = "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-stable-56-9000-84-2"
-	ss = b.buildStartupScript(pl)
-	assert.Equal(t, StartupScriptHeader+"\n"+startupScriptBody0, ss)
-
-	// Use stackdriver-agent
-	pl.StackdriverAgent = true
-	assert.Equal(t, StartupScriptHeader+"\n"+StackdriverAgentCommand+"\n"+startupScriptBody0, b.buildStartupScript(pl))
-}
-
-func TestBuildStartupScript2(t *testing.T) {
-	b, pl := setupTestBuildStartupScript()
-	// Use cos-cloud project's image and private image in asia.gcr.io
-	pl.BootDisk.SourceImage = "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-stable-56-9000-84-2"
-	pl.ContainerName = "asia.gcr.io/example/test_worker:0.0.1"
-	ss := b.buildStartupScript(pl)
-	expected :=
-		StartupScriptHeader + "\n" +
-			"METADATA=http://metadata.google.internal/computeMetadata/v1" +
-			"\nSVC_ACCT=$METADATA/instance/service-accounts/default" +
-			"\nACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'\"' -f 4)" +
-			"\nwith_backoff docker --config /home/chronos/.docker login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://asia.gcr.io" +
-			"\nwith_backoff docker --config /home/chronos/.docker pull " + pl.ContainerName +
-			"\nfor i in {1..2}; do" +
-			"\n  docker --config /home/chronos/.docker run -d" +
-			" \\\n    -e PROJECT=" + pl.ProjectID +
-			" \\\n    -e DOCKER_HOSTNAME=$(hostname)" +
-			" \\\n    -e PIPELINE=" + pl.Name +
-			" \\\n    -e ZONE=" + pl.Zone +
-			" \\\n    -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + pl.Name + "-job-subscription.name)" +
-			" \\\n    -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + pl.Name + "-progress-topic.name)" +
-			" \\\n    " + pl.ContainerName +
-			" \\\n    " + pl.Command +
-			"\ndone"
-	//fmt.Println(ss)
-	assert.Equal(t, expected, ss)
-
-	// Use cos-cloud project's image and private image in gcr.io
-	pl.BootDisk.SourceImage = "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/cos-stable-56-9000-84-2"
-	pl.ContainerName = "gcr.io/example/test_worker:0.0.1" // NOT from asia.gcr.io
-	ss = b.buildStartupScript(pl)
-	re := regexp.MustCompile(`asia.gcr.io`)
-	expected = re.ReplaceAllString(expected, "gcr.io")
-	//fmt.Println(expected)
-	assert.Equal(t, expected, ss)
-}
-
 func TestBuildBootDisk(t *testing.T) {
 	b := &Builder{}
-	d1 := PipelineVmDisk{
+	d1 := InstanceGroupVMDisk{
 		SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
 	}
 	r1 := b.buildBootDisk(&d1)
@@ -276,7 +166,7 @@ func TestBuildBootDisk(t *testing.T) {
 	assert.NotContains(t, p1, "diskSizeGb")
 	assert.NotContains(t, p1, "diskType")
 
-	d2 := PipelineVmDisk{
+	d2 := InstanceGroupVMDisk{
 		DiskSizeGb:  50,
 		SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
 		DiskType:    "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
