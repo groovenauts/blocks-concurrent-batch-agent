@@ -31,24 +31,39 @@ const (
 )
 
 type PipelineContainer struct {
-	Name             string
-	Size             int
-	Command          string
-	Options          string
-	StackdriverAgent bool
+	Name             string `json:"name" validate:"required"`
+	Size             int    `json:"size" validate:"required"`
+	Command          string `json:"command,omitempty" `
+	Options          string `json:"options,omitempty" `
+	StackdriverAgent bool   `json:"stackdriver_agent,omitempty" `
 }
 
 type PipelineBase struct {
-	Id               string         `datastore:"-" goon:"id"`
-	Parent           *datastore.Key `datastore:"-" goon:"parent"`
-	Name             string
-	InstanceGroup    InstanceGroupBody
-	Container        PipelineContainer
-	HibernationDelay int
-	Status           PipelineBaseStatus
-	IntanceGroupID   string
-	CreatedAt        time.Time
-	UpdatedAt        time.Time
+	Id               string             `datastore:"-" goon:"id" json:"id"`
+	Parent           *datastore.Key     `datastore:"-" goon:"parent" json:"-"`
+	Name             string             `json:"name" validate:"required"`
+	InstanceGroup    InstanceGroupBody  `json:"instance_group,omitempty" `
+	Container        PipelineContainer  `json:"container,omitempty" `
+	HibernationDelay int                `json:"hibernation_delay" validate:"required"`
+	Status           PipelineBaseStatus `json:"status" validate:"required"`
+	IntanceGroupID   string             `json:"intance_group_id" validate:"required"`
+	CreatedAt        time.Time          `json:"created_at" validate:"required"`
+	UpdatedAt        time.Time          `json:"updated_at" validate:"required"`
+}
+
+func (m *PipelineBase) PrepareToCreate() error {
+	if m.CreatedAt.IsZero() {
+		m.CreatedAt = time.Now()
+	}
+	if m.UpdatedAt.IsZero() {
+		m.UpdatedAt = time.Now()
+	}
+	return nil
+}
+
+func (m *PipelineBase) PrepareToUpdate() error {
+	m.UpdatedAt = time.Now()
+	return nil
 }
 
 type PipelineBaseStore struct {
@@ -85,6 +100,30 @@ func (s *PipelineBaseStore) Get(ctx context.Context, id string) (*PipelineBase, 
 	}
 
 	return &r, nil
+}
+
+func (s *PipelineBaseStore) Create(ctx context.Context, m *PipelineBase) (*datastore.Key, error) {
+	err := m.PrepareToCreate()
+	if err != nil {
+		return nil, err
+	}
+	return s.ValidateAndPut(ctx, m)
+}
+
+func (s *PipelineBaseStore) Update(ctx context.Context, m *PipelineBase) (*datastore.Key, error) {
+	err := m.PrepareToUpdate()
+	if err != nil {
+		return nil, err
+	}
+	return s.ValidateAndPut(ctx, m)
+}
+
+func (s *PipelineBaseStore) ValidateAndPut(ctx context.Context, m *PipelineBase) (*datastore.Key, error) {
+	err := m.Validate()
+	if err != nil {
+		return nil, err
+	}
+	return s.Put(ctx, m)
 }
 
 func (s *PipelineBaseStore) Put(ctx context.Context, m *PipelineBase) (*datastore.Key, error) {

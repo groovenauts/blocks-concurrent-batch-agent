@@ -26,16 +26,31 @@ const (
 )
 
 type Pipeline struct {
-	Id               string         `datastore:"-" goon:"id"`
-	Parent           *datastore.Key `datastore:"-" goon:"parent"`
-	Name             string
-	InstanceGroup    InstanceGroupBody
-	Container        PipelineContainer
-	HibernationDelay int
-	Status           PipelineStatus
-	IntanceGroupID   string
-	CreatedAt        time.Time
-	UpdatedAt        time.Time
+	Id               string            `datastore:"-" goon:"id" json:"id"`
+	Parent           *datastore.Key    `datastore:"-" goon:"parent" json:"-"`
+	Name             string            `json:"name" validate:"required"`
+	InstanceGroup    InstanceGroupBody `json:"instance_group,omitempty" `
+	Container        PipelineContainer `json:"container,omitempty" `
+	HibernationDelay int               `json:"hibernation_delay" validate:"required"`
+	Status           PipelineStatus    `json:"status" validate:"required"`
+	IntanceGroupID   string            `json:"intance_group_id" validate:"required"`
+	CreatedAt        time.Time         `json:"created_at" validate:"required"`
+	UpdatedAt        time.Time         `json:"updated_at" validate:"required"`
+}
+
+func (m *Pipeline) PrepareToCreate() error {
+	if m.CreatedAt.IsZero() {
+		m.CreatedAt = time.Now()
+	}
+	if m.UpdatedAt.IsZero() {
+		m.UpdatedAt = time.Now()
+	}
+	return nil
+}
+
+func (m *Pipeline) PrepareToUpdate() error {
+	m.UpdatedAt = time.Now()
+	return nil
 }
 
 type PipelineStore struct {
@@ -72,6 +87,30 @@ func (s *PipelineStore) Get(ctx context.Context, id string) (*Pipeline, error) {
 	}
 
 	return &r, nil
+}
+
+func (s *PipelineStore) Create(ctx context.Context, m *Pipeline) (*datastore.Key, error) {
+	err := m.PrepareToCreate()
+	if err != nil {
+		return nil, err
+	}
+	return s.ValidateAndPut(ctx, m)
+}
+
+func (s *PipelineStore) Update(ctx context.Context, m *Pipeline) (*datastore.Key, error) {
+	err := m.PrepareToUpdate()
+	if err != nil {
+		return nil, err
+	}
+	return s.ValidateAndPut(ctx, m)
+}
+
+func (s *PipelineStore) ValidateAndPut(ctx context.Context, m *Pipeline) (*datastore.Key, error) {
+	err := m.Validate()
+	if err != nil {
+		return nil, err
+	}
+	return s.Put(ctx, m)
 }
 
 func (s *PipelineStore) Put(ctx context.Context, m *Pipeline) (*datastore.Key, error) {

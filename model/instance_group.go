@@ -29,49 +29,64 @@ const (
 )
 
 type InstanceGroupVMDisk struct {
-	DiskSizeGb  int
-	DiskType    string
-	SourceImage string
+	DiskSizeGb  int    `json:"disk_size_gb,omitempty" `
+	DiskType    string `json:"disk_type,omitempty" `
+	SourceImage string `json:"source_image" validate:"required"`
 }
 
 type InstanceGroupAccelerators struct {
-	Count int
-	Type  string
+	Count int    `json:"count,omitempty" `
+	Type  string `json:"type,omitempty" `
 }
 
 type InstanceGroupBody struct {
-	ProjectID             string
-	Zone                  string
-	BootDisk              InstanceGroupVMDisk
-	MachineType           string
-	GpuAccelerators       InstanceGroupAccelerators
-	Preemptible           bool
-	InstanceSizeRequested int
-	InstanceSize          int
-	StartupScript         string
-	Status                InstanceGroupStatus
-	DeploymentName        string
-	TokenConsumption      int
+	ProjectID             string                    `json:"project_id" validate:"required"`
+	Zone                  string                    `json:"zone" validate:"required"`
+	BootDisk              InstanceGroupVMDisk       `json:"boot_disk" validate:"required"`
+	MachineType           string                    `json:"machine_type" validate:"required"`
+	GpuAccelerators       InstanceGroupAccelerators `json:"gpu_accelerators,omitempty" `
+	Preemptible           bool                      `json:"preemptible,omitempty" `
+	InstanceSizeRequested int                       `json:"instance_size_requested,omitempty" `
+	InstanceSize          int                       `json:"instance_size,omitempty" `
+	StartupScript         string                    `json:"startup_script,omitempty" `
+	Status                InstanceGroupStatus       `json:"status" validate:"required"`
+	DeploymentName        string                    `json:"deployment_name,omitempty" `
+	TokenConsumption      int                       `json:"token_consumption,omitempty" `
 }
 
 type InstanceGroup struct {
-	Id                    string         `datastore:"-" goon:"id"`
-	Parent                *datastore.Key `datastore:"-" goon:"parent"`
-	Name                  string
-	ProjectID             string
-	Zone                  string
-	BootDisk              InstanceGroupVMDisk
-	MachineType           string
-	GpuAccelerators       InstanceGroupAccelerators
-	Preemptible           bool
-	InstanceSizeRequested int
-	InstanceSize          int
-	StartupScript         string
-	Status                InstanceGroupStatus
-	DeploymentName        string
-	TokenConsumption      int
-	CreatedAt             time.Time
-	UpdatedAt             time.Time
+	Id                    string                    `datastore:"-" goon:"id" json:"id"`
+	Parent                *datastore.Key            `datastore:"-" goon:"parent" json:"-"`
+	Name                  string                    `json:"name" validate:"required"`
+	ProjectID             string                    `json:"project_id" validate:"required"`
+	Zone                  string                    `json:"zone" validate:"required"`
+	BootDisk              InstanceGroupVMDisk       `json:"boot_disk" validate:"required"`
+	MachineType           string                    `json:"machine_type" validate:"required"`
+	GpuAccelerators       InstanceGroupAccelerators `json:"gpu_accelerators,omitempty" `
+	Preemptible           bool                      `json:"preemptible,omitempty" `
+	InstanceSizeRequested int                       `json:"instance_size_requested,omitempty" `
+	InstanceSize          int                       `json:"instance_size,omitempty" `
+	StartupScript         string                    `json:"startup_script,omitempty" `
+	Status                InstanceGroupStatus       `json:"status" validate:"required"`
+	DeploymentName        string                    `json:"deployment_name,omitempty" `
+	TokenConsumption      int                       `json:"token_consumption,omitempty" `
+	CreatedAt             time.Time                 `json:"created_at" validate:"required"`
+	UpdatedAt             time.Time                 `json:"updated_at" validate:"required"`
+}
+
+func (m *InstanceGroup) PrepareToCreate() error {
+	if m.CreatedAt.IsZero() {
+		m.CreatedAt = time.Now()
+	}
+	if m.UpdatedAt.IsZero() {
+		m.UpdatedAt = time.Now()
+	}
+	return nil
+}
+
+func (m *InstanceGroup) PrepareToUpdate() error {
+	m.UpdatedAt = time.Now()
+	return nil
 }
 
 type InstanceGroupStore struct {
@@ -108,6 +123,30 @@ func (s *InstanceGroupStore) Get(ctx context.Context, id string) (*InstanceGroup
 	}
 
 	return &r, nil
+}
+
+func (s *InstanceGroupStore) Create(ctx context.Context, m *InstanceGroup) (*datastore.Key, error) {
+	err := m.PrepareToCreate()
+	if err != nil {
+		return nil, err
+	}
+	return s.ValidateAndPut(ctx, m)
+}
+
+func (s *InstanceGroupStore) Update(ctx context.Context, m *InstanceGroup) (*datastore.Key, error) {
+	err := m.PrepareToUpdate()
+	if err != nil {
+		return nil, err
+	}
+	return s.ValidateAndPut(ctx, m)
+}
+
+func (s *InstanceGroupStore) ValidateAndPut(ctx context.Context, m *InstanceGroup) (*datastore.Key, error) {
+	err := m.Validate()
+	if err != nil {
+		return nil, err
+	}
+	return s.Put(ctx, m)
 }
 
 func (s *InstanceGroupStore) Put(ctx context.Context, m *InstanceGroup) (*datastore.Key, error) {
