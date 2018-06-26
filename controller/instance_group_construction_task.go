@@ -105,6 +105,7 @@ func (c *InstanceGroupConstructionTaskController) Watch(ctx *app.WatchInstanceGr
 				log.Errorf(ctx, "Failed to get deployment operation: %v because of %v\n", ope, err)
 				return err
 			}
+			// PENDING, RUNNING, or DONE
 			switch remoteOpe.Status {
 			case "DONE":
 				// TODO
@@ -113,7 +114,7 @@ func (c *InstanceGroupConstructionTaskController) Watch(ctx *app.WatchInstanceGr
 				if ope.Status == remoteOpe.Status {
 					return ctx.Created(CloudAsyncOperationModelToMediaType(ope))
 				}
-				// ope.AppendLog(fmt.Sprintf("StatusChange from %s to %s", operation.Status, newOpe.Status))
+				ope.AppendLog(fmt.Sprintf("StatusChange from %q to %q", ope.Status, remoteOpe.Status))
 				ope.Status = remoteOpe.Status
 				_, err := opeStore.Update(ctx, ope)
 				if err != nil {
@@ -131,7 +132,6 @@ func (c *InstanceGroupConstructionTaskController) Watch(ctx *app.WatchInstanceGr
 			return ctx.NoContent(nil)
 		}
 	}, nil)
-	res := &app.CloudAsyncOperation{}
-	return ctx.OK(res)
+
 	// InstanceGroupConstructionTaskController_Watch: end_implement
 }
