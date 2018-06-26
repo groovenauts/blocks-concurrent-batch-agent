@@ -96,55 +96,7 @@ func (c *InstanceGroupConstructionTaskController) Watch(ctx *app.WatchInstanceGr
 		}
 
 		switch m.Status {
-		case model.ConstructionRunning:
-			servicer, err := model.DefaultDeploymentServicer(ctx)
-			if err != nil {
-				return nil
-			}
-			remoteOpe, err := servicer.GetOperation(ctx, ope.ProjectId, ope.Name)
-			if err != nil {
-				log.Errorf(ctx, "Failed to get deployment operation: %v because of %v\n", ope, err)
-				return err
-			}
-
-			if ope.Status != remoteOpe.Status {
-				ope.AppendLog(fmt.Sprintf("InstanceGroup %q Status changed from %q to %q", m.Id, ope.Status, remoteOpe.Status))
-			}
-			// PENDING, RUNNING, or DONE
-			switch remoteOpe.Status {
-			case "DONE":
-				errors := model.ErrorsFromDeploymentmanagerOperation(remoteOpe)
-				var f func(r *CloudAsyncOperation) error
-				if errors != nil {
-					ope.Errors = *errors
-					ope.AppendLog(fmt.Sprintf("Error by %v", remoteOpe))
-					m.Status = ConstructionError
-					f = ctx.NoContent
-				} else {
-					ope.AppendLog("Success")
-					m.Status = model.Constructed
-					f = ctx.Accepted
-				}
-				err := opeStore.Update(c, ope)
-				if err != nil {
-					return err
-				}
-				err = store.Update(c, m)
-				if err != nil {
-					return err
-				}
-				return f(ope)
-			default:
-				if ope.Status == remoteOpe.Status {
-					return ctx.Created(CloudAsyncOperationModelToMediaType(ope))
-				}
-				ope.Status = remoteOpe.Status
-				_, err := opeStore.Update(ctx, ope)
-				if err != nil {
-					return err
-				}
-				return ctx.Created(CloudAsyncOperationModelToMediaType(ope))
-			}
+		case model.ConstructionRunning: // Through
 		case
 			model.ConstructionError,
 			model.Constructed:
@@ -154,6 +106,57 @@ func (c *InstanceGroupConstructionTaskController) Watch(ctx *app.WatchInstanceGr
 			log.Warningf(c, "Invalid request because InstanceGroup %s is already %v\n", m.Id, m.Status)
 			return ctx.NoContent(nil)
 		}
+
+		servicer, err := model.DefaultDeploymentServicer(ctx)
+		if err != nil {
+			return nil
+		}
+		remoteOpe, err := servicer.GetOperation(ctx, ope.ProjectId, ope.Name)
+		if err != nil {
+			log.Errorf(ctx, "Failed to get deployment operation: %v because of %v\n", ope, err)
+			return err
+		}
+		if ope.Status != remoteOpe.Status {
+			ope.AppendLog(fmt.Sprintf("InstanceGroup %q Status changed from %q to %q", m.Id, ope.Status, remoteOpe.Status))
+		}
+
+		// PENDING, RUNNING, or DONE
+		switch remoteOpe.Status {
+		case "DONE": // through
+		default:
+			if ope.Status == remoteOpe.Status {
+				return ctx.Created(CloudAsyncOperationModelToMediaType(ope))
+			}
+			ope.Status = remoteOpe.Status
+			_, err := opeStore.Update(ctx, ope)
+			if err != nil {
+				return err
+			}
+			return ctx.Created(CloudAsyncOperationModelToMediaType(ope))
+		}
+
+		errors := model.ErrorsFromDeploymentmanagerOperation(remoteOpe)
+		var f func(r *CloudAsyncOperation) error
+		if errors != nil {
+			ope.Errors = *errors
+			ope.AppendLog(fmt.Sprintf("Error by %v", remoteOpe))
+			m.Status = ConstructionError
+			f = ctx.NoContent
+		} else {
+			ope.AppendLog("Success")
+			m.Status = model.Constructed
+			f = ctx.Accepted
+		}
+
+		err := opeStore.Update(c, ope)
+		if err != nil {
+			return err
+		}
+		err = store.Update(c, m)
+		if err != nil {
+			return err
+		}
+		return f(ope)
 	}, nil)
 
 	// InstanceGroupConstructionTaskController_Watch: end_implement
