@@ -115,14 +115,26 @@ func (c *InstanceGroupConstructionTaskController) Watch(ctx *app.WatchInstanceGr
 			switch remoteOpe.Status {
 			case "DONE":
 				errors := model.ErrorsFromDeploymentmanagerOperation(remoteOpe)
+				var f func(r *CloudAsyncOperation) error
 				if errors != nil {
 					ope.Errors = *errors
 					ope.AppendLog(fmt.Sprintf("Error by %v", remoteOpe))
-					return ctx.NoContent(ope)
+					m.Status = ConstructionError
+					f = ctx.NoContent
 				} else {
 					ope.AppendLog("Success")
-					return ctx.Accepted(ope)
+					m.Status = model.Constructed
+					f = ctx.Accepted
 				}
+				err := opeStore.Update(c, ope)
+				if err != nil {
+					return err
+				}
+				err = store.Update(c, m)
+				if err != nil {
+					return err
+				}
+				return f(ope)
 			default:
 				if ope.Status == remoteOpe.Status {
 					return ctx.Created(CloudAsyncOperationModelToMediaType(ope))
