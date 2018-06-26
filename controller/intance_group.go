@@ -28,26 +28,29 @@ func (c *IntanceGroupController) Create(ctx *app.CreateIntanceGroupContext) erro
 	// IntanceGroupController_Create: start_implement
 
 	// Put your logic here
-	appCtx := appengine.NewContext(ctx.Request)
-	m := InstanceGroupPayloadToModel(ctx.Payload)
-	m.Status = model.ConstructionStarting
-	err := datastore.RunInTransaction(appCtx, func(c context.Context) error {
-		store := &model.InstanceGroupStore{}
-		_, err := store.Put(c, &m)
+	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
+		appCtx := appengine.NewContext(ctx.Request)
+		m := InstanceGroupPayloadToModel(ctx.Payload)
+		m.Parent = orgKey
+		m.Status = model.ConstructionStarting
+		err := datastore.RunInTransaction(appCtx, func(c context.Context) error {
+			store := &model.InstanceGroupStore{}
+			_, err := store.Put(c, &m)
+			if err != nil {
+				return ctx.BadRequest(goa.ErrBadRequest(err))
+			}
+
+			task := &taskqueue.Task{Path: "/construction_tasks?resource_id=" + m.Id}
+			if _, err := taskqueue.Add(c, task, ""); err != nil {
+				return err
+			}
+			return nil
+		}, nil)
 		if err != nil {
 			return ctx.BadRequest(goa.ErrBadRequest(err))
 		}
-
-		task := &taskqueue.Task{Path: "/construction_tasks?resource_id=" + m.Id}
-		if _, err := taskqueue.Add(c, task, ""); err != nil {
-			return err
-		}
-		return nil
-	}, nil)
-	if err != nil {
-		return ctx.BadRequest(goa.ErrBadRequest(err))
-	}
-	return ctx.Created(InstanceGroupModelToMediaType(&m))
+		return ctx.Created(InstanceGroupModelToMediaType(&m))
+	})
 
 	// IntanceGroupController_Create: end_implement
 }

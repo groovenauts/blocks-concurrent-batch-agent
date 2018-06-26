@@ -2,14 +2,16 @@ package controller
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"regexp"
 
 	"google.golang.org/appengine"
+	"google.golang.org/appengine/datastore"
 
+	"github.com/goadesign/goa"
 	"github.com/groovenauts/blocks-concurrent-batch-server/app"
 	"github.com/groovenauts/blocks-concurrent-batch-server/model"
-	"github.com/goadesign/goa"
 )
 
 // See https://github.com/goadesign/examples/blob/master/security/api_key.go
@@ -20,6 +22,8 @@ var (
 	// ErrUnauthorized is the error returned for unauthorized requests.
 	ErrUnauthorized = goa.NewErrorClass("unauthorized", 401)
 )
+
+const ContextOrgKey = "organization.key"
 
 // NewAPIKeyMiddleware creates a middleware that checks for the presence of an authorization header
 // and validates its content.
@@ -46,14 +50,35 @@ func NewAuthorizationMiddleware() goa.Middleware {
 			// _, err := org.AuthAccessor().FindWithToken(ctx, token)
 			acc := &model.AuthAccessor{}
 			appCtx := appengine.NewContext(req)
-			_, err := acc.FindWithToken(appCtx, token)
+			auth, err := acc.FindWithToken(appCtx, token)
 			if err != nil {
 				return ErrUnauthorized("invalid token")
 			}
+
+			orgKey, err := auth.OrganizationKey()
+			if err != nil {
+				return ErrUnauthorized(fmt.Sprintf("OrganizationKey error because of %v", err))
+			}
+			if orgKey == nil {
+				return ErrUnauthorized("Organization Key not found")
+			}
+			ctx = context.WithValue(ctx, ContextOrgKey, orgKey)
 
 			// Proceed.
 			goa.LogInfo(ctx, "auth", "apikey", "key", key)
 			return h(ctx, rw, req)
 		}
 	}
+}
+
+func WithAuthOrgKey(ctx context.Context, f func(*datastore.Key) error) error {
+	obj := ctx.Value(ContextOrgKey)
+	if obj == nil {
+		return ErrUnauthorized(fmt.Sprintf("%s not found in context", ContextOrgKey))
+	}
+	orgKey, ok := obj.(*datastore.Key)
+	if !ok {
+		return ErrUnauthorized(fmt.Sprintf("%s in context isn't a *datastore.Key", ContextOrgKey))
+	}
+	return f(orgKey)
 }

@@ -42,7 +42,6 @@ func (aa *OrganizationAccessor) Find(ctx context.Context, id string) (*Organizat
 }
 
 func (aa *OrganizationAccessor) FindByKey(ctx context.Context, key *datastore.Key) (*Organization, error) {
-	ctx = context.WithValue(ctx, "Organization.key", key)
 	m := &Organization{}
 	err := datastore.Get(ctx, key, m)
 	switch {
