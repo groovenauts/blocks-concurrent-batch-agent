@@ -156,6 +156,7 @@ func (c *InstanceGroupConstructionTaskController) Watch(ctx *app.WatchInstanceGr
 		if err != nil {
 			return err
 		}
+		// TODO Add calling PUT /pipeline_bases/:id/wakeup_task
 		return f(ope)
 	}, nil)
 
