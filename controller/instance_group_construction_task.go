@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"fmt"
+
 	"golang.org/x/net/context"
 
 	"google.golang.org/appengine"
@@ -105,16 +107,26 @@ func (c *InstanceGroupConstructionTaskController) Watch(ctx *app.WatchInstanceGr
 				log.Errorf(ctx, "Failed to get deployment operation: %v because of %v\n", ope, err)
 				return err
 			}
+
+			if ope.Status != remoteOpe.Status {
+				ope.AppendLog(fmt.Sprintf("InstanceGroup %q Status changed from %q to %q", m.Id, ope.Status, remoteOpe.Status))
+			}
 			// PENDING, RUNNING, or DONE
 			switch remoteOpe.Status {
 			case "DONE":
-				// TODO
-				return nil
+				errors := model.ErrorsFromDeploymentmanagerOperation(remoteOpe)
+				if errors != nil {
+					ope.Errors = *errors
+					ope.AppendLog(fmt.Sprintf("Error by %v", remoteOpe))
+					return ctx.NoContent(ope)
+				} else {
+					ope.AppendLog("Success")
+					return ctx.Accepted(ope)
+				}
 			default:
 				if ope.Status == remoteOpe.Status {
 					return ctx.Created(CloudAsyncOperationModelToMediaType(ope))
 				}
-				ope.AppendLog(fmt.Sprintf("StatusChange from %q to %q", ope.Status, remoteOpe.Status))
 				ope.Status = remoteOpe.Status
 				_, err := opeStore.Update(ctx, ope)
 				if err != nil {
