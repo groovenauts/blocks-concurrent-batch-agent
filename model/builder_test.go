@@ -132,12 +132,14 @@ func TestBuildDeploymentWithGPU(t *testing.T) {
 		Count: 2,
 		Type:  "nvidia-tesla-p100",
 	}
+	pl.Status = ConstructionStarting
+	pl.PrepareToCreate()
 	err := pl.Validate()
 	assert.Error(t, err)
 	errors := err.(validator.ValidationErrors)
 	fmt.Printf("pl.BootDisk.SourceImage: %v\n", "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts")
 	fmt.Printf("errors: %v\n", errors)
-	assert.Equal(t, len(errors), 1)
+	assert.Equal(t, 1, len(errors))
 
 	// bd := &pl.BootDisk
 	// bd.SourceImage = Ubuntu16ImageFamily
