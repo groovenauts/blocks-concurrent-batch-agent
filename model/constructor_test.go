@@ -16,7 +16,7 @@ import (
 
 func TestGenerateContent(t *testing.T) {
 	b := &Constructor{}
-	expected_data, err := ioutil.ReadFile(`builder_test/pipeline01.json`)
+	expected_data, err := ioutil.ReadFile(`constructor_test/pipeline01.json`)
 	expected := &Resources{}
 	err = json.Unmarshal([]byte(expected_data), expected)
 	assert.NoError(t, err)
@@ -88,7 +88,7 @@ func setupForBuildDeployment() (*Constructor, *InstanceGroup) {
 
 func TestBuildDeployment(t *testing.T) {
 	b, pl := setupForBuildDeployment()
-	expected_data, err := ioutil.ReadFile(`builder_test/pipeline01.json`)
+	expected_data, err := ioutil.ReadFile(`constructor_test/pipeline01.json`)
 	expected := Resources{}
 	err = json.Unmarshal([]byte(expected_data), &expected)
 	assert.NoError(t, err)
@@ -147,7 +147,7 @@ func TestBuildDeploymentWithGPU(t *testing.T) {
 	err = pl.Validate()
 	assert.NoError(t, err)
 
-	expected_data, err := ioutil.ReadFile(`builder_test/pipeline02.json`)
+	expected_data, err := ioutil.ReadFile(`constructor_test/pipeline02.json`)
 	expected := Resources{}
 	err = json.Unmarshal([]byte(expected_data), &expected)
 	assert.NoError(t, err)
