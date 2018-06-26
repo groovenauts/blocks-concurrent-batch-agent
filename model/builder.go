@@ -25,18 +25,6 @@ func NewBuilder(ctx context.Context) (*Builder, error) {
 }
 
 func (b *Builder) Process(ctx context.Context, pl *InstanceGroup) (*Operation, error) {
-	err := pl.LoadOrganization(ctx)
-	if err != nil {
-		log.Errorf(ctx, "Failed to load Organization for InstanceGroup: %v\npl: %v\n", err, pl)
-		return nil, err
-	}
-
-	err = pl.StartBuilding(ctx)
-	if err != nil {
-		log.Errorf(ctx, "Failed to update InstanceGroup status to 'building': %v\npl: %v\n", err, pl)
-		return nil, err
-	}
-
 	deployment, err := b.BuildDeployment(pl)
 	if err != nil {
 		log.Errorf(ctx, "Failed to BuildDeployment: %v\nInstanceGroup: %v\n", err, pl)
@@ -49,12 +37,6 @@ func (b *Builder) Process(ctx context.Context, pl *InstanceGroup) (*Operation, e
 	}
 
 	log.Infof(ctx, "Built pipeline successfully %v\n", pl)
-
-	err = pl.StartDeploying(ctx, deployment.Name)
-	if err != nil {
-		log.Errorf(ctx, "Failed to update InstanceGroup deployment name to %v: %v\npl: %v\n", ope.Name, err, pl)
-		return nil, err
-	}
 
 	operation := &Operation{
 		OwnerType:     "InstanceGroup",

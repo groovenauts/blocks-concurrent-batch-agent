@@ -2,6 +2,9 @@ package controller
 
 import (
 	"google.golang.org/appengine"
+	"google.golang.org/appengine/datastore"
+	"google.golang.org/appengine/log"
+	"google.golang.org/appengine/taskqueue"
 
 	"github.com/goadesign/goa"
 	"github.com/groovenauts/blocks-concurrent-batch-server/app"
@@ -24,14 +27,26 @@ func (c *IntanceGroupController) Create(ctx *app.CreateIntanceGroupContext) erro
 
 	// Put your logic here
 	appCtx := appengine.NewContext(ctx.Request)
-	store := &model.InstanceGroupStore{}
-	model := InstanceGroupPayloadToModel(ctx.Payload)
-	_, err := store.Put(appCtx, &model)
+	m := InstanceGroupPayloadToModel(ctx.Payload)
+	m.Status = model.ConstructionStarting
+	err := datastore.RunInTransaction(appCtx, func(c context.Context) error {
+		store := &model.InstanceGroupStore{}
+		_, err := store.Put(c, &m)
+		if err != nil {
+			return ctx.BadRequest(goa.ErrBadRequest(err))
+		}
+
+		task := &taskqueue.Task{Path: "/construction_tasks?resource_id=" + m.Id}
+		if _, err := taskqueue.Add(c, task, ""); err != nil {
+			return err
+		}
+		return nil
+	})
 	if err != nil {
 		return ctx.BadRequest(goa.ErrBadRequest(err))
 	}
-
 	return ctx.Created(InstanceGroupModelToMediaType(&model))
+
 	// IntanceGroupController_Create: end_implement
 }
 
