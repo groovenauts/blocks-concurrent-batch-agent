@@ -45,6 +45,7 @@ func (c *InstanceGroupConstructionTaskController) Start(ctx *app.StartInstanceGr
 			if err != nil {
 				return err
 			}
+			m.Status = model.ConstructionRunning
 			_, err = store.Put(c, m)
 			if err != nil {
 				return err
@@ -54,7 +55,7 @@ func (c *InstanceGroupConstructionTaskController) Start(ctx *app.StartInstanceGr
 			if err != nil {
 				return err
 			}
-			task := &taskqueue.Task{Method: "PUT", Path: "/construction_tasks/" + ope.Name}
+			task := &taskqueue.Task{Method: "PUT", Path: "/construction_tasks/" + ope.Id}
 			if _, err := taskqueue.Add(c, task, ""); err != nil {
 				return err
 			}
@@ -80,7 +81,56 @@ func (c *InstanceGroupConstructionTaskController) Watch(ctx *app.WatchInstanceGr
 	// InstanceGroupConstructionTaskController_Watch: start_implement
 
 	// Put your logic here
+	appCtx := appengine.NewContext(ctx.Request)
+	return datastore.RunInTransaction(appCtx, func(c context.Context) error {
+		opeStore := &model.CloudAsyncOperationStore{}
+		ope, err := opeStore.Get(c, ctx.ID)
+		if err != nil {
+			return err
+		}
+		store := &model.InstanceGroupStore{}
+		m, err := store.Get(c, ope.OwnerID)
+		if err != nil {
+			return err
+		}
 
+		switch m.Status {
+		case model.ConstructionRunning:
+			servicer, err := model.DefaultDeploymentServicer(ctx)
+			if err != nil {
+				return nil
+			}
+			remoteOpe, err := servicer.GetOperation(ctx, ope.ProjectId, ope.Name)
+			if err != nil {
+				log.Errorf(ctx, "Failed to get deployment operation: %v because of %v\n", ope, err)
+				return err
+			}
+			switch remoteOpe.Status {
+			case "DONE":
+				// TODO
+				return nil
+			default:
+				if ope.Status == remoteOpe.Status {
+					return ctx.Created(CloudAsyncOperationModelToMediaType(ope))
+				}
+				// ope.AppendLog(fmt.Sprintf("StatusChange from %s to %s", operation.Status, newOpe.Status))
+				ope.Status = remoteOpe.Status
+				_, err := opeStore.Update(ctx, ope)
+				if err != nil {
+					return err
+				}
+				return ctx.Created(CloudAsyncOperationModelToMediaType(ope))
+			}
+		case
+			model.ConstructionError,
+			model.Constructed:
+			log.Infof(c, "SKIPPING because InstanceGroup %s is already %v\n", m.Id, m.Status)
+			return ctx.OK(nil)
+		default:
+			log.Warningf(c, "Invalid request because InstanceGroup %s is already %v\n", m.Id, m.Status)
+			return ctx.NoContent(nil)
+		}
+	}, nil)
 	res := &app.CloudAsyncOperation{}
 	return ctx.OK(res)
 	// InstanceGroupConstructionTaskController_Watch: end_implement
