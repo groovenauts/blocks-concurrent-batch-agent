@@ -1,9 +1,11 @@
 package controller
 
 import (
+	"golang.org/x/net/context"
+
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/datastore"
-	"google.golang.org/appengine/log"
+	//"google.golang.org/appengine/log"
 	"google.golang.org/appengine/taskqueue"
 
 	"github.com/goadesign/goa"
@@ -41,11 +43,11 @@ func (c *IntanceGroupController) Create(ctx *app.CreateIntanceGroupContext) erro
 			return err
 		}
 		return nil
-	})
+	}, nil)
 	if err != nil {
 		return ctx.BadRequest(goa.ErrBadRequest(err))
 	}
-	return ctx.Created(InstanceGroupModelToMediaType(&model))
+	return ctx.Created(InstanceGroupModelToMediaType(&m))
 
 	// IntanceGroupController_Create: end_implement
 }

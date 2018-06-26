@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"golang.org/x/net/context"
+
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
@@ -43,12 +45,12 @@ func (c *InstanceGroupConstructionTaskController) Start(ctx *app.StartInstanceGr
 			if err != nil {
 				return err
 			}
-			err = store.Put(c, m)
+			_, err = store.Put(c, m)
 			if err != nil {
 				return err
 			}
 			opeStore := &model.CloudAsyncOperationStore{}
-			err = opeStore.Put(c, ope)
+			_, err = opeStore.Put(c, ope)
 			if err != nil {
 				return err
 			}
@@ -56,7 +58,7 @@ func (c *InstanceGroupConstructionTaskController) Start(ctx *app.StartInstanceGr
 			if _, err := taskqueue.Add(c, task, ""); err != nil {
 				return err
 			}
-			return nil
+			return ctx.Created(CloudAsyncOperationModelToMediaType(ope))
 		case
 			model.ConstructionRunning,
 			model.ConstructionError,
@@ -68,7 +70,7 @@ func (c *InstanceGroupConstructionTaskController) Start(ctx *app.StartInstanceGr
 			return ctx.NoContent(nil)
 		}
 
-	})
+	}, nil)
 
 	// InstanceGroupConstructionTaskController_Start: end_implement
 }

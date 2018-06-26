@@ -3,9 +3,6 @@ package model
 import (
 	"encoding/json"
 	"fmt"
-	"regexp"
-	"strings"
-	"time"
 
 	"golang.org/x/net/context"
 	"google.golang.org/api/deploymentmanager/v2"
@@ -24,7 +21,7 @@ func NewBuilder(ctx context.Context) (*Builder, error) {
 	return &Builder{deployer: deployer}, nil
 }
 
-func (b *Builder) Process(ctx context.Context, pl *InstanceGroup) (*Operation, error) {
+func (b *Builder) Process(ctx context.Context, pl *InstanceGroup) (*CloudAsyncOperation, error) {
 	deployment, err := b.BuildDeployment(pl)
 	if err != nil {
 		log.Errorf(ctx, "Failed to BuildDeployment: %v\nInstanceGroup: %v\n", err, pl)
@@ -38,23 +35,15 @@ func (b *Builder) Process(ctx context.Context, pl *InstanceGroup) (*Operation, e
 
 	log.Infof(ctx, "Built pipeline successfully %v\n", pl)
 
-	operation := &Operation{
+	operation := &CloudAsyncOperation{
 		OwnerType:     "InstanceGroup",
-		OwnerId:       pl.ID,
-		ProjectID:     pl.ProjectID,
+		OwnerID:       pl.Id,
+		ProjectId:     pl.ProjectID,
 		Zone:          pl.Zone,
 		Service:       "deploymentmanager",
 		Name:          ope.Name,
 		OperationType: ope.OperationType,
 		Status:        ope.Status,
-		Logs: []OperationLog{
-			OperationLog{CreatedAt: time.Now(), Message: "Start"},
-		},
-	}
-	err = operation.Create(ctx)
-	if err != nil {
-		log.Errorf(ctx, "Failed to create Operation: %v because of %v\n", operation, err)
-		return nil, err
 	}
 
 	return operation, nil
@@ -191,17 +180,16 @@ func (b *Builder) buildIgmResource(pl *InstanceGroup) Resource {
 		Properties: map[string]interface{}{
 			"baseInstanceName": pl.Name + "-instance",
 			"instanceTemplate": "$(ref." + pl.Name + "-it.selfLink)",
-			"targetSize":       pl.TargetSize,
+			"targetSize":       pl.InstanceSizeRequested,
 			"zone":             pl.Zone,
 		},
 	}
 }
 
 func (b *Builder) buildStartupScriptMetadataItem(pl *InstanceGroup) map[string]interface{} {
-	startup_script := b.buildStartupScript(pl)
 	return map[string]interface{}{
 		"key":   "startup-script",
-		"value": startup_script,
+		"value": pl.StartupScript,
 	}
 }
 
@@ -246,105 +234,4 @@ func (b *Builder) buildBootDisk(disk *InstanceGroupVMDisk) map[string]interface{
 		"autoDelete":       true,
 		"initializeParams": initParams,
 	}
-}
-
-const GcrHostPatternBase = `\A[^/]*gcr.io`
-
-var (
-	CosCloudProjectRegexp   = regexp.MustCompile(`/projects/cos-cloud/`)
-	GcrContainerImageRegexp = regexp.MustCompile(GcrHostPatternBase + `\/`)
-	GcrImageHostRegexp      = regexp.MustCompile(GcrHostPatternBase)
-)
-
-const StackdriverAgentCommand = "docker run -d -e MONITOR_HOST=true -v /proc:/mnt/proc:ro --privileged wikiwi/stackdriver-agent"
-
-func (b *Builder) buildStartupScript(pl *InstanceGroup) string {
-	r := []string{StartupScriptHeader}
-
-	docker := "docker"
-	if pl.GpuAccelerators.Count > 0 {
-		r = append(r,
-			b.buildInstallCuda(pl),
-			b.buildInstallDocker(pl),
-			b.buildInstallNvidiaDocker(pl),
-		)
-		docker = "nvidia-docker"
-	}
-
-	usingGcr :=
-		CosCloudProjectRegexp.MatchString(pl.BootDisk.SourceImage) &&
-			GcrContainerImageRegexp.MatchString(pl.ContainerName)
-	if usingGcr {
-		docker = docker + " --config /home/chronos/.docker"
-		host := GcrImageHostRegexp.FindString(pl.ContainerName)
-		r = append(r,
-			"METADATA=http://metadata.google.internal/computeMetadata/v1",
-			"SVC_ACCT=$METADATA/instance/service-accounts/default",
-			"ACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'\"' -f 4)",
-			"with_backoff "+docker+" login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://"+host,
-		)
-	}
-
-	if pl.StackdriverAgent {
-		r = append(r, StackdriverAgentCommand)
-	}
-
-	docker_run_parts := []string{
-		docker + " run -d",
-		"-e PROJECT=" + pl.ProjectID,
-		"-e DOCKER_HOSTNAME=$(hostname)",
-		"-e PIPELINE=" + pl.Name,
-		"-e ZONE=" + pl.Zone,
-		"-e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + pl.Name + "-job-subscription.name)",
-		"-e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + pl.Name + "-progress-topic.name)",
-	}
-	if pl.DockerRunOptions != "" {
-		docker_run_parts = append(docker_run_parts, pl.DockerRunOptions)
-	}
-	docker_run_parts = append(docker_run_parts, pl.ContainerName, pl.Command)
-
-	r = append(r,
-		"with_backoff "+docker+" pull "+pl.ContainerName,
-		fmt.Sprintf("for i in {1..%v}; do", pl.ContainerSize),
-		"  "+strings.Join(docker_run_parts, " \\\n    "),
-		"done",
-	)
-	return strings.Join(r, "\n")
-}
-
-func (b *Builder) buildInstallCuda(pl *InstanceGroup) string {
-	return `
-if ! dpkg-query -W cuda; then
-   curl -O http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_8.0.61-1_amd64.deb
-   dpkg -i ./cuda-repo-ubuntu1604_8.0.61-1_amd64.deb
-   apt-get update
-   apt-get -y install cuda
-fi
-nvidia-smi
-`
-}
-
-func (b *Builder) buildInstallDocker(pl *InstanceGroup) string {
-	return `
-apt-get update
-apt-get -y install \
-     apt-transport-https \
-     ca-certificates \
-     curl \
-     software-properties-common
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-apt-key fingerprint 0EBFCD88
-add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-apt-get update
-apt-get -y install docker-ce
-docker run hello-world
-`
-}
-
-func (b *Builder) buildInstallNvidiaDocker(pl *InstanceGroup) string {
-	return `
-wget -P /tmp https://github.com/NVIDIA/nvidia-docker/releases/download/v1.0.1/nvidia-docker_1.0.1-1_amd64.deb
-dpkg -i /tmp/nvidia-docker*.deb && rm /tmp/nvidia-docker*.deb
-nvidia-docker run --rm nvidia/cuda nvidia-smi
-`
 }
