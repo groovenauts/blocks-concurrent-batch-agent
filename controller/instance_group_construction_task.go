@@ -42,32 +42,7 @@ func (c *InstanceGroupConstructionTaskController) Start(ctx *app.StartInstanceGr
 		}
 	}
 	switch m.Status {
-	case model.ConstructionStarting:
-		b, err := model.NewConstructor(appCtx)
-		if err != nil {
-			return err
-		}
-		ope, err := b.Process(appCtx, m)
-		if err != nil {
-			return err
-		}
-		opeStore := &model.CloudAsyncOperationStore{}
-		_, err = opeStore.Put(appCtx, ope)
-		if err != nil {
-			return err
-		}
-		return datastore.RunInTransaction(appCtx, func(c context.Context) error {
-			m.Status = model.ConstructionRunning
-			_, err = store.Put(c, m)
-			if err != nil {
-				return err
-			}
-			task := &taskqueue.Task{Method: "PUT", Path: "/construction_tasks/" + ope.Id}
-			if _, err := taskqueue.Add(c, task, ""); err != nil {
-				return err
-			}
-			return ctx.Created(CloudAsyncOperationModelToMediaType(ope))
-		}, nil)
+	case model.ConstructionStarting: // Through
 	case
 		model.ConstructionRunning,
 		model.ConstructionError,
@@ -78,6 +53,32 @@ func (c *InstanceGroupConstructionTaskController) Start(ctx *app.StartInstanceGr
 		log.Warningf(appCtx, "Invalid request because InstanceGroup %s is already %v\n", m.Id, m.Status)
 		return ctx.NoContent(nil)
 	}
+
+	b, err := model.NewConstructor(appCtx)
+	if err != nil {
+		return err
+	}
+	ope, err := b.Process(appCtx, m)
+	if err != nil {
+		return err
+	}
+	opeStore := &model.CloudAsyncOperationStore{}
+	_, err = opeStore.Put(appCtx, ope)
+	if err != nil {
+		return err
+	}
+	return datastore.RunInTransaction(appCtx, func(c context.Context) error {
+		m.Status = model.ConstructionRunning
+		_, err = store.Put(c, m)
+		if err != nil {
+			return err
+		}
+		task := &taskqueue.Task{Method: "PUT", Path: "/construction_tasks/" + ope.Id}
+		if _, err := taskqueue.Add(c, task, ""); err != nil {
+			return err
+		}
+		return ctx.Created(CloudAsyncOperationModelToMediaType(ope))
+	}, nil)
 
 	// InstanceGroupConstructionTaskController_Start: end_implement
 }
