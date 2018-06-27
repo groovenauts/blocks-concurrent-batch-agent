@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"time"
 
 	"golang.org/x/net/context"
 
@@ -145,6 +146,9 @@ func (c *InstanceGroupConstructionTaskController) Watch(ctx *app.WatchInstanceGr
 			if err != nil {
 				return err
 			}
+		}
+		if err := PutTask(appCtx, "/construction_tasks/" + ope.Id, 1 * time.Minute); err != nil {
+			return err
 		}
 		return ctx.Created(CloudAsyncOperationModelToMediaType(ope))
 	}
