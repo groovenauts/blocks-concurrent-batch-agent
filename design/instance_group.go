@@ -139,7 +139,7 @@ var InstanceGroup = MediaType("application/vnd.instance-group+json", func() {
 	})
 })
 
-var _ = Resource("IntanceGroup", func() {
+var _ = Resource("InstanceGroup", func() {
 	BasePath("/instance_groups")
 	DefaultMedia(InstanceGroup)
 	UseTrait(DefineResourceTrait)
