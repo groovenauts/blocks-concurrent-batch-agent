@@ -54,7 +54,7 @@ func (c *InstanceGroupDestructionTaskController) Start(ctx *app.StartInstanceGro
 		return ctx.NoContent(nil)
 	}
 
-	return model.WithNewDestructor(appCtx, func(destructor *model.Destructor) error {
+	return model.WithNewInstanceGroupDestructor(appCtx, func(destructor *model.InstanceGroupDestructor) error {
 		ope, err := destructor.Process(appCtx, m)
 		if err != nil {
 			return err

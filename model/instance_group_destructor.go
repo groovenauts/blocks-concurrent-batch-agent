@@ -7,29 +7,29 @@ import (
 	"google.golang.org/appengine/log"
 )
 
-type Destructor struct {
+type InstanceGroupDestructor struct {
 	deployer DeploymentServicer
 }
 
-func NewDestructor(ctx context.Context) (*Destructor, error) {
+func NewInstanceGroupDestructor(ctx context.Context) (*InstanceGroupDestructor, error) {
 	deployer, err := DefaultDeploymentServicer(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &Destructor{
+	return &InstanceGroupDestructor{
 		deployer: deployer,
 	}, nil
 }
 
-func WithNewDestructor(ctx context.Context, f func(*Destructor) error) error {
-	closer, err := NewDestructor(ctx)
+func WithNewInstanceGroupDestructor(ctx context.Context, f func(*InstanceGroupDestructor) error) error {
+	closer, err := NewInstanceGroupDestructor(ctx)
 	if err != nil {
 		return err
 	}
 	return f(closer)
 }
 
-func (b *Destructor) Process(ctx context.Context, pl *InstanceGroup) (*CloudAsyncOperation, error) {
+func (b *InstanceGroupDestructor) Process(ctx context.Context, pl *InstanceGroup) (*CloudAsyncOperation, error) {
 	// https://cloud.google.com/deployment-manager/docs/reference/latest/deployments/delete#examples
 	ope, err := b.deployer.Delete(ctx, pl.ProjectID, pl.Name)
 	if err != nil {
