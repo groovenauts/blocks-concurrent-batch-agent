@@ -51,7 +51,7 @@ func (c *InstanceGroupResizingTaskController) Start(ctx *app.StartInstanceGroupR
 		return ctx.NoContent(nil)
 	}
 
-	return model.WithScaler(appCtx, func(scaler *model.Scaler) error {
+	return model.WithInstanceGroupScaler(appCtx, func(scaler *model.InstanceGroupScaler) error {
 		ope, err := scaler.Process(appCtx, m)
 		if err != nil {
 			return err

@@ -7,27 +7,27 @@ import (
 	"google.golang.org/appengine/log"
 )
 
-type Scaler struct {
+type InstanceGroupScaler struct {
 	igServicer InstanceGroupServicer
 }
 
-func NewScaler(ctx context.Context) (*Scaler, error) {
+func NewInstanceGroupScaler(ctx context.Context) (*InstanceGroupScaler, error) {
 	igServicer, err := DefaultInstanceGroupServicer(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &Scaler{igServicer: igServicer}, nil
+	return &InstanceGroupScaler{igServicer: igServicer}, nil
 }
 
-func WithScaler(ctx context.Context, f func(*Scaler) error) error {
-	scaler, err := NewScaler(ctx)
+func WithInstanceGroupScaler(ctx context.Context, f func(*InstanceGroupScaler) error) error {
+	scaler, err := NewInstanceGroupScaler(ctx)
 	if err != nil {
 		return err
 	}
 	return f(scaler)
 }
 
-func (s *Scaler) Process(ctx context.Context, pl *InstanceGroup) (*CloudAsyncOperation, error) {
+func (s *InstanceGroupScaler) Process(ctx context.Context, pl *InstanceGroup) (*CloudAsyncOperation, error) {
 	ope, err := s.igServicer.Resize(pl.ProjectID, pl.Zone, pl.DeploymentName+"-igm", int64(pl.InstanceSizeRequested))
 	if err != nil {
 		log.Errorf(ctx, "Failed to Resize %v/%v/%v to %d\n", pl.ProjectID, pl.Zone, pl.DeploymentName, pl.InstanceSizeRequested)
