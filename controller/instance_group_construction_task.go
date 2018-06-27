@@ -139,13 +139,12 @@ func (c *InstanceGroupConstructionTaskController) Watch(ctx *app.WatchInstanceGr
 	switch remoteOpe.Status {
 	case "DONE": // through
 	default:
-		if ope.Status == remoteOpe.Status {
-			return ctx.Created(CloudAsyncOperationModelToMediaType(ope))
-		}
-		ope.Status = remoteOpe.Status
-		_, err := opeStore.Update(ctx, ope)
-		if err != nil {
-			return err
+		if ope.Status != remoteOpe.Status {
+			ope.Status = remoteOpe.Status
+			_, err := opeStore.Update(ctx, ope)
+			if err != nil {
+				return err
+			}
 		}
 		return ctx.Created(CloudAsyncOperationModelToMediaType(ope))
 	}
