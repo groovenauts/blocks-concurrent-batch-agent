@@ -189,6 +189,7 @@ var _ = Resource("InstanceGroup", func() {
 			Param("id")
 		})
 		Response(OK, InstanceGroup)
+		Response(Created, InstanceGroup)
 		UseTrait(DefaultResponseTrait)
 	})
 	Action("delete", func() {
