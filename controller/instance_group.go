@@ -13,19 +13,19 @@ import (
 	"github.com/groovenauts/blocks-concurrent-batch-server/model"
 )
 
-// IntanceGroupController implements the IntanceGroup resource.
-type IntanceGroupController struct {
+// InstanceGroupController implements the InstanceGroup resource.
+type InstanceGroupController struct {
 	*goa.Controller
 }
 
-// NewIntanceGroupController creates a IntanceGroup controller.
-func NewIntanceGroupController(service *goa.Service) *IntanceGroupController {
-	return &IntanceGroupController{Controller: service.NewController("IntanceGroupController")}
+// NewInstanceGroupController creates a InstanceGroup controller.
+func NewInstanceGroupController(service *goa.Service) *InstanceGroupController {
+	return &InstanceGroupController{Controller: service.NewController("InstanceGroupController")}
 }
 
 // Create runs the create action.
-func (c *IntanceGroupController) Create(ctx *app.CreateIntanceGroupContext) error {
-	// IntanceGroupController_Create: start_implement
+func (c *InstanceGroupController) Create(ctx *app.CreateInstanceGroupContext) error {
+	// InstanceGroupController_Create: start_implement
 
 	// Put your logic here
 	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
@@ -52,34 +52,34 @@ func (c *IntanceGroupController) Create(ctx *app.CreateIntanceGroupContext) erro
 		return ctx.Created(InstanceGroupModelToMediaType(&m))
 	})
 
-	// IntanceGroupController_Create: end_implement
+	// InstanceGroupController_Create: end_implement
 }
 
 // Delete runs the delete action.
-func (c *IntanceGroupController) Delete(ctx *app.DeleteIntanceGroupContext) error {
-	// IntanceGroupController_Delete: start_implement
+func (c *InstanceGroupController) Delete(ctx *app.DeleteInstanceGroupContext) error {
+	// InstanceGroupController_Delete: start_implement
 
 	// Put your logic here
 
 	res := &app.InstanceGroup{}
 	return ctx.OK(res)
-	// IntanceGroupController_Delete: end_implement
+	// InstanceGroupController_Delete: end_implement
 }
 
 // Destruct runs the destruct action.
-func (c *IntanceGroupController) Destruct(ctx *app.DestructIntanceGroupContext) error {
-	// IntanceGroupController_Destruct: start_implement
+func (c *InstanceGroupController) Destruct(ctx *app.DestructInstanceGroupContext) error {
+	// InstanceGroupController_Destruct: start_implement
 
 	// Put your logic here
 
 	res := &app.InstanceGroup{}
 	return ctx.OK(res)
-	// IntanceGroupController_Destruct: end_implement
+	// InstanceGroupController_Destruct: end_implement
 }
 
 // List runs the list action.
-func (c *IntanceGroupController) List(ctx *app.ListIntanceGroupContext) error {
-	// IntanceGroupController_List: start_implement
+func (c *InstanceGroupController) List(ctx *app.ListInstanceGroupContext) error {
+	// InstanceGroupController_List: start_implement
 
 	// Put your logic here
 	appCtx := appengine.NewContext(ctx.Request)
@@ -94,27 +94,28 @@ func (c *IntanceGroupController) List(ctx *app.ListIntanceGroupContext) error {
 		res = append(res, InstanceGroupModelToMediaType(m))
 	}
 	return ctx.OK(res)
-	// IntanceGroupController_List: end_implement
+
+	// InstanceGroupController_List: end_implement
 }
 
 // Resize runs the resize action.
-func (c *IntanceGroupController) Resize(ctx *app.ResizeIntanceGroupContext) error {
-	// IntanceGroupController_Resize: start_implement
+func (c *InstanceGroupController) Resize(ctx *app.ResizeInstanceGroupContext) error {
+	// InstanceGroupController_Resize: start_implement
 
 	// Put your logic here
 
 	res := &app.InstanceGroup{}
 	return ctx.OK(res)
-	// IntanceGroupController_Resize: end_implement
+	// InstanceGroupController_Resize: end_implement
 }
 
 // Show runs the show action.
-func (c *IntanceGroupController) Show(ctx *app.ShowIntanceGroupContext) error {
-	// IntanceGroupController_Show: start_implement
+func (c *InstanceGroupController) Show(ctx *app.ShowInstanceGroupContext) error {
+	// InstanceGroupController_Show: start_implement
 
 	// Put your logic here
 
 	res := &app.InstanceGroup{}
 	return ctx.OK(res)
-	// IntanceGroupController_Show: end_implement
+	// InstanceGroupController_Show: end_implement
 }
