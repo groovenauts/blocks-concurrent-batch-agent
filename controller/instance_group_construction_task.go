@@ -30,54 +30,31 @@ func (c *InstanceGroupConstructionTaskController) Start(ctx *app.StartInstanceGr
 	// InstanceGroupConstructionTaskController_Start: start_implement
 
 	// Put your logic here
-	appCtx := appengine.NewContext(ctx.Request)
-	store := &model.InstanceGroupStore{}
-	m, err := store.Get(appCtx, ctx.ResourceID)
-	if err != nil {
-		if err == datastore.ErrNoSuchEntity {
-			log.Errorf(appCtx, "InstanceGroup not found for %q\n", ctx.ResourceID)
-			return ctx.NoContent(nil)
-		} else {
-			return err
-		}
+	start := InstanceGroupTaskStart{
+		MainStatus: model.ConstructionStarting,
+		NextStatus: model.ConstructionRunning,
+		SkipStatuses: []model.InstanceGroupStatus{
+			model.ConstructionRunning,
+			model.ConstructionError,
+			model.Constructed,
+		},
+		ProcessorFactory: func(ctx context.Context) (model.InstanceGroupProcessor, error) {
+			return model.NewInstanceGroupConstructor(ctx)
+		},
+		WatchTaskPathFunc: func(ope *model.CloudAsyncOperation) string {
+			return "/construction_tasks/" + ope.Id
+		},
+		RespondOk: func(ope *app.CloudAsyncOperation) error {
+			return ctx.OK(ope)
+		},
+		RespondNoContent: func(ope *app.CloudAsyncOperation) error {
+			return ctx.NoContent(ope)
+		},
+		RespondCreated: func(ope *app.CloudAsyncOperation) error {
+			return ctx.Created(ope)
+		},
 	}
-	switch m.Status {
-	case model.ConstructionStarting: // Through
-	case
-		model.ConstructionRunning,
-		model.ConstructionError,
-		model.Constructed:
-		log.Infof(appCtx, "SKIPPING because InstanceGroup %s is already %v\n", m.Id, m.Status)
-		return ctx.OK(nil)
-	default:
-		log.Warningf(appCtx, "Invalid request because InstanceGroup %s is already %v\n", m.Id, m.Status)
-		return ctx.NoContent(nil)
-	}
-
-	b, err := model.NewInstanceGroupConstructor(appCtx)
-	if err != nil {
-		return err
-	}
-	ope, err := b.Process(appCtx, m)
-	if err != nil {
-		return err
-	}
-	opeStore := &model.CloudAsyncOperationStore{}
-	_, err = opeStore.Put(appCtx, ope)
-	if err != nil {
-		return err
-	}
-	return datastore.RunInTransaction(appCtx, func(c context.Context) error {
-		m.Status = model.ConstructionRunning
-		_, err = store.Put(c, m)
-		if err != nil {
-			return err
-		}
-		if err := PutTask(appCtx, "/construction_tasks/" + ope.Id, 0); err != nil {
-			return err
-		}
-		return ctx.Created(CloudAsyncOperationModelToMediaType(ope))
-	}, nil)
+	return start.Run(appengine.NewContext(ctx.Request), ctx.ResourceID)
 
 	// InstanceGroupConstructionTaskController_Start: end_implement
 }

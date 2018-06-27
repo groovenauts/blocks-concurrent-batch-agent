@@ -30,50 +30,29 @@ func (c *InstanceGroupResizingTaskController) Start(ctx *app.StartInstanceGroupR
 	// InstanceGroupResizingTaskController_Start: start_implement
 
 	// Put your logic here
-	appCtx := appengine.NewContext(ctx.Request)
-	store := &model.InstanceGroupStore{}
-	m, err := store.Get(appCtx, ctx.ResourceID)
-	if err != nil {
-		if err == datastore.ErrNoSuchEntity {
-			log.Errorf(appCtx, "InstanceGroup not found for %q\n", ctx.ResourceID)
-			return ctx.NoContent(nil)
-		} else {
-			return err
-		}
+	start := InstanceGroupTaskStart{
+		MainStatus: model.ResizeStarting,
+		NextStatus: model.ResizeRunning,
+		SkipStatuses: []model.InstanceGroupStatus{
+			model.ResizeRunning,
+		},
+		ProcessorFactory: func(ctx context.Context) (model.InstanceGroupProcessor, error) {
+			return model.NewInstanceGroupScaler(ctx)
+		},
+		WatchTaskPathFunc: func(ope *model.CloudAsyncOperation) string {
+			return "/resizing_tasks/" + ope.Id
+		},
+		RespondOk: func(ope *app.CloudAsyncOperation) error {
+			return ctx.OK(ope)
+		},
+		RespondNoContent: func(ope *app.CloudAsyncOperation) error {
+			return ctx.NoContent(ope)
+		},
+		RespondCreated: func(ope *app.CloudAsyncOperation) error {
+			return ctx.Created(ope)
+		},
 	}
-	switch m.Status {
-	case model.ResizeStarting: // Through
-	case model.ResizeRunning:
-		log.Infof(appCtx, "SKIPPING because InstanceGroup %s is already %v\n", m.Id, m.Status)
-		return ctx.OK(nil)
-	default:
-		log.Warningf(appCtx, "Invalid request because InstanceGroup %s is already %v\n", m.Id, m.Status)
-		return ctx.NoContent(nil)
-	}
-
-	return model.WithInstanceGroupScaler(appCtx, func(scaler *model.InstanceGroupScaler) error {
-		ope, err := scaler.Process(appCtx, m)
-		if err != nil {
-			return err
-		}
-		opeStore := &model.CloudAsyncOperationStore{}
-		_, err = opeStore.Put(appCtx, ope)
-		if err != nil {
-			return err
-		}
-
-		return datastore.RunInTransaction(appCtx, func(c context.Context) error {
-			m.Status = model.ResizeRunning
-			_, err = store.Put(c, m)
-			if err != nil {
-				return err
-			}
-			if err := PutTask(appCtx, "/resizing_tasks/" + ope.Id, 0); err != nil {
-				return err
-			}
-			return ctx.Created(CloudAsyncOperationModelToMediaType(ope))
-		}, nil)
-	})
+	return start.Run(appengine.NewContext(ctx.Request), ctx.ResourceID)
 
 	// InstanceGroupResizingTaskController_Start: end_implement
 }
