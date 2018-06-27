@@ -20,3 +20,19 @@ func ErrorsFromComputeOperation(ope *compute.Operation) *[]CloudAsyncOperationEr
 		return nil
 	}
 }
+
+type RemoteOperationWrapperOfCompute struct {
+	Original *compute.Operation
+}
+
+func (w *RemoteOperationWrapperOfCompute) GetOriginal() interface{} {
+	return w.Original
+}
+
+func (w *RemoteOperationWrapperOfCompute) Status() string {
+	return w.Original.Status
+}
+
+func (w *RemoteOperationWrapperOfCompute) Errors() *[]CloudAsyncOperationError {
+	return ErrorsFromComputeOperation(w.Original)
+}

@@ -20,3 +20,20 @@ func ErrorsFromDeploymentmanagerOperation(ope *deploymentmanager.Operation) *[]C
 		return nil
 	}
 }
+
+
+type RemoteOperationWrapperOfDeploymentmanager struct {
+	Original *deploymentmanager.Operation
+}
+
+func (w *RemoteOperationWrapperOfDeploymentmanager) GetOriginal() interface{} {
+	return w.Original
+}
+
+func (w *RemoteOperationWrapperOfDeploymentmanager) Status() string {
+	return w.Original.Status
+}
+
+func (w *RemoteOperationWrapperOfDeploymentmanager) Errors() *[]CloudAsyncOperationError {
+	return ErrorsFromDeploymentmanagerOperation(w.Original)
+}
