@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"fmt"
+
 	"golang.org/x/net/context"
 
 	"google.golang.org/appengine"
@@ -105,9 +107,43 @@ func (c *InstanceGroupController) Resize(ctx *app.ResizeInstanceGroupContext) er
 	// InstanceGroupController_Resize: start_implement
 
 	// Put your logic here
+	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
+		appCtx := appengine.NewContext(ctx.Request)
+		store := &model.InstanceGroupStore{ParentKey: orgKey}
 
-	res := &app.InstanceGroup{}
-	return ctx.OK(res)
+		return datastore.RunInTransaction(appCtx, func(c context.Context) error {
+			m, err := store.Get(appCtx, ctx.ID)
+			if err != nil {
+				if err == datastore.ErrNoSuchEntity {
+					return ctx.NotFound(fmt.Errorf("InstanceGroup not found: %q", m.Id))
+				} else {
+					return err
+				}
+			}
+
+			switch m.Status {
+			case model.Constructed, model.ResizeStarting, model.ResizeRunning: // Through
+			default:
+				return ctx.Conflict(fmt.Errorf("Can't resize because the InstanceGroup %q is %s", m.Id, m.Status))
+			}
+
+			if m.InstanceSizeRequested >= ctx.NewSize {
+				return ctx.OK(InstanceGroupModelToMediaType(m))
+			}
+
+			m.InstanceSizeRequested = ctx.NewSize
+			if _, err := store.Update(appCtx, m); err != nil {
+				return err
+			}
+
+			task := &taskqueue.Task{Path: "/resizing_tasks?resource_id=" + m.Id}
+			if _, err := taskqueue.Add(c, task, ""); err != nil {
+				return err
+			}
+			return ctx.Created(InstanceGroupModelToMediaType(m))
+		}, nil)
+	})
+
 	// InstanceGroupController_Resize: end_implement
 }
 
