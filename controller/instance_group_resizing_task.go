@@ -95,21 +95,25 @@ func (c *InstanceGroupResizingTaskController) Watch(ctx *app.WatchInstanceGroupR
 	if err != nil {
 		return nil
 	}
-	remoteOpe, err := servicer.GetZoneOp(ope.ProjectId, ope.Zone, ope.Name)
+	remoteOpeOriginal, err := servicer.GetZoneOp(ope.ProjectId, ope.Zone, ope.Name)
 	if err != nil {
 		log.Errorf(appCtx, "Failed to get deployment operation: %v because of %v\n", ope, err)
 		return err
 	}
-	if ope.Status != remoteOpe.Status {
-		ope.AppendLog(fmt.Sprintf("InstanceGroup %q Status changed from %q to %q", m.Id, ope.Status, remoteOpe.Status))
+	remoteOpe := &model.RemoteOperationWrapperOfCompute{
+		Original: remoteOpeOriginal,
+	}
+
+	if ope.Status != remoteOpe.Status() {
+		ope.AppendLog(fmt.Sprintf("InstanceGroup %q Status changed from %q to %q", m.Id, ope.Status, remoteOpe.Status()))
 	}
 
 	// PENDING, RUNNING, or DONE
-	switch remoteOpe.Status {
+	switch remoteOpe.Status() {
 	case "DONE": // through
 	default:
-		if ope.Status != remoteOpe.Status {
-			ope.Status = remoteOpe.Status
+		if ope.Status != remoteOpe.Status() {
+			ope.Status = remoteOpe.Status()
 			_, err := opeStore.Update(appCtx, ope)
 			if err != nil {
 				return err
@@ -121,11 +125,11 @@ func (c *InstanceGroupResizingTaskController) Watch(ctx *app.WatchInstanceGroupR
 		return ctx.Created(CloudAsyncOperationModelToMediaType(ope))
 	}
 
-	errors := model.ErrorsFromComputeOperation(remoteOpe)
+	errors := remoteOpe.Errors()
 	var f func(r *app.CloudAsyncOperation) error
 	if errors != nil {
 		ope.Errors = *errors
-		ope.AppendLog(fmt.Sprintf("Error by %v", remoteOpe))
+		ope.AppendLog(fmt.Sprintf("Error by %v", remoteOpe.GetOriginal()))
 		m.Status = model.Constructed
 		log.Errorf(appCtx, "Failed to resize InstanceGroup %q\n", m.Id)
 		f = ctx.NoContent
