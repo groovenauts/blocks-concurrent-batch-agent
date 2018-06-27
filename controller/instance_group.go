@@ -8,7 +8,6 @@ import (
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/datastore"
 	//"google.golang.org/appengine/log"
-	"google.golang.org/appengine/taskqueue"
 
 	"github.com/goadesign/goa"
 	"github.com/groovenauts/blocks-concurrent-batch-server/app"
@@ -42,8 +41,7 @@ func (c *InstanceGroupController) Create(ctx *app.CreateInstanceGroupContext) er
 				return ctx.BadRequest(goa.ErrBadRequest(err))
 			}
 
-			task := &taskqueue.Task{Path: "/construction_tasks?resource_id=" + m.Id}
-			if _, err := taskqueue.Add(c, task, ""); err != nil {
+			if err := PostTask(appCtx, "/construction_tasks?resource_id=" + m.Id, 0); err != nil {
 				return err
 			}
 			return nil
@@ -98,8 +96,7 @@ func (c *InstanceGroupController) Destruct(ctx *app.DestructInstanceGroupContext
 				return err
 			}
 
-			task := &taskqueue.Task{Path: "/destruction_tasks?resource_id=" + m.Id}
-			if _, err := taskqueue.Add(c, task, ""); err != nil {
+			if err := PostTask(appCtx, "/destruction_tasks?resource_id=" + m.Id, 0); err != nil {
 				return err
 			}
 			return ctx.Created(InstanceGroupModelToMediaType(m))
@@ -166,8 +163,7 @@ func (c *InstanceGroupController) Resize(ctx *app.ResizeInstanceGroupContext) er
 				return err
 			}
 
-			task := &taskqueue.Task{Path: "/resizing_tasks?resource_id=" + m.Id}
-			if _, err := taskqueue.Add(c, task, ""); err != nil {
+			if err := PostTask(appCtx, "/resizing_tasks?resource_id=" + m.Id, 0); err != nil {
 				return err
 			}
 			return ctx.Created(InstanceGroupModelToMediaType(m))

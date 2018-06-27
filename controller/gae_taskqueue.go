@@ -8,6 +8,10 @@ import (
 	"google.golang.org/appengine/taskqueue"
 )
 
+func PostTask(c context.Context, path string, delay time.Duration) error {
+	return RequestTask(c, "POST", path, delay)
+}
+
 func PutTask(c context.Context, path string, delay time.Duration) error {
 	return RequestTask(c, "PUT", path, delay)
 }
