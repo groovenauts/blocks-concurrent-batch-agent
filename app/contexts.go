@@ -199,6 +199,14 @@ func (ctx *DestructInstanceGroupContext) OK(r *InstanceGroup) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 
+// Created sends a HTTP response with status code 201.
+func (ctx *DestructInstanceGroupContext) Created(r *InstanceGroup) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
+}
+
 // BadRequest sends a HTTP response with status code 400.
 func (ctx *DestructInstanceGroupContext) BadRequest(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {

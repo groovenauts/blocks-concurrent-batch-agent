@@ -1741,6 +1741,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/Instance-Group'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Instance-Group'
         "400":
           description: Bad Request
           schema:
