@@ -7,23 +7,29 @@ import (
 	"google.golang.org/appengine/log"
 )
 
-type Closer struct {
+type Destructor struct {
 	deployer DeploymentServicer
 }
 
-func NewCloser(ctx context.Context) (*Closer, error) {
+func NewDestructor(ctx context.Context) (*Destructor, error) {
 	deployer, err := DefaultDeploymentServicer(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &Closer{
+	return &Destructor{
 		deployer: deployer,
 	}, nil
 }
 
-func (b *Closer) Process(ctx context.Context, pl *Pipeline) (*PipelineOperation, error) {
-	log.Debugf(ctx, "Closing pipeline %v\n", pl)
+func WithNewDestructor(ctx context.Context, f func(*Destructor) error) error {
+	closer, err := NewDestructor(ctx)
+	if err != nil {
+		return err
+	}
+	return f(closer)
+}
 
+func (b *Destructor) Process(ctx context.Context, pl *InstanceGroup) (*CloudAsyncOperation, error) {
 	// https://cloud.google.com/deployment-manager/docs/reference/latest/deployments/delete#examples
 	ope, err := b.deployer.Delete(ctx, pl.ProjectID, pl.Name)
 	if err != nil {
@@ -33,22 +39,18 @@ func (b *Closer) Process(ctx context.Context, pl *Pipeline) (*PipelineOperation,
 
 	log.Infof(ctx, "Closing operation successfully started: %v deployment: %v\n", pl.ProjectID, pl.Name)
 
-	operation := &PipelineOperation{
-		Pipeline:      pl,
-		ProjectID:     pl.ProjectID,
+	operation := &CloudAsyncOperation{
+		OwnerType:     "InstanceGroup",
+		OwnerID:       pl.Id,
+		ProjectId:     pl.ProjectID,
 		Zone:          pl.Zone,
 		Service:       "deploymentmanager",
 		Name:          ope.Name,
 		OperationType: ope.OperationType,
 		Status:        ope.Status,
-		Logs: []OperationLog{
-			OperationLog{CreatedAt: time.Now(), Message: "Start"},
+		Logs: []CloudAsyncOperationLog{
+			CloudAsyncOperationLog{CreatedAt: time.Now(), Message: "Start"},
 		},
-	}
-	err = operation.Create(ctx)
-	if err != nil {
-		log.Errorf(ctx, "Failed to create PipelineOperation: %v because of %v\n", operation, err)
-		return nil, err
 	}
 
 	return operation, nil
