@@ -34,6 +34,7 @@ var _ = API("appengine", func() {
 		Response(NotFound, ErrorMedia)
 		Response(BadRequest, ErrorMedia)
 		Response(InternalServerError, ErrorMedia)
+		Response(Conflict, ErrorMedia)
 	})
 	Trait(DefineResourceTrait, func() {
 		Security(Authorization)

@@ -175,12 +175,11 @@ var _ = Resource("InstanceGroup", func() {
 		Routing(PUT("/:id/resize"))
 		Params(func() {
 			Param("id")
-		})
-		Payload(func() {
-			Member("new_size", Integer, "New Instance Size")
+			Param("new_size", Integer, "New Instance Size")
 			Required("new_size")
 		})
 		Response(OK, InstanceGroup)
+		Response(Created, InstanceGroup)
 		UseTrait(DefaultResponseTrait)
 	})
 	Action("destruct", func() {
