@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"fmt"
+
 	"golang.org/x/net/context"
 
 	"google.golang.org/appengine"
@@ -121,9 +123,9 @@ func (c *InstanceGroupDestructionTaskController) Watch(ctx *app.WatchInstanceGro
 	if err != nil {
 		return nil
 	}
-	remoteOpe, err := servicer.GetOperation(ctx, ope.ProjectId, ope.Name)
+	remoteOpe, err := servicer.GetOperation(appCtx, ope.ProjectId, ope.Name)
 	if err != nil {
-		log.Errorf(ctx, "Failed to get deployment operation: %v because of %v\n", ope, err)
+		log.Errorf(appCtx, "Failed to get deployment operation: %v because of %v\n", ope, err)
 		return err
 	}
 	if ope.Status != remoteOpe.Status {
@@ -136,7 +138,7 @@ func (c *InstanceGroupDestructionTaskController) Watch(ctx *app.WatchInstanceGro
 	default:
 		if ope.Status != remoteOpe.Status {
 			ope.Status = remoteOpe.Status
-			_, err := opeStore.Update(ctx, ope)
+			_, err := opeStore.Update(appCtx, ope)
 			if err != nil {
 				return err
 			}

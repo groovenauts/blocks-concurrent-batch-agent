@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+
 	"golang.org/x/net/context"
 
 	"google.golang.org/appengine"
@@ -118,7 +119,7 @@ func (c *InstanceGroupResizingTaskController) Watch(ctx *app.WatchInstanceGroupR
 	}
 	remoteOpe, err := servicer.GetZoneOp(ope.ProjectId, ope.Zone, ope.Name)
 	if err != nil {
-		log.Errorf(ctx, "Failed to get deployment operation: %v because of %v\n", ope, err)
+		log.Errorf(appCtx, "Failed to get deployment operation: %v because of %v\n", ope, err)
 		return err
 	}
 	if ope.Status != remoteOpe.Status {
@@ -131,7 +132,7 @@ func (c *InstanceGroupResizingTaskController) Watch(ctx *app.WatchInstanceGroupR
 	default:
 		if ope.Status != remoteOpe.Status {
 			ope.Status = remoteOpe.Status
-			_, err := opeStore.Update(ctx, ope)
+			_, err := opeStore.Update(appCtx, ope)
 			if err != nil {
 				return err
 			}

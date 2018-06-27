@@ -122,13 +122,13 @@ func (c *InstanceGroupConstructionTaskController) Watch(ctx *app.WatchInstanceGr
 		return ctx.NoContent(nil)
 	}
 
-	servicer, err := model.DefaultDeploymentServicer(ctx)
+	servicer, err := model.DefaultDeploymentServicer(appCtx)
 	if err != nil {
 		return nil
 	}
-	remoteOpe, err := servicer.GetOperation(ctx, ope.ProjectId, ope.Name)
+	remoteOpe, err := servicer.GetOperation(appCtx, ope.ProjectId, ope.Name)
 	if err != nil {
-		log.Errorf(ctx, "Failed to get deployment operation: %v because of %v\n", ope, err)
+		log.Errorf(appCtx, "Failed to get deployment operation: %v because of %v\n", ope, err)
 		return err
 	}
 	if ope.Status != remoteOpe.Status {
@@ -141,7 +141,7 @@ func (c *InstanceGroupConstructionTaskController) Watch(ctx *app.WatchInstanceGr
 	default:
 		if ope.Status != remoteOpe.Status {
 			ope.Status = remoteOpe.Status
-			_, err := opeStore.Update(ctx, ope)
+			_, err := opeStore.Update(appCtx, ope)
 			if err != nil {
 				return err
 			}
