@@ -9,7 +9,6 @@ import (
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
-	"google.golang.org/appengine/taskqueue"
 
 	"github.com/goadesign/goa"
 	"github.com/groovenauts/blocks-concurrent-batch-server/app"
@@ -71,8 +70,7 @@ func (c *InstanceGroupDestructionTaskController) Start(ctx *app.StartInstanceGro
 			if err != nil {
 				return err
 			}
-			task := &taskqueue.Task{Method: "PUT", Path: "/destruction_tasks/" + ope.Id}
-			if _, err := taskqueue.Add(c, task, ""); err != nil {
+			if err := PutTask(appCtx, "/destruction_tasks/" + ope.Id, 0); err != nil {
 				return err
 			}
 			return ctx.Created(CloudAsyncOperationModelToMediaType(ope))
