@@ -14,6 +14,7 @@ import (
 	"context"
 	"github.com/goadesign/goa"
 	"net/http"
+	"strconv"
 )
 
 // CreateInstanceGroupContext provides the InstanceGroup create action context.
@@ -74,6 +75,14 @@ func (ctx *CreateInstanceGroupContext) NotFound(r error) error {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *CreateInstanceGroupContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
 }
 
 // InternalServerError sends a HTTP response with status code 500.
@@ -141,6 +150,14 @@ func (ctx *DeleteInstanceGroupContext) NotFound(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
 }
 
+// Conflict sends a HTTP response with status code 409.
+func (ctx *DeleteInstanceGroupContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *DeleteInstanceGroupContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
@@ -206,6 +223,14 @@ func (ctx *DestructInstanceGroupContext) NotFound(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
 }
 
+// Conflict sends a HTTP response with status code 409.
+func (ctx *DestructInstanceGroupContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *DestructInstanceGroupContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
@@ -268,6 +293,14 @@ func (ctx *ListInstanceGroupContext) NotFound(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
 }
 
+// Conflict sends a HTTP response with status code 409.
+func (ctx *ListInstanceGroupContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *ListInstanceGroupContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
@@ -282,7 +315,7 @@ type ResizeInstanceGroupContext struct {
 	*goa.ResponseData
 	*goa.RequestData
 	ID      string
-	Payload *ResizeInstanceGroupPayload
+	NewSize int
 }
 
 // NewResizeInstanceGroupContext parses the incoming request URL and body, performs validations and creates the
@@ -299,36 +332,18 @@ func NewResizeInstanceGroupContext(ctx context.Context, r *http.Request, service
 		rawID := paramID[0]
 		rctx.ID = rawID
 	}
+	paramNewSize := req.Params["new_size"]
+	if len(paramNewSize) == 0 {
+		err = goa.MergeErrors(err, goa.MissingParamError("new_size"))
+	} else {
+		rawNewSize := paramNewSize[0]
+		if newSize, err2 := strconv.Atoi(rawNewSize); err2 == nil {
+			rctx.NewSize = newSize
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("new_size", rawNewSize, "integer"))
+		}
+	}
 	return &rctx, err
-}
-
-// resizeInstanceGroupPayload is the InstanceGroup resize action payload.
-type resizeInstanceGroupPayload struct {
-	// New Instance Size
-	NewSize *int `form:"new_size,omitempty" json:"new_size,omitempty" yaml:"new_size,omitempty" xml:"new_size,omitempty"`
-}
-
-// Validate runs the validation rules defined in the design.
-func (payload *resizeInstanceGroupPayload) Validate() (err error) {
-	if payload.NewSize == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "new_size"))
-	}
-	return
-}
-
-// Publicize creates ResizeInstanceGroupPayload from resizeInstanceGroupPayload
-func (payload *resizeInstanceGroupPayload) Publicize() *ResizeInstanceGroupPayload {
-	var pub ResizeInstanceGroupPayload
-	if payload.NewSize != nil {
-		pub.NewSize = *payload.NewSize
-	}
-	return &pub
-}
-
-// ResizeInstanceGroupPayload is the InstanceGroup resize action payload.
-type ResizeInstanceGroupPayload struct {
-	// New Instance Size
-	NewSize int `form:"new_size" json:"new_size" yaml:"new_size" xml:"new_size"`
 }
 
 // OK sends a HTTP response with status code 200.
@@ -337,6 +352,14 @@ func (ctx *ResizeInstanceGroupContext) OK(r *InstanceGroup) error {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// Created sends a HTTP response with status code 201.
+func (ctx *ResizeInstanceGroupContext) Created(r *InstanceGroup) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
 }
 
 // BadRequest sends a HTTP response with status code 400.
@@ -361,6 +384,14 @@ func (ctx *ResizeInstanceGroupContext) NotFound(r error) error {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *ResizeInstanceGroupContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
 }
 
 // InternalServerError sends a HTTP response with status code 500.
@@ -426,6 +457,14 @@ func (ctx *ShowInstanceGroupContext) NotFound(r error) error {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *ShowInstanceGroupContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
 }
 
 // InternalServerError sends a HTTP response with status code 500.
@@ -527,6 +566,14 @@ func (ctx *StartInstanceGroupConstructionTaskContext) NotFound(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
 }
 
+// Conflict sends a HTTP response with status code 409.
+func (ctx *StartInstanceGroupConstructionTaskContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *StartInstanceGroupConstructionTaskContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
@@ -622,6 +669,14 @@ func (ctx *WatchInstanceGroupConstructionTaskContext) NotFound(r error) error {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *WatchInstanceGroupConstructionTaskContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
 }
 
 // InternalServerError sends a HTTP response with status code 500.
@@ -723,6 +778,14 @@ func (ctx *StartInstanceGroupDestructionTaskContext) NotFound(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
 }
 
+// Conflict sends a HTTP response with status code 409.
+func (ctx *StartInstanceGroupDestructionTaskContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *StartInstanceGroupDestructionTaskContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
@@ -818,6 +881,14 @@ func (ctx *WatchInstanceGroupDestructionTaskContext) NotFound(r error) error {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *WatchInstanceGroupDestructionTaskContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
 }
 
 // InternalServerError sends a HTTP response with status code 500.
@@ -919,6 +990,14 @@ func (ctx *StartInstanceGroupResizingTaskContext) NotFound(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
 }
 
+// Conflict sends a HTTP response with status code 409.
+func (ctx *StartInstanceGroupResizingTaskContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *StartInstanceGroupResizingTaskContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
@@ -1016,6 +1095,14 @@ func (ctx *WatchInstanceGroupResizingTaskContext) NotFound(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
 }
 
+// Conflict sends a HTTP response with status code 409.
+func (ctx *WatchInstanceGroupResizingTaskContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *WatchInstanceGroupResizingTaskContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
@@ -1087,6 +1174,14 @@ func (ctx *ActivateJobContext) NotFound(r error) error {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *ActivateJobContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
 }
 
 // InternalServerError sends a HTTP response with status code 500.
@@ -1167,6 +1262,14 @@ func (ctx *CreateJobContext) NotFound(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
 }
 
+// Conflict sends a HTTP response with status code 409.
+func (ctx *CreateJobContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *CreateJobContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
@@ -1230,6 +1333,14 @@ func (ctx *DeleteJobContext) NotFound(r error) error {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *DeleteJobContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
 }
 
 // InternalServerError sends a HTTP response with status code 500.
@@ -1297,6 +1408,14 @@ func (ctx *InactivateJobContext) NotFound(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
 }
 
+// Conflict sends a HTTP response with status code 409.
+func (ctx *InactivateJobContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *InactivateJobContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
@@ -1362,6 +1481,14 @@ func (ctx *PublishingTaskJobContext) NotFound(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
 }
 
+// Conflict sends a HTTP response with status code 409.
+func (ctx *PublishingTaskJobContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *PublishingTaskJobContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
@@ -1425,6 +1552,14 @@ func (ctx *ShowJobContext) NotFound(r error) error {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *ShowJobContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
 }
 
 // InternalServerError sends a HTTP response with status code 500.
@@ -1493,6 +1628,14 @@ func (ctx *CreatePipelineContext) NotFound(r error) error {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *CreatePipelineContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
 }
 
 // InternalServerError sends a HTTP response with status code 500.
@@ -1568,6 +1711,14 @@ func (ctx *CurrentPipelineContext) NotFound(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
 }
 
+// Conflict sends a HTTP response with status code 409.
+func (ctx *CurrentPipelineContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *CurrentPipelineContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
@@ -1631,6 +1782,14 @@ func (ctx *DeletePipelineContext) NotFound(r error) error {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *DeletePipelineContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
 }
 
 // InternalServerError sends a HTTP response with status code 500.
@@ -1701,6 +1860,14 @@ func (ctx *ListPipelineContext) NotFound(r error) error {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *ListPipelineContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
 }
 
 // InternalServerError sends a HTTP response with status code 500.
@@ -1780,6 +1947,14 @@ func (ctx *PreparingFinalizeTaskPipelineContext) NotFound(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
 }
 
+// Conflict sends a HTTP response with status code 409.
+func (ctx *PreparingFinalizeTaskPipelineContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *PreparingFinalizeTaskPipelineContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
@@ -1843,6 +2018,14 @@ func (ctx *ShowPipelineContext) NotFound(r error) error {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *ShowPipelineContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
 }
 
 // InternalServerError sends a HTTP response with status code 500.
@@ -1910,6 +2093,14 @@ func (ctx *StopPipelineContext) NotFound(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
 }
 
+// Conflict sends a HTTP response with status code 409.
+func (ctx *StopPipelineContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *StopPipelineContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
@@ -1973,6 +2164,14 @@ func (ctx *ClosePipelineBaseContext) NotFound(r error) error {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *ClosePipelineBaseContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
 }
 
 // InternalServerError sends a HTTP response with status code 500.
@@ -2043,6 +2242,14 @@ func (ctx *CreatePipelineBaseContext) NotFound(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
 }
 
+// Conflict sends a HTTP response with status code 409.
+func (ctx *CreatePipelineBaseContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *CreatePipelineBaseContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
@@ -2108,6 +2315,14 @@ func (ctx *DeletePipelineBaseContext) NotFound(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
 }
 
+// Conflict sends a HTTP response with status code 409.
+func (ctx *DeletePipelineBaseContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *DeletePipelineBaseContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
@@ -2171,6 +2386,14 @@ func (ctx *HibernationCheckingTaskPipelineBaseContext) NotFound(r error) error {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *HibernationCheckingTaskPipelineBaseContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
 }
 
 // InternalServerError sends a HTTP response with status code 500.
@@ -2250,6 +2473,14 @@ func (ctx *HibernationDoneTaskPipelineBaseContext) NotFound(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
 }
 
+// Conflict sends a HTTP response with status code 409.
+func (ctx *HibernationDoneTaskPipelineBaseContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *HibernationDoneTaskPipelineBaseContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
@@ -2320,6 +2551,14 @@ func (ctx *ListPipelineBaseContext) NotFound(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
 }
 
+// Conflict sends a HTTP response with status code 409.
+func (ctx *ListPipelineBaseContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *ListPipelineBaseContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
@@ -2385,6 +2624,14 @@ func (ctx *PullTaskPipelineBaseContext) NotFound(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
 }
 
+// Conflict sends a HTTP response with status code 409.
+func (ctx *PullTaskPipelineBaseContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *PullTaskPipelineBaseContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
@@ -2448,6 +2695,14 @@ func (ctx *ShowPipelineBaseContext) NotFound(r error) error {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *ShowPipelineBaseContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
 }
 
 // InternalServerError sends a HTTP response with status code 500.
@@ -2525,6 +2780,14 @@ func (ctx *WakeupDoneTaskPipelineBaseContext) NotFound(r error) error {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *WakeupDoneTaskPipelineBaseContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
 }
 
 // InternalServerError sends a HTTP response with status code 500.
@@ -2626,6 +2889,14 @@ func (ctx *StartPipelineBaseClosingTaskContext) NotFound(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
 }
 
+// Conflict sends a HTTP response with status code 409.
+func (ctx *StartPipelineBaseClosingTaskContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *StartPipelineBaseClosingTaskContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
@@ -2721,6 +2992,14 @@ func (ctx *WatchPipelineBaseClosingTaskContext) NotFound(r error) error {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *WatchPipelineBaseClosingTaskContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
 }
 
 // InternalServerError sends a HTTP response with status code 500.
@@ -2822,6 +3101,14 @@ func (ctx *StartPipelineBaseOpeningTaskContext) NotFound(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
 }
 
+// Conflict sends a HTTP response with status code 409.
+func (ctx *StartPipelineBaseOpeningTaskContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *StartPipelineBaseOpeningTaskContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
@@ -2919,6 +3206,14 @@ func (ctx *WatchPipelineBaseOpeningTaskContext) NotFound(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
 }
 
+// Conflict sends a HTTP response with status code 409.
+func (ctx *WatchPipelineBaseOpeningTaskContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *WatchPipelineBaseOpeningTaskContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
@@ -2976,6 +3271,14 @@ func (ctx *CreateDummyAuthsContext) NotFound(r error) error {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *CreateDummyAuthsContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
 }
 
 // InternalServerError sends a HTTP response with status code 500.

@@ -59,10 +59,10 @@ type (
 
 	// ResizeInstanceGroupCommand is the command line data structure for the resize action of InstanceGroup
 	ResizeInstanceGroupCommand struct {
-		Payload     string
-		ContentType string
 		// ID
-		ID          string
+		ID string
+		// New Instance Size
+		NewSize     int
 		PrettyPrint bool
 	}
 
@@ -404,7 +404,7 @@ Payload example:
 Payload example:
 
 {
-   "id_by_client": "Ducimus aspernatur perspiciatis aperiam.",
+   "id_by_client": "Ea ducimus aspernatur perspiciatis.",
    "message": {
       "attributes": {
          "Dolor ut iusto.": "Sequi adipisci eius temporibus adipisci quis."
@@ -433,7 +433,7 @@ Payload example:
       "size": 2,
       "stackdriver_agent": false
    },
-   "hibernation_delay": 7797336613342039318,
+   "hibernation_delay": 3784209934487900665,
    "instance_group": {
       "boot_disk": {
          "disk_size_gb": 50,
@@ -477,7 +477,7 @@ Payload example:
       "size": 2,
       "stackdriver_agent": false
    },
-   "hibernation_delay": 7212691683500624276,
+   "hibernation_delay": 7797336613342039318,
    "instance_group": {
       "boot_disk": {
          "disk_size_gb": 50,
@@ -708,14 +708,7 @@ Payload example:
 	sub = &cobra.Command{
 		Use:   `instance-group ["/instance_groups/ID/resize"]`,
 		Short: ``,
-		Long: `
-
-Payload example:
-
-{
-   "new_size": 4251147645571147493
-}`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp23.Run(c, args) },
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp23.Run(c, args) },
 	}
 	tmp23.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp23.PrettyPrint, "pp", false, "Pretty print response body")
@@ -1222,16 +1215,9 @@ func (cmd *ResizeInstanceGroupCommand) Run(c *client.Client, args []string) erro
 	} else {
 		path = fmt.Sprintf("/instance_groups/%v/resize", url.QueryEscape(cmd.ID))
 	}
-	var payload client.ResizeInstanceGroupPayload
-	if cmd.Payload != "" {
-		err := json.Unmarshal([]byte(cmd.Payload), &payload)
-		if err != nil {
-			return fmt.Errorf("failed to deserialize payload: %s", err)
-		}
-	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.ResizeInstanceGroup(ctx, path, &payload, cmd.ContentType)
+	resp, err := c.ResizeInstanceGroup(ctx, path, cmd.NewSize)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -1243,10 +1229,10 @@ func (cmd *ResizeInstanceGroupCommand) Run(c *client.Client, args []string) erro
 
 // RegisterFlags registers the command flags with the command line.
 func (cmd *ResizeInstanceGroupCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
-	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
 	var id string
 	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
+	var newSize int
+	cc.Flags().IntVar(&cmd.NewSize, "new_size", newSize, `New Instance Size`)
 }
 
 // Run makes the HTTP request corresponding to the ShowInstanceGroupCommand command.

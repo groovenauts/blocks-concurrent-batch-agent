@@ -22,6 +22,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strconv"
 )
 
 // CreateInstanceGroupBadRequest runs the method Create of the given controller with the given parameters and payload.
@@ -99,6 +100,95 @@ func CreateInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, se
 	}
 	if rw.Code != 400 {
 		t.Errorf("invalid response status code: got %+v, expected 400", rw.Code)
+	}
+	var mt error
+	if resp != nil {
+		var __ok bool
+		mt, __ok = resp.(error)
+		if !__ok {
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of error", resp, resp)
+		}
+	}
+
+	// Return results
+	return rw, mt
+}
+
+// CreateInstanceGroupConflict runs the method Create of the given controller with the given parameters and payload.
+// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func CreateInstanceGroupConflict(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, orgID string, payload *app.InstanceGroupPayload) (http.ResponseWriter, error) {
+	// Setup service
+	var (
+		logBuf bytes.Buffer
+		resp   interface{}
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Validate payload
+	err := payload.Validate()
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic(err) // bug
+		}
+		return nil, e
+	}
+
+	// Setup request context
+	rw := httptest.NewRecorder()
+	query := url.Values{}
+	{
+		sliceVal := []string{orgID}
+		query["org_id"] = sliceVal
+	}
+	u := &url.URL{
+		Path:     fmt.Sprintf("/instance_groups"),
+		RawQuery: query.Encode(),
+	}
+	req, _err := http.NewRequest("POST", u.String(), nil)
+	if _err != nil {
+		panic("invalid test " + _err.Error()) // bug
+	}
+	prms := url.Values{}
+	{
+		sliceVal := []string{orgID}
+		prms["org_id"] = sliceVal
+	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "InstanceGroupTest"), rw, req, prms)
+	createCtx, __err := app.NewCreateInstanceGroupContext(goaCtx, req, service)
+	if __err != nil {
+		_e, _ok := __err.(goa.ServiceError)
+		if !_ok {
+			panic("invalid test data " + __err.Error()) // bug
+		}
+		return nil, _e
+	}
+	createCtx.Payload = payload
+
+	// Perform action
+	__err = ctrl.Create(createCtx)
+
+	// Validate response
+	if __err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", __err, logBuf.String())
+	}
+	if rw.Code != 409 {
+		t.Errorf("invalid response status code: got %+v, expected 409", rw.Code)
 	}
 	var mt error
 	if resp != nil {
@@ -544,6 +634,75 @@ func DeleteInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, se
 	return rw, mt
 }
 
+// DeleteInstanceGroupConflict runs the method Delete of the given controller with the given parameters.
+// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func DeleteInstanceGroupConflict(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, error) {
+	// Setup service
+	var (
+		logBuf bytes.Buffer
+		resp   interface{}
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Setup request context
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/instance_groups/%v", id),
+	}
+	req, err := http.NewRequest("DELETE", u.String(), nil)
+	if err != nil {
+		panic("invalid test " + err.Error()) // bug
+	}
+	prms := url.Values{}
+	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "InstanceGroupTest"), rw, req, prms)
+	deleteCtx, _err := app.NewDeleteInstanceGroupContext(goaCtx, req, service)
+	if _err != nil {
+		e, ok := _err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + _err.Error()) // bug
+		}
+		return nil, e
+	}
+
+	// Perform action
+	_err = ctrl.Delete(deleteCtx)
+
+	// Validate response
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	}
+	if rw.Code != 409 {
+		t.Errorf("invalid response status code: got %+v, expected 409", rw.Code)
+	}
+	var mt error
+	if resp != nil {
+		var _ok bool
+		mt, _ok = resp.(error)
+		if !_ok {
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of error", resp, resp)
+		}
+	}
+
+	// Return results
+	return rw, mt
+}
+
 // DeleteInstanceGroupInternalServerError runs the method Delete of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
@@ -880,6 +1039,75 @@ func DestructInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, 
 	}
 	if rw.Code != 400 {
 		t.Errorf("invalid response status code: got %+v, expected 400", rw.Code)
+	}
+	var mt error
+	if resp != nil {
+		var _ok bool
+		mt, _ok = resp.(error)
+		if !_ok {
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of error", resp, resp)
+		}
+	}
+
+	// Return results
+	return rw, mt
+}
+
+// DestructInstanceGroupConflict runs the method Destruct of the given controller with the given parameters.
+// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func DestructInstanceGroupConflict(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, error) {
+	// Setup service
+	var (
+		logBuf bytes.Buffer
+		resp   interface{}
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Setup request context
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/instance_groups/%v/destruct", id),
+	}
+	req, err := http.NewRequest("PUT", u.String(), nil)
+	if err != nil {
+		panic("invalid test " + err.Error()) // bug
+	}
+	prms := url.Values{}
+	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "InstanceGroupTest"), rw, req, prms)
+	destructCtx, _err := app.NewDestructInstanceGroupContext(goaCtx, req, service)
+	if _err != nil {
+		e, ok := _err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + _err.Error()) // bug
+		}
+		return nil, e
+	}
+
+	// Perform action
+	_err = ctrl.Destruct(destructCtx)
+
+	// Validate response
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	}
+	if rw.Code != 409 {
+		t.Errorf("invalid response status code: got %+v, expected 409", rw.Code)
 	}
 	var mt error
 	if resp != nil {
@@ -1243,6 +1471,74 @@ func ListInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, serv
 	return rw, mt
 }
 
+// ListInstanceGroupConflict runs the method List of the given controller with the given parameters.
+// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func ListInstanceGroupConflict(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController) (http.ResponseWriter, error) {
+	// Setup service
+	var (
+		logBuf bytes.Buffer
+		resp   interface{}
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Setup request context
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/instance_groups"),
+	}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		panic("invalid test " + err.Error()) // bug
+	}
+	prms := url.Values{}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "InstanceGroupTest"), rw, req, prms)
+	listCtx, _err := app.NewListInstanceGroupContext(goaCtx, req, service)
+	if _err != nil {
+		e, ok := _err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + _err.Error()) // bug
+		}
+		return nil, e
+	}
+
+	// Perform action
+	_err = ctrl.List(listCtx)
+
+	// Validate response
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	}
+	if rw.Code != 409 {
+		t.Errorf("invalid response status code: got %+v, expected 409", rw.Code)
+	}
+	var mt error
+	if resp != nil {
+		var _ok bool
+		mt, _ok = resp.(error)
+		if !_ok {
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of error", resp, resp)
+		}
+	}
+
+	// Return results
+	return rw, mt
+}
+
 // ListInstanceGroupInternalServerError runs the method List of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
@@ -1520,11 +1816,11 @@ func ListInstanceGroupUnauthorized(t goatest.TInterface, ctx context.Context, se
 	return rw, mt
 }
 
-// ResizeInstanceGroupBadRequest runs the method Resize of the given controller with the given parameters and payload.
+// ResizeInstanceGroupBadRequest runs the method Resize of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ResizeInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string, payload *app.ResizeInstanceGroupPayload) (http.ResponseWriter, error) {
+func ResizeInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string, newSize int) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1544,8 +1840,14 @@ func ResizeInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, se
 
 	// Setup request context
 	rw := httptest.NewRecorder()
+	query := url.Values{}
+	{
+		sliceVal := []string{strconv.Itoa(newSize)}
+		query["new_size"] = sliceVal
+	}
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/resize", id),
+		Path:     fmt.Sprintf("/instance_groups/%v/resize", id),
+		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
@@ -1553,6 +1855,10 @@ func ResizeInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, se
 	}
 	prms := url.Values{}
 	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	{
+		sliceVal := []string{strconv.Itoa(newSize)}
+		prms["new_size"] = sliceVal
+	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -1565,7 +1871,6 @@ func ResizeInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, se
 		}
 		return nil, e
 	}
-	resizeCtx.Payload = payload
 
 	// Perform action
 	_err = ctrl.Resize(resizeCtx)
@@ -1590,11 +1895,11 @@ func ResizeInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, se
 	return rw, mt
 }
 
-// ResizeInstanceGroupInternalServerError runs the method Resize of the given controller with the given parameters and payload.
+// ResizeInstanceGroupConflict runs the method Resize of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ResizeInstanceGroupInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string, payload *app.ResizeInstanceGroupPayload) (http.ResponseWriter, error) {
+func ResizeInstanceGroupConflict(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string, newSize int) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1614,8 +1919,14 @@ func ResizeInstanceGroupInternalServerError(t goatest.TInterface, ctx context.Co
 
 	// Setup request context
 	rw := httptest.NewRecorder()
+	query := url.Values{}
+	{
+		sliceVal := []string{strconv.Itoa(newSize)}
+		query["new_size"] = sliceVal
+	}
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/resize", id),
+		Path:     fmt.Sprintf("/instance_groups/%v/resize", id),
+		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
@@ -1623,6 +1934,10 @@ func ResizeInstanceGroupInternalServerError(t goatest.TInterface, ctx context.Co
 	}
 	prms := url.Values{}
 	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	{
+		sliceVal := []string{strconv.Itoa(newSize)}
+		prms["new_size"] = sliceVal
+	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -1635,7 +1950,169 @@ func ResizeInstanceGroupInternalServerError(t goatest.TInterface, ctx context.Co
 		}
 		return nil, e
 	}
-	resizeCtx.Payload = payload
+
+	// Perform action
+	_err = ctrl.Resize(resizeCtx)
+
+	// Validate response
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	}
+	if rw.Code != 409 {
+		t.Errorf("invalid response status code: got %+v, expected 409", rw.Code)
+	}
+	var mt error
+	if resp != nil {
+		var _ok bool
+		mt, _ok = resp.(error)
+		if !_ok {
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of error", resp, resp)
+		}
+	}
+
+	// Return results
+	return rw, mt
+}
+
+// ResizeInstanceGroupCreated runs the method Resize of the given controller with the given parameters.
+// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func ResizeInstanceGroupCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string, newSize int) (http.ResponseWriter, *app.InstanceGroup) {
+	// Setup service
+	var (
+		logBuf bytes.Buffer
+		resp   interface{}
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Setup request context
+	rw := httptest.NewRecorder()
+	query := url.Values{}
+	{
+		sliceVal := []string{strconv.Itoa(newSize)}
+		query["new_size"] = sliceVal
+	}
+	u := &url.URL{
+		Path:     fmt.Sprintf("/instance_groups/%v/resize", id),
+		RawQuery: query.Encode(),
+	}
+	req, err := http.NewRequest("PUT", u.String(), nil)
+	if err != nil {
+		panic("invalid test " + err.Error()) // bug
+	}
+	prms := url.Values{}
+	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	{
+		sliceVal := []string{strconv.Itoa(newSize)}
+		prms["new_size"] = sliceVal
+	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "InstanceGroupTest"), rw, req, prms)
+	resizeCtx, _err := app.NewResizeInstanceGroupContext(goaCtx, req, service)
+	if _err != nil {
+		e, ok := _err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + _err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", e)
+		return nil, nil
+	}
+
+	// Perform action
+	_err = ctrl.Resize(resizeCtx)
+
+	// Validate response
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	}
+	if rw.Code != 201 {
+		t.Errorf("invalid response status code: got %+v, expected 201", rw.Code)
+	}
+	var mt *app.InstanceGroup
+	if resp != nil {
+		var _ok bool
+		mt, _ok = resp.(*app.InstanceGroup)
+		if !_ok {
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.InstanceGroup", resp, resp)
+		}
+		_err = mt.Validate()
+		if _err != nil {
+			t.Errorf("invalid response media type: %s", _err)
+		}
+	}
+
+	// Return results
+	return rw, mt
+}
+
+// ResizeInstanceGroupInternalServerError runs the method Resize of the given controller with the given parameters.
+// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func ResizeInstanceGroupInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string, newSize int) (http.ResponseWriter, error) {
+	// Setup service
+	var (
+		logBuf bytes.Buffer
+		resp   interface{}
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Setup request context
+	rw := httptest.NewRecorder()
+	query := url.Values{}
+	{
+		sliceVal := []string{strconv.Itoa(newSize)}
+		query["new_size"] = sliceVal
+	}
+	u := &url.URL{
+		Path:     fmt.Sprintf("/instance_groups/%v/resize", id),
+		RawQuery: query.Encode(),
+	}
+	req, err := http.NewRequest("PUT", u.String(), nil)
+	if err != nil {
+		panic("invalid test " + err.Error()) // bug
+	}
+	prms := url.Values{}
+	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	{
+		sliceVal := []string{strconv.Itoa(newSize)}
+		prms["new_size"] = sliceVal
+	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "InstanceGroupTest"), rw, req, prms)
+	resizeCtx, _err := app.NewResizeInstanceGroupContext(goaCtx, req, service)
+	if _err != nil {
+		e, ok := _err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + _err.Error()) // bug
+		}
+		return nil, e
+	}
 
 	// Perform action
 	_err = ctrl.Resize(resizeCtx)
@@ -1660,11 +2137,11 @@ func ResizeInstanceGroupInternalServerError(t goatest.TInterface, ctx context.Co
 	return rw, mt
 }
 
-// ResizeInstanceGroupNotFound runs the method Resize of the given controller with the given parameters and payload.
+// ResizeInstanceGroupNotFound runs the method Resize of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ResizeInstanceGroupNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string, payload *app.ResizeInstanceGroupPayload) (http.ResponseWriter, error) {
+func ResizeInstanceGroupNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string, newSize int) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1684,8 +2161,14 @@ func ResizeInstanceGroupNotFound(t goatest.TInterface, ctx context.Context, serv
 
 	// Setup request context
 	rw := httptest.NewRecorder()
+	query := url.Values{}
+	{
+		sliceVal := []string{strconv.Itoa(newSize)}
+		query["new_size"] = sliceVal
+	}
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/resize", id),
+		Path:     fmt.Sprintf("/instance_groups/%v/resize", id),
+		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
@@ -1693,6 +2176,10 @@ func ResizeInstanceGroupNotFound(t goatest.TInterface, ctx context.Context, serv
 	}
 	prms := url.Values{}
 	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	{
+		sliceVal := []string{strconv.Itoa(newSize)}
+		prms["new_size"] = sliceVal
+	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -1705,7 +2192,6 @@ func ResizeInstanceGroupNotFound(t goatest.TInterface, ctx context.Context, serv
 		}
 		return nil, e
 	}
-	resizeCtx.Payload = payload
 
 	// Perform action
 	_err = ctrl.Resize(resizeCtx)
@@ -1730,11 +2216,11 @@ func ResizeInstanceGroupNotFound(t goatest.TInterface, ctx context.Context, serv
 	return rw, mt
 }
 
-// ResizeInstanceGroupOK runs the method Resize of the given controller with the given parameters and payload.
+// ResizeInstanceGroupOK runs the method Resize of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ResizeInstanceGroupOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string, payload *app.ResizeInstanceGroupPayload) (http.ResponseWriter, *app.InstanceGroup) {
+func ResizeInstanceGroupOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string, newSize int) (http.ResponseWriter, *app.InstanceGroup) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1754,8 +2240,14 @@ func ResizeInstanceGroupOK(t goatest.TInterface, ctx context.Context, service *g
 
 	// Setup request context
 	rw := httptest.NewRecorder()
+	query := url.Values{}
+	{
+		sliceVal := []string{strconv.Itoa(newSize)}
+		query["new_size"] = sliceVal
+	}
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/resize", id),
+		Path:     fmt.Sprintf("/instance_groups/%v/resize", id),
+		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
@@ -1763,6 +2255,10 @@ func ResizeInstanceGroupOK(t goatest.TInterface, ctx context.Context, service *g
 	}
 	prms := url.Values{}
 	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	{
+		sliceVal := []string{strconv.Itoa(newSize)}
+		prms["new_size"] = sliceVal
+	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -1776,7 +2272,6 @@ func ResizeInstanceGroupOK(t goatest.TInterface, ctx context.Context, service *g
 		t.Errorf("unexpected parameter validation error: %+v", e)
 		return nil, nil
 	}
-	resizeCtx.Payload = payload
 
 	// Perform action
 	_err = ctrl.Resize(resizeCtx)
@@ -1805,11 +2300,11 @@ func ResizeInstanceGroupOK(t goatest.TInterface, ctx context.Context, service *g
 	return rw, mt
 }
 
-// ResizeInstanceGroupUnauthorized runs the method Resize of the given controller with the given parameters and payload.
+// ResizeInstanceGroupUnauthorized runs the method Resize of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ResizeInstanceGroupUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string, payload *app.ResizeInstanceGroupPayload) (http.ResponseWriter, error) {
+func ResizeInstanceGroupUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string, newSize int) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1829,8 +2324,14 @@ func ResizeInstanceGroupUnauthorized(t goatest.TInterface, ctx context.Context, 
 
 	// Setup request context
 	rw := httptest.NewRecorder()
+	query := url.Values{}
+	{
+		sliceVal := []string{strconv.Itoa(newSize)}
+		query["new_size"] = sliceVal
+	}
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/resize", id),
+		Path:     fmt.Sprintf("/instance_groups/%v/resize", id),
+		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
@@ -1838,6 +2339,10 @@ func ResizeInstanceGroupUnauthorized(t goatest.TInterface, ctx context.Context, 
 	}
 	prms := url.Values{}
 	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	{
+		sliceVal := []string{strconv.Itoa(newSize)}
+		prms["new_size"] = sliceVal
+	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -1850,7 +2355,6 @@ func ResizeInstanceGroupUnauthorized(t goatest.TInterface, ctx context.Context, 
 		}
 		return nil, e
 	}
-	resizeCtx.Payload = payload
 
 	// Perform action
 	_err = ctrl.Resize(resizeCtx)
@@ -1930,6 +2434,75 @@ func ShowInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, serv
 	}
 	if rw.Code != 400 {
 		t.Errorf("invalid response status code: got %+v, expected 400", rw.Code)
+	}
+	var mt error
+	if resp != nil {
+		var _ok bool
+		mt, _ok = resp.(error)
+		if !_ok {
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of error", resp, resp)
+		}
+	}
+
+	// Return results
+	return rw, mt
+}
+
+// ShowInstanceGroupConflict runs the method Show of the given controller with the given parameters.
+// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func ShowInstanceGroupConflict(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, error) {
+	// Setup service
+	var (
+		logBuf bytes.Buffer
+		resp   interface{}
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Setup request context
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/instance_groups/%v", id),
+	}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		panic("invalid test " + err.Error()) // bug
+	}
+	prms := url.Values{}
+	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "InstanceGroupTest"), rw, req, prms)
+	showCtx, _err := app.NewShowInstanceGroupContext(goaCtx, req, service)
+	if _err != nil {
+		e, ok := _err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + _err.Error()) // bug
+		}
+		return nil, e
+	}
+
+	// Perform action
+	_err = ctrl.Show(showCtx)
+
+	// Validate response
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	}
+	if rw.Code != 409 {
+		t.Errorf("invalid response status code: got %+v, expected 409", rw.Code)
 	}
 	var mt error
 	if resp != nil {

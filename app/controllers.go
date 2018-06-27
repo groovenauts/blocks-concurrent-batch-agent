@@ -136,17 +136,11 @@ func MountInstanceGroupController(service *goa.Service, ctrl InstanceGroupContro
 		if err != nil {
 			return err
 		}
-		// Build the payload
-		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
-			rctx.Payload = rawPayload.(*ResizeInstanceGroupPayload)
-		} else {
-			return goa.MissingPayloadError()
-		}
 		return ctrl.Resize(rctx)
 	}
 	h = handleSecurity("api_key", h)
 	h = handleInstanceGroupOrigin(h)
-	service.Mux.Handle("PUT", "/instance_groups/:id/resize", ctrl.MuxHandler("resize", h, unmarshalResizeInstanceGroupPayload))
+	service.Mux.Handle("PUT", "/instance_groups/:id/resize", ctrl.MuxHandler("resize", h, nil))
 	service.LogInfo("mount", "ctrl", "InstanceGroup", "action", "Resize", "route", "PUT /instance_groups/:id/resize", "security", "api_key")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
@@ -195,21 +189,6 @@ func handleInstanceGroupOrigin(h goa.Handler) goa.Handler {
 // unmarshalCreateInstanceGroupPayload unmarshals the request body into the context request data Payload field.
 func unmarshalCreateInstanceGroupPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
 	payload := &instanceGroupPayload{}
-	if err := service.DecodeRequest(req, payload); err != nil {
-		return err
-	}
-	if err := payload.Validate(); err != nil {
-		// Initialize payload with private data structure so it can be logged
-		goa.ContextRequest(ctx).Payload = payload
-		return err
-	}
-	goa.ContextRequest(ctx).Payload = payload.Publicize()
-	return nil
-}
-
-// unmarshalResizeInstanceGroupPayload unmarshals the request body into the context request data Payload field.
-func unmarshalResizeInstanceGroupPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
-	payload := &resizeInstanceGroupPayload{}
 	if err := service.DecodeRequest(req, payload); err != nil {
 		return err
 	}

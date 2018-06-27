@@ -579,7 +579,7 @@ definitions:
     type: object
   JobPayload:
     example:
-      id_by_client: Ducimus aspernatur perspiciatis aperiam.
+      id_by_client: Ea ducimus aspernatur perspiciatis.
       message:
         attributes:
           Dolor ut iusto.: Sequi adipisci eius temporibus adipisci quis.
@@ -587,7 +587,7 @@ definitions:
     properties:
       id_by_client:
         description: ID assigned by client
-        example: Ducimus aspernatur perspiciatis aperiam.
+        example: Ea ducimus aspernatur perspiciatis.
         type: string
       message:
         $ref: '#/definitions/JobMessage'
@@ -855,37 +855,6 @@ definitions:
       name: pipeline1-123
       status: hibernating
       updated_at: "2004-12-15T02:26:10Z"
-    - container:
-        command: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
-          %{uploads_dir}
-        name: Enim animi veritatis nisi veritatis corporis.
-        options: --restart=on-failure:3
-        size: 2
-        stackdriver_agent: false
-      created_at: "2012-10-16T07:02:27Z"
-      hibernation_delay: 4.367392799725555e+18
-      id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
-      instance_group:
-        boot_disk:
-          disk_size_gb: 50
-          disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
-          source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
-        deployment_name: Mollitia laboriosam iure labore.
-        gpu_accelerators:
-          count: 2
-          type: nvidia-tesla-p100
-        instance_size: 3
-        instance_size_requested: 3
-        machine_type: f1-micro
-        preemptible: false
-        project_id: dummy-proj-999
-        startup_script: Possimus optio et voluptas quia suscipit autem.
-        token_consumption: 2
-        zone: us-central1-f
-      instance_group_id: Quaerat unde ratione corrupti.
-      name: pipeline1-123
-      status: hibernating
-      updated_at: "2004-12-15T02:26:10Z"
     items:
       $ref: '#/definitions/Pipeline-Base'
     title: 'Mediatype identifier: application/vnd.pipeline-base+json; type=collection;
@@ -900,7 +869,7 @@ definitions:
         options: --restart=on-failure:3
         size: 2
         stackdriver_agent: false
-      hibernation_delay: 7.212691683500624e+18
+      hibernation_delay: 7.797336613342039e+18
       instance_group:
         boot_disk:
           disk_size_gb: 50
@@ -924,7 +893,7 @@ definitions:
         $ref: '#/definitions/PipelineContainer'
       hibernation_delay:
         description: Hibernation delay in seconds since last job finsihed
-        example: 7.212691683500624e+18
+        example: 7.797336613342039e+18
         format: int64
         type: integer
       instance_group:
@@ -943,6 +912,39 @@ definitions:
     description: PipelineCollection is the media type for an array of Pipeline (default
       view)
     example:
+    - container:
+        command: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
+          %{uploads_dir}
+        name: Enim animi veritatis nisi veritatis corporis.
+        options: --restart=on-failure:3
+        size: 2
+        stackdriver_agent: false
+      created_at: "2011-05-15T10:10:56Z"
+      curr_base_id: Sed id eveniet quis sit.
+      hibernation_delay: 8.324950733970395e+18
+      id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+      instance_group:
+        boot_disk:
+          disk_size_gb: 50
+          disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
+          source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
+        deployment_name: Mollitia laboriosam iure labore.
+        gpu_accelerators:
+          count: 2
+          type: nvidia-tesla-p100
+        instance_size: 3
+        instance_size_requested: 3
+        machine_type: f1-micro
+        preemptible: false
+        project_id: dummy-proj-999
+        startup_script: Possimus optio et voluptas quia suscipit autem.
+        token_consumption: 2
+        zone: us-central1-f
+      name: pipeline1
+      next_base_id: Rem repellendus vel sit velit voluptatem quidem.
+      prev_base_id: Voluptatem maiores consequatur culpa magni ea.
+      status: stopping
+      updated_at: "1975-12-30T16:21:42Z"
     - container:
         command: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
           %{uploads_dir}
@@ -1059,7 +1061,7 @@ definitions:
         options: --restart=on-failure:3
         size: 2
         stackdriver_agent: false
-      hibernation_delay: 7.797336613342039e+18
+      hibernation_delay: 3.7842099344879007e+18
       instance_group:
         boot_disk:
           disk_size_gb: 50
@@ -1083,7 +1085,7 @@ definitions:
         $ref: '#/definitions/PipelineContainer'
       hibernation_delay:
         description: Hibernation delay in seconds since last job finsihed
-        example: 7.797336613342039e+18
+        example: 3.7842099344879007e+18
         format: int64
         type: integer
       instance_group:
@@ -1097,19 +1099,6 @@ definitions:
     - instance_group
     - container
     title: PipelinePayload
-    type: object
-  ResizeInstanceGroupPayload:
-    example:
-      new_size: 4.2511476455711473e+18
-    properties:
-      new_size:
-        description: New Instance Size
-        example: 4.2511476455711473e+18
-        format: int64
-        type: integer
-    required:
-    - new_size
-    title: ResizeInstanceGroupPayload
     type: object
   error:
     description: Error response media type (default view)
@@ -1200,6 +1189,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/error'
         "500":
           description: Internal Server Error
           schema:
@@ -1255,6 +1248,10 @@ paths:
             $ref: '#/definitions/error'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "409":
+          description: Conflict
           schema:
             $ref: '#/definitions/error'
         "500":
@@ -1314,6 +1311,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/error'
         "500":
           description: Internal Server Error
           schema:
@@ -1369,6 +1370,10 @@ paths:
             $ref: '#/definitions/error'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "409":
+          description: Conflict
           schema:
             $ref: '#/definitions/error'
         "500":
@@ -1428,6 +1433,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/error'
         "500":
           description: Internal Server Error
           schema:
@@ -1485,6 +1494,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/error'
         "500":
           description: Internal Server Error
           schema:
@@ -1520,6 +1533,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/error'
         "500":
           description: Internal Server Error
           schema:
@@ -1551,6 +1568,10 @@ paths:
             $ref: '#/definitions/error'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "409":
+          description: Conflict
           schema:
             $ref: '#/definitions/error'
         "500":
@@ -1598,6 +1619,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/error'
         "500":
           description: Internal Server Error
           schema:
@@ -1639,6 +1664,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/error'
         "500":
           description: Internal Server Error
           schema:
@@ -1677,6 +1706,10 @@ paths:
             $ref: '#/definitions/error'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "409":
+          description: Conflict
           schema:
             $ref: '#/definitions/error'
         "500":
@@ -1720,6 +1753,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/error'
         "500":
           description: Internal Server Error
           schema:
@@ -1741,17 +1778,21 @@ paths:
         name: id
         required: true
         type: string
-      - in: body
-        name: payload
+      - description: New Instance Size
+        in: query
+        name: new_size
         required: true
-        schema:
-          $ref: '#/definitions/ResizeInstanceGroupPayload'
+        type: integer
       produces:
       - application/vnd.goa.error
       - application/vnd.instance-group+json
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/Instance-Group'
+        "201":
+          description: Created
           schema:
             $ref: '#/definitions/Instance-Group'
         "400":
@@ -1764,6 +1805,10 @@ paths:
             $ref: '#/definitions/error'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "409":
+          description: Conflict
           schema:
             $ref: '#/definitions/error'
         "500":
@@ -1822,6 +1867,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/error'
         "500":
           description: Internal Server Error
           schema:
@@ -1863,6 +1912,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/error'
         "500":
           description: Internal Server Error
           schema:
@@ -1901,6 +1954,10 @@ paths:
             $ref: '#/definitions/error'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "409":
+          description: Conflict
           schema:
             $ref: '#/definitions/error'
         "500":
@@ -1948,6 +2005,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/error'
         "500":
           description: Internal Server Error
           schema:
@@ -1989,6 +2050,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/error'
         "500":
           description: Internal Server Error
           schema:
@@ -2028,6 +2093,10 @@ paths:
             $ref: '#/definitions/error'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "409":
+          description: Conflict
           schema:
             $ref: '#/definitions/error'
         "500":
@@ -2087,6 +2156,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/error'
         "500":
           description: Internal Server Error
           schema:
@@ -2144,6 +2217,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/error'
         "500":
           description: Internal Server Error
           schema:
@@ -2183,6 +2260,10 @@ paths:
             $ref: '#/definitions/error'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "409":
+          description: Conflict
           schema:
             $ref: '#/definitions/error'
         "500":
@@ -2230,6 +2311,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/error'
         "500":
           description: Internal Server Error
           schema:
@@ -2269,6 +2354,10 @@ paths:
             $ref: '#/definitions/error'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "409":
+          description: Conflict
           schema:
             $ref: '#/definitions/error'
         "500":
@@ -2311,6 +2400,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/error'
         "500":
           description: Internal Server Error
           schema:
@@ -2349,6 +2442,10 @@ paths:
             $ref: '#/definitions/error'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "409":
+          description: Conflict
           schema:
             $ref: '#/definitions/error'
         "500":
@@ -2390,6 +2487,10 @@ paths:
             $ref: '#/definitions/error'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "409":
+          description: Conflict
           schema:
             $ref: '#/definitions/error'
         "500":
@@ -2441,6 +2542,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/error'
         "500":
           description: Internal Server Error
           schema:
@@ -2480,6 +2585,10 @@ paths:
             $ref: '#/definitions/error'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "409":
+          description: Conflict
           schema:
             $ref: '#/definitions/error'
         "500":
@@ -2531,6 +2640,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/error'
         "500":
           description: Internal Server Error
           schema:
@@ -2570,6 +2683,10 @@ paths:
             $ref: '#/definitions/error'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "409":
+          description: Conflict
           schema:
             $ref: '#/definitions/error'
         "500":
@@ -2617,6 +2734,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/error'
         "500":
           description: Internal Server Error
           schema:
@@ -2658,6 +2779,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/error'
         "500":
           description: Internal Server Error
           schema:
@@ -2696,6 +2821,10 @@ paths:
             $ref: '#/definitions/error'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "409":
+          description: Conflict
           schema:
             $ref: '#/definitions/error'
         "500":
@@ -2741,6 +2870,10 @@ paths:
             $ref: '#/definitions/error'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "409":
+          description: Conflict
           schema:
             $ref: '#/definitions/error'
         "500":
@@ -2792,6 +2925,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/error'
         "500":
           description: Internal Server Error
           schema:
@@ -2831,6 +2968,10 @@ paths:
             $ref: '#/definitions/error'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "409":
+          description: Conflict
           schema:
             $ref: '#/definitions/error'
         "500":
@@ -2890,6 +3031,10 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/error'
         "500":
           description: Internal Server Error
           schema:
@@ -2945,6 +3090,10 @@ paths:
             $ref: '#/definitions/error'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "409":
+          description: Conflict
           schema:
             $ref: '#/definitions/error'
         "500":

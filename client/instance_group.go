@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
 // CreateInstanceGroupPath computes a request path to the create action of InstanceGroup.
@@ -173,12 +174,6 @@ func (c *Client) NewListInstanceGroupRequest(ctx context.Context, path string) (
 	return req, nil
 }
 
-// ResizeInstanceGroupPayload is the InstanceGroup resize action payload.
-type ResizeInstanceGroupPayload struct {
-	// New Instance Size
-	NewSize int `form:"new_size" json:"new_size" yaml:"new_size" xml:"new_size"`
-}
-
 // ResizeInstanceGroupPath computes a request path to the resize action of InstanceGroup.
 func ResizeInstanceGroupPath(id string) string {
 	param0 := id
@@ -187,8 +182,8 @@ func ResizeInstanceGroupPath(id string) string {
 }
 
 // Resize
-func (c *Client) ResizeInstanceGroup(ctx context.Context, path string, payload *ResizeInstanceGroupPayload, contentType string) (*http.Response, error) {
-	req, err := c.NewResizeInstanceGroupRequest(ctx, path, payload, contentType)
+func (c *Client) ResizeInstanceGroup(ctx context.Context, path string, newSize int) (*http.Response, error) {
+	req, err := c.NewResizeInstanceGroupRequest(ctx, path, newSize)
 	if err != nil {
 		return nil, err
 	}
@@ -196,29 +191,19 @@ func (c *Client) ResizeInstanceGroup(ctx context.Context, path string, payload *
 }
 
 // NewResizeInstanceGroupRequest create the request corresponding to the resize action endpoint of the InstanceGroup resource.
-func (c *Client) NewResizeInstanceGroupRequest(ctx context.Context, path string, payload *ResizeInstanceGroupPayload, contentType string) (*http.Request, error) {
-	var body bytes.Buffer
-	if contentType == "" {
-		contentType = "*/*" // Use default encoder
-	}
-	err := c.Encoder.Encode(payload, &body, contentType)
-	if err != nil {
-		return nil, fmt.Errorf("failed to encode body: %s", err)
-	}
+func (c *Client) NewResizeInstanceGroupRequest(ctx context.Context, path string, newSize int) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "http"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
-	req, err := http.NewRequest("PUT", u.String(), &body)
+	values := u.Query()
+	tmp40 := strconv.Itoa(newSize)
+	values.Set("new_size", tmp40)
+	u.RawQuery = values.Encode()
+	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
 		return nil, err
-	}
-	header := req.Header
-	if contentType == "*/*" {
-		header.Set("Content-Type", "application/json")
-	} else {
-		header.Set("Content-Type", contentType)
 	}
 	if c.APIKeySigner != nil {
 		if err := c.APIKeySigner.Sign(req); err != nil {
