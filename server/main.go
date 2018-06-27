@@ -30,9 +30,9 @@ func init() {
 	// Mount "InstanceGroupResizingTask" controller
 	c3 := controller.NewInstanceGroupResizingTaskController(service)
 	app.MountInstanceGroupResizingTaskController(service, c3)
-	// Mount "IntanceGroup" controller
-	c4 := controller.NewIntanceGroupController(service)
-	app.MountIntanceGroupController(service, c4)
+	// Mount "InstanceGroup" controller
+	c4 := controller.NewInstanceGroupController(service)
+	app.MountInstanceGroupController(service, c4)
 	// Mount "Job" controller
 	c5 := controller.NewJobController(service)
 	app.MountJobController(service, c5)
