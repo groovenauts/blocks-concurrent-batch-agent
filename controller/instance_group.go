@@ -82,18 +82,20 @@ func (c *InstanceGroupController) List(ctx *app.ListInstanceGroupContext) error 
 	// InstanceGroupController_List: start_implement
 
 	// Put your logic here
-	appCtx := appengine.NewContext(ctx.Request)
-	store := &model.InstanceGroupStore{}
-	models, err := store.GetAll(appCtx)
-	if err != nil {
-		return ctx.BadRequest(goa.ErrBadRequest(err))
-	}
+	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
+		appCtx := appengine.NewContext(ctx.Request)
+		store := &model.InstanceGroupStore{ParentKey: orgKey}
+		models, err := store.GetAll(appCtx)
+		if err != nil {
+			return ctx.BadRequest(goa.ErrBadRequest(err))
+		}
 
-	res := app.InstanceGroupCollection{}
-	for _, m := range models {
-		res = append(res, InstanceGroupModelToMediaType(m))
-	}
-	return ctx.OK(res)
+		res := app.InstanceGroupCollection{}
+		for _, m := range models {
+			res = append(res, InstanceGroupModelToMediaType(m))
+		}
+		return ctx.OK(res)
+	})
 
 	// InstanceGroupController_List: end_implement
 }
