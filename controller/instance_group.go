@@ -73,9 +73,39 @@ func (c *InstanceGroupController) Destruct(ctx *app.DestructInstanceGroupContext
 	// InstanceGroupController_Destruct: start_implement
 
 	// Put your logic here
+	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
+		appCtx := appengine.NewContext(ctx.Request)
+		store := &model.InstanceGroupStore{ParentKey: orgKey}
 
-	res := &app.InstanceGroup{}
-	return ctx.OK(res)
+		return datastore.RunInTransaction(appCtx, func(c context.Context) error {
+			m, err := store.Get(appCtx, ctx.ID)
+			if err != nil {
+				if err == datastore.ErrNoSuchEntity {
+					return ctx.NotFound(fmt.Errorf("InstanceGroup not found: %q", m.Id))
+				} else {
+					return err
+				}
+			}
+
+			switch m.Status {
+			case model.Constructed: // Through
+			default:
+				return ctx.Conflict(fmt.Errorf("Can't resize because the InstanceGroup %q is %s", m.Id, m.Status))
+			}
+
+			m.Status = model.DestructionStarting
+			if _, err := store.Update(appCtx, m); err != nil {
+				return err
+			}
+
+			task := &taskqueue.Task{Path: "/destruction_tasks?resource_id=" + m.Id}
+			if _, err := taskqueue.Add(c, task, ""); err != nil {
+				return err
+			}
+			return ctx.Created(InstanceGroupModelToMediaType(m))
+		}, nil)
+	})
+
 	// InstanceGroupController_Destruct: end_implement
 }
 
