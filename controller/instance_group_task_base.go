@@ -12,7 +12,7 @@ import (
 	"github.com/groovenauts/blocks-concurrent-batch-server/model"
 )
 
-type InstanceGroupTaskStart struct {
+type InstanceGroupTaskBase struct {
 	MainStatus model.InstanceGroupStatus
 	NextStatus model.InstanceGroupStatus
 	SkipStatuses []model.InstanceGroupStatus
@@ -23,7 +23,7 @@ type InstanceGroupTaskStart struct {
 	RespondCreated func(*app.CloudAsyncOperation) error
 }
 
-func (t *InstanceGroupTaskStart) Run(appCtx context.Context, resourceId string) error {
+func (t *InstanceGroupTaskBase) Start(appCtx context.Context, resourceId string) error {
 	store := &model.InstanceGroupStore{}
 	m, err := store.Get(appCtx, resourceId)
 	if err != nil {
@@ -70,7 +70,7 @@ func (t *InstanceGroupTaskStart) Run(appCtx context.Context, resourceId string) 
 	}, nil)
 }
 
-func (t *InstanceGroupTaskStart) IsSkipped(status model.InstanceGroupStatus) bool {
+func (t *InstanceGroupTaskBase) IsSkipped(status model.InstanceGroupStatus) bool {
 	for _, st := range t.SkipStatuses {
 		if status == st {
 			return true

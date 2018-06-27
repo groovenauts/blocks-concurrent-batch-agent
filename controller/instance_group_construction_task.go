@@ -30,7 +30,7 @@ func (c *InstanceGroupConstructionTaskController) Start(ctx *app.StartInstanceGr
 	// InstanceGroupConstructionTaskController_Start: start_implement
 
 	// Put your logic here
-	start := InstanceGroupTaskStart{
+	base := InstanceGroupTaskBase{
 		MainStatus: model.ConstructionStarting,
 		NextStatus: model.ConstructionRunning,
 		SkipStatuses: []model.InstanceGroupStatus{
@@ -54,7 +54,7 @@ func (c *InstanceGroupConstructionTaskController) Start(ctx *app.StartInstanceGr
 			return ctx.Created(ope)
 		},
 	}
-	return start.Run(appengine.NewContext(ctx.Request), ctx.ResourceID)
+	return base.Start(appengine.NewContext(ctx.Request), ctx.ResourceID)
 
 	// InstanceGroupConstructionTaskController_Start: end_implement
 }

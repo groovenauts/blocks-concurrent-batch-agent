@@ -30,7 +30,7 @@ func (c *InstanceGroupResizingTaskController) Start(ctx *app.StartInstanceGroupR
 	// InstanceGroupResizingTaskController_Start: start_implement
 
 	// Put your logic here
-	start := InstanceGroupTaskStart{
+	base := InstanceGroupTaskBase{
 		MainStatus: model.ResizeStarting,
 		NextStatus: model.ResizeRunning,
 		SkipStatuses: []model.InstanceGroupStatus{
@@ -52,7 +52,7 @@ func (c *InstanceGroupResizingTaskController) Start(ctx *app.StartInstanceGroupR
 			return ctx.Created(ope)
 		},
 	}
-	return start.Run(appengine.NewContext(ctx.Request), ctx.ResourceID)
+	return base.Start(appengine.NewContext(ctx.Request), ctx.ResourceID)
 
 	// InstanceGroupResizingTaskController_Start: end_implement
 }

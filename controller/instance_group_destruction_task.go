@@ -30,7 +30,7 @@ func (c *InstanceGroupDestructionTaskController) Start(ctx *app.StartInstanceGro
 	// InstanceGroupDestructionTaskController_Start: start_implement
 
 	// Put your logic here
-	start := InstanceGroupTaskStart{
+	base := InstanceGroupTaskBase{
 		MainStatus: model.DestructionStarting,
 		NextStatus: model.DestructionRunning,
 		SkipStatuses: []model.InstanceGroupStatus{
@@ -54,7 +54,7 @@ func (c *InstanceGroupDestructionTaskController) Start(ctx *app.StartInstanceGro
 			return ctx.Created(ope)
 		},
 	}
-	return start.Run(appengine.NewContext(ctx.Request), ctx.ResourceID)
+	return base.Start(appengine.NewContext(ctx.Request), ctx.ResourceID)
 
 	// InstanceGroupDestructionTaskController_Start: end_implement
 }
