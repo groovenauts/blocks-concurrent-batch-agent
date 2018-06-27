@@ -9,19 +9,19 @@ import (
 	"google.golang.org/appengine/log"
 )
 
-type Constructor struct {
+type InstanceGroupConstructor struct {
 	deployer DeploymentServicer
 }
 
-func NewConstructor(ctx context.Context) (*Constructor, error) {
+func NewInstanceGroupConstructor(ctx context.Context) (*InstanceGroupConstructor, error) {
 	deployer, err := DefaultDeploymentServicer(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &Constructor{deployer: deployer}, nil
+	return &InstanceGroupConstructor{deployer: deployer}, nil
 }
 
-func (b *Constructor) Process(ctx context.Context, pl *InstanceGroup) (*CloudAsyncOperation, error) {
+func (b *InstanceGroupConstructor) Process(ctx context.Context, pl *InstanceGroup) (*CloudAsyncOperation, error) {
 	deployment, err := b.BuildDeployment(pl)
 	if err != nil {
 		log.Errorf(ctx, "Failed to BuildDeployment: %v\nInstanceGroup: %v\n", err, pl)
@@ -49,7 +49,7 @@ func (b *Constructor) Process(ctx context.Context, pl *InstanceGroup) (*CloudAsy
 	return operation, nil
 }
 
-func (b *Constructor) BuildDeployment(pl *InstanceGroup) (*deploymentmanager.Deployment, error) {
+func (b *InstanceGroupConstructor) BuildDeployment(pl *InstanceGroup) (*deploymentmanager.Deployment, error) {
 	r := b.GenerateDeploymentResources(pl)
 	d, err := json.Marshal(r)
 	if err != nil {
@@ -86,7 +86,7 @@ type (
 	}
 )
 
-func (b *Constructor) GenerateDeploymentResources(pl *InstanceGroup) *Resources {
+func (b *InstanceGroupConstructor) GenerateDeploymentResources(pl *InstanceGroup) *Resources {
 	t := []Resource{}
 	pubsubs := []Pubsub{
 		Pubsub{Name: "job", AckDeadline: 600},
@@ -120,7 +120,7 @@ func (b *Constructor) GenerateDeploymentResources(pl *InstanceGroup) *Resources 
 	return &Resources{Resources: t}
 }
 
-func (b *Constructor) buildItResource(pl *InstanceGroup) Resource {
+func (b *InstanceGroupConstructor) buildItResource(pl *InstanceGroup) Resource {
 	return Resource{
 		Type: "compute.v1.instanceTemplate",
 		Name: pl.Name + "-it",
@@ -131,7 +131,7 @@ func (b *Constructor) buildItResource(pl *InstanceGroup) Resource {
 	}
 }
 
-func (b *Constructor) buildItProperties(pl *InstanceGroup) map[string]interface{} {
+func (b *InstanceGroupConstructor) buildItProperties(pl *InstanceGroup) map[string]interface{} {
 	scheduling := map[string]interface{}{
 		"preemptible": pl.Preemptible,
 	}
@@ -165,7 +165,7 @@ func (b *Constructor) buildItProperties(pl *InstanceGroup) map[string]interface{
 	return it_properties
 }
 
-func (b *Constructor) buildGuestAccelerators(pl *InstanceGroup) map[string]interface{} {
+func (b *InstanceGroupConstructor) buildGuestAccelerators(pl *InstanceGroup) map[string]interface{} {
 	ga := pl.GpuAccelerators
 	return map[string]interface{}{
 		"acceleratorCount": float64(ga.Count),
@@ -173,7 +173,7 @@ func (b *Constructor) buildGuestAccelerators(pl *InstanceGroup) map[string]inter
 	}
 }
 
-func (b *Constructor) buildIgmResource(pl *InstanceGroup) Resource {
+func (b *InstanceGroupConstructor) buildIgmResource(pl *InstanceGroup) Resource {
 	return Resource{
 		Type: "compute.v1.instanceGroupManagers",
 		Name: pl.Name + "-igm",
@@ -186,14 +186,14 @@ func (b *Constructor) buildIgmResource(pl *InstanceGroup) Resource {
 	}
 }
 
-func (b *Constructor) buildStartupScriptMetadataItem(pl *InstanceGroup) map[string]interface{} {
+func (b *InstanceGroupConstructor) buildStartupScriptMetadataItem(pl *InstanceGroup) map[string]interface{} {
 	return map[string]interface{}{
 		"key":   "startup-script",
 		"value": pl.StartupScript,
 	}
 }
 
-func (b *Constructor) buildDefaultNetwork(pl *InstanceGroup) map[string]interface{} {
+func (b *InstanceGroupConstructor) buildDefaultNetwork(pl *InstanceGroup) map[string]interface{} {
 	return map[string]interface{}{
 		"network": "https://www.googleapis.com/compute/v1/projects/" + pl.ProjectID + "/global/networks/default",
 		"accessConfigs": []interface{}{
@@ -205,7 +205,7 @@ func (b *Constructor) buildDefaultNetwork(pl *InstanceGroup) map[string]interfac
 	}
 }
 
-func (b *Constructor) buildScopes() map[string]interface{} {
+func (b *InstanceGroupConstructor) buildScopes() map[string]interface{} {
 	return map[string]interface{}{
 		"scopes": []interface{}{
 			"https://www.googleapis.com/auth/devstorage.full_control",
@@ -217,7 +217,7 @@ func (b *Constructor) buildScopes() map[string]interface{} {
 	}
 }
 
-func (b *Constructor) buildBootDisk(disk *InstanceGroupVMDisk) map[string]interface{} {
+func (b *InstanceGroupConstructor) buildBootDisk(disk *InstanceGroupVMDisk) map[string]interface{} {
 	initParams := map[string]interface{}{
 		"sourceImage": disk.SourceImage,
 	}

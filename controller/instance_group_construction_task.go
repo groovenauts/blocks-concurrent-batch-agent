@@ -54,7 +54,7 @@ func (c *InstanceGroupConstructionTaskController) Start(ctx *app.StartInstanceGr
 		return ctx.NoContent(nil)
 	}
 
-	b, err := model.NewConstructor(appCtx)
+	b, err := model.NewInstanceGroupConstructor(appCtx)
 	if err != nil {
 		return err
 	}

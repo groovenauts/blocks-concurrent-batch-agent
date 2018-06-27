@@ -15,8 +15,8 @@ import (
 )
 
 func TestGenerateContent(t *testing.T) {
-	b := &Constructor{}
-	expected_data, err := ioutil.ReadFile(`constructor_test/pipeline01.json`)
+	b := &InstanceGroupConstructor{}
+	expected_data, err := ioutil.ReadFile(`instance_group_constructor_test/pipeline01.json`)
 	expected := &Resources{}
 	err = json.Unmarshal([]byte(expected_data), expected)
 	assert.NoError(t, err)
@@ -71,8 +71,8 @@ func TestGenerateContent(t *testing.T) {
 	assert.Equal(t, true, props2["preemptible"])
 }
 
-func setupForBuildDeployment() (*Constructor, *InstanceGroup) {
-	b := &Constructor{}
+func setupForBuildDeployment() (*InstanceGroupConstructor, *InstanceGroup) {
+	b := &InstanceGroupConstructor{}
 	pl := &InstanceGroup{
 		Name:      "pipeline01",
 		ProjectID: "dummy-proj-999",
@@ -88,7 +88,7 @@ func setupForBuildDeployment() (*Constructor, *InstanceGroup) {
 
 func TestBuildDeployment(t *testing.T) {
 	b, pl := setupForBuildDeployment()
-	expected_data, err := ioutil.ReadFile(`constructor_test/pipeline01.json`)
+	expected_data, err := ioutil.ReadFile(`instance_group_constructor_test/pipeline01.json`)
 	expected := Resources{}
 	err = json.Unmarshal([]byte(expected_data), &expected)
 	assert.NoError(t, err)
@@ -147,7 +147,7 @@ func TestBuildDeploymentWithGPU(t *testing.T) {
 	err = pl.Validate()
 	assert.NoError(t, err)
 
-	expected_data, err := ioutil.ReadFile(`constructor_test/pipeline02.json`)
+	expected_data, err := ioutil.ReadFile(`instance_group_constructor_test/pipeline02.json`)
 	expected := Resources{}
 	err = json.Unmarshal([]byte(expected_data), &expected)
 	assert.NoError(t, err)
@@ -157,7 +157,7 @@ func TestBuildDeploymentWithGPU(t *testing.T) {
 }
 
 func TestBuildBootDisk(t *testing.T) {
-	b := &Constructor{}
+	b := &InstanceGroupConstructor{}
 	d1 := InstanceGroupVMDisk{
 		SourceImage: "https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
 	}
