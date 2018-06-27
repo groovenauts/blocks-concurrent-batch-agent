@@ -32,6 +32,196 @@ func initService(service *goa.Service) {
 	service.Decoder.Register(goa.NewJSONDecoder, "*/*")
 }
 
+// InstanceGroupController is the controller interface for the InstanceGroup actions.
+type InstanceGroupController interface {
+	goa.Muxer
+	Create(*CreateInstanceGroupContext) error
+	Delete(*DeleteInstanceGroupContext) error
+	Destruct(*DestructInstanceGroupContext) error
+	List(*ListInstanceGroupContext) error
+	Resize(*ResizeInstanceGroupContext) error
+	Show(*ShowInstanceGroupContext) error
+}
+
+// MountInstanceGroupController "mounts" a InstanceGroup resource controller on the given service.
+func MountInstanceGroupController(service *goa.Service, ctrl InstanceGroupController) {
+	initService(service)
+	var h goa.Handler
+	service.Mux.Handle("OPTIONS", "/instance_groups", ctrl.MuxHandler("preflight", handleInstanceGroupOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/instance_groups/:id", ctrl.MuxHandler("preflight", handleInstanceGroupOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/instance_groups/:id/destruct", ctrl.MuxHandler("preflight", handleInstanceGroupOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/instance_groups/:id/resize", ctrl.MuxHandler("preflight", handleInstanceGroupOrigin(cors.HandlePreflight()), nil))
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewCreateInstanceGroupContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*InstanceGroupPayload)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.Create(rctx)
+	}
+	h = handleSecurity("api_key", h)
+	h = handleInstanceGroupOrigin(h)
+	service.Mux.Handle("POST", "/instance_groups", ctrl.MuxHandler("create", h, unmarshalCreateInstanceGroupPayload))
+	service.LogInfo("mount", "ctrl", "InstanceGroup", "action", "Create", "route", "POST /instance_groups", "security", "api_key")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewDeleteInstanceGroupContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Delete(rctx)
+	}
+	h = handleSecurity("api_key", h)
+	h = handleInstanceGroupOrigin(h)
+	service.Mux.Handle("DELETE", "/instance_groups/:id", ctrl.MuxHandler("delete", h, nil))
+	service.LogInfo("mount", "ctrl", "InstanceGroup", "action", "Delete", "route", "DELETE /instance_groups/:id", "security", "api_key")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewDestructInstanceGroupContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Destruct(rctx)
+	}
+	h = handleSecurity("api_key", h)
+	h = handleInstanceGroupOrigin(h)
+	service.Mux.Handle("PUT", "/instance_groups/:id/destruct", ctrl.MuxHandler("destruct", h, nil))
+	service.LogInfo("mount", "ctrl", "InstanceGroup", "action", "Destruct", "route", "PUT /instance_groups/:id/destruct", "security", "api_key")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewListInstanceGroupContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.List(rctx)
+	}
+	h = handleSecurity("api_key", h)
+	h = handleInstanceGroupOrigin(h)
+	service.Mux.Handle("GET", "/instance_groups", ctrl.MuxHandler("list", h, nil))
+	service.LogInfo("mount", "ctrl", "InstanceGroup", "action", "List", "route", "GET /instance_groups", "security", "api_key")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewResizeInstanceGroupContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*ResizeInstanceGroupPayload)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.Resize(rctx)
+	}
+	h = handleSecurity("api_key", h)
+	h = handleInstanceGroupOrigin(h)
+	service.Mux.Handle("PUT", "/instance_groups/:id/resize", ctrl.MuxHandler("resize", h, unmarshalResizeInstanceGroupPayload))
+	service.LogInfo("mount", "ctrl", "InstanceGroup", "action", "Resize", "route", "PUT /instance_groups/:id/resize", "security", "api_key")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewShowInstanceGroupContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Show(rctx)
+	}
+	h = handleSecurity("api_key", h)
+	h = handleInstanceGroupOrigin(h)
+	service.Mux.Handle("GET", "/instance_groups/:id", ctrl.MuxHandler("show", h, nil))
+	service.LogInfo("mount", "ctrl", "InstanceGroup", "action", "Show", "route", "GET /instance_groups/:id", "security", "api_key")
+}
+
+// handleInstanceGroupOrigin applies the CORS response headers corresponding to the origin.
+func handleInstanceGroupOrigin(h goa.Handler) goa.Handler {
+
+	return func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		origin := req.Header.Get("Origin")
+		if origin == "" {
+			// Not a CORS request
+			return h(ctx, rw, req)
+		}
+		if cors.MatchOrigin(origin, "*") {
+			ctx = goa.WithLogContext(ctx, "origin", origin)
+			rw.Header().Set("Access-Control-Allow-Origin", origin)
+			rw.Header().Set("Access-Control-Max-Age", "600")
+			rw.Header().Set("Access-Control-Allow-Credentials", "true")
+			if acrm := req.Header.Get("Access-Control-Request-Method"); acrm != "" {
+				// We are handling a preflight request
+				rw.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			}
+			return h(ctx, rw, req)
+		}
+
+		return h(ctx, rw, req)
+	}
+}
+
+// unmarshalCreateInstanceGroupPayload unmarshals the request body into the context request data Payload field.
+func unmarshalCreateInstanceGroupPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &instanceGroupPayload{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
+}
+
+// unmarshalResizeInstanceGroupPayload unmarshals the request body into the context request data Payload field.
+func unmarshalResizeInstanceGroupPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &resizeInstanceGroupPayload{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
+}
+
 // InstanceGroupConstructionTaskController is the controller interface for the InstanceGroupConstructionTask actions.
 type InstanceGroupConstructionTaskController interface {
 	goa.Muxer
@@ -252,196 +442,6 @@ func handleInstanceGroupResizingTaskOrigin(h goa.Handler) goa.Handler {
 
 		return h(ctx, rw, req)
 	}
-}
-
-// IntanceGroupController is the controller interface for the IntanceGroup actions.
-type IntanceGroupController interface {
-	goa.Muxer
-	Create(*CreateIntanceGroupContext) error
-	Delete(*DeleteIntanceGroupContext) error
-	Destruct(*DestructIntanceGroupContext) error
-	List(*ListIntanceGroupContext) error
-	Resize(*ResizeIntanceGroupContext) error
-	Show(*ShowIntanceGroupContext) error
-}
-
-// MountIntanceGroupController "mounts" a IntanceGroup resource controller on the given service.
-func MountIntanceGroupController(service *goa.Service, ctrl IntanceGroupController) {
-	initService(service)
-	var h goa.Handler
-	service.Mux.Handle("OPTIONS", "/instance_groups", ctrl.MuxHandler("preflight", handleIntanceGroupOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/instance_groups/:id", ctrl.MuxHandler("preflight", handleIntanceGroupOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/instance_groups/:id/destruct", ctrl.MuxHandler("preflight", handleIntanceGroupOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/instance_groups/:id/resize", ctrl.MuxHandler("preflight", handleIntanceGroupOrigin(cors.HandlePreflight()), nil))
-
-	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
-		// Check if there was an error loading the request
-		if err := goa.ContextError(ctx); err != nil {
-			return err
-		}
-		// Build the context
-		rctx, err := NewCreateIntanceGroupContext(ctx, req, service)
-		if err != nil {
-			return err
-		}
-		// Build the payload
-		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
-			rctx.Payload = rawPayload.(*InstanceGroupPayload)
-		} else {
-			return goa.MissingPayloadError()
-		}
-		return ctrl.Create(rctx)
-	}
-	h = handleSecurity("api_key", h)
-	h = handleIntanceGroupOrigin(h)
-	service.Mux.Handle("POST", "/instance_groups", ctrl.MuxHandler("create", h, unmarshalCreateIntanceGroupPayload))
-	service.LogInfo("mount", "ctrl", "IntanceGroup", "action", "Create", "route", "POST /instance_groups", "security", "api_key")
-
-	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
-		// Check if there was an error loading the request
-		if err := goa.ContextError(ctx); err != nil {
-			return err
-		}
-		// Build the context
-		rctx, err := NewDeleteIntanceGroupContext(ctx, req, service)
-		if err != nil {
-			return err
-		}
-		return ctrl.Delete(rctx)
-	}
-	h = handleSecurity("api_key", h)
-	h = handleIntanceGroupOrigin(h)
-	service.Mux.Handle("DELETE", "/instance_groups/:id", ctrl.MuxHandler("delete", h, nil))
-	service.LogInfo("mount", "ctrl", "IntanceGroup", "action", "Delete", "route", "DELETE /instance_groups/:id", "security", "api_key")
-
-	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
-		// Check if there was an error loading the request
-		if err := goa.ContextError(ctx); err != nil {
-			return err
-		}
-		// Build the context
-		rctx, err := NewDestructIntanceGroupContext(ctx, req, service)
-		if err != nil {
-			return err
-		}
-		return ctrl.Destruct(rctx)
-	}
-	h = handleSecurity("api_key", h)
-	h = handleIntanceGroupOrigin(h)
-	service.Mux.Handle("PUT", "/instance_groups/:id/destruct", ctrl.MuxHandler("destruct", h, nil))
-	service.LogInfo("mount", "ctrl", "IntanceGroup", "action", "Destruct", "route", "PUT /instance_groups/:id/destruct", "security", "api_key")
-
-	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
-		// Check if there was an error loading the request
-		if err := goa.ContextError(ctx); err != nil {
-			return err
-		}
-		// Build the context
-		rctx, err := NewListIntanceGroupContext(ctx, req, service)
-		if err != nil {
-			return err
-		}
-		return ctrl.List(rctx)
-	}
-	h = handleSecurity("api_key", h)
-	h = handleIntanceGroupOrigin(h)
-	service.Mux.Handle("GET", "/instance_groups", ctrl.MuxHandler("list", h, nil))
-	service.LogInfo("mount", "ctrl", "IntanceGroup", "action", "List", "route", "GET /instance_groups", "security", "api_key")
-
-	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
-		// Check if there was an error loading the request
-		if err := goa.ContextError(ctx); err != nil {
-			return err
-		}
-		// Build the context
-		rctx, err := NewResizeIntanceGroupContext(ctx, req, service)
-		if err != nil {
-			return err
-		}
-		// Build the payload
-		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
-			rctx.Payload = rawPayload.(*ResizeIntanceGroupPayload)
-		} else {
-			return goa.MissingPayloadError()
-		}
-		return ctrl.Resize(rctx)
-	}
-	h = handleSecurity("api_key", h)
-	h = handleIntanceGroupOrigin(h)
-	service.Mux.Handle("PUT", "/instance_groups/:id/resize", ctrl.MuxHandler("resize", h, unmarshalResizeIntanceGroupPayload))
-	service.LogInfo("mount", "ctrl", "IntanceGroup", "action", "Resize", "route", "PUT /instance_groups/:id/resize", "security", "api_key")
-
-	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
-		// Check if there was an error loading the request
-		if err := goa.ContextError(ctx); err != nil {
-			return err
-		}
-		// Build the context
-		rctx, err := NewShowIntanceGroupContext(ctx, req, service)
-		if err != nil {
-			return err
-		}
-		return ctrl.Show(rctx)
-	}
-	h = handleSecurity("api_key", h)
-	h = handleIntanceGroupOrigin(h)
-	service.Mux.Handle("GET", "/instance_groups/:id", ctrl.MuxHandler("show", h, nil))
-	service.LogInfo("mount", "ctrl", "IntanceGroup", "action", "Show", "route", "GET /instance_groups/:id", "security", "api_key")
-}
-
-// handleIntanceGroupOrigin applies the CORS response headers corresponding to the origin.
-func handleIntanceGroupOrigin(h goa.Handler) goa.Handler {
-
-	return func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
-		origin := req.Header.Get("Origin")
-		if origin == "" {
-			// Not a CORS request
-			return h(ctx, rw, req)
-		}
-		if cors.MatchOrigin(origin, "*") {
-			ctx = goa.WithLogContext(ctx, "origin", origin)
-			rw.Header().Set("Access-Control-Allow-Origin", origin)
-			rw.Header().Set("Access-Control-Max-Age", "600")
-			rw.Header().Set("Access-Control-Allow-Credentials", "true")
-			if acrm := req.Header.Get("Access-Control-Request-Method"); acrm != "" {
-				// We are handling a preflight request
-				rw.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-			}
-			return h(ctx, rw, req)
-		}
-
-		return h(ctx, rw, req)
-	}
-}
-
-// unmarshalCreateIntanceGroupPayload unmarshals the request body into the context request data Payload field.
-func unmarshalCreateIntanceGroupPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
-	payload := &instanceGroupPayload{}
-	if err := service.DecodeRequest(req, payload); err != nil {
-		return err
-	}
-	if err := payload.Validate(); err != nil {
-		// Initialize payload with private data structure so it can be logged
-		goa.ContextRequest(ctx).Payload = payload
-		return err
-	}
-	goa.ContextRequest(ctx).Payload = payload.Publicize()
-	return nil
-}
-
-// unmarshalResizeIntanceGroupPayload unmarshals the request body into the context request data Payload field.
-func unmarshalResizeIntanceGroupPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
-	payload := &resizeIntanceGroupPayload{}
-	if err := service.DecodeRequest(req, payload); err != nil {
-		return err
-	}
-	if err := payload.Validate(); err != nil {
-		// Initialize payload with private data structure so it can be logged
-		goa.ContextRequest(ctx).Payload = payload
-		return err
-	}
-	goa.ContextRequest(ctx).Payload = payload.Publicize()
-	return nil
 }
 
 // JobController is the controller interface for the Job actions.

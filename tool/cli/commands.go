@@ -29,6 +29,50 @@ import (
 )
 
 type (
+	// CreateInstanceGroupCommand is the command line data structure for the create action of InstanceGroup
+	CreateInstanceGroupCommand struct {
+		Payload     string
+		ContentType string
+		// Organization ID
+		OrgID       string
+		PrettyPrint bool
+	}
+
+	// DeleteInstanceGroupCommand is the command line data structure for the delete action of InstanceGroup
+	DeleteInstanceGroupCommand struct {
+		// ID
+		ID          string
+		PrettyPrint bool
+	}
+
+	// DestructInstanceGroupCommand is the command line data structure for the destruct action of InstanceGroup
+	DestructInstanceGroupCommand struct {
+		// ID
+		ID          string
+		PrettyPrint bool
+	}
+
+	// ListInstanceGroupCommand is the command line data structure for the list action of InstanceGroup
+	ListInstanceGroupCommand struct {
+		PrettyPrint bool
+	}
+
+	// ResizeInstanceGroupCommand is the command line data structure for the resize action of InstanceGroup
+	ResizeInstanceGroupCommand struct {
+		Payload     string
+		ContentType string
+		// ID
+		ID          string
+		PrettyPrint bool
+	}
+
+	// ShowInstanceGroupCommand is the command line data structure for the show action of InstanceGroup
+	ShowInstanceGroupCommand struct {
+		// ID
+		ID          string
+		PrettyPrint bool
+	}
+
 	// StartInstanceGroupConstructionTaskCommand is the command line data structure for the start action of InstanceGroupConstructionTask
 	StartInstanceGroupConstructionTaskCommand struct {
 		// Resource ID
@@ -66,50 +110,6 @@ type (
 
 	// WatchInstanceGroupResizingTaskCommand is the command line data structure for the watch action of InstanceGroupResizingTask
 	WatchInstanceGroupResizingTaskCommand struct {
-		// ID
-		ID          string
-		PrettyPrint bool
-	}
-
-	// CreateIntanceGroupCommand is the command line data structure for the create action of IntanceGroup
-	CreateIntanceGroupCommand struct {
-		Payload     string
-		ContentType string
-		// Organization ID
-		OrgID       string
-		PrettyPrint bool
-	}
-
-	// DeleteIntanceGroupCommand is the command line data structure for the delete action of IntanceGroup
-	DeleteIntanceGroupCommand struct {
-		// ID
-		ID          string
-		PrettyPrint bool
-	}
-
-	// DestructIntanceGroupCommand is the command line data structure for the destruct action of IntanceGroup
-	DestructIntanceGroupCommand struct {
-		// ID
-		ID          string
-		PrettyPrint bool
-	}
-
-	// ListIntanceGroupCommand is the command line data structure for the list action of IntanceGroup
-	ListIntanceGroupCommand struct {
-		PrettyPrint bool
-	}
-
-	// ResizeIntanceGroupCommand is the command line data structure for the resize action of IntanceGroup
-	ResizeIntanceGroupCommand struct {
-		Payload     string
-		ContentType string
-		// ID
-		ID          string
-		PrettyPrint bool
-	}
-
-	// ShowIntanceGroupCommand is the command line data structure for the show action of IntanceGroup
-	ShowIntanceGroupCommand struct {
 		// ID
 		ID          string
 		PrettyPrint bool
@@ -361,9 +361,9 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 		Use:   "create",
 		Short: `create action`,
 	}
-	tmp3 := new(CreateIntanceGroupCommand)
+	tmp3 := new(CreateInstanceGroupCommand)
 	sub = &cobra.Command{
-		Use:   `intance-group ["/instance_groups"]`,
+		Use:   `instance-group ["/instance_groups"]`,
 		Short: ``,
 		Long: `
 
@@ -533,9 +533,9 @@ Payload example:
 		Use:   "delete",
 		Short: `delete action`,
 	}
-	tmp9 := new(DeleteIntanceGroupCommand)
+	tmp9 := new(DeleteInstanceGroupCommand)
 	sub = &cobra.Command{
-		Use:   `intance-group ["/instance_groups/ID"]`,
+		Use:   `instance-group ["/instance_groups/ID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp9.Run(c, args) },
 	}
@@ -574,9 +574,9 @@ Payload example:
 		Use:   "destruct",
 		Short: `Destruct`,
 	}
-	tmp13 := new(DestructIntanceGroupCommand)
+	tmp13 := new(DestructInstanceGroupCommand)
 	sub = &cobra.Command{
-		Use:   `intance-group ["/instance_groups/ID/destruct"]`,
+		Use:   `instance-group ["/instance_groups/ID/destruct"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp13.Run(c, args) },
 	}
@@ -630,9 +630,9 @@ Payload example:
 		Use:   "list",
 		Short: `list action`,
 	}
-	tmp17 := new(ListIntanceGroupCommand)
+	tmp17 := new(ListInstanceGroupCommand)
 	sub = &cobra.Command{
-		Use:   `intance-group ["/instance_groups"]`,
+		Use:   `instance-group ["/instance_groups"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp17.Run(c, args) },
 	}
@@ -704,9 +704,9 @@ Payload example:
 		Use:   "resize",
 		Short: `Resize`,
 	}
-	tmp23 := new(ResizeIntanceGroupCommand)
+	tmp23 := new(ResizeInstanceGroupCommand)
 	sub = &cobra.Command{
-		Use:   `intance-group ["/instance_groups/ID/resize"]`,
+		Use:   `instance-group ["/instance_groups/ID/resize"]`,
 		Short: ``,
 		Long: `
 
@@ -725,9 +725,9 @@ Payload example:
 		Use:   "show",
 		Short: `show action`,
 	}
-	tmp24 := new(ShowIntanceGroupCommand)
+	tmp24 := new(ShowInstanceGroupCommand)
 	sub = &cobra.Command{
-		Use:   `intance-group ["/instance_groups/ID"]`,
+		Use:   `instance-group ["/instance_groups/ID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp24.Run(c, args) },
 	}
@@ -1103,6 +1103,178 @@ found:
 	return nil
 }
 
+// Run makes the HTTP request corresponding to the CreateInstanceGroupCommand command.
+func (cmd *CreateInstanceGroupCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = "/instance_groups"
+	}
+	var payload client.InstanceGroupPayload
+	if cmd.Payload != "" {
+		err := json.Unmarshal([]byte(cmd.Payload), &payload)
+		if err != nil {
+			return fmt.Errorf("failed to deserialize payload: %s", err)
+		}
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.CreateInstanceGroup(ctx, path, &payload, cmd.OrgID, cmd.ContentType)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *CreateInstanceGroupCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
+	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
+}
+
+// Run makes the HTTP request corresponding to the DeleteInstanceGroupCommand command.
+func (cmd *DeleteInstanceGroupCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = fmt.Sprintf("/instance_groups/%v", url.QueryEscape(cmd.ID))
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.DeleteInstanceGroup(ctx, path)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *DeleteInstanceGroupCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	var id string
+	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
+}
+
+// Run makes the HTTP request corresponding to the DestructInstanceGroupCommand command.
+func (cmd *DestructInstanceGroupCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = fmt.Sprintf("/instance_groups/%v/destruct", url.QueryEscape(cmd.ID))
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.DestructInstanceGroup(ctx, path)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *DestructInstanceGroupCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	var id string
+	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
+}
+
+// Run makes the HTTP request corresponding to the ListInstanceGroupCommand command.
+func (cmd *ListInstanceGroupCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = "/instance_groups"
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.ListInstanceGroup(ctx, path)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *ListInstanceGroupCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+}
+
+// Run makes the HTTP request corresponding to the ResizeInstanceGroupCommand command.
+func (cmd *ResizeInstanceGroupCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = fmt.Sprintf("/instance_groups/%v/resize", url.QueryEscape(cmd.ID))
+	}
+	var payload client.ResizeInstanceGroupPayload
+	if cmd.Payload != "" {
+		err := json.Unmarshal([]byte(cmd.Payload), &payload)
+		if err != nil {
+			return fmt.Errorf("failed to deserialize payload: %s", err)
+		}
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.ResizeInstanceGroup(ctx, path, &payload, cmd.ContentType)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *ResizeInstanceGroupCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
+	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
+	var id string
+	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
+}
+
+// Run makes the HTTP request corresponding to the ShowInstanceGroupCommand command.
+func (cmd *ShowInstanceGroupCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = fmt.Sprintf("/instance_groups/%v", url.QueryEscape(cmd.ID))
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.ShowInstanceGroup(ctx, path)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *ShowInstanceGroupCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	var id string
+	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
+}
+
 // Run makes the HTTP request corresponding to the StartInstanceGroupConstructionTaskCommand command.
 func (cmd *StartInstanceGroupConstructionTaskCommand) Run(c *client.Client, args []string) error {
 	var path string
@@ -1255,178 +1427,6 @@ func (cmd *WatchInstanceGroupResizingTaskCommand) Run(c *client.Client, args []s
 
 // RegisterFlags registers the command flags with the command line.
 func (cmd *WatchInstanceGroupResizingTaskCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	var id string
-	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
-}
-
-// Run makes the HTTP request corresponding to the CreateIntanceGroupCommand command.
-func (cmd *CreateIntanceGroupCommand) Run(c *client.Client, args []string) error {
-	var path string
-	if len(args) > 0 {
-		path = args[0]
-	} else {
-		path = "/instance_groups"
-	}
-	var payload client.InstanceGroupPayload
-	if cmd.Payload != "" {
-		err := json.Unmarshal([]byte(cmd.Payload), &payload)
-		if err != nil {
-			return fmt.Errorf("failed to deserialize payload: %s", err)
-		}
-	}
-	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
-	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.CreateIntanceGroup(ctx, path, &payload, cmd.OrgID, cmd.ContentType)
-	if err != nil {
-		goa.LogError(ctx, "failed", "err", err)
-		return err
-	}
-
-	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
-	return nil
-}
-
-// RegisterFlags registers the command flags with the command line.
-func (cmd *CreateIntanceGroupCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
-	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
-	var orgID string
-	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
-}
-
-// Run makes the HTTP request corresponding to the DeleteIntanceGroupCommand command.
-func (cmd *DeleteIntanceGroupCommand) Run(c *client.Client, args []string) error {
-	var path string
-	if len(args) > 0 {
-		path = args[0]
-	} else {
-		path = fmt.Sprintf("/instance_groups/%v", url.QueryEscape(cmd.ID))
-	}
-	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
-	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.DeleteIntanceGroup(ctx, path)
-	if err != nil {
-		goa.LogError(ctx, "failed", "err", err)
-		return err
-	}
-
-	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
-	return nil
-}
-
-// RegisterFlags registers the command flags with the command line.
-func (cmd *DeleteIntanceGroupCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	var id string
-	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
-}
-
-// Run makes the HTTP request corresponding to the DestructIntanceGroupCommand command.
-func (cmd *DestructIntanceGroupCommand) Run(c *client.Client, args []string) error {
-	var path string
-	if len(args) > 0 {
-		path = args[0]
-	} else {
-		path = fmt.Sprintf("/instance_groups/%v/destruct", url.QueryEscape(cmd.ID))
-	}
-	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
-	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.DestructIntanceGroup(ctx, path)
-	if err != nil {
-		goa.LogError(ctx, "failed", "err", err)
-		return err
-	}
-
-	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
-	return nil
-}
-
-// RegisterFlags registers the command flags with the command line.
-func (cmd *DestructIntanceGroupCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	var id string
-	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
-}
-
-// Run makes the HTTP request corresponding to the ListIntanceGroupCommand command.
-func (cmd *ListIntanceGroupCommand) Run(c *client.Client, args []string) error {
-	var path string
-	if len(args) > 0 {
-		path = args[0]
-	} else {
-		path = "/instance_groups"
-	}
-	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
-	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.ListIntanceGroup(ctx, path)
-	if err != nil {
-		goa.LogError(ctx, "failed", "err", err)
-		return err
-	}
-
-	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
-	return nil
-}
-
-// RegisterFlags registers the command flags with the command line.
-func (cmd *ListIntanceGroupCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-}
-
-// Run makes the HTTP request corresponding to the ResizeIntanceGroupCommand command.
-func (cmd *ResizeIntanceGroupCommand) Run(c *client.Client, args []string) error {
-	var path string
-	if len(args) > 0 {
-		path = args[0]
-	} else {
-		path = fmt.Sprintf("/instance_groups/%v/resize", url.QueryEscape(cmd.ID))
-	}
-	var payload client.ResizeIntanceGroupPayload
-	if cmd.Payload != "" {
-		err := json.Unmarshal([]byte(cmd.Payload), &payload)
-		if err != nil {
-			return fmt.Errorf("failed to deserialize payload: %s", err)
-		}
-	}
-	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
-	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.ResizeIntanceGroup(ctx, path, &payload, cmd.ContentType)
-	if err != nil {
-		goa.LogError(ctx, "failed", "err", err)
-		return err
-	}
-
-	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
-	return nil
-}
-
-// RegisterFlags registers the command flags with the command line.
-func (cmd *ResizeIntanceGroupCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
-	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
-	var id string
-	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
-}
-
-// Run makes the HTTP request corresponding to the ShowIntanceGroupCommand command.
-func (cmd *ShowIntanceGroupCommand) Run(c *client.Client, args []string) error {
-	var path string
-	if len(args) > 0 {
-		path = args[0]
-	} else {
-		path = fmt.Sprintf("/instance_groups/%v", url.QueryEscape(cmd.ID))
-	}
-	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
-	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.ShowIntanceGroup(ctx, path)
-	if err != nil {
-		goa.LogError(ctx, "failed", "err", err)
-		return err
-	}
-
-	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
-	return nil
-}
-
-// RegisterFlags registers the command flags with the command line.
-func (cmd *ShowIntanceGroupCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var id string
 	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
 }

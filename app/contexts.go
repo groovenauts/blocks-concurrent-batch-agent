@@ -16,6 +16,426 @@ import (
 	"net/http"
 )
 
+// CreateInstanceGroupContext provides the InstanceGroup create action context.
+type CreateInstanceGroupContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	OrgID   string
+	Payload *InstanceGroupPayload
+}
+
+// NewCreateInstanceGroupContext parses the incoming request URL and body, performs validations and creates the
+// context used by the InstanceGroup controller create action.
+func NewCreateInstanceGroupContext(ctx context.Context, r *http.Request, service *goa.Service) (*CreateInstanceGroupContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := CreateInstanceGroupContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) == 0 {
+		err = goa.MergeErrors(err, goa.MissingParamError("org_id"))
+	} else {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
+	}
+	return &rctx, err
+}
+
+// Created sends a HTTP response with status code 201.
+func (ctx *CreateInstanceGroupContext) Created(r *InstanceGroup) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *CreateInstanceGroupContext) BadRequest(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
+// Unauthorized sends a HTTP response with status code 401.
+func (ctx *CreateInstanceGroupContext) Unauthorized(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *CreateInstanceGroupContext) NotFound(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *CreateInstanceGroupContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// DeleteInstanceGroupContext provides the InstanceGroup delete action context.
+type DeleteInstanceGroupContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID string
+}
+
+// NewDeleteInstanceGroupContext parses the incoming request URL and body, performs validations and creates the
+// context used by the InstanceGroup controller delete action.
+func NewDeleteInstanceGroupContext(ctx context.Context, r *http.Request, service *goa.Service) (*DeleteInstanceGroupContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := DeleteInstanceGroupContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *DeleteInstanceGroupContext) OK(r *InstanceGroup) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *DeleteInstanceGroupContext) BadRequest(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
+// Unauthorized sends a HTTP response with status code 401.
+func (ctx *DeleteInstanceGroupContext) Unauthorized(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *DeleteInstanceGroupContext) NotFound(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *DeleteInstanceGroupContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// DestructInstanceGroupContext provides the InstanceGroup destruct action context.
+type DestructInstanceGroupContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID string
+}
+
+// NewDestructInstanceGroupContext parses the incoming request URL and body, performs validations and creates the
+// context used by the InstanceGroup controller destruct action.
+func NewDestructInstanceGroupContext(ctx context.Context, r *http.Request, service *goa.Service) (*DestructInstanceGroupContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := DestructInstanceGroupContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *DestructInstanceGroupContext) OK(r *InstanceGroup) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *DestructInstanceGroupContext) BadRequest(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
+// Unauthorized sends a HTTP response with status code 401.
+func (ctx *DestructInstanceGroupContext) Unauthorized(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *DestructInstanceGroupContext) NotFound(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *DestructInstanceGroupContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// ListInstanceGroupContext provides the InstanceGroup list action context.
+type ListInstanceGroupContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+}
+
+// NewListInstanceGroupContext parses the incoming request URL and body, performs validations and creates the
+// context used by the InstanceGroup controller list action.
+func NewListInstanceGroupContext(ctx context.Context, r *http.Request, service *goa.Service) (*ListInstanceGroupContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := ListInstanceGroupContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *ListInstanceGroupContext) OK(r InstanceGroupCollection) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group+json; type=collection")
+	}
+	if r == nil {
+		r = InstanceGroupCollection{}
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *ListInstanceGroupContext) BadRequest(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
+// Unauthorized sends a HTTP response with status code 401.
+func (ctx *ListInstanceGroupContext) Unauthorized(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *ListInstanceGroupContext) NotFound(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *ListInstanceGroupContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// ResizeInstanceGroupContext provides the InstanceGroup resize action context.
+type ResizeInstanceGroupContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID      string
+	Payload *ResizeInstanceGroupPayload
+}
+
+// NewResizeInstanceGroupContext parses the incoming request URL and body, performs validations and creates the
+// context used by the InstanceGroup controller resize action.
+func NewResizeInstanceGroupContext(ctx context.Context, r *http.Request, service *goa.Service) (*ResizeInstanceGroupContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := ResizeInstanceGroupContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	return &rctx, err
+}
+
+// resizeInstanceGroupPayload is the InstanceGroup resize action payload.
+type resizeInstanceGroupPayload struct {
+	// New Instance Size
+	NewSize *int `form:"new_size,omitempty" json:"new_size,omitempty" yaml:"new_size,omitempty" xml:"new_size,omitempty"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *resizeInstanceGroupPayload) Validate() (err error) {
+	if payload.NewSize == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "new_size"))
+	}
+	return
+}
+
+// Publicize creates ResizeInstanceGroupPayload from resizeInstanceGroupPayload
+func (payload *resizeInstanceGroupPayload) Publicize() *ResizeInstanceGroupPayload {
+	var pub ResizeInstanceGroupPayload
+	if payload.NewSize != nil {
+		pub.NewSize = *payload.NewSize
+	}
+	return &pub
+}
+
+// ResizeInstanceGroupPayload is the InstanceGroup resize action payload.
+type ResizeInstanceGroupPayload struct {
+	// New Instance Size
+	NewSize int `form:"new_size" json:"new_size" yaml:"new_size" xml:"new_size"`
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *ResizeInstanceGroupContext) OK(r *InstanceGroup) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *ResizeInstanceGroupContext) BadRequest(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
+// Unauthorized sends a HTTP response with status code 401.
+func (ctx *ResizeInstanceGroupContext) Unauthorized(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *ResizeInstanceGroupContext) NotFound(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *ResizeInstanceGroupContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// ShowInstanceGroupContext provides the InstanceGroup show action context.
+type ShowInstanceGroupContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID string
+}
+
+// NewShowInstanceGroupContext parses the incoming request URL and body, performs validations and creates the
+// context used by the InstanceGroup controller show action.
+func NewShowInstanceGroupContext(ctx context.Context, r *http.Request, service *goa.Service) (*ShowInstanceGroupContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := ShowInstanceGroupContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *ShowInstanceGroupContext) OK(r *InstanceGroup) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *ShowInstanceGroupContext) BadRequest(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
+// Unauthorized sends a HTTP response with status code 401.
+func (ctx *ShowInstanceGroupContext) Unauthorized(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *ShowInstanceGroupContext) NotFound(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *ShowInstanceGroupContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
 // StartInstanceGroupConstructionTaskContext provides the InstanceGroupConstructionTask start action context.
 type StartInstanceGroupConstructionTaskContext struct {
 	context.Context
@@ -598,426 +1018,6 @@ func (ctx *WatchInstanceGroupResizingTaskContext) NotFound(r error) error {
 
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *WatchInstanceGroupResizingTaskContext) InternalServerError(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
-}
-
-// CreateIntanceGroupContext provides the IntanceGroup create action context.
-type CreateIntanceGroupContext struct {
-	context.Context
-	*goa.ResponseData
-	*goa.RequestData
-	OrgID   string
-	Payload *InstanceGroupPayload
-}
-
-// NewCreateIntanceGroupContext parses the incoming request URL and body, performs validations and creates the
-// context used by the IntanceGroup controller create action.
-func NewCreateIntanceGroupContext(ctx context.Context, r *http.Request, service *goa.Service) (*CreateIntanceGroupContext, error) {
-	var err error
-	resp := goa.ContextResponse(ctx)
-	resp.Service = service
-	req := goa.ContextRequest(ctx)
-	req.Request = r
-	rctx := CreateIntanceGroupContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramOrgID := req.Params["org_id"]
-	if len(paramOrgID) == 0 {
-		err = goa.MergeErrors(err, goa.MissingParamError("org_id"))
-	} else {
-		rawOrgID := paramOrgID[0]
-		rctx.OrgID = rawOrgID
-	}
-	return &rctx, err
-}
-
-// Created sends a HTTP response with status code 201.
-func (ctx *CreateIntanceGroupContext) Created(r *InstanceGroup) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group+json")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
-}
-
-// BadRequest sends a HTTP response with status code 400.
-func (ctx *CreateIntanceGroupContext) BadRequest(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
-}
-
-// Unauthorized sends a HTTP response with status code 401.
-func (ctx *CreateIntanceGroupContext) Unauthorized(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
-}
-
-// NotFound sends a HTTP response with status code 404.
-func (ctx *CreateIntanceGroupContext) NotFound(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
-}
-
-// InternalServerError sends a HTTP response with status code 500.
-func (ctx *CreateIntanceGroupContext) InternalServerError(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
-}
-
-// DeleteIntanceGroupContext provides the IntanceGroup delete action context.
-type DeleteIntanceGroupContext struct {
-	context.Context
-	*goa.ResponseData
-	*goa.RequestData
-	ID string
-}
-
-// NewDeleteIntanceGroupContext parses the incoming request URL and body, performs validations and creates the
-// context used by the IntanceGroup controller delete action.
-func NewDeleteIntanceGroupContext(ctx context.Context, r *http.Request, service *goa.Service) (*DeleteIntanceGroupContext, error) {
-	var err error
-	resp := goa.ContextResponse(ctx)
-	resp.Service = service
-	req := goa.ContextRequest(ctx)
-	req.Request = r
-	rctx := DeleteIntanceGroupContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramID := req.Params["id"]
-	if len(paramID) > 0 {
-		rawID := paramID[0]
-		rctx.ID = rawID
-	}
-	return &rctx, err
-}
-
-// OK sends a HTTP response with status code 200.
-func (ctx *DeleteIntanceGroupContext) OK(r *InstanceGroup) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group+json")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
-}
-
-// BadRequest sends a HTTP response with status code 400.
-func (ctx *DeleteIntanceGroupContext) BadRequest(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
-}
-
-// Unauthorized sends a HTTP response with status code 401.
-func (ctx *DeleteIntanceGroupContext) Unauthorized(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
-}
-
-// NotFound sends a HTTP response with status code 404.
-func (ctx *DeleteIntanceGroupContext) NotFound(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
-}
-
-// InternalServerError sends a HTTP response with status code 500.
-func (ctx *DeleteIntanceGroupContext) InternalServerError(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
-}
-
-// DestructIntanceGroupContext provides the IntanceGroup destruct action context.
-type DestructIntanceGroupContext struct {
-	context.Context
-	*goa.ResponseData
-	*goa.RequestData
-	ID string
-}
-
-// NewDestructIntanceGroupContext parses the incoming request URL and body, performs validations and creates the
-// context used by the IntanceGroup controller destruct action.
-func NewDestructIntanceGroupContext(ctx context.Context, r *http.Request, service *goa.Service) (*DestructIntanceGroupContext, error) {
-	var err error
-	resp := goa.ContextResponse(ctx)
-	resp.Service = service
-	req := goa.ContextRequest(ctx)
-	req.Request = r
-	rctx := DestructIntanceGroupContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramID := req.Params["id"]
-	if len(paramID) > 0 {
-		rawID := paramID[0]
-		rctx.ID = rawID
-	}
-	return &rctx, err
-}
-
-// OK sends a HTTP response with status code 200.
-func (ctx *DestructIntanceGroupContext) OK(r *InstanceGroup) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group+json")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
-}
-
-// BadRequest sends a HTTP response with status code 400.
-func (ctx *DestructIntanceGroupContext) BadRequest(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
-}
-
-// Unauthorized sends a HTTP response with status code 401.
-func (ctx *DestructIntanceGroupContext) Unauthorized(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
-}
-
-// NotFound sends a HTTP response with status code 404.
-func (ctx *DestructIntanceGroupContext) NotFound(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
-}
-
-// InternalServerError sends a HTTP response with status code 500.
-func (ctx *DestructIntanceGroupContext) InternalServerError(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
-}
-
-// ListIntanceGroupContext provides the IntanceGroup list action context.
-type ListIntanceGroupContext struct {
-	context.Context
-	*goa.ResponseData
-	*goa.RequestData
-}
-
-// NewListIntanceGroupContext parses the incoming request URL and body, performs validations and creates the
-// context used by the IntanceGroup controller list action.
-func NewListIntanceGroupContext(ctx context.Context, r *http.Request, service *goa.Service) (*ListIntanceGroupContext, error) {
-	var err error
-	resp := goa.ContextResponse(ctx)
-	resp.Service = service
-	req := goa.ContextRequest(ctx)
-	req.Request = r
-	rctx := ListIntanceGroupContext{Context: ctx, ResponseData: resp, RequestData: req}
-	return &rctx, err
-}
-
-// OK sends a HTTP response with status code 200.
-func (ctx *ListIntanceGroupContext) OK(r InstanceGroupCollection) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group+json; type=collection")
-	}
-	if r == nil {
-		r = InstanceGroupCollection{}
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
-}
-
-// BadRequest sends a HTTP response with status code 400.
-func (ctx *ListIntanceGroupContext) BadRequest(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
-}
-
-// Unauthorized sends a HTTP response with status code 401.
-func (ctx *ListIntanceGroupContext) Unauthorized(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
-}
-
-// NotFound sends a HTTP response with status code 404.
-func (ctx *ListIntanceGroupContext) NotFound(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
-}
-
-// InternalServerError sends a HTTP response with status code 500.
-func (ctx *ListIntanceGroupContext) InternalServerError(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
-}
-
-// ResizeIntanceGroupContext provides the IntanceGroup resize action context.
-type ResizeIntanceGroupContext struct {
-	context.Context
-	*goa.ResponseData
-	*goa.RequestData
-	ID      string
-	Payload *ResizeIntanceGroupPayload
-}
-
-// NewResizeIntanceGroupContext parses the incoming request URL and body, performs validations and creates the
-// context used by the IntanceGroup controller resize action.
-func NewResizeIntanceGroupContext(ctx context.Context, r *http.Request, service *goa.Service) (*ResizeIntanceGroupContext, error) {
-	var err error
-	resp := goa.ContextResponse(ctx)
-	resp.Service = service
-	req := goa.ContextRequest(ctx)
-	req.Request = r
-	rctx := ResizeIntanceGroupContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramID := req.Params["id"]
-	if len(paramID) > 0 {
-		rawID := paramID[0]
-		rctx.ID = rawID
-	}
-	return &rctx, err
-}
-
-// resizeIntanceGroupPayload is the IntanceGroup resize action payload.
-type resizeIntanceGroupPayload struct {
-	// New Instance Size
-	NewSize *int `form:"new_size,omitempty" json:"new_size,omitempty" yaml:"new_size,omitempty" xml:"new_size,omitempty"`
-}
-
-// Validate runs the validation rules defined in the design.
-func (payload *resizeIntanceGroupPayload) Validate() (err error) {
-	if payload.NewSize == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "new_size"))
-	}
-	return
-}
-
-// Publicize creates ResizeIntanceGroupPayload from resizeIntanceGroupPayload
-func (payload *resizeIntanceGroupPayload) Publicize() *ResizeIntanceGroupPayload {
-	var pub ResizeIntanceGroupPayload
-	if payload.NewSize != nil {
-		pub.NewSize = *payload.NewSize
-	}
-	return &pub
-}
-
-// ResizeIntanceGroupPayload is the IntanceGroup resize action payload.
-type ResizeIntanceGroupPayload struct {
-	// New Instance Size
-	NewSize int `form:"new_size" json:"new_size" yaml:"new_size" xml:"new_size"`
-}
-
-// OK sends a HTTP response with status code 200.
-func (ctx *ResizeIntanceGroupContext) OK(r *InstanceGroup) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group+json")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
-}
-
-// BadRequest sends a HTTP response with status code 400.
-func (ctx *ResizeIntanceGroupContext) BadRequest(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
-}
-
-// Unauthorized sends a HTTP response with status code 401.
-func (ctx *ResizeIntanceGroupContext) Unauthorized(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
-}
-
-// NotFound sends a HTTP response with status code 404.
-func (ctx *ResizeIntanceGroupContext) NotFound(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
-}
-
-// InternalServerError sends a HTTP response with status code 500.
-func (ctx *ResizeIntanceGroupContext) InternalServerError(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
-}
-
-// ShowIntanceGroupContext provides the IntanceGroup show action context.
-type ShowIntanceGroupContext struct {
-	context.Context
-	*goa.ResponseData
-	*goa.RequestData
-	ID string
-}
-
-// NewShowIntanceGroupContext parses the incoming request URL and body, performs validations and creates the
-// context used by the IntanceGroup controller show action.
-func NewShowIntanceGroupContext(ctx context.Context, r *http.Request, service *goa.Service) (*ShowIntanceGroupContext, error) {
-	var err error
-	resp := goa.ContextResponse(ctx)
-	resp.Service = service
-	req := goa.ContextRequest(ctx)
-	req.Request = r
-	rctx := ShowIntanceGroupContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramID := req.Params["id"]
-	if len(paramID) > 0 {
-		rawID := paramID[0]
-		rctx.ID = rawID
-	}
-	return &rctx, err
-}
-
-// OK sends a HTTP response with status code 200.
-func (ctx *ShowIntanceGroupContext) OK(r *InstanceGroup) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group+json")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
-}
-
-// BadRequest sends a HTTP response with status code 400.
-func (ctx *ShowIntanceGroupContext) BadRequest(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
-}
-
-// Unauthorized sends a HTTP response with status code 401.
-func (ctx *ShowIntanceGroupContext) Unauthorized(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
-}
-
-// NotFound sends a HTTP response with status code 404.
-func (ctx *ShowIntanceGroupContext) NotFound(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
-}
-
-// InternalServerError sends a HTTP response with status code 500.
-func (ctx *ShowIntanceGroupContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}

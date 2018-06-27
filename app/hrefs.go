@@ -15,8 +15,8 @@ import (
 	"strings"
 )
 
-// IntanceGroupHref returns the resource href.
-func IntanceGroupHref(id interface{}) string {
+// InstanceGroupHref returns the resource href.
+func InstanceGroupHref(id interface{}) string {
 	paramid := strings.TrimLeftFunc(fmt.Sprintf("%v", id), func(r rune) bool { return r == '/' })
 	return fmt.Sprintf("/instance_groups/%v", paramid)
 }

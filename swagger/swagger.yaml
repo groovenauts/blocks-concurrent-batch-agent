@@ -1098,7 +1098,7 @@ definitions:
     - container
     title: PipelinePayload
     type: object
-  ResizeIntanceGroupPayload:
+  ResizeInstanceGroupPayload:
     example:
       new_size: 4.2511476455711473e+18
     properties:
@@ -1109,7 +1109,7 @@ definitions:
         type: integer
     required:
     - new_size
-    title: ResizeIntanceGroupPayload
+    title: ResizeInstanceGroupPayload
     type: object
   error:
     description: Error response media type (default view)
@@ -1532,7 +1532,7 @@ paths:
   /instance_groups:
     get:
       description: list
-      operationId: IntanceGroup#list
+      operationId: InstanceGroup#list
       produces:
       - application/vnd.goa.error
       - application/vnd.instance-group+json; type=collection
@@ -1561,12 +1561,12 @@ paths:
       - http
       security:
       - api_key: []
-      summary: list IntanceGroup
+      summary: list InstanceGroup
       tags:
-      - IntanceGroup
+      - InstanceGroup
     post:
       description: create
-      operationId: IntanceGroup#create
+      operationId: InstanceGroup#create
       parameters:
       - description: Organization ID
         in: query
@@ -1606,13 +1606,13 @@ paths:
       - http
       security:
       - api_key: []
-      summary: create IntanceGroup
+      summary: create InstanceGroup
       tags:
-      - IntanceGroup
+      - InstanceGroup
   /instance_groups/{id}:
     delete:
       description: delete
-      operationId: IntanceGroup#delete
+      operationId: InstanceGroup#delete
       parameters:
       - description: ID
         in: path
@@ -1647,12 +1647,12 @@ paths:
       - http
       security:
       - api_key: []
-      summary: delete IntanceGroup
+      summary: delete InstanceGroup
       tags:
-      - IntanceGroup
+      - InstanceGroup
     get:
       description: show
-      operationId: IntanceGroup#show
+      operationId: InstanceGroup#show
       parameters:
       - description: ID
         in: path
@@ -1687,13 +1687,13 @@ paths:
       - http
       security:
       - api_key: []
-      summary: show IntanceGroup
+      summary: show InstanceGroup
       tags:
-      - IntanceGroup
+      - InstanceGroup
   /instance_groups/{id}/destruct:
     put:
       description: Destruct
-      operationId: IntanceGroup#destruct
+      operationId: InstanceGroup#destruct
       parameters:
       - description: ID
         in: path
@@ -1728,13 +1728,13 @@ paths:
       - http
       security:
       - api_key: []
-      summary: destruct IntanceGroup
+      summary: destruct InstanceGroup
       tags:
-      - IntanceGroup
+      - InstanceGroup
   /instance_groups/{id}/resize:
     put:
       description: Resize
-      operationId: IntanceGroup#resize
+      operationId: InstanceGroup#resize
       parameters:
       - description: ID
         in: path
@@ -1745,7 +1745,7 @@ paths:
         name: payload
         required: true
         schema:
-          $ref: '#/definitions/ResizeIntanceGroupPayload'
+          $ref: '#/definitions/ResizeInstanceGroupPayload'
       produces:
       - application/vnd.goa.error
       - application/vnd.instance-group+json
@@ -1774,9 +1774,9 @@ paths:
       - http
       security:
       - api_key: []
-      summary: resize IntanceGroup
+      summary: resize InstanceGroup
       tags:
-      - IntanceGroup
+      - InstanceGroup
   /jobs:
     post:
       description: create

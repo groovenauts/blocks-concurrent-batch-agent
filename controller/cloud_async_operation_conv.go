@@ -20,6 +20,8 @@ func CloudAsyncOperationModelToMediaType(src *model.CloudAsyncOperation) *app.Cl
 		CreatedAt:     &src.CreatedAt,
 		UpdatedAt:     &src.UpdatedAt,
 		// OwnerID no media type field
+		// Errors no media type field
+		// Logs no media type field
 		// No field for media type field "id"
 	}
 }
