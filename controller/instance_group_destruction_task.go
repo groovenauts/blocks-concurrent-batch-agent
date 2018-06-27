@@ -83,8 +83,93 @@ func (c *InstanceGroupDestructionTaskController) Watch(ctx *app.WatchInstanceGro
 	// InstanceGroupDestructionTaskController_Watch: start_implement
 
 	// Put your logic here
+	appCtx := appengine.NewContext(ctx.Request)
+	opeStore := &model.CloudAsyncOperationStore{}
+	ope, err := opeStore.Get(appCtx, ctx.ID)
+	if err != nil {
+		if err == datastore.ErrNoSuchEntity {
+			log.Errorf(appCtx, "CloudAsyncOperation not found for %q\n", ctx.ID)
+			return ctx.NoContent(nil)
+		} else {
+			return err
+		}
+	}
+	store := &model.InstanceGroupStore{}
+	m, err := store.Get(appCtx, ope.OwnerID)
+	if err != nil {
+		if err == datastore.ErrNoSuchEntity {
+			log.Errorf(appCtx, "InstanceGroup not found for %q\n", ope.OwnerID)
+			return ctx.NoContent(nil)
+		} else {
+			return err
+		}
+	}
 
-	res := &app.CloudAsyncOperation{}
-	return ctx.OK(res)
+	switch m.Status {
+	case model.DestructionRunning: // Through
+	case
+		model.DestructionError,
+		model.Destructed:
+		log.Infof(appCtx, "SKIPPING because InstanceGroup %s is already %v\n", m.Id, m.Status)
+		return ctx.OK(nil)
+	default:
+		log.Warningf(appCtx, "Invalid request because InstanceGroup %s is already %v\n", m.Id, m.Status)
+		return ctx.NoContent(nil)
+	}
+
+	servicer, err := model.DefaultDeploymentServicer(ctx)
+	if err != nil {
+		return nil
+	}
+	remoteOpe, err := servicer.GetOperation(ctx, ope.ProjectId, ope.Name)
+	if err != nil {
+		log.Errorf(ctx, "Failed to get deployment operation: %v because of %v\n", ope, err)
+		return err
+	}
+	if ope.Status != remoteOpe.Status {
+		ope.AppendLog(fmt.Sprintf("InstanceGroup %q Status changed from %q to %q", m.Id, ope.Status, remoteOpe.Status))
+	}
+
+	// PENDING, RUNNING, or DONE
+	switch remoteOpe.Status {
+	case "DONE": // through
+	default:
+		if ope.Status != remoteOpe.Status {
+			ope.Status = remoteOpe.Status
+			_, err := opeStore.Update(ctx, ope)
+			if err != nil {
+				return err
+			}
+		}
+		return ctx.Created(CloudAsyncOperationModelToMediaType(ope))
+	}
+
+	errors := model.ErrorsFromDeploymentmanagerOperation(remoteOpe)
+	var f func(r *app.CloudAsyncOperation) error
+	if errors != nil {
+		ope.Errors = *errors
+		ope.AppendLog(fmt.Sprintf("Error by %v", remoteOpe))
+		m.Status = model.DestructionError
+		f = ctx.NoContent
+	} else {
+		ope.AppendLog("Success")
+		m.Status = model.Destructed
+		f = ctx.Accepted
+	}
+
+	_, err = opeStore.Update(appCtx, ope)
+	if err != nil {
+		return err
+	}
+
+	return datastore.RunInTransaction(appCtx, func(c context.Context) error {
+		_, err = store.Update(c, m)
+		if err != nil {
+			return err
+		}
+		// TODO Add calling PUT /pipeline_bases/:id/hibernation_done_task
+		return f(CloudAsyncOperationModelToMediaType(ope))
+	}, nil)
+
 	// InstanceGroupDestructionTaskController_Watch: end_implement
 }
