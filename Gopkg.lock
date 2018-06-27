@@ -168,6 +168,7 @@
   branch = "master"
   name = "google.golang.org/api"
   packages = [
+    "compute/v1",
     "deploymentmanager/v2",
     "gensupport",
     "googleapi",
@@ -207,6 +208,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "302a456c7f9665df970ee360becd7b8630fae73824695d255ad1e0f7cf873104"
+  inputs-digest = "51e4a90794dd72e883fd6b77252333c2a6c05fcce56ceac05f53193ef6d69a7c"
   solver-name = "gps-cdcl"
   solver-version = 1
