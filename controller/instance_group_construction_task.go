@@ -34,7 +34,12 @@ func (c *InstanceGroupConstructionTaskController) Start(ctx *app.StartInstanceGr
 	store := &model.InstanceGroupStore{}
 	m, err := store.Get(appCtx, ctx.ResourceID)
 	if err != nil {
-		return err
+		if err == datastore.ErrNoSuchEntity {
+			log.Errorf(appCtx, "InstanceGroup not found for %q\n", ctx.ResourceID)
+			return ctx.NoContent(nil)
+		} else {
+			return err
+		}
 	}
 	switch m.Status {
 	case model.ConstructionStarting:
@@ -86,12 +91,22 @@ func (c *InstanceGroupConstructionTaskController) Watch(ctx *app.WatchInstanceGr
 	opeStore := &model.CloudAsyncOperationStore{}
 	ope, err := opeStore.Get(appCtx, ctx.ID)
 	if err != nil {
-		return err
+		if err == datastore.ErrNoSuchEntity {
+			log.Errorf(appCtx, "CloudAsyncOperation not found for %q\n", ctx.ID)
+			return ctx.NoContent(nil)
+		} else {
+			return err
+		}
 	}
 	store := &model.InstanceGroupStore{}
 	m, err := store.Get(appCtx, ope.OwnerID)
 	if err != nil {
-		return err
+		if err == datastore.ErrNoSuchEntity {
+			log.Errorf(appCtx, "InstanceGroup not found for %q\n", ope.OwnerID)
+			return ctx.NoContent(nil)
+		} else {
+			return err
+		}
 	}
 
 	switch m.Status {
