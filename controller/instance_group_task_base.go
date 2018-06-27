@@ -18,7 +18,7 @@ type InstanceGroupTaskBase struct {
 	SkipStatuses []model.InstanceGroupStatus
 	ProcessorFactory func(ctx context.Context) (model.InstanceGroupProcessor, error)
 	WatchTaskPathFunc func(*model.CloudAsyncOperation) string
-	RespondOk func(*app.CloudAsyncOperation) error
+	RespondOK func(*app.CloudAsyncOperation) error
 	RespondNoContent func(*app.CloudAsyncOperation) error
 	RespondCreated func(*app.CloudAsyncOperation) error
 }
@@ -38,7 +38,7 @@ func (t *InstanceGroupTaskBase) Start(appCtx context.Context, resourceId string)
 	if m.Status != t.MainStatus {
 		if t.IsSkipped(m.Status) {
 			log.Infof(appCtx, "SKIPPING because InstanceGroup %s is already %v\n", m.Id, m.Status)
-			return t.RespondOk(nil)
+			return t.RespondOK(nil)
 		} else {
 			log.Warningf(appCtx, "Invalid request because InstanceGroup %s is already %v\n", m.Id, m.Status)
 			return t.RespondNoContent(nil)

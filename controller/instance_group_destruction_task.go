@@ -44,15 +44,9 @@ func (c *InstanceGroupDestructionTaskController) Start(ctx *app.StartInstanceGro
 		WatchTaskPathFunc: func(ope *model.CloudAsyncOperation) string {
 			return "/destruction_tasks/" + ope.Id
 		},
-		RespondOk: func(ope *app.CloudAsyncOperation) error {
-			return ctx.OK(ope)
-		},
-		RespondNoContent: func(ope *app.CloudAsyncOperation) error {
-			return ctx.NoContent(ope)
-		},
-		RespondCreated: func(ope *app.CloudAsyncOperation) error {
-			return ctx.Created(ope)
-		},
+		RespondOK: ctx.OK,
+		RespondNoContent: ctx.NoContent,
+		RespondCreated: ctx.Created,
 	}
 	return base.Start(appengine.NewContext(ctx.Request), ctx.ResourceID)
 
