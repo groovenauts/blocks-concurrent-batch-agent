@@ -2401,6 +2401,14 @@ func (ctx *HibernationCheckingTaskPipelineBaseContext) Created(r *PipelineBase) 
 	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
 }
 
+// NoContent sends a HTTP response with status code 204.
+func (ctx *HibernationCheckingTaskPipelineBaseContext) NoContent(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 204, r)
+}
+
 // BadRequest sends a HTTP response with status code 400.
 func (ctx *HibernationCheckingTaskPipelineBaseContext) BadRequest(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
@@ -2484,6 +2492,30 @@ func (ctx *HibernationDoneTaskPipelineBaseContext) OK(r *PipelineBase) error {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.pipeline-base+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// Accepted sends a HTTP response with status code 202.
+func (ctx *HibernationDoneTaskPipelineBaseContext) Accepted(r *PipelineBase) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.pipeline-base+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 202, r)
+}
+
+// NoContent sends a HTTP response with status code 204.
+func (ctx *HibernationDoneTaskPipelineBaseContext) NoContent(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 204, r)
+}
+
+// ResetContent sends a HTTP response with status code 205.
+func (ctx *HibernationDoneTaskPipelineBaseContext) ResetContent(r *PipelineBase) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.pipeline-base+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 205, r)
 }
 
 // BadRequest sends a HTTP response with status code 400.
@@ -2793,6 +2825,30 @@ func (ctx *WakeupDoneTaskPipelineBaseContext) OK(r *PipelineBase) error {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.pipeline-base+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// Accepted sends a HTTP response with status code 202.
+func (ctx *WakeupDoneTaskPipelineBaseContext) Accepted(r *PipelineBase) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.pipeline-base+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 202, r)
+}
+
+// NoContent sends a HTTP response with status code 204.
+func (ctx *WakeupDoneTaskPipelineBaseContext) NoContent(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 204, r)
+}
+
+// ResetContent sends a HTTP response with status code 205.
+func (ctx *WakeupDoneTaskPipelineBaseContext) ResetContent(r *PipelineBase) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.pipeline-base+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 205, r)
 }
 
 // BadRequest sends a HTTP response with status code 400.

@@ -2493,6 +2493,10 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/Pipeline-Base'
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/error'
         "400":
           description: Bad Request
           schema:
@@ -2544,6 +2548,18 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/Pipeline-Base'
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/Pipeline-Base'
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/error'
+        "205":
+          description: Reset Content
           schema:
             $ref: '#/definitions/Pipeline-Base'
         "400":
@@ -2642,6 +2658,18 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/Pipeline-Base'
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/Pipeline-Base'
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/error'
+        "205":
+          description: Reset Content
           schema:
             $ref: '#/definitions/Pipeline-Base'
         "400":
