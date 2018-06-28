@@ -182,8 +182,13 @@ func (c *InstanceGroupController) Show(ctx *app.ShowInstanceGroupContext) error 
 	// InstanceGroupController_Show: start_implement
 
 	// Put your logic here
+	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
+		appCtx := appengine.NewContext(ctx.Request)
+		store := &model.InstanceGroupStore{ParentKey: orgKey}
+		return c.member(appCtx, store, ctx.ID, ctx.NotFound, func(m *model.InstanceGroup) error {
+			return ctx.OK(InstanceGroupModelToMediaType(m))
+		})
+	})
 
-	res := &app.InstanceGroup{}
-	return ctx.OK(res)
 	// InstanceGroupController_Show: end_implement
 }
