@@ -30,16 +30,10 @@ var InstanceGroupAccelerators = Type("InstanceGroupAccelerators", func() {
 })
 
 var instanceGroupBodyRequired = []string{
-	"project_id", "zone", "boot_disk", "machine_type",
+	"boot_disk", "machine_type",
 }
 
 var InstanceGroupBody = Type("InstanceGroupBody", func() {
-	Member("project_id", String, "GCP Project ID", func() {
-		Example("dummy-proj-999")
-	})
-	Member("zone", String, "GCP zone", func() {
-		Example("us-central1-f")
-	})
 	Member("boot_disk", InstanceGroupVmDisk, "Boot disk")
 	Member("machine_type", String, "GCE Machine Type", func() {
 		Example("f1-micro")
@@ -71,12 +65,16 @@ var InstanceGroupPayload = Type("InstanceGroupPayload", func() {
 	Member("name", String, "Name", func() {
 		Example("pipeline1-123-ig-456")
 	})
-	Required("name")
+	Member("project_id", String, "GCP Project ID", func() {
+		Example("dummy-proj-999")
+	})
+	Member("zone", String, "GCP zone", func() {
+		Example("us-central1-f")
+	})
+	Required("name", "project_id", "zone")
 
 	Reference(InstanceGroupBody)
 	members := []string{
-		"project_id",
-		"zone",
 		"boot_disk",
 		"machine_type",
 		"gpu_accelerators",

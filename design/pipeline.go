@@ -9,7 +9,13 @@ var PipelinePayload = Type("PipelinePayload", func() {
 	Member("name", String, "Name of pipeline_base", func() {
 		Example("pipeline1")
 	})
-	Required("name")
+	Member("project_id", String, "GCP Project ID", func() {
+		Example("dummy-proj-999")
+	})
+	Member("zone", String, "GCP zone", func() {
+		Example("us-central1-f")
+	})
+	Required("name", "project_id", "zone")
 
 	Reference(PipelineBasePayloadBody)
 	members := []string{
@@ -29,6 +35,8 @@ var Pipeline = MediaType("application/vnd.pipeline+json", func() {
 
 	inheritedAttrs := []string{
 		"name",
+		"project_id",
+		"zone",
 		"instance_group",
 		"container",
 		"hibernation_delay",
