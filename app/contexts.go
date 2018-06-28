@@ -15,6 +15,7 @@ import (
 	"github.com/goadesign/goa"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 // CreateInstanceGroupContext provides the InstanceGroup create action context.
@@ -2150,6 +2151,14 @@ func (ctx *ClosePipelineBaseContext) OK(r *PipelineBase) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 
+// Created sends a HTTP response with status code 201.
+func (ctx *ClosePipelineBaseContext) Created(r *PipelineBase) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.pipeline-base+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
+}
+
 // BadRequest sends a HTTP response with status code 400.
 func (ctx *ClosePipelineBaseContext) BadRequest(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
@@ -2344,7 +2353,8 @@ type HibernationCheckingTaskPipelineBaseContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID string
+	ID    string
+	Since time.Time
 }
 
 // NewHibernationCheckingTaskPipelineBaseContext parses the incoming request URL and body, performs validations and creates the
@@ -2361,6 +2371,17 @@ func NewHibernationCheckingTaskPipelineBaseContext(ctx context.Context, r *http.
 		rawID := paramID[0]
 		rctx.ID = rawID
 	}
+	paramSince := req.Params["since"]
+	if len(paramSince) == 0 {
+		err = goa.MergeErrors(err, goa.MissingParamError("since"))
+	} else {
+		rawSince := paramSince[0]
+		if since, err2 := time.Parse(time.RFC3339, rawSince); err2 == nil {
+			rctx.Since = since
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("since", rawSince, "datetime"))
+		}
+	}
 	return &rctx, err
 }
 
@@ -2370,6 +2391,14 @@ func (ctx *HibernationCheckingTaskPipelineBaseContext) OK(r *PipelineBase) error
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.pipeline-base+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// Created sends a HTTP response with status code 201.
+func (ctx *HibernationCheckingTaskPipelineBaseContext) Created(r *PipelineBase) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.pipeline-base+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
 }
 
 // BadRequest sends a HTTP response with status code 400.

@@ -244,6 +244,7 @@ type (
 	HibernationCheckingTaskPipelineBaseCommand struct {
 		// ID
 		ID          string
+		Since       string
 		PrettyPrint bool
 	}
 
@@ -1880,7 +1881,20 @@ func (cmd *HibernationCheckingTaskPipelineBaseCommand) Run(c *client.Client, arg
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.HibernationCheckingTaskPipelineBase(ctx, path)
+	var tmp40 *time.Time
+	if cmd.Since != "" {
+		var err error
+		tmp40, err = timeVal(cmd.Since)
+		if err != nil {
+			goa.LogError(ctx, "failed to parse flag into *time.Time value", "flag", "--since", "err", err)
+			return err
+		}
+	}
+	if tmp40 == nil {
+		goa.LogError(ctx, "required flag is missing", "flag", "--since")
+		return fmt.Errorf("required flag since is missing")
+	}
+	resp, err := c.HibernationCheckingTaskPipelineBase(ctx, path, *tmp40)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -1894,6 +1908,8 @@ func (cmd *HibernationCheckingTaskPipelineBaseCommand) Run(c *client.Client, arg
 func (cmd *HibernationCheckingTaskPipelineBaseCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var id string
 	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
+	var since string
+	cc.Flags().StringVar(&cmd.Since, "since", since, ``)
 }
 
 // Run makes the HTTP request corresponding to the HibernationDoneTaskPipelineBaseCommand command.

@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 // ClosePipelineBasePath computes a request path to the close action of PipelineBase.
@@ -147,8 +148,8 @@ func HibernationCheckingTaskPipelineBasePath(id string) string {
 }
 
 // Task to check if it starts hibernation
-func (c *Client) HibernationCheckingTaskPipelineBase(ctx context.Context, path string) (*http.Response, error) {
-	req, err := c.NewHibernationCheckingTaskPipelineBaseRequest(ctx, path)
+func (c *Client) HibernationCheckingTaskPipelineBase(ctx context.Context, path string, since time.Time) (*http.Response, error) {
+	req, err := c.NewHibernationCheckingTaskPipelineBaseRequest(ctx, path, since)
 	if err != nil {
 		return nil, err
 	}
@@ -156,12 +157,16 @@ func (c *Client) HibernationCheckingTaskPipelineBase(ctx context.Context, path s
 }
 
 // NewHibernationCheckingTaskPipelineBaseRequest create the request corresponding to the hibernation_checking_task action endpoint of the PipelineBase resource.
-func (c *Client) NewHibernationCheckingTaskPipelineBaseRequest(ctx context.Context, path string) (*http.Request, error) {
+func (c *Client) NewHibernationCheckingTaskPipelineBaseRequest(ctx context.Context, path string, since time.Time) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "http"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	values := u.Query()
+	tmp42 := since.Format(time.RFC3339)
+	values.Set("since", tmp42)
+	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
 		return nil, err

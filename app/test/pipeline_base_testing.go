@@ -22,6 +22,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"time"
 )
 
 // ClosePipelineBaseBadRequest runs the method Close of the given controller with the given parameters.
@@ -155,6 +156,80 @@ func ClosePipelineBaseConflict(t goatest.TInterface, ctx context.Context, servic
 		mt, _ok = resp.(error)
 		if !_ok {
 			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of error", resp, resp)
+		}
+	}
+
+	// Return results
+	return rw, mt
+}
+
+// ClosePipelineBaseCreated runs the method Close of the given controller with the given parameters.
+// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func ClosePipelineBaseCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseController, id string) (http.ResponseWriter, *app.PipelineBase) {
+	// Setup service
+	var (
+		logBuf bytes.Buffer
+		resp   interface{}
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Setup request context
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/pipeline_bases/%v", id),
+	}
+	req, err := http.NewRequest("PUT", u.String(), nil)
+	if err != nil {
+		panic("invalid test " + err.Error()) // bug
+	}
+	prms := url.Values{}
+	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "PipelineBaseTest"), rw, req, prms)
+	closeCtx, _err := app.NewClosePipelineBaseContext(goaCtx, req, service)
+	if _err != nil {
+		e, ok := _err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + _err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", e)
+		return nil, nil
+	}
+
+	// Perform action
+	_err = ctrl.Close(closeCtx)
+
+	// Validate response
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	}
+	if rw.Code != 201 {
+		t.Errorf("invalid response status code: got %+v, expected 201", rw.Code)
+	}
+	var mt *app.PipelineBase
+	if resp != nil {
+		var _ok bool
+		mt, _ok = resp.(*app.PipelineBase)
+		if !_ok {
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.PipelineBase", resp, resp)
+		}
+		_err = mt.Validate()
+		if _err != nil {
+			t.Errorf("invalid response media type: %s", _err)
 		}
 	}
 
@@ -1406,7 +1481,7 @@ func DeletePipelineBaseUnauthorized(t goatest.TInterface, ctx context.Context, s
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func HibernationCheckingTaskPipelineBaseBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseController, id string) (http.ResponseWriter, error) {
+func HibernationCheckingTaskPipelineBaseBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseController, id string, since time.Time) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1426,8 +1501,14 @@ func HibernationCheckingTaskPipelineBaseBadRequest(t goatest.TInterface, ctx con
 
 	// Setup request context
 	rw := httptest.NewRecorder()
+	query := url.Values{}
+	{
+		sliceVal := []string{since.Format(time.RFC3339)}
+		query["since"] = sliceVal
+	}
 	u := &url.URL{
-		Path: fmt.Sprintf("/pipeline_bases/%v/hibernation_checking_task", id),
+		Path:     fmt.Sprintf("/pipeline_bases/%v/hibernation_checking_task", id),
+		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
@@ -1435,6 +1516,10 @@ func HibernationCheckingTaskPipelineBaseBadRequest(t goatest.TInterface, ctx con
 	}
 	prms := url.Values{}
 	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	{
+		sliceVal := []string{since.Format(time.RFC3339)}
+		prms["since"] = sliceVal
+	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -1475,7 +1560,7 @@ func HibernationCheckingTaskPipelineBaseBadRequest(t goatest.TInterface, ctx con
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func HibernationCheckingTaskPipelineBaseConflict(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseController, id string) (http.ResponseWriter, error) {
+func HibernationCheckingTaskPipelineBaseConflict(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseController, id string, since time.Time) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1495,8 +1580,14 @@ func HibernationCheckingTaskPipelineBaseConflict(t goatest.TInterface, ctx conte
 
 	// Setup request context
 	rw := httptest.NewRecorder()
+	query := url.Values{}
+	{
+		sliceVal := []string{since.Format(time.RFC3339)}
+		query["since"] = sliceVal
+	}
 	u := &url.URL{
-		Path: fmt.Sprintf("/pipeline_bases/%v/hibernation_checking_task", id),
+		Path:     fmt.Sprintf("/pipeline_bases/%v/hibernation_checking_task", id),
+		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
@@ -1504,6 +1595,10 @@ func HibernationCheckingTaskPipelineBaseConflict(t goatest.TInterface, ctx conte
 	}
 	prms := url.Values{}
 	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	{
+		sliceVal := []string{since.Format(time.RFC3339)}
+		prms["since"] = sliceVal
+	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -1540,11 +1635,11 @@ func HibernationCheckingTaskPipelineBaseConflict(t goatest.TInterface, ctx conte
 	return rw, mt
 }
 
-// HibernationCheckingTaskPipelineBaseInternalServerError runs the method HibernationCheckingTask of the given controller with the given parameters.
+// HibernationCheckingTaskPipelineBaseCreated runs the method HibernationCheckingTask of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func HibernationCheckingTaskPipelineBaseInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseController, id string) (http.ResponseWriter, error) {
+func HibernationCheckingTaskPipelineBaseCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseController, id string, since time.Time) (http.ResponseWriter, *app.PipelineBase) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1564,8 +1659,14 @@ func HibernationCheckingTaskPipelineBaseInternalServerError(t goatest.TInterface
 
 	// Setup request context
 	rw := httptest.NewRecorder()
+	query := url.Values{}
+	{
+		sliceVal := []string{since.Format(time.RFC3339)}
+		query["since"] = sliceVal
+	}
 	u := &url.URL{
-		Path: fmt.Sprintf("/pipeline_bases/%v/hibernation_checking_task", id),
+		Path:     fmt.Sprintf("/pipeline_bases/%v/hibernation_checking_task", id),
+		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
@@ -1573,6 +1674,94 @@ func HibernationCheckingTaskPipelineBaseInternalServerError(t goatest.TInterface
 	}
 	prms := url.Values{}
 	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	{
+		sliceVal := []string{since.Format(time.RFC3339)}
+		prms["since"] = sliceVal
+	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "PipelineBaseTest"), rw, req, prms)
+	hibernationCheckingTaskCtx, _err := app.NewHibernationCheckingTaskPipelineBaseContext(goaCtx, req, service)
+	if _err != nil {
+		e, ok := _err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + _err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", e)
+		return nil, nil
+	}
+
+	// Perform action
+	_err = ctrl.HibernationCheckingTask(hibernationCheckingTaskCtx)
+
+	// Validate response
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	}
+	if rw.Code != 201 {
+		t.Errorf("invalid response status code: got %+v, expected 201", rw.Code)
+	}
+	var mt *app.PipelineBase
+	if resp != nil {
+		var _ok bool
+		mt, _ok = resp.(*app.PipelineBase)
+		if !_ok {
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.PipelineBase", resp, resp)
+		}
+		_err = mt.Validate()
+		if _err != nil {
+			t.Errorf("invalid response media type: %s", _err)
+		}
+	}
+
+	// Return results
+	return rw, mt
+}
+
+// HibernationCheckingTaskPipelineBaseInternalServerError runs the method HibernationCheckingTask of the given controller with the given parameters.
+// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func HibernationCheckingTaskPipelineBaseInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseController, id string, since time.Time) (http.ResponseWriter, error) {
+	// Setup service
+	var (
+		logBuf bytes.Buffer
+		resp   interface{}
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Setup request context
+	rw := httptest.NewRecorder()
+	query := url.Values{}
+	{
+		sliceVal := []string{since.Format(time.RFC3339)}
+		query["since"] = sliceVal
+	}
+	u := &url.URL{
+		Path:     fmt.Sprintf("/pipeline_bases/%v/hibernation_checking_task", id),
+		RawQuery: query.Encode(),
+	}
+	req, err := http.NewRequest("PUT", u.String(), nil)
+	if err != nil {
+		panic("invalid test " + err.Error()) // bug
+	}
+	prms := url.Values{}
+	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	{
+		sliceVal := []string{since.Format(time.RFC3339)}
+		prms["since"] = sliceVal
+	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -1613,7 +1802,7 @@ func HibernationCheckingTaskPipelineBaseInternalServerError(t goatest.TInterface
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func HibernationCheckingTaskPipelineBaseNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseController, id string) (http.ResponseWriter, error) {
+func HibernationCheckingTaskPipelineBaseNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseController, id string, since time.Time) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1633,8 +1822,14 @@ func HibernationCheckingTaskPipelineBaseNotFound(t goatest.TInterface, ctx conte
 
 	// Setup request context
 	rw := httptest.NewRecorder()
+	query := url.Values{}
+	{
+		sliceVal := []string{since.Format(time.RFC3339)}
+		query["since"] = sliceVal
+	}
 	u := &url.URL{
-		Path: fmt.Sprintf("/pipeline_bases/%v/hibernation_checking_task", id),
+		Path:     fmt.Sprintf("/pipeline_bases/%v/hibernation_checking_task", id),
+		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
@@ -1642,6 +1837,10 @@ func HibernationCheckingTaskPipelineBaseNotFound(t goatest.TInterface, ctx conte
 	}
 	prms := url.Values{}
 	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	{
+		sliceVal := []string{since.Format(time.RFC3339)}
+		prms["since"] = sliceVal
+	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -1682,7 +1881,7 @@ func HibernationCheckingTaskPipelineBaseNotFound(t goatest.TInterface, ctx conte
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func HibernationCheckingTaskPipelineBaseOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseController, id string) (http.ResponseWriter, *app.PipelineBase) {
+func HibernationCheckingTaskPipelineBaseOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseController, id string, since time.Time) (http.ResponseWriter, *app.PipelineBase) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1702,8 +1901,14 @@ func HibernationCheckingTaskPipelineBaseOK(t goatest.TInterface, ctx context.Con
 
 	// Setup request context
 	rw := httptest.NewRecorder()
+	query := url.Values{}
+	{
+		sliceVal := []string{since.Format(time.RFC3339)}
+		query["since"] = sliceVal
+	}
 	u := &url.URL{
-		Path: fmt.Sprintf("/pipeline_bases/%v/hibernation_checking_task", id),
+		Path:     fmt.Sprintf("/pipeline_bases/%v/hibernation_checking_task", id),
+		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
@@ -1711,6 +1916,10 @@ func HibernationCheckingTaskPipelineBaseOK(t goatest.TInterface, ctx context.Con
 	}
 	prms := url.Values{}
 	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	{
+		sliceVal := []string{since.Format(time.RFC3339)}
+		prms["since"] = sliceVal
+	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -1756,7 +1965,7 @@ func HibernationCheckingTaskPipelineBaseOK(t goatest.TInterface, ctx context.Con
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func HibernationCheckingTaskPipelineBaseUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseController, id string) (http.ResponseWriter, error) {
+func HibernationCheckingTaskPipelineBaseUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.PipelineBaseController, id string, since time.Time) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1776,8 +1985,14 @@ func HibernationCheckingTaskPipelineBaseUnauthorized(t goatest.TInterface, ctx c
 
 	// Setup request context
 	rw := httptest.NewRecorder()
+	query := url.Values{}
+	{
+		sliceVal := []string{since.Format(time.RFC3339)}
+		query["since"] = sliceVal
+	}
 	u := &url.URL{
-		Path: fmt.Sprintf("/pipeline_bases/%v/hibernation_checking_task", id),
+		Path:     fmt.Sprintf("/pipeline_bases/%v/hibernation_checking_task", id),
+		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
@@ -1785,6 +2000,10 @@ func HibernationCheckingTaskPipelineBaseUnauthorized(t goatest.TInterface, ctx c
 	}
 	prms := url.Values{}
 	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	{
+		sliceVal := []string{since.Format(time.RFC3339)}
+		prms["since"] = sliceVal
+	}
 	if ctx == nil {
 		ctx = context.Background()
 	}

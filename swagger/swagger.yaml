@@ -2436,6 +2436,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/Pipeline-Base'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Pipeline-Base'
         "400":
           description: Bad Request
           schema:
@@ -2473,12 +2477,20 @@ paths:
         name: id
         required: true
         type: string
+      - in: query
+        name: since
+        required: true
+        type: string
       produces:
       - application/vnd.goa.error
       - application/vnd.pipeline-base+json
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/Pipeline-Base'
+        "201":
+          description: Created
           schema:
             $ref: '#/definitions/Pipeline-Base'
         "400":
