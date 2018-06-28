@@ -80,8 +80,6 @@ func (c *InstanceGroupController) Delete(ctx *app.DeleteInstanceGroupContext) er
 		}, nil)
 	})
 
-	res := &app.InstanceGroup{}
-	return ctx.OK(res)
 	// InstanceGroupController_Delete: end_implement
 }
 
