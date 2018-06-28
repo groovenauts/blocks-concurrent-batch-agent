@@ -21,7 +21,6 @@ func ErrorsFromDeploymentmanagerOperation(ope *deploymentmanager.Operation) *[]C
 	}
 }
 
-
 type RemoteOperationWrapperOfDeploymentmanager struct {
 	Original *deploymentmanager.Operation
 }
@@ -37,3 +36,15 @@ func (w *RemoteOperationWrapperOfDeploymentmanager) Status() string {
 func (w *RemoteOperationWrapperOfDeploymentmanager) Errors() *[]CloudAsyncOperationError {
 	return ErrorsFromDeploymentmanagerOperation(w.Original)
 }
+
+type (
+	Resource struct {
+		Type       string                 `json:"type"`
+		Name       string                 `json:"name"`
+		Properties map[string]interface{} `json:"properties"`
+	}
+
+	Resources struct {
+		Resources []Resource `json:"resources"`
+	}
+)

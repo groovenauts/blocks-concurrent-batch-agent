@@ -68,18 +68,6 @@ func (b *InstanceGroupConstructor) BuildDeployment(pl *InstanceGroup) (*deployme
 }
 
 type (
-	Resource struct {
-		Type       string                 `json:"type"`
-		Name       string                 `json:"name"`
-		Properties map[string]interface{} `json:"properties"`
-	}
-
-	Resources struct {
-		Resources []Resource `json:"resources"`
-	}
-)
-
-type (
 	Pubsub struct {
 		Name        string
 		AckDeadline int
