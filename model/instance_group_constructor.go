@@ -2,7 +2,6 @@ package model
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"golang.org/x/net/context"
 	"google.golang.org/api/deploymentmanager/v2"
@@ -67,45 +66,13 @@ func (b *InstanceGroupConstructor) BuildDeployment(pl *InstanceGroup) (*deployme
 	return &dm, nil
 }
 
-type (
-	Pubsub struct {
-		Name        string
-		AckDeadline int
-	}
-)
-
 func (b *InstanceGroupConstructor) GenerateDeploymentResources(pl *InstanceGroup) *Resources {
-	t := []Resource{}
-	pubsubs := []Pubsub{
-		Pubsub{Name: "job", AckDeadline: 600},
-		Pubsub{Name: "progress", AckDeadline: 30},
+	return &Resources{
+		Resources: []Resource{
+			b.buildItResource(pl),
+			b.buildIgmResource(pl),
+		},
 	}
-	for _, pubsub := range pubsubs {
-		topic := pl.Name + "-" + pubsub.Name + "-topic"
-		subscription := pl.Name + "-" + pubsub.Name + "-subscription"
-		t = append(t,
-			Resource{
-				Type:       "pubsub.v1.topic",
-				Name:       topic,
-				Properties: map[string]interface{}{"topic": topic},
-			},
-			Resource{
-				Type: "pubsub.v1.subscription",
-				Name: subscription,
-				Properties: map[string]interface{}{
-					"subscription":       subscription,
-					"topic":              fmt.Sprintf("$(ref.%s.name)", topic),
-					"ackDeadlineSeconds": pubsub.AckDeadline,
-				},
-			},
-		)
-	}
-
-	t = append(t,
-		b.buildItResource(pl),
-		b.buildIgmResource(pl),
-	)
-	return &Resources{Resources: t}
 }
 
 func (b *InstanceGroupConstructor) buildItResource(pl *InstanceGroup) Resource {
