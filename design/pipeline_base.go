@@ -147,8 +147,11 @@ var _ = Resource("PipelineBase", func() {
 		Routing(PUT("/:id/hibernation_checking_task"))
 		Params(func() {
 			Param("id")
+			Param("since", DateTime) // RFC3339
+			Required("since")
 		})
 		Response(OK, PipelineBase)
+		Response(Created, PipelineBase)
 		UseTrait(DefaultResponseTrait)
 	})
 	Action("hibernation_done_task", func() {
@@ -169,6 +172,7 @@ var _ = Resource("PipelineBase", func() {
 			Param("id")
 		})
 		Response(OK, PipelineBase)
+		Response(Created, PipelineBase)
 		UseTrait(DefaultResponseTrait)
 	})
 	Action("delete", func() {
