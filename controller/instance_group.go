@@ -41,7 +41,7 @@ func (c *InstanceGroupController) Create(ctx *app.CreateInstanceGroupContext) er
 				return ctx.BadRequest(goa.ErrBadRequest(err))
 			}
 
-			if err := PostTask(appCtx, "/construction_tasks?resource_id=" + m.Id, 0); err != nil {
+			if err := PostTask(appCtx, "/construction_tasks?resource_id="+m.Id, 0); err != nil {
 				return err
 			}
 			return nil
@@ -74,32 +74,24 @@ func (c *InstanceGroupController) Destruct(ctx *app.DestructInstanceGroupContext
 	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
 		appCtx := appengine.NewContext(ctx.Request)
 		store := &model.InstanceGroupStore{ParentKey: orgKey}
+		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
+			return c.member(appCtx, store, ctx.ID, ctx.NotFound, func(m *model.InstanceGroup) error {
+				switch m.Status {
+				case model.Constructed: // Through
+				default:
+					return ctx.Conflict(fmt.Errorf("Can't resize because the InstanceGroup %q is %s", m.Id, m.Status))
+				}
 
-		return datastore.RunInTransaction(appCtx, func(c context.Context) error {
-			m, err := store.Get(appCtx, ctx.ID)
-			if err != nil {
-				if err == datastore.ErrNoSuchEntity {
-					return ctx.NotFound(fmt.Errorf("InstanceGroup not found: %q", m.Id))
-				} else {
+				m.Status = model.DestructionStarting
+				if _, err := store.Update(appCtx, m); err != nil {
 					return err
 				}
-			}
 
-			switch m.Status {
-			case model.Constructed: // Through
-			default:
-				return ctx.Conflict(fmt.Errorf("Can't resize because the InstanceGroup %q is %s", m.Id, m.Status))
-			}
-
-			m.Status = model.DestructionStarting
-			if _, err := store.Update(appCtx, m); err != nil {
-				return err
-			}
-
-			if err := PostTask(appCtx, "/destruction_tasks?resource_id=" + m.Id, 0); err != nil {
-				return err
-			}
-			return ctx.Created(InstanceGroupModelToMediaType(m))
+				if err := PostTask(appCtx, "/destruction_tasks?resource_id="+m.Id, 0); err != nil {
+					return err
+				}
+				return ctx.Created(InstanceGroupModelToMediaType(m))
+			})
 		}, nil)
 	})
 
@@ -138,35 +130,28 @@ func (c *InstanceGroupController) Resize(ctx *app.ResizeInstanceGroupContext) er
 		appCtx := appengine.NewContext(ctx.Request)
 		store := &model.InstanceGroupStore{ParentKey: orgKey}
 
-		return datastore.RunInTransaction(appCtx, func(c context.Context) error {
-			m, err := store.Get(appCtx, ctx.ID)
-			if err != nil {
-				if err == datastore.ErrNoSuchEntity {
-					return ctx.NotFound(fmt.Errorf("InstanceGroup not found: %q", m.Id))
-				} else {
+		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
+			return c.member(appCtx, store, ctx.ID, ctx.NotFound, func(m *model.InstanceGroup) error {
+				switch m.Status {
+				case model.Constructed, model.ResizeStarting, model.ResizeRunning: // Through
+				default:
+					return ctx.Conflict(fmt.Errorf("Can't resize because the InstanceGroup %q is %s", m.Id, m.Status))
+				}
+
+				if m.InstanceSizeRequested >= ctx.NewSize {
+					return ctx.OK(InstanceGroupModelToMediaType(m))
+				}
+
+				m.InstanceSizeRequested = ctx.NewSize
+				if _, err := store.Update(appCtx, m); err != nil {
 					return err
 				}
-			}
 
-			switch m.Status {
-			case model.Constructed, model.ResizeStarting, model.ResizeRunning: // Through
-			default:
-				return ctx.Conflict(fmt.Errorf("Can't resize because the InstanceGroup %q is %s", m.Id, m.Status))
-			}
-
-			if m.InstanceSizeRequested >= ctx.NewSize {
-				return ctx.OK(InstanceGroupModelToMediaType(m))
-			}
-
-			m.InstanceSizeRequested = ctx.NewSize
-			if _, err := store.Update(appCtx, m); err != nil {
-				return err
-			}
-
-			if err := PostTask(appCtx, "/resizing_tasks?resource_id=" + m.Id, 0); err != nil {
-				return err
-			}
-			return ctx.Created(InstanceGroupModelToMediaType(m))
+				if err := PostTask(appCtx, "/resizing_tasks?resource_id="+m.Id, 0); err != nil {
+					return err
+				}
+				return ctx.Created(InstanceGroupModelToMediaType(m))
+			})
 		}, nil)
 	})
 
