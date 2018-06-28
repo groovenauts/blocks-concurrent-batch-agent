@@ -52,8 +52,6 @@ func InstanceGroupBodyPayloadToModel(src *app.InstanceGroupBody) model.InstanceG
 		return model.InstanceGroupBody{}
 	}
 	return model.InstanceGroupBody{
-		ProjectID:             src.ProjectID,
-		Zone:                  src.Zone,
 		BootDisk:              InstanceGroupVMDiskPayloadToModel(src.BootDisk),
 		MachineType:           src.MachineType,
 		GpuAccelerators:       InstanceGroupAcceleratorsPayloadToModel(src.GpuAccelerators),
@@ -63,6 +61,8 @@ func InstanceGroupBodyPayloadToModel(src *app.InstanceGroupBody) model.InstanceG
 		StartupScript:         StringPointerToString(src.StartupScript),
 		DeploymentName:        StringPointerToString(src.DeploymentName),
 		TokenConsumption:      IntPointerToInt(src.TokenConsumption),
+		// ProjectID no payload field
+		// Zone no payload field
 		// Status no payload field
 	}
 }
@@ -72,7 +72,6 @@ func InstanceGroupBodyModelToMediaType(src *model.InstanceGroupBody) *app.Instan
 		return nil
 	}
 	return &app.InstanceGroupBody{
-		Zone:                  src.Zone,
 		BootDisk:              InstanceGroupVMDiskModelToMediaType(&src.BootDisk),
 		MachineType:           src.MachineType,
 		GpuAccelerators:       InstanceGroupAcceleratorsModelToMediaType(&src.GpuAccelerators),
@@ -83,6 +82,7 @@ func InstanceGroupBodyModelToMediaType(src *model.InstanceGroupBody) *app.Instan
 		DeploymentName:        &src.DeploymentName,
 		TokenConsumption:      &src.TokenConsumption,
 		// ProjectID no media type field
+		// Zone no media type field
 		// Status no media type field
 	}
 }

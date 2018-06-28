@@ -78,24 +78,14 @@ type instanceGroupBody struct {
 	MachineType *string `form:"machine_type,omitempty" json:"machine_type,omitempty" yaml:"machine_type,omitempty" xml:"machine_type,omitempty"`
 	// Use preemptible VMs
 	Preemptible *bool `form:"preemptible,omitempty" json:"preemptible,omitempty" yaml:"preemptible,omitempty" xml:"preemptible,omitempty"`
-	// GCP Project ID
-	ProjectID *string `form:"project_id,omitempty" json:"project_id,omitempty" yaml:"project_id,omitempty" xml:"project_id,omitempty"`
 	// Startup script
 	StartupScript *string `form:"startup_script,omitempty" json:"startup_script,omitempty" yaml:"startup_script,omitempty" xml:"startup_script,omitempty"`
 	// Token Consumption
 	TokenConsumption *int `form:"token_consumption,omitempty" json:"token_consumption,omitempty" yaml:"token_consumption,omitempty" xml:"token_consumption,omitempty"`
-	// GCP zone
-	Zone *string `form:"zone,omitempty" json:"zone,omitempty" yaml:"zone,omitempty" xml:"zone,omitempty"`
 }
 
 // Validate validates the instanceGroupBody type instance.
 func (ut *instanceGroupBody) Validate() (err error) {
-	if ut.ProjectID == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "project_id"))
-	}
-	if ut.Zone == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "zone"))
-	}
 	if ut.BootDisk == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "boot_disk"))
 	}
@@ -139,17 +129,11 @@ func (ut *instanceGroupBody) Publicize() *InstanceGroupBody {
 	if ut.Preemptible != nil {
 		pub.Preemptible = ut.Preemptible
 	}
-	if ut.ProjectID != nil {
-		pub.ProjectID = *ut.ProjectID
-	}
 	if ut.StartupScript != nil {
 		pub.StartupScript = ut.StartupScript
 	}
 	if ut.TokenConsumption != nil {
 		pub.TokenConsumption = ut.TokenConsumption
-	}
-	if ut.Zone != nil {
-		pub.Zone = *ut.Zone
 	}
 	return &pub
 }
@@ -170,24 +154,14 @@ type InstanceGroupBody struct {
 	MachineType string `form:"machine_type" json:"machine_type" yaml:"machine_type" xml:"machine_type"`
 	// Use preemptible VMs
 	Preemptible *bool `form:"preemptible,omitempty" json:"preemptible,omitempty" yaml:"preemptible,omitempty" xml:"preemptible,omitempty"`
-	// GCP Project ID
-	ProjectID string `form:"project_id" json:"project_id" yaml:"project_id" xml:"project_id"`
 	// Startup script
 	StartupScript *string `form:"startup_script,omitempty" json:"startup_script,omitempty" yaml:"startup_script,omitempty" xml:"startup_script,omitempty"`
 	// Token Consumption
 	TokenConsumption *int `form:"token_consumption,omitempty" json:"token_consumption,omitempty" yaml:"token_consumption,omitempty" xml:"token_consumption,omitempty"`
-	// GCP zone
-	Zone string `form:"zone" json:"zone" yaml:"zone" xml:"zone"`
 }
 
 // Validate validates the InstanceGroupBody type instance.
 func (ut *InstanceGroupBody) Validate() (err error) {
-	if ut.ProjectID == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "project_id"))
-	}
-	if ut.Zone == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "zone"))
-	}
 	if ut.BootDisk == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "boot_disk"))
 	}
@@ -498,6 +472,10 @@ type pipelineBasePayload struct {
 	InstanceGroup *instanceGroupBody `form:"instance_group,omitempty" json:"instance_group,omitempty" yaml:"instance_group,omitempty" xml:"instance_group,omitempty"`
 	// Name of pipeline_base
 	Name *string `form:"name,omitempty" json:"name,omitempty" yaml:"name,omitempty" xml:"name,omitempty"`
+	// GCP Project ID
+	ProjectID *string `form:"project_id,omitempty" json:"project_id,omitempty" yaml:"project_id,omitempty" xml:"project_id,omitempty"`
+	// GCP zone
+	Zone *string `form:"zone,omitempty" json:"zone,omitempty" yaml:"zone,omitempty" xml:"zone,omitempty"`
 }
 
 // Finalize sets the default values for pipelineBasePayload type instance.
@@ -514,6 +492,12 @@ func (ut *pipelineBasePayload) Finalize() {
 func (ut *pipelineBasePayload) Validate() (err error) {
 	if ut.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "name"))
+	}
+	if ut.ProjectID == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "project_id"))
+	}
+	if ut.Zone == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "zone"))
 	}
 	if ut.InstanceGroup == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "instance_group"))
@@ -549,6 +533,12 @@ func (ut *pipelineBasePayload) Publicize() *PipelineBasePayload {
 	if ut.Name != nil {
 		pub.Name = *ut.Name
 	}
+	if ut.ProjectID != nil {
+		pub.ProjectID = *ut.ProjectID
+	}
+	if ut.Zone != nil {
+		pub.Zone = *ut.Zone
+	}
 	return &pub
 }
 
@@ -562,12 +552,22 @@ type PipelineBasePayload struct {
 	InstanceGroup *InstanceGroupBody `form:"instance_group" json:"instance_group" yaml:"instance_group" xml:"instance_group"`
 	// Name of pipeline_base
 	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
+	// GCP Project ID
+	ProjectID string `form:"project_id" json:"project_id" yaml:"project_id" xml:"project_id"`
+	// GCP zone
+	Zone string `form:"zone" json:"zone" yaml:"zone" xml:"zone"`
 }
 
 // Validate validates the PipelineBasePayload type instance.
 func (ut *PipelineBasePayload) Validate() (err error) {
 	if ut.Name == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "name"))
+	}
+	if ut.ProjectID == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "project_id"))
+	}
+	if ut.Zone == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "zone"))
 	}
 	if ut.InstanceGroup == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "instance_group"))
@@ -758,6 +758,10 @@ type pipelinePayload struct {
 	InstanceGroup *instanceGroupBody `form:"instance_group,omitempty" json:"instance_group,omitempty" yaml:"instance_group,omitempty" xml:"instance_group,omitempty"`
 	// Name of pipeline_base
 	Name *string `form:"name,omitempty" json:"name,omitempty" yaml:"name,omitempty" xml:"name,omitempty"`
+	// GCP Project ID
+	ProjectID *string `form:"project_id,omitempty" json:"project_id,omitempty" yaml:"project_id,omitempty" xml:"project_id,omitempty"`
+	// GCP zone
+	Zone *string `form:"zone,omitempty" json:"zone,omitempty" yaml:"zone,omitempty" xml:"zone,omitempty"`
 }
 
 // Finalize sets the default values for pipelinePayload type instance.
@@ -774,6 +778,12 @@ func (ut *pipelinePayload) Finalize() {
 func (ut *pipelinePayload) Validate() (err error) {
 	if ut.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "name"))
+	}
+	if ut.ProjectID == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "project_id"))
+	}
+	if ut.Zone == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "zone"))
 	}
 	if ut.InstanceGroup == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "instance_group"))
@@ -809,6 +819,12 @@ func (ut *pipelinePayload) Publicize() *PipelinePayload {
 	if ut.Name != nil {
 		pub.Name = *ut.Name
 	}
+	if ut.ProjectID != nil {
+		pub.ProjectID = *ut.ProjectID
+	}
+	if ut.Zone != nil {
+		pub.Zone = *ut.Zone
+	}
 	return &pub
 }
 
@@ -822,12 +838,22 @@ type PipelinePayload struct {
 	InstanceGroup *InstanceGroupBody `form:"instance_group" json:"instance_group" yaml:"instance_group" xml:"instance_group"`
 	// Name of pipeline_base
 	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
+	// GCP Project ID
+	ProjectID string `form:"project_id" json:"project_id" yaml:"project_id" xml:"project_id"`
+	// GCP zone
+	Zone string `form:"zone" json:"zone" yaml:"zone" xml:"zone"`
 }
 
 // Validate validates the PipelinePayload type instance.
 func (ut *PipelinePayload) Validate() (err error) {
 	if ut.Name == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "name"))
+	}
+	if ut.ProjectID == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "project_id"))
+	}
+	if ut.Zone == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "zone"))
 	}
 	if ut.InstanceGroup == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "instance_group"))

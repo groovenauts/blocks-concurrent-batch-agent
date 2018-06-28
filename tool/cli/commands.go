@@ -450,12 +450,12 @@ Payload example:
       "instance_size_requested": 3,
       "machine_type": "f1-micro",
       "preemptible": false,
-      "project_id": "dummy-proj-999",
       "startup_script": "Possimus optio et voluptas quia suscipit autem.",
-      "token_consumption": 2,
-      "zone": "us-central1-f"
+      "token_consumption": 2
    },
-   "name": "pipeline1"
+   "name": "pipeline1",
+   "project_id": "dummy-proj-999",
+   "zone": "us-central1-f"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp5.Run(c, args) },
 	}
@@ -494,12 +494,12 @@ Payload example:
       "instance_size_requested": 3,
       "machine_type": "f1-micro",
       "preemptible": false,
-      "project_id": "dummy-proj-999",
       "startup_script": "Possimus optio et voluptas quia suscipit autem.",
-      "token_consumption": 2,
-      "zone": "us-central1-f"
+      "token_consumption": 2
    },
-   "name": "pipeline1-123"
+   "name": "pipeline1-123",
+   "project_id": "dummy-proj-999",
+   "zone": "us-central1-f"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp6.Run(c, args) },
 	}

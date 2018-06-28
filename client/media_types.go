@@ -315,10 +315,14 @@ type Pipeline struct {
 	NextBaseID *string `form:"next_base_id,omitempty" json:"next_base_id,omitempty" yaml:"next_base_id,omitempty" xml:"next_base_id,omitempty"`
 	// Previous pipeline base ID
 	PrevBaseID *string `form:"prev_base_id,omitempty" json:"prev_base_id,omitempty" yaml:"prev_base_id,omitempty" xml:"prev_base_id,omitempty"`
+	// GCP Project ID
+	ProjectID string `form:"project_id" json:"project_id" yaml:"project_id" xml:"project_id"`
 	// Pipeline Status
 	Status string `form:"status" json:"status" yaml:"status" xml:"status"`
 	// Datetime updated
 	UpdatedAt time.Time `form:"updated_at" json:"updated_at" yaml:"updated_at" xml:"updated_at"`
+	// GCP zone
+	Zone string `form:"zone" json:"zone" yaml:"zone" xml:"zone"`
 }
 
 // Validate validates the Pipeline media type instance.
@@ -332,6 +336,12 @@ func (mt *Pipeline) Validate() (err error) {
 
 	if mt.Name == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "name"))
+	}
+	if mt.ProjectID == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "project_id"))
+	}
+	if mt.Zone == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "zone"))
 	}
 	if mt.InstanceGroup == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "instance_group"))
@@ -381,10 +391,14 @@ type PipelineBase struct {
 	InstanceGroupID string `form:"instance_group_id" json:"instance_group_id" yaml:"instance_group_id" xml:"instance_group_id"`
 	// Name of pipeline_base
 	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
+	// GCP Project ID
+	ProjectID string `form:"project_id" json:"project_id" yaml:"project_id" xml:"project_id"`
 	// Pipeline Base Status
 	Status string `form:"status" json:"status" yaml:"status" xml:"status"`
 	// Datetime updated
 	UpdatedAt time.Time `form:"updated_at" json:"updated_at" yaml:"updated_at" xml:"updated_at"`
+	// GCP zone
+	Zone string `form:"zone" json:"zone" yaml:"zone" xml:"zone"`
 }
 
 // Validate validates the PipelineBase media type instance.
@@ -401,6 +415,12 @@ func (mt *PipelineBase) Validate() (err error) {
 
 	if mt.Name == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "name"))
+	}
+	if mt.ProjectID == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "project_id"))
+	}
+	if mt.Zone == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "zone"))
 	}
 	if mt.InstanceGroup == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "instance_group"))

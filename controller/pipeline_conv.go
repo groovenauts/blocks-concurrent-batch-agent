@@ -18,6 +18,8 @@ func PipelinePayloadToModel(src *app.PipelinePayload) model.Pipeline {
 		// IntanceGroupID no payload field
 		// CreatedAt no payload field
 		// UpdatedAt no payload field
+		// No model field for payload field "project_id"
+		// No model field for payload field "zone"
 	}
 }
 
@@ -38,5 +40,7 @@ func PipelineModelToMediaType(src *model.Pipeline) *app.Pipeline {
 		// No field for media type field "id"
 		// No field for media type field "next_base_id"
 		// No field for media type field "prev_base_id"
+		// No field for media type field "project_id"
+		// No field for media type field "zone"
 	}
 }

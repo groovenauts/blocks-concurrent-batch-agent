@@ -317,10 +317,8 @@ definitions:
       instance_size_requested: 3
       machine_type: f1-micro
       preemptible: false
-      project_id: dummy-proj-999
       startup_script: Possimus optio et voluptas quia suscipit autem.
       token_consumption: 2
-      zone: us-central1-f
     properties:
       boot_disk:
         $ref: '#/definitions/InstanceGroupVmDisk'
@@ -348,10 +346,6 @@ definitions:
         description: Use preemptible VMs
         example: false
         type: boolean
-      project_id:
-        description: GCP Project ID
-        example: dummy-proj-999
-        type: string
       startup_script:
         description: Startup script
         example: Possimus optio et voluptas quia suscipit autem.
@@ -361,13 +355,7 @@ definitions:
         example: 2
         format: int64
         type: integer
-      zone:
-        description: GCP zone
-        example: us-central1-f
-        type: string
     required:
-    - project_id
-    - zone
     - boot_disk
     - machine_type
     title: InstanceGroupBody
@@ -622,15 +610,15 @@ definitions:
         instance_size_requested: 3
         machine_type: f1-micro
         preemptible: false
-        project_id: dummy-proj-999
         startup_script: Possimus optio et voluptas quia suscipit autem.
         token_consumption: 2
-        zone: us-central1-f
       name: pipeline1
       next_base_id: Rem repellendus vel sit velit voluptatem quidem.
       prev_base_id: Voluptatem maiores consequatur culpa magni ea.
+      project_id: dummy-proj-999
       status: stopping
       updated_at: "1975-12-30T16:21:42Z"
+      zone: us-central1-f
     properties:
       container:
         $ref: '#/definitions/PipelineContainer'
@@ -666,6 +654,10 @@ definitions:
         description: Previous pipeline base ID
         example: Voluptatem maiores consequatur culpa magni ea.
         type: string
+      project_id:
+        description: GCP Project ID
+        example: dummy-proj-999
+        type: string
       status:
         description: Pipeline Status
         enum:
@@ -683,12 +675,18 @@ definitions:
         example: "1975-12-30T16:21:42Z"
         format: date-time
         type: string
+      zone:
+        description: GCP zone
+        example: us-central1-f
+        type: string
     required:
     - curr_base_id
     - status
     - created_at
     - updated_at
     - name
+    - project_id
+    - zone
     - instance_group
     - container
     - hibernation_delay
@@ -720,14 +718,14 @@ definitions:
         instance_size_requested: 3
         machine_type: f1-micro
         preemptible: false
-        project_id: dummy-proj-999
         startup_script: Possimus optio et voluptas quia suscipit autem.
         token_consumption: 2
-        zone: us-central1-f
       instance_group_id: Quaerat unde ratione corrupti.
       name: pipeline1-123
+      project_id: dummy-proj-999
       status: hibernating
       updated_at: "2004-12-15T02:26:10Z"
+      zone: us-central1-f
     properties:
       container:
         $ref: '#/definitions/PipelineContainer'
@@ -755,6 +753,10 @@ definitions:
         description: Name of pipeline_base
         example: pipeline1-123
         type: string
+      project_id:
+        description: GCP Project ID
+        example: dummy-proj-999
+        type: string
       status:
         description: Pipeline Base Status
         enum:
@@ -777,6 +779,10 @@ definitions:
         example: "2004-12-15T02:26:10Z"
         format: date-time
         type: string
+      zone:
+        description: GCP zone
+        example: us-central1-f
+        type: string
     required:
     - id
     - status
@@ -784,6 +790,8 @@ definitions:
     - created_at
     - updated_at
     - name
+    - project_id
+    - zone
     - instance_group
     - container
     - hibernation_delay
@@ -816,14 +824,14 @@ definitions:
         instance_size_requested: 3
         machine_type: f1-micro
         preemptible: false
-        project_id: dummy-proj-999
         startup_script: Possimus optio et voluptas quia suscipit autem.
         token_consumption: 2
-        zone: us-central1-f
       instance_group_id: Quaerat unde ratione corrupti.
       name: pipeline1-123
+      project_id: dummy-proj-999
       status: hibernating
       updated_at: "2004-12-15T02:26:10Z"
+      zone: us-central1-f
     - container:
         command: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
           %{uploads_dir}
@@ -847,14 +855,14 @@ definitions:
         instance_size_requested: 3
         machine_type: f1-micro
         preemptible: false
-        project_id: dummy-proj-999
         startup_script: Possimus optio et voluptas quia suscipit autem.
         token_consumption: 2
-        zone: us-central1-f
       instance_group_id: Quaerat unde ratione corrupti.
       name: pipeline1-123
+      project_id: dummy-proj-999
       status: hibernating
       updated_at: "2004-12-15T02:26:10Z"
+      zone: us-central1-f
     items:
       $ref: '#/definitions/Pipeline-Base'
     title: 'Mediatype identifier: application/vnd.pipeline-base+json; type=collection;
@@ -883,11 +891,11 @@ definitions:
         instance_size_requested: 3
         machine_type: f1-micro
         preemptible: false
-        project_id: dummy-proj-999
         startup_script: Possimus optio et voluptas quia suscipit autem.
         token_consumption: 2
-        zone: us-central1-f
       name: pipeline1-123
+      project_id: dummy-proj-999
+      zone: us-central1-f
     properties:
       container:
         $ref: '#/definitions/PipelineContainer'
@@ -902,8 +910,18 @@ definitions:
         description: Name of pipeline_base
         example: pipeline1-123
         type: string
+      project_id:
+        description: GCP Project ID
+        example: dummy-proj-999
+        type: string
+      zone:
+        description: GCP zone
+        example: us-central1-f
+        type: string
     required:
     - name
+    - project_id
+    - zone
     - instance_group
     - container
     title: PipelineBasePayload
@@ -936,15 +954,15 @@ definitions:
         instance_size_requested: 3
         machine_type: f1-micro
         preemptible: false
-        project_id: dummy-proj-999
         startup_script: Possimus optio et voluptas quia suscipit autem.
         token_consumption: 2
-        zone: us-central1-f
       name: pipeline1
       next_base_id: Rem repellendus vel sit velit voluptatem quidem.
       prev_base_id: Voluptatem maiores consequatur culpa magni ea.
+      project_id: dummy-proj-999
       status: stopping
       updated_at: "1975-12-30T16:21:42Z"
+      zone: us-central1-f
     - container:
         command: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
           %{uploads_dir}
@@ -969,15 +987,15 @@ definitions:
         instance_size_requested: 3
         machine_type: f1-micro
         preemptible: false
-        project_id: dummy-proj-999
         startup_script: Possimus optio et voluptas quia suscipit autem.
         token_consumption: 2
-        zone: us-central1-f
       name: pipeline1
       next_base_id: Rem repellendus vel sit velit voluptatem quidem.
       prev_base_id: Voluptatem maiores consequatur culpa magni ea.
+      project_id: dummy-proj-999
       status: stopping
       updated_at: "1975-12-30T16:21:42Z"
+      zone: us-central1-f
     - container:
         command: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
           %{uploads_dir}
@@ -1002,15 +1020,15 @@ definitions:
         instance_size_requested: 3
         machine_type: f1-micro
         preemptible: false
-        project_id: dummy-proj-999
         startup_script: Possimus optio et voluptas quia suscipit autem.
         token_consumption: 2
-        zone: us-central1-f
       name: pipeline1
       next_base_id: Rem repellendus vel sit velit voluptatem quidem.
       prev_base_id: Voluptatem maiores consequatur culpa magni ea.
+      project_id: dummy-proj-999
       status: stopping
       updated_at: "1975-12-30T16:21:42Z"
+      zone: us-central1-f
     items:
       $ref: '#/definitions/Pipeline'
     title: 'Mediatype identifier: application/vnd.pipeline+json; type=collection;
@@ -1075,11 +1093,11 @@ definitions:
         instance_size_requested: 3
         machine_type: f1-micro
         preemptible: false
-        project_id: dummy-proj-999
         startup_script: Possimus optio et voluptas quia suscipit autem.
         token_consumption: 2
-        zone: us-central1-f
       name: pipeline1
+      project_id: dummy-proj-999
+      zone: us-central1-f
     properties:
       container:
         $ref: '#/definitions/PipelineContainer'
@@ -1094,8 +1112,18 @@ definitions:
         description: Name of pipeline_base
         example: pipeline1
         type: string
+      project_id:
+        description: GCP Project ID
+        example: dummy-proj-999
+        type: string
+      zone:
+        description: GCP zone
+        example: us-central1-f
+        type: string
     required:
     - name
+    - project_id
+    - zone
     - instance_group
     - container
     title: PipelinePayload
