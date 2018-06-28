@@ -155,3 +155,18 @@ func (s *PipelineBaseStore) ValidateParent(m *PipelineBase) error {
 	}
 	return nil
 }
+
+func (s *PipelineBaseStore) Delete(ctx context.Context, m *PipelineBase) error {
+	g := goon.FromContext(ctx)
+	key, err := g.KeyError(m)
+	if err != nil {
+		log.Errorf(ctx, "Failed to Get %v because of %v\n", m, err)
+		return err
+	}
+	err = g.Delete(key)
+	if err != nil {
+		log.Errorf(ctx, "Failed to Delete %v because of %v\n", m, err)
+		return err
+	}
+	return nil
+}

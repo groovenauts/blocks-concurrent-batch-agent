@@ -145,3 +145,18 @@ func (s *CloudAsyncOperationStore) ValidateParent(m *CloudAsyncOperation) error 
 	}
 	return nil
 }
+
+func (s *CloudAsyncOperationStore) Delete(ctx context.Context, m *CloudAsyncOperation) error {
+	g := goon.FromContext(ctx)
+	key, err := g.KeyError(m)
+	if err != nil {
+		log.Errorf(ctx, "Failed to Get %v because of %v\n", m, err)
+		return err
+	}
+	err = g.Delete(key)
+	if err != nil {
+		log.Errorf(ctx, "Failed to Delete %v because of %v\n", m, err)
+		return err
+	}
+	return nil
+}
