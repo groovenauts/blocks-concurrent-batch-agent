@@ -60,6 +60,25 @@ func (c *InstanceGroupController) Delete(ctx *app.DeleteInstanceGroupContext) er
 	// InstanceGroupController_Delete: start_implement
 
 	// Put your logic here
+	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
+		appCtx := appengine.NewContext(ctx.Request)
+		store := &model.InstanceGroupStore{ParentKey: orgKey}
+		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
+			return c.member(appCtx, store, ctx.ID, ctx.NotFound, func(m *model.InstanceGroup) error {
+				switch m.Status {
+				case model.ConstructionError, model.DestructionError, model.Destructed: // Through
+				default:
+					return ctx.Conflict(fmt.Errorf("Can't resize because the InstanceGroup %q is %s", m.Id, m.Status))
+				}
+
+				if err := store.Delete(appCtx, m); err != nil {
+					return err
+				}
+
+				return ctx.OK(InstanceGroupModelToMediaType(m))
+			})
+		}, nil)
+	})
 
 	res := &app.InstanceGroup{}
 	return ctx.OK(res)
