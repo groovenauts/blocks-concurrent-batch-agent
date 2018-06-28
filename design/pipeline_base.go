@@ -131,6 +131,9 @@ var _ = Resource("PipelineBase", func() {
 			Param("error")
 		})
 		Response(OK, PipelineBase)
+		Response(Accepted, PipelineBase)
+		Response(ResetContent, PipelineBase)
+		Response(NoContent, ErrorMedia)
 		UseTrait(DefaultResponseTrait)
 	})
 	Action("pull_task", func() {
@@ -152,6 +155,7 @@ var _ = Resource("PipelineBase", func() {
 		})
 		Response(OK, PipelineBase)
 		Response(Created, PipelineBase)
+		Response(NoContent, ErrorMedia)
 		UseTrait(DefaultResponseTrait)
 	})
 	Action("hibernation_done_task", func() {
@@ -163,6 +167,9 @@ var _ = Resource("PipelineBase", func() {
 			Param("error")
 		})
 		Response(OK, PipelineBase)
+		Response(Accepted, PipelineBase)
+		Response(ResetContent, PipelineBase)
+		Response(NoContent, ErrorMedia)
 		UseTrait(DefaultResponseTrait)
 	})
 	Action("close", func() {
