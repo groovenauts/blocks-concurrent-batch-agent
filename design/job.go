@@ -43,7 +43,7 @@ var Job = MediaType("application/vnd.job+json", func() {
 		Attribute("finished_at", DateTime, "Time when job finishes")
 		UseTrait(TimestampsAttrTrait)
 
-		requiredAttrs := append([]string{"id"}, attrNames...)
+		requiredAttrs := append([]string{"id", "status", "pipeline_base_id"}, attrNames...)
 		Required(requiredAttrs...)
 	})
 	View("default", func() {
