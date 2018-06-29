@@ -31,9 +31,33 @@ func (c *JobController) Activate(ctx *app.ActivateJobContext) error {
 	// JobController_Activate: start_implement
 
 	// Put your logic here
+	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
+		appCtx := appengine.NewContext(ctx.Request)
 
-	res := &app.Job{}
-	return ctx.OK(res)
+		// TODO Check if orgKey is included in the ancestors of the key from :id
+		store := &model.JobStore{}
+		m, err := store.Get(appCtx, ctx.ID)
+		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
+			return c.member(appCtx, store, ctx.ID, ctx.NotFound, func(m *model.Job) error {
+				switch m.Status {
+				case model.Inactive: // Through
+				default:
+					return ctx.Conflict(fmt.Errorf("Can't resize because the Job %q is %s", m.Id, m.Status))
+				}
+
+				m.Status = model.Publishing
+				if _, err := store.Update(appCtx, m); err != nil {
+					return err
+				}
+
+				if err := PostTask(appCtx, "/jobs?/"+m.Id+"/publishing_task", 0); err != nil {
+					return err
+				}
+				return ctx.Created(JobModelToMediaType(m))
+			})
+		}, nil)
+	})
+
 	// JobController_Activate: end_implement
 }
 
