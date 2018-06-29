@@ -37,6 +37,8 @@ func PipelineBasePayloadToModel(src *app.PipelineBasePayload) model.PipelineBase
 	}
 	return model.PipelineBase{
 		Name:             src.Name,
+		ProjectID:        src.ProjectID,
+		Zone:             src.Zone,
 		InstanceGroup:    InstanceGroupBodyPayloadToModel(src.InstanceGroup),
 		Container:        PipelineContainerPayloadToModel(src.Container),
 		HibernationDelay: IntPointerToInt(src.HibernationDelay),
@@ -44,8 +46,6 @@ func PipelineBasePayloadToModel(src *app.PipelineBasePayload) model.PipelineBase
 		// IntanceGroupID no payload field
 		// CreatedAt no payload field
 		// UpdatedAt no payload field
-		// No model field for payload field "project_id"
-		// No model field for payload field "zone"
 	}
 }
 
@@ -55,16 +55,16 @@ func PipelineBaseModelToMediaType(src *model.PipelineBase) *app.PipelineBase {
 	}
 	return &app.PipelineBase{
 		Name:             src.Name,
+		Zone:             src.Zone,
 		InstanceGroup:    InstanceGroupBodyModelToMediaType(&src.InstanceGroup),
 		Container:        PipelineContainerModelToMediaType(&src.Container),
 		HibernationDelay: src.HibernationDelay,
 		Status:           string(src.Status),
 		CreatedAt:        src.CreatedAt,
 		UpdatedAt:        src.UpdatedAt,
+		// ProjectID no media type field
 		// IntanceGroupID no media type field
 		// No field for media type field "id"
 		// No field for media type field "instance_group_id"
-		// No field for media type field "project_id"
-		// No field for media type field "zone"
 	}
 }

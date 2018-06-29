@@ -29,6 +29,8 @@ type Pipeline struct {
 	Id               string            `datastore:"-" goon:"id" json:"id"`
 	Parent           *datastore.Key    `datastore:"-" goon:"parent" json:"-"`
 	Name             string            `json:"name" validate:"required"`
+	ProjectID        string            `json:"project_id" validate:"required"`
+	Zone             string            `json:"zone" validate:"required"`
 	InstanceGroup    InstanceGroupBody `json:"instance_group,omitempty" `
 	Container        PipelineContainer `json:"container,omitempty" `
 	HibernationDelay int               `json:"hibernation_delay" validate:"required"`
