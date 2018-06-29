@@ -10,6 +10,7 @@ import (
 
 	"github.com/labstack/echo"
 	"golang.org/x/net/context"
+	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/taskqueue"
 )
@@ -107,6 +108,43 @@ func (h *JobHandler) BulkGetJobs(c echo.Context) error {
 	jobs, errors := pl.JobAccessor().BulkGet(ctx, payload.JobIds)
 	r := &BulkGetJobsMediaType{
 		Jobs:   jobs,
+		Errors: errors,
+	}
+	return c.JSON(http.StatusOK, r)
+}
+
+type BulkJobStatusesMediaType struct {
+	Jobs   map[string]int   `json:"jobs"`
+	Errors map[string]error `json:"errors"`
+}
+
+// curl -v -X POST http://localhost:8080/pipelines/3/bulk_job_statuses --data '{"job_ids":["1","2","5"]}' -H 'Content-Type: application/json'
+func (h *JobHandler) BulkJobStatuses(c echo.Context) error {
+	ctx := c.Get("aecontext").(context.Context)
+	payload := &BulkGetJobsPayload{}
+	if err := c.Bind(payload); err != nil {
+		log.Errorf(ctx, "err: %v\n", err)
+		log.Errorf(ctx, "req: %v\n", c.Request())
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+	}
+	pl := c.Get("pipeline").(*models.Pipeline)
+	acc := pl.JobAccessor()
+	errors := map[string]error{}
+	jobStatusMap := map[string]int{}
+	for _, jobId := range payload.JobIds {
+		jobs, err := acc.AllWith(ctx, func(q *datastore.Query) (*datastore.Query, error) {
+			q = q.Filter("id_by_client =", jobId)
+			return q, nil
+		})
+		if err != nil {
+			errors[jobId] = err
+		}
+		for _, job := range jobs {
+			jobStatusMap[job.IdByClient] = int(job.Status)
+		}
+	}
+	r := &BulkJobStatusesMediaType{
+		Jobs:   jobStatusMap,
 		Errors: errors,
 	}
 	return c.JSON(http.StatusOK, r)
