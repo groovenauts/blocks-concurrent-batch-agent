@@ -389,8 +389,8 @@ func (mt *PipelineBase) Validate() (err error) {
 			err = goa.MergeErrors(err, err2)
 		}
 	}
-	if !(mt.Status == "opening" || mt.Status == "opening_error" || mt.Status == "hibernating" || mt.Status == "waking" || mt.Status == "waking_error" || mt.Status == "awake" || mt.Status == "hibernation_checking" || mt.Status == "hibernation_going" || mt.Status == "hibernation_going_error" || mt.Status == "closing" || mt.Status == "closing_error" || mt.Status == "closed") {
-		err = goa.MergeErrors(err, goa.InvalidEnumValueError(`response.status`, mt.Status, []interface{}{"opening", "opening_error", "hibernating", "waking", "waking_error", "awake", "hibernation_checking", "hibernation_going", "hibernation_going_error", "closing", "closing_error", "closed"}))
+	if !(mt.Status == "opening_starting" || mt.Status == "opening_running" || mt.Status == "opening_error" || mt.Status == "hibernating" || mt.Status == "waking" || mt.Status == "waking_error" || mt.Status == "awake" || mt.Status == "hibernation_checking" || mt.Status == "hibernation_going" || mt.Status == "hibernation_going_error" || mt.Status == "closing_starting" || mt.Status == "closing_running" || mt.Status == "closing_error" || mt.Status == "closed") {
+		err = goa.MergeErrors(err, goa.InvalidEnumValueError(`response.status`, mt.Status, []interface{}{"opening_starting", "opening_running", "opening_error", "hibernating", "waking", "waking_error", "awake", "hibernation_checking", "hibernation_going", "hibernation_going_error", "closing_starting", "closing_running", "closing_error", "closed"}))
 	}
 	return
 }

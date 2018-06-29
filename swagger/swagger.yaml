@@ -723,7 +723,7 @@ definitions:
       instance_group_id: Quaerat unde ratione corrupti.
       name: pipeline1-123
       project_id: dummy-proj-999
-      status: hibernating
+      status: opening_error
       updated_at: "2004-12-15T02:26:10Z"
       zone: us-central1-f
     properties:
@@ -760,7 +760,8 @@ definitions:
       status:
         description: Pipeline Base Status
         enum:
-        - opening
+        - opening_starting
+        - opening_running
         - opening_error
         - hibernating
         - waking
@@ -769,10 +770,11 @@ definitions:
         - hibernation_checking
         - hibernation_going
         - hibernation_going_error
-        - closing
+        - closing_starting
+        - closing_running
         - closing_error
         - closed
-        example: hibernating
+        example: opening_error
         type: string
       updated_at:
         description: Datetime updated
@@ -829,7 +831,7 @@ definitions:
       instance_group_id: Quaerat unde ratione corrupti.
       name: pipeline1-123
       project_id: dummy-proj-999
-      status: hibernating
+      status: opening_error
       updated_at: "2004-12-15T02:26:10Z"
       zone: us-central1-f
     - container:
@@ -860,7 +862,7 @@ definitions:
       instance_group_id: Quaerat unde ratione corrupti.
       name: pipeline1-123
       project_id: dummy-proj-999
-      status: hibernating
+      status: opening_error
       updated_at: "2004-12-15T02:26:10Z"
       zone: us-central1-f
     items:

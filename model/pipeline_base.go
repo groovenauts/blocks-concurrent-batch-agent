@@ -16,7 +16,8 @@ import (
 type PipelineBaseStatus string
 
 const (
-	Opening               PipelineBaseStatus = "opening"
+	OpeningStarting       PipelineBaseStatus = "opening_starting"
+	OpeningRunning        PipelineBaseStatus = "opening_running"
 	OpeningError          PipelineBaseStatus = "opening_error"
 	Hibernating           PipelineBaseStatus = "hibernating"
 	Waking                PipelineBaseStatus = "waking"
@@ -25,7 +26,8 @@ const (
 	HibernationChecking   PipelineBaseStatus = "hibernation_checking"
 	HibernationGoing      PipelineBaseStatus = "hibernation_going"
 	HibernationGoingError PipelineBaseStatus = "hibernation_going_error"
-	Closing               PipelineBaseStatus = "closing"
+	ClosingStarting       PipelineBaseStatus = "closing_starting"
+	ClosingRunning        PipelineBaseStatus = "closing_running"
 	ClosingError          PipelineBaseStatus = "closing_error"
 	Closed                PipelineBaseStatus = "closed"
 )
