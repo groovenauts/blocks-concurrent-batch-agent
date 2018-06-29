@@ -11,14 +11,17 @@ types:
     base: string
     enum: "definitions/Job/properties/status/enum"
   JobKeyValuePair:
-    Name: *string_required
-    Value:
-      type: string
-      datastore: noindex
+    fields:
+      Name: *string_required
+      Value:
+        type: string
+        datastore_tag: noindex
   JobMessage:
     fields:
       AttributeEntries: "[]JobKeyValuePair"
-      Data: string
+      Data:
+        type: string
+        datastore_tag: noindex
   Job:
     goon:
       # id: int64
