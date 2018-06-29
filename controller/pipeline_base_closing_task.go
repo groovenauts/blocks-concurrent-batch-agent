@@ -1,8 +1,14 @@
 package controller
 
 import (
+	"golang.org/x/net/context"
+
+	"google.golang.org/appengine"
+	"google.golang.org/appengine/log"
+
 	"github.com/goadesign/goa"
 	"github.com/groovenauts/blocks-concurrent-batch-server/app"
+	"github.com/groovenauts/blocks-concurrent-batch-server/model"
 )
 
 // PipelineBaseClosingTaskController implements the PipelineBaseClosingTask resource.
@@ -20,9 +26,26 @@ func (c *PipelineBaseClosingTaskController) Start(ctx *app.StartPipelineBaseClos
 	// PipelineBaseClosingTaskController_Start: start_implement
 
 	// Put your logic here
+	base := PipelineBaseTaskBase{
+		MainStatus: model.ClosingStarting,
+		NextStatus: model.ClosingRunning,
+		SkipStatuses: []model.PipelineBaseStatus{
+			model.ClosingRunning,
+			model.ClosingError,
+			model.Closed,
+		},
+		ProcessorFactory: func(ctx context.Context) (model.PipelineBaseProcessor, error) {
+			return model.NewPipelineBaseCloser(ctx)
+		},
+		WatchTaskPathFunc: func(ope *model.CloudAsyncOperation) string {
+			return "/opening_tasks/" + ope.Id
+		},
+		RespondOK:        ctx.OK,
+		RespondNoContent: ctx.NoContent,
+		RespondCreated:   ctx.Created,
+	}
+	return base.Start(appengine.NewContext(ctx.Request), ctx.ResourceID)
 
-	res := &app.CloudAsyncOperation{}
-	return ctx.OK(res)
 	// PipelineBaseClosingTaskController_Start: end_implement
 }
 
@@ -31,8 +54,37 @@ func (c *PipelineBaseClosingTaskController) Watch(ctx *app.WatchPipelineBaseClos
 	// PipelineBaseClosingTaskController_Watch: start_implement
 
 	// Put your logic here
+	base := PipelineBaseTaskBase{
+		MainStatus:  model.ClosingRunning,
+		NextStatus:  model.Closed,
+		ErrorStatus: model.ClosingError,
+		SkipStatuses: []model.PipelineBaseStatus{
+			model.ClosingError,
+			model.Closed,
+		},
+		RemoteOpeFunc: func(ctx context.Context, ope *model.CloudAsyncOperation) (model.RemoteOperationWrapper, error) {
+			servicer, err := model.DefaultDeploymentServicer(ctx)
+			if err != nil {
+				return nil, err
+			}
+			remoteOpeOriginal, err := servicer.GetOperation(ctx, ope.ProjectId, ope.Name)
+			if err != nil {
+				log.Errorf(ctx, "Failed to get deployment operation: %v because of %v\n", ope, err)
+				return nil, err
+			}
+			return &model.RemoteOperationWrapperOfDeploymentmanager{
+				Original: remoteOpeOriginal,
+			}, nil
+		},
+		WatchTaskPathFunc: func(ope *model.CloudAsyncOperation) string {
+			return "/closing_tasks/" + ope.Id
+		},
+		RespondOK:        ctx.OK,
+		RespondAccepted:  ctx.Accepted,
+		RespondNoContent: ctx.NoContent,
+		RespondCreated:   ctx.Created,
+	}
+	return base.Watch(appengine.NewContext(ctx.Request), ctx.ID)
 
-	res := &app.CloudAsyncOperation{}
-	return ctx.OK(res)
 	// PipelineBaseClosingTaskController_Watch: end_implement
 }
