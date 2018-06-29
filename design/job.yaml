@@ -1,0 +1,38 @@
+anchors:
+- &string_required
+  type: string
+  required: true
+- &time_required
+  type: time.Time
+  required: true
+
+types:
+  JobStatus:
+    base: string
+    enum: "definitions/Job/properties/status/enum"
+  Job:
+    goon:
+      # id: int64
+      # id: string
+      # id: UUID (type: string)
+      id: UUID
+      ancestor: PipelineBase
+    payload: JobPayload
+    media_type: Job
+    fields:
+      IdByClient: *string_required
+      Status:
+        type: JobStatus
+        required: true
+      Zone: string
+      Hostname: string
+      Message: string
+      MessageID: string
+      Output: string
+      PipelineId: string
+      PipelineBaseId: *string_required
+      PublishedAt: time.Time
+      StartTime: time.Time
+      FinishTime: time.Time
+      CreatedAt: *time_required
+      UpdatedAt: *time_required
