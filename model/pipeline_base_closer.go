@@ -7,29 +7,29 @@ import (
 	"google.golang.org/appengine/log"
 )
 
-type PipelineBaseDestructor struct {
+type PipelineBaseCloser struct {
 	deployer DeploymentServicer
 }
 
-func NewPipelineBaseDestructor(ctx context.Context) (*PipelineBaseDestructor, error) {
+func NewPipelineBaseCloser(ctx context.Context) (*PipelineBaseCloser, error) {
 	deployer, err := DefaultDeploymentServicer(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &PipelineBaseDestructor{
+	return &PipelineBaseCloser{
 		deployer: deployer,
 	}, nil
 }
 
-func WithNewPipelineBaseDestructor(ctx context.Context, f func(*PipelineBaseDestructor) error) error {
-	closer, err := NewPipelineBaseDestructor(ctx)
+func WithNewPipelineBaseCloser(ctx context.Context, f func(*PipelineBaseCloser) error) error {
+	closer, err := NewPipelineBaseCloser(ctx)
 	if err != nil {
 		return err
 	}
 	return f(closer)
 }
 
-func (b *PipelineBaseDestructor) Process(ctx context.Context, pl *PipelineBase) (*CloudAsyncOperation, error) {
+func (b *PipelineBaseCloser) Process(ctx context.Context, pl *PipelineBase) (*CloudAsyncOperation, error) {
 	// https://cloud.google.com/deployment-manager/docs/reference/latest/deployments/delete#examples
 	ope, err := b.deployer.Delete(ctx, pl.InstanceGroup.ProjectID, pl.InstanceGroup.DeploymentName)
 	if err != nil {
