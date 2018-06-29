@@ -1,8 +1,19 @@
 package controller
 
 import (
+	"fmt"
+
+	"golang.org/x/net/context"
+
+	"google.golang.org/appengine"
+	"google.golang.org/appengine/datastore"
+	//"google.golang.org/appengine/log"
+
 	"github.com/goadesign/goa"
+	"github.com/mjibson/goon"
+
 	"github.com/groovenauts/blocks-concurrent-batch-server/app"
+	"github.com/groovenauts/blocks-concurrent-batch-server/model"
 )
 
 // JobController implements the Job resource.
@@ -31,6 +42,34 @@ func (c *JobController) Create(ctx *app.CreateJobContext) error {
 	// JobController_Create: start_implement
 
 	// Put your logic here
+	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
+		appCtx := appengine.NewContext(ctx.Request)
+		if ctx.PipelineBaseID == nil {
+			return ctx.BadRequest(goa.ErrBadRequest(fmt.Sprintf("Now pipeline_base_id is required")))
+		}
+		pbStore := &model.PipelineBaseStore{ParentKey: orgKey}
+		pb, err := pbStore.Get(appCtx, *ctx.PipelineBaseID)
+		if err != nil {
+			return ctx.BadRequest(goa.ErrBadRequest(err))
+		}
+		g := goon.FromContext(appCtx)
+		key, err := g.KeyError(pb)
+		if err != nil {
+			return ctx.BadRequest(goa.ErrBadRequest(err))
+		}
+
+		m := JobPayloadToModel(ctx.Payload)
+		m.Parent = key
+		m.Status = model.Inactive
+		return datastore.RunInTransaction(appCtx, func(c context.Context) error {
+			store := &model.JobStore{}
+			_, err := store.Put(c, &m)
+			if err != nil {
+				return ctx.BadRequest(goa.ErrBadRequest(err))
+			}
+			return ctx.Created(JobModelToMediaType(&m))
+		}, nil)
+	})
 
 	return nil
 	// JobController_Create: end_implement
