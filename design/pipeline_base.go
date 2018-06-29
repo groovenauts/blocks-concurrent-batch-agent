@@ -74,9 +74,11 @@ var PipelineBase = MediaType("application/vnd.pipeline-base+json", func() {
 			Attribute(attrName)
 		}
 		Attribute("status", String, "Pipeline Base Status", func() {
-			Enum("opening", "opening_error", "hibernating", "waking", "waking_error",
-				"awake", "hibernation_checking", "hibernation_going", "hibernation_going_error",
-				"closing", "closing_error", "closed")
+			Enum("opening_starting", "opening_running", "opening_error",
+				"hibernating", "waking", "waking_error", "awake",
+				"hibernation_checking", "hibernation_going", "hibernation_going_error",
+				"closing_starting", "closing_running", "closing_error",
+				"closed")
 		})
 		Attribute("instance_group_id", String, "ID of instance group")
 		UseTrait(TimestampsAttrTrait)
