@@ -21,18 +21,18 @@ func init() {
 	service.Use(middleware.ErrorHandler(service, true))
 	service.Use(middleware.Recover())
 
-	// Mount "InstanceGroupConstructionTask" controller
-	c := controller.NewInstanceGroupConstructionTaskController(service)
-	app.MountInstanceGroupConstructionTaskController(service, c)
-	// Mount "InstanceGroupDestructionTask" controller
-	c2 := controller.NewInstanceGroupDestructionTaskController(service)
-	app.MountInstanceGroupDestructionTaskController(service, c2)
-	// Mount "InstanceGroupResizingTask" controller
-	c3 := controller.NewInstanceGroupResizingTaskController(service)
-	app.MountInstanceGroupResizingTaskController(service, c3)
 	// Mount "InstanceGroup" controller
-	c4 := controller.NewInstanceGroupController(service)
-	app.MountInstanceGroupController(service, c4)
+	c := controller.NewInstanceGroupController(service)
+	app.MountInstanceGroupController(service, c)
+	// Mount "InstanceGroupConstructionTask" controller
+	c2 := controller.NewInstanceGroupConstructionTaskController(service)
+	app.MountInstanceGroupConstructionTaskController(service, c2)
+	// Mount "InstanceGroupDestructionTask" controller
+	c3 := controller.NewInstanceGroupDestructionTaskController(service)
+	app.MountInstanceGroupDestructionTaskController(service, c3)
+	// Mount "InstanceGroupResizingTask" controller
+	c4 := controller.NewInstanceGroupResizingTaskController(service)
+	app.MountInstanceGroupResizingTaskController(service, c4)
 	// Mount "Job" controller
 	c5 := controller.NewJobController(service)
 	app.MountJobController(service, c5)
