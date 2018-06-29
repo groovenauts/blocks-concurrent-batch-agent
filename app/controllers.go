@@ -430,6 +430,7 @@ type JobController interface {
 	Create(*CreateJobContext) error
 	Delete(*DeleteJobContext) error
 	Inactivate(*InactivateJobContext) error
+	Output(*OutputJobContext) error
 	PublishingTask(*PublishingTaskJobContext) error
 	Show(*ShowJobContext) error
 }
@@ -442,6 +443,7 @@ func MountJobController(service *goa.Service, ctrl JobController) {
 	service.Mux.Handle("OPTIONS", "/jobs", ctrl.MuxHandler("preflight", handleJobOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/jobs/:id", ctrl.MuxHandler("preflight", handleJobOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/jobs/:id/inactivate", ctrl.MuxHandler("preflight", handleJobOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/jobs/:id/output", ctrl.MuxHandler("preflight", handleJobOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/jobs/:id/publishing_task", ctrl.MuxHandler("preflight", handleJobOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
@@ -517,6 +519,23 @@ func MountJobController(service *goa.Service, ctrl JobController) {
 	h = handleJobOrigin(h)
 	service.Mux.Handle("PUT", "/jobs/:id/inactivate", ctrl.MuxHandler("inactivate", h, nil))
 	service.LogInfo("mount", "ctrl", "Job", "action", "Inactivate", "route", "PUT /jobs/:id/inactivate", "security", "api_key")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewOutputJobContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Output(rctx)
+	}
+	h = handleSecurity("api_key", h)
+	h = handleJobOrigin(h)
+	service.Mux.Handle("GET", "/jobs/:id/output", ctrl.MuxHandler("output", h, nil))
+	service.LogInfo("mount", "ctrl", "Job", "action", "Output", "route", "GET /jobs/:id/output", "security", "api_key")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request

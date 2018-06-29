@@ -15,8 +15,8 @@ import (
 
 type CloudAsyncOperationError struct {
 	Code     string `json:"code" validate:"required"`
-	Location string `json:"location,omitempty" `
-	Message  string `json:"message,omitempty" `
+	Location string `json:"location,omitempty"`
+	Message  string `json:"message,omitempty"`
 }
 
 type CloudAsyncOperationLog struct {
@@ -35,8 +35,8 @@ type CloudAsyncOperation struct {
 	Status        string                     `json:"status" validate:"required"`
 	ProjectId     string                     `json:"project_id" validate:"required"`
 	Zone          string                     `json:"zone" validate:"required"`
-	Errors        []CloudAsyncOperationError `json:"errors,omitempty" `
-	Logs          []CloudAsyncOperationLog   `json:"logs,omitempty" `
+	Errors        []CloudAsyncOperationError `json:"errors,omitempty"`
+	Logs          []CloudAsyncOperationLog   `json:"logs,omitempty"`
 	CreatedAt     time.Time                  `json:"created_at" validate:"required"`
 	UpdatedAt     time.Time                  `json:"updated_at" validate:"required"`
 }

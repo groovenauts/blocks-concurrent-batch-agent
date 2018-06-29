@@ -58,6 +58,17 @@ func (c *JobController) Inactivate(ctx *app.InactivateJobContext) error {
 	// JobController_Inactivate: end_implement
 }
 
+// Output runs the output action.
+func (c *JobController) Output(ctx *app.OutputJobContext) error {
+	// JobController_Output: start_implement
+
+	// Put your logic here
+
+	res := &app.JobOutput{}
+	return ctx.OK(res)
+	// JobController_Output: end_implement
+}
+
 // PublishingTask runs the publishing_task action.
 func (c *JobController) PublishingTask(ctx *app.PublishingTaskJobContext) error {
 	// JobController_PublishingTask: start_implement

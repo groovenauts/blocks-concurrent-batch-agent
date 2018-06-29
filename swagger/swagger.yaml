@@ -309,7 +309,7 @@ definitions:
         disk_size_gb: 50
         disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
         source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
-      deployment_name: Mollitia laboriosam iure labore.
+      deployment_name: Et aut possimus optio.
       gpu_accelerators:
         count: 2
         type: nvidia-tesla-p100
@@ -317,14 +317,14 @@ definitions:
       instance_size_requested: 3
       machine_type: f1-micro
       preemptible: false
-      startup_script: Possimus optio et voluptas quia suscipit autem.
+      startup_script: Quia suscipit autem.
       token_consumption: 2
     properties:
       boot_disk:
         $ref: '#/definitions/InstanceGroupVmDisk'
       deployment_name:
         description: Deployment name
-        example: Mollitia laboriosam iure labore.
+        example: Et aut possimus optio.
         type: string
       gpu_accelerators:
         $ref: '#/definitions/InstanceGroupAccelerators'
@@ -348,7 +348,7 @@ definitions:
         type: boolean
       startup_script:
         description: Startup script
-        example: Possimus optio et voluptas quia suscipit autem.
+        example: Quia suscipit autem.
         type: string
       token_consumption:
         description: Token Consumption
@@ -461,8 +461,8 @@ definitions:
     description: job (default view)
     example:
       created_at: "1992-01-08T05:22:00Z"
-      finish_time: "2002-01-15T06:30:11Z"
-      host_name: Voluptatem et aspernatur et.
+      finished_at: "2002-01-15T06:30:11Z"
+      hostname: Voluptatem et aspernatur et.
       id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
       id_by_client: Aut et similique consectetur corporis aut ratione.
       message:
@@ -472,8 +472,8 @@ definitions:
       message_id: Repellendus consequuntur.
       pipeline_base_id: Nemo delectus cum veritatis aut odio numquam.
       pipeline_id: Non aut illo saepe qui.
-      publish_time: "1985-07-17T04:40:50Z"
-      start_time: "1982-09-11T08:07:57Z"
+      published_at: "1985-07-17T04:40:50Z"
+      started_at: "1982-09-11T08:07:57Z"
       status: failure
       updated_at: "1987-01-25T01:06:18Z"
     properties:
@@ -482,12 +482,12 @@ definitions:
         example: "1992-01-08T05:22:00Z"
         format: date-time
         type: string
-      finish_time:
+      finished_at:
         description: Time when job finishes
         example: "2002-01-15T06:30:11Z"
         format: date-time
         type: string
-      host_name:
+      hostname:
         description: Hostname where job is running
         example: Voluptatem et aspernatur et.
         type: string
@@ -513,12 +513,12 @@ definitions:
         description: Pipeline ID (UUID)
         example: Non aut illo saepe qui.
         type: string
-      publish_time:
+      published_at:
         description: Time when job is published
         example: "1985-07-17T04:40:50Z"
         format: date-time
         type: string
-      start_time:
+      started_at:
         description: Time when job starts
         example: "1982-09-11T08:07:57Z"
         format: date-time
@@ -543,9 +543,30 @@ definitions:
         type: string
     required:
     - id
+    - status
+    - pipeline_base_id
     - message
     - id_by_client
     title: 'Mediatype identifier: application/vnd.job+json; view=default'
+    type: object
+  Job-Output:
+    description: job output (default view)
+    example:
+      id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+      output: Enim animi veritatis nisi veritatis corporis.
+    properties:
+      id:
+        description: ID
+        example: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+        type: string
+      output:
+        description: Job output
+        example: Enim animi veritatis nisi veritatis corporis.
+        type: string
+    required:
+    - id
+    - output
+    title: 'Mediatype identifier: application/vnd.job-output+json; view=default'
     type: object
   JobMessage:
     example:
@@ -589,20 +610,20 @@ definitions:
       container:
         command: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
           %{uploads_dir}
-        name: Enim animi veritatis nisi veritatis corporis.
+        name: Eveniet vero sed id eveniet.
         options: --restart=on-failure:3
         size: 2
-        stackdriver_agent: false
-      created_at: "2011-05-15T10:10:56Z"
-      curr_base_id: Sed id eveniet quis sit.
-      hibernation_delay: 8.324950733970395e+18
+        stackdriver_agent: true
+      created_at: "1982-06-01T23:49:16Z"
+      curr_base_id: Magnam mollitia laboriosam.
+      hibernation_delay: 3.739153956326705e+17
       id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
       instance_group:
         boot_disk:
           disk_size_gb: 50
           disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
           source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
-        deployment_name: Mollitia laboriosam iure labore.
+        deployment_name: Et aut possimus optio.
         gpu_accelerators:
           count: 2
           type: nvidia-tesla-p100
@@ -610,7 +631,7 @@ definitions:
         instance_size_requested: 3
         machine_type: f1-micro
         preemptible: false
-        startup_script: Possimus optio et voluptas quia suscipit autem.
+        startup_script: Quia suscipit autem.
         token_consumption: 2
       name: pipeline1
       next_base_id: Rem repellendus vel sit velit voluptatem quidem.
@@ -624,16 +645,16 @@ definitions:
         $ref: '#/definitions/PipelineContainer'
       created_at:
         description: Datetime created
-        example: "2011-05-15T10:10:56Z"
+        example: "1982-06-01T23:49:16Z"
         format: date-time
         type: string
       curr_base_id:
         description: Current pipeline base ID
-        example: Sed id eveniet quis sit.
+        example: Magnam mollitia laboriosam.
         type: string
       hibernation_delay:
         description: Hibernation delay in seconds since last job finsihed
-        example: 8.324950733970395e+18
+        example: 3.739153956326705e+17
         format: int64
         type: integer
       id:
@@ -698,10 +719,10 @@ definitions:
       container:
         command: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
           %{uploads_dir}
-        name: Enim animi veritatis nisi veritatis corporis.
+        name: Eveniet vero sed id eveniet.
         options: --restart=on-failure:3
         size: 2
-        stackdriver_agent: false
+        stackdriver_agent: true
       created_at: "2012-10-16T07:02:27Z"
       hibernation_delay: 4.367392799725555e+18
       id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
@@ -710,7 +731,7 @@ definitions:
           disk_size_gb: 50
           disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
           source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
-        deployment_name: Mollitia laboriosam iure labore.
+        deployment_name: Et aut possimus optio.
         gpu_accelerators:
           count: 2
           type: nvidia-tesla-p100
@@ -718,7 +739,7 @@ definitions:
         instance_size_requested: 3
         machine_type: f1-micro
         preemptible: false
-        startup_script: Possimus optio et voluptas quia suscipit autem.
+        startup_script: Quia suscipit autem.
         token_consumption: 2
       instance_group_id: Quaerat unde ratione corrupti.
       name: pipeline1-123
@@ -806,10 +827,10 @@ definitions:
     - container:
         command: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
           %{uploads_dir}
-        name: Enim animi veritatis nisi veritatis corporis.
+        name: Eveniet vero sed id eveniet.
         options: --restart=on-failure:3
         size: 2
-        stackdriver_agent: false
+        stackdriver_agent: true
       created_at: "2012-10-16T07:02:27Z"
       hibernation_delay: 4.367392799725555e+18
       id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
@@ -818,7 +839,7 @@ definitions:
           disk_size_gb: 50
           disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
           source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
-        deployment_name: Mollitia laboriosam iure labore.
+        deployment_name: Et aut possimus optio.
         gpu_accelerators:
           count: 2
           type: nvidia-tesla-p100
@@ -826,7 +847,7 @@ definitions:
         instance_size_requested: 3
         machine_type: f1-micro
         preemptible: false
-        startup_script: Possimus optio et voluptas quia suscipit autem.
+        startup_script: Quia suscipit autem.
         token_consumption: 2
       instance_group_id: Quaerat unde ratione corrupti.
       name: pipeline1-123
@@ -837,10 +858,10 @@ definitions:
     - container:
         command: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
           %{uploads_dir}
-        name: Enim animi veritatis nisi veritatis corporis.
+        name: Eveniet vero sed id eveniet.
         options: --restart=on-failure:3
         size: 2
-        stackdriver_agent: false
+        stackdriver_agent: true
       created_at: "2012-10-16T07:02:27Z"
       hibernation_delay: 4.367392799725555e+18
       id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
@@ -849,7 +870,7 @@ definitions:
           disk_size_gb: 50
           disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
           source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
-        deployment_name: Mollitia laboriosam iure labore.
+        deployment_name: Et aut possimus optio.
         gpu_accelerators:
           count: 2
           type: nvidia-tesla-p100
@@ -857,7 +878,7 @@ definitions:
         instance_size_requested: 3
         machine_type: f1-micro
         preemptible: false
-        startup_script: Possimus optio et voluptas quia suscipit autem.
+        startup_script: Quia suscipit autem.
         token_consumption: 2
       instance_group_id: Quaerat unde ratione corrupti.
       name: pipeline1-123
@@ -875,17 +896,17 @@ definitions:
       container:
         command: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
           %{uploads_dir}
-        name: Enim animi veritatis nisi veritatis corporis.
+        name: Eveniet vero sed id eveniet.
         options: --restart=on-failure:3
         size: 2
-        stackdriver_agent: false
+        stackdriver_agent: true
       hibernation_delay: 7.797336613342039e+18
       instance_group:
         boot_disk:
           disk_size_gb: 50
           disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
           source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
-        deployment_name: Mollitia laboriosam iure labore.
+        deployment_name: Et aut possimus optio.
         gpu_accelerators:
           count: 2
           type: nvidia-tesla-p100
@@ -893,7 +914,7 @@ definitions:
         instance_size_requested: 3
         machine_type: f1-micro
         preemptible: false
-        startup_script: Possimus optio et voluptas quia suscipit autem.
+        startup_script: Quia suscipit autem.
         token_consumption: 2
       name: pipeline1-123
       project_id: dummy-proj-999
@@ -935,20 +956,20 @@ definitions:
     - container:
         command: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
           %{uploads_dir}
-        name: Enim animi veritatis nisi veritatis corporis.
+        name: Eveniet vero sed id eveniet.
         options: --restart=on-failure:3
         size: 2
-        stackdriver_agent: false
-      created_at: "2011-05-15T10:10:56Z"
-      curr_base_id: Sed id eveniet quis sit.
-      hibernation_delay: 8.324950733970395e+18
+        stackdriver_agent: true
+      created_at: "1982-06-01T23:49:16Z"
+      curr_base_id: Magnam mollitia laboriosam.
+      hibernation_delay: 3.739153956326705e+17
       id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
       instance_group:
         boot_disk:
           disk_size_gb: 50
           disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
           source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
-        deployment_name: Mollitia laboriosam iure labore.
+        deployment_name: Et aut possimus optio.
         gpu_accelerators:
           count: 2
           type: nvidia-tesla-p100
@@ -956,7 +977,7 @@ definitions:
         instance_size_requested: 3
         machine_type: f1-micro
         preemptible: false
-        startup_script: Possimus optio et voluptas quia suscipit autem.
+        startup_script: Quia suscipit autem.
         token_consumption: 2
       name: pipeline1
       next_base_id: Rem repellendus vel sit velit voluptatem quidem.
@@ -968,20 +989,20 @@ definitions:
     - container:
         command: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
           %{uploads_dir}
-        name: Enim animi veritatis nisi veritatis corporis.
+        name: Eveniet vero sed id eveniet.
         options: --restart=on-failure:3
         size: 2
-        stackdriver_agent: false
-      created_at: "2011-05-15T10:10:56Z"
-      curr_base_id: Sed id eveniet quis sit.
-      hibernation_delay: 8.324950733970395e+18
+        stackdriver_agent: true
+      created_at: "1982-06-01T23:49:16Z"
+      curr_base_id: Magnam mollitia laboriosam.
+      hibernation_delay: 3.739153956326705e+17
       id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
       instance_group:
         boot_disk:
           disk_size_gb: 50
           disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
           source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
-        deployment_name: Mollitia laboriosam iure labore.
+        deployment_name: Et aut possimus optio.
         gpu_accelerators:
           count: 2
           type: nvidia-tesla-p100
@@ -989,7 +1010,7 @@ definitions:
         instance_size_requested: 3
         machine_type: f1-micro
         preemptible: false
-        startup_script: Possimus optio et voluptas quia suscipit autem.
+        startup_script: Quia suscipit autem.
         token_consumption: 2
       name: pipeline1
       next_base_id: Rem repellendus vel sit velit voluptatem quidem.
@@ -1001,20 +1022,20 @@ definitions:
     - container:
         command: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
           %{uploads_dir}
-        name: Enim animi veritatis nisi veritatis corporis.
+        name: Eveniet vero sed id eveniet.
         options: --restart=on-failure:3
         size: 2
-        stackdriver_agent: false
-      created_at: "2011-05-15T10:10:56Z"
-      curr_base_id: Sed id eveniet quis sit.
-      hibernation_delay: 8.324950733970395e+18
+        stackdriver_agent: true
+      created_at: "1982-06-01T23:49:16Z"
+      curr_base_id: Magnam mollitia laboriosam.
+      hibernation_delay: 3.739153956326705e+17
       id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
       instance_group:
         boot_disk:
           disk_size_gb: 50
           disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
           source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
-        deployment_name: Mollitia laboriosam iure labore.
+        deployment_name: Et aut possimus optio.
         gpu_accelerators:
           count: 2
           type: nvidia-tesla-p100
@@ -1022,7 +1043,7 @@ definitions:
         instance_size_requested: 3
         machine_type: f1-micro
         preemptible: false
-        startup_script: Possimus optio et voluptas quia suscipit autem.
+        startup_script: Quia suscipit autem.
         token_consumption: 2
       name: pipeline1
       next_base_id: Rem repellendus vel sit velit voluptatem quidem.
@@ -1040,10 +1061,10 @@ definitions:
     example:
       command: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
         %{uploads_dir}
-      name: Enim animi veritatis nisi veritatis corporis.
+      name: Eveniet vero sed id eveniet.
       options: --restart=on-failure:3
       size: 2
-      stackdriver_agent: false
+      stackdriver_agent: true
     properties:
       command:
         description: Command for docker run
@@ -1052,7 +1073,7 @@ definitions:
         type: string
       name:
         description: Container name
-        example: Enim animi veritatis nisi veritatis corporis.
+        example: Eveniet vero sed id eveniet.
         type: string
       options:
         description: Options for docker run
@@ -1066,7 +1087,7 @@ definitions:
         type: integer
       stackdriver_agent:
         description: Use stackdriver agent
-        example: false
+        example: true
         type: boolean
     required:
     - name
@@ -1077,17 +1098,17 @@ definitions:
       container:
         command: bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir}
           %{uploads_dir}
-        name: Enim animi veritatis nisi veritatis corporis.
+        name: Eveniet vero sed id eveniet.
         options: --restart=on-failure:3
         size: 2
-        stackdriver_agent: false
+        stackdriver_agent: true
       hibernation_delay: 3.7842099344879007e+18
       instance_group:
         boot_disk:
           disk_size_gb: 50
           disk_type: projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard
           source_image: https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable
-        deployment_name: Mollitia laboriosam iure labore.
+        deployment_name: Et aut possimus optio.
         gpu_accelerators:
           count: 2
           type: nvidia-tesla-p100
@@ -1095,7 +1116,7 @@ definitions:
         instance_size_requested: 3
         machine_type: f1-micro
         preemptible: false
-        startup_script: Possimus optio et voluptas quia suscipit autem.
+        startup_script: Quia suscipit autem.
         token_consumption: 2
       name: pipeline1
       project_id: dummy-proj-999
@@ -2097,6 +2118,51 @@ paths:
       security:
       - api_key: []
       summary: inactivate Job
+      tags:
+      - Job
+  /jobs/{id}/output:
+    get:
+      description: output
+      operationId: Job#output
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.job-output+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Job-Output'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      security:
+      - api_key: []
+      summary: output Job
       tags:
       - Job
   /jobs/{id}/publishing_task:

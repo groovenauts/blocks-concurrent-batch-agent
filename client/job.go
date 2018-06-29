@@ -182,6 +182,41 @@ func (c *Client) NewInactivateJobRequest(ctx context.Context, path string) (*htt
 	return req, nil
 }
 
+// OutputJobPath computes a request path to the output action of Job.
+func OutputJobPath(id string) string {
+	param0 := id
+
+	return fmt.Sprintf("/jobs/%s/output", param0)
+}
+
+// output
+func (c *Client) OutputJob(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.NewOutputJobRequest(ctx, path)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewOutputJobRequest create the request corresponding to the output action endpoint of the Job resource.
+func (c *Client) NewOutputJobRequest(ctx context.Context, path string) (*http.Request, error) {
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "http"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
+	return req, nil
+}
+
 // PublishingTaskJobPath computes a request path to the publishing_task action of Job.
 func PublishingTaskJobPath(id string) string {
 	param0 := id

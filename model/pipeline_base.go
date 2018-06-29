@@ -35,9 +35,9 @@ const (
 type PipelineContainer struct {
 	Name             string `json:"name" validate:"required"`
 	Size             int    `json:"size" validate:"required"`
-	Command          string `json:"command,omitempty" `
-	Options          string `json:"options,omitempty" `
-	StackdriverAgent bool   `json:"stackdriver_agent,omitempty" `
+	Command          string `json:"command,omitempty"`
+	Options          string `json:"options,omitempty"`
+	StackdriverAgent bool   `json:"stackdriver_agent,omitempty"`
 }
 
 type PipelineBase struct {
@@ -46,8 +46,8 @@ type PipelineBase struct {
 	Name             string             `json:"name" validate:"required"`
 	ProjectID        string             `json:"project_id" validate:"required"`
 	Zone             string             `json:"zone" validate:"required"`
-	InstanceGroup    InstanceGroupBody  `json:"instance_group,omitempty" `
-	Container        PipelineContainer  `json:"container,omitempty" `
+	InstanceGroup    InstanceGroupBody  `json:"instance_group,omitempty"`
+	Container        PipelineContainer  `json:"container,omitempty"`
 	HibernationDelay int                `json:"hibernation_delay" validate:"required"`
 	Status           PipelineBaseStatus `json:"status" validate:"required"`
 	IntanceGroupID   string             `json:"intance_group_id" validate:"required"`

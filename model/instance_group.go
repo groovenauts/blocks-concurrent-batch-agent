@@ -29,14 +29,14 @@ const (
 )
 
 type InstanceGroupVMDisk struct {
-	DiskSizeGb  int    `json:"disk_size_gb,omitempty" `
-	DiskType    string `json:"disk_type,omitempty" `
+	DiskSizeGb  int    `json:"disk_size_gb,omitempty"`
+	DiskType    string `json:"disk_type,omitempty"`
 	SourceImage string `json:"source_image" validate:"required"`
 }
 
 type InstanceGroupAccelerators struct {
-	Count int    `json:"count,omitempty" `
-	Type  string `json:"type,omitempty" `
+	Count int    `json:"count,omitempty"`
+	Type  string `json:"type,omitempty"`
 }
 
 type InstanceGroupBody struct {
@@ -44,14 +44,14 @@ type InstanceGroupBody struct {
 	Zone                  string                    `json:"zone" validate:"required"`
 	BootDisk              InstanceGroupVMDisk       `json:"boot_disk" validate:"required"`
 	MachineType           string                    `json:"machine_type" validate:"required"`
-	GpuAccelerators       InstanceGroupAccelerators `json:"gpu_accelerators,omitempty" `
-	Preemptible           bool                      `json:"preemptible,omitempty" `
-	InstanceSizeRequested int                       `json:"instance_size_requested,omitempty" `
-	InstanceSize          int                       `json:"instance_size,omitempty" `
-	StartupScript         string                    `json:"startup_script,omitempty" `
+	GpuAccelerators       InstanceGroupAccelerators `json:"gpu_accelerators,omitempty"`
+	Preemptible           bool                      `json:"preemptible,omitempty"`
+	InstanceSizeRequested int                       `json:"instance_size_requested,omitempty"`
+	InstanceSize          int                       `json:"instance_size,omitempty"`
+	StartupScript         string                    `json:"startup_script,omitempty"`
 	Status                InstanceGroupStatus       `json:"status" validate:"required"`
-	DeploymentName        string                    `json:"deployment_name,omitempty" `
-	TokenConsumption      int                       `json:"token_consumption,omitempty" `
+	DeploymentName        string                    `json:"deployment_name,omitempty"`
+	TokenConsumption      int                       `json:"token_consumption,omitempty"`
 }
 
 type InstanceGroup struct {
@@ -62,14 +62,14 @@ type InstanceGroup struct {
 	Zone                  string                    `json:"zone" validate:"required"`
 	BootDisk              InstanceGroupVMDisk       `json:"boot_disk" validate:"required"`
 	MachineType           string                    `json:"machine_type" validate:"required"`
-	GpuAccelerators       InstanceGroupAccelerators `json:"gpu_accelerators,omitempty" `
-	Preemptible           bool                      `json:"preemptible,omitempty" `
-	InstanceSizeRequested int                       `json:"instance_size_requested,omitempty" `
-	InstanceSize          int                       `json:"instance_size,omitempty" `
-	StartupScript         string                    `json:"startup_script,omitempty" `
+	GpuAccelerators       InstanceGroupAccelerators `json:"gpu_accelerators,omitempty"`
+	Preemptible           bool                      `json:"preemptible,omitempty"`
+	InstanceSizeRequested int                       `json:"instance_size_requested,omitempty"`
+	InstanceSize          int                       `json:"instance_size,omitempty"`
+	StartupScript         string                    `json:"startup_script,omitempty"`
 	Status                InstanceGroupStatus       `json:"status" validate:"required"`
-	DeploymentName        string                    `json:"deployment_name,omitempty" `
-	TokenConsumption      int                       `json:"token_consumption,omitempty" `
+	DeploymentName        string                    `json:"deployment_name,omitempty"`
+	TokenConsumption      int                       `json:"token_consumption,omitempty"`
 	CreatedAt             time.Time                 `json:"created_at" validate:"required"`
 	UpdatedAt             time.Time                 `json:"updated_at" validate:"required"`
 }

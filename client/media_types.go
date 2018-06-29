@@ -242,9 +242,9 @@ type Job struct {
 	// Datetime created
 	CreatedAt *time.Time `form:"created_at,omitempty" json:"created_at,omitempty" yaml:"created_at,omitempty" xml:"created_at,omitempty"`
 	// Time when job finishes
-	FinishTime *time.Time `form:"finish_time,omitempty" json:"finish_time,omitempty" yaml:"finish_time,omitempty" xml:"finish_time,omitempty"`
+	FinishedAt *time.Time `form:"finished_at,omitempty" json:"finished_at,omitempty" yaml:"finished_at,omitempty" xml:"finished_at,omitempty"`
 	// Hostname where job is running
-	HostName *string `form:"host_name,omitempty" json:"host_name,omitempty" yaml:"host_name,omitempty" xml:"host_name,omitempty"`
+	Hostname *string `form:"hostname,omitempty" json:"hostname,omitempty" yaml:"hostname,omitempty" xml:"hostname,omitempty"`
 	// ID
 	ID string `form:"id" json:"id" yaml:"id" xml:"id"`
 	// ID assigned by client
@@ -254,15 +254,15 @@ type Job struct {
 	// Pubsub Message ID
 	MessageID *string `form:"message_id,omitempty" json:"message_id,omitempty" yaml:"message_id,omitempty" xml:"message_id,omitempty"`
 	// PipelineBase ID (UUID)
-	PipelineBaseID *string `form:"pipeline_base_id,omitempty" json:"pipeline_base_id,omitempty" yaml:"pipeline_base_id,omitempty" xml:"pipeline_base_id,omitempty"`
+	PipelineBaseID string `form:"pipeline_base_id" json:"pipeline_base_id" yaml:"pipeline_base_id" xml:"pipeline_base_id"`
 	// Pipeline ID (UUID)
 	PipelineID *string `form:"pipeline_id,omitempty" json:"pipeline_id,omitempty" yaml:"pipeline_id,omitempty" xml:"pipeline_id,omitempty"`
 	// Time when job is published
-	PublishTime *time.Time `form:"publish_time,omitempty" json:"publish_time,omitempty" yaml:"publish_time,omitempty" xml:"publish_time,omitempty"`
+	PublishedAt *time.Time `form:"published_at,omitempty" json:"published_at,omitempty" yaml:"published_at,omitempty" xml:"published_at,omitempty"`
 	// Time when job starts
-	StartTime *time.Time `form:"start_time,omitempty" json:"start_time,omitempty" yaml:"start_time,omitempty" xml:"start_time,omitempty"`
+	StartedAt *time.Time `form:"started_at,omitempty" json:"started_at,omitempty" yaml:"started_at,omitempty" xml:"started_at,omitempty"`
 	// Job Status
-	Status *string `form:"status,omitempty" json:"status,omitempty" yaml:"status,omitempty" xml:"status,omitempty"`
+	Status string `form:"status" json:"status" yaml:"status" xml:"status"`
 	// Datetime updated
 	UpdatedAt *time.Time `form:"updated_at,omitempty" json:"updated_at,omitempty" yaml:"updated_at,omitempty" xml:"updated_at,omitempty"`
 }
@@ -272,16 +272,20 @@ func (mt *Job) Validate() (err error) {
 	if mt.ID == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "id"))
 	}
+	if mt.Status == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "status"))
+	}
+	if mt.PipelineBaseID == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "pipeline_base_id"))
+	}
 	if mt.Message == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "message"))
 	}
 	if mt.IDByClient == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "id_by_client"))
 	}
-	if mt.Status != nil {
-		if !(*mt.Status == "inactive" || *mt.Status == "blocked" || *mt.Status == "publishing" || *mt.Status == "publishing_error" || *mt.Status == "published" || *mt.Status == "started" || *mt.Status == "success" || *mt.Status == "failure") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError(`response.status`, *mt.Status, []interface{}{"inactive", "blocked", "publishing", "publishing_error", "published", "started", "success", "failure"}))
-		}
+	if !(mt.Status == "inactive" || mt.Status == "blocked" || mt.Status == "publishing" || mt.Status == "publishing_error" || mt.Status == "published" || mt.Status == "started" || mt.Status == "success" || mt.Status == "failure") {
+		err = goa.MergeErrors(err, goa.InvalidEnumValueError(`response.status`, mt.Status, []interface{}{"inactive", "blocked", "publishing", "publishing_error", "published", "started", "success", "failure"}))
 	}
 	return
 }
@@ -289,6 +293,34 @@ func (mt *Job) Validate() (err error) {
 // DecodeJob decodes the Job instance encoded in resp body.
 func (c *Client) DecodeJob(resp *http.Response) (*Job, error) {
 	var decoded Job
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
+
+// job output (default view)
+//
+// Identifier: application/vnd.job-output+json; view=default
+type JobOutput struct {
+	// ID
+	ID string `form:"id" json:"id" yaml:"id" xml:"id"`
+	// Job output
+	Output string `form:"output" json:"output" yaml:"output" xml:"output"`
+}
+
+// Validate validates the JobOutput media type instance.
+func (mt *JobOutput) Validate() (err error) {
+	if mt.ID == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "id"))
+	}
+	if mt.Output == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "output"))
+	}
+	return
+}
+
+// DecodeJobOutput decodes the JobOutput instance encoded in resp body.
+func (c *Client) DecodeJobOutput(resp *http.Response) (*JobOutput, error) {
+	var decoded JobOutput
 	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
 	return &decoded, err
 }
