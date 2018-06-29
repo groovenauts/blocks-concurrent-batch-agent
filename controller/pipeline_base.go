@@ -84,7 +84,6 @@ func (c *PipelineBaseController) Create(ctx *app.CreatePipelineBaseContext) erro
 		return ctx.Created(PipelineBaseModelToMediaType(&m))
 	})
 
-	return nil
 	// PipelineBaseController_Create: end_implement
 }
 
