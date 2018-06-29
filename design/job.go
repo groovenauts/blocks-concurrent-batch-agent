@@ -37,10 +37,10 @@ var Job = MediaType("application/vnd.job+json", func() {
 		Attribute("pipeline_id", String, "Pipeline ID (UUID)")
 		Attribute("pipeline_base_id", String, "PipelineBase ID (UUID)")
 		Attribute("message_id", String, "Pubsub Message ID")
-		Attribute("host_name", String, "Hostname where job is running")
-		Attribute("publish_time", DateTime, "Time when job is published")
-		Attribute("start_time", DateTime, "Time when job starts")
-		Attribute("finish_time", DateTime, "Time when job finishes")
+		Attribute("hostname", String, "Hostname where job is running")
+		Attribute("published_at", DateTime, "Time when job is published")
+		Attribute("started_at", DateTime, "Time when job starts")
+		Attribute("finished_at", DateTime, "Time when job finishes")
 		UseTrait(TimestampsAttrTrait)
 
 		requiredAttrs := append([]string{"id"}, attrNames...)
@@ -53,8 +53,8 @@ var Job = MediaType("application/vnd.job+json", func() {
 		}
 		outputAttrs := []string{
 			"status", "pipeline_id", "pipeline_base_id", "message_id",
-			"host_name", // "output",
-			"publish_time", "start_time", "finish_time",
+			"hostname", // "output",
+			"published_at", "started_at", "finished_at",
 		}
 		for _, attrName := range outputAttrs {
 			Attribute(attrName)

@@ -10,6 +10,15 @@ types:
   JobStatus:
     base: string
     enum: "definitions/Job/properties/status/enum"
+  JobKeyValuePair:
+    Name: *string_required
+    Value:
+      type: string
+      datastore: noindex
+  JobMessage:
+    fields:
+      AttributeEntries: "[]JobKeyValuePair"
+      Data: string
   Job:
     goon:
       # id: int64
@@ -20,19 +29,19 @@ types:
     payload: JobPayload
     media_type: Job
     fields:
-      IdByClient: *string_required
+      IDByClient: *string_required
       Status:
         type: JobStatus
         required: true
       Zone: string
       Hostname: string
-      Message: string
+      Message: JobMessage
       MessageID: string
       Output: string
       PipelineId: string
       PipelineBaseId: *string_required
       PublishedAt: time.Time
-      StartTime: time.Time
-      FinishTime: time.Time
+      StartedAt: time.Time
+      FinishedAt: time.Time
       CreatedAt: *time_required
       UpdatedAt: *time_required
