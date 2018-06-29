@@ -10,6 +10,7 @@ import (
 
 	"github.com/labstack/echo"
 	"golang.org/x/net/context"
+	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/taskqueue"
 )
@@ -127,10 +128,20 @@ func (h *JobHandler) BulkJobStatuses(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 	}
 	pl := c.Get("pipeline").(*models.Pipeline)
-	jobs, errors := pl.JobAccessor().BulkGet(ctx, payload.JobIds)
+	acc := pl.JobAccessor()
+	errors := map[string]error{}
 	jobStatusMap := map[string]int{}
-	for _, job := range jobs {
-		jobStatusMap[job.IdByClient] = int(job.Status)
+	for _, jobId := range payload.JobIds {
+		jobs, err := acc.AllWith(ctx, func(q *datastore.Query) (*datastore.Query, error) {
+			q = q.Filter("id_by_client =", jobId)
+			return q, nil
+		})
+		if err != nil {
+			errors[jobId] = err
+		}
+		for _, job := range jobs {
+			jobStatusMap[job.IdByClient] = int(job.Status)
+		}
 	}
 	r := &BulkJobStatusesMediaType{
 		Jobs:   jobStatusMap,
