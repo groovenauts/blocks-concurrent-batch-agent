@@ -37,7 +37,7 @@ func (c *PipelineBaseController) Close(ctx *app.ClosePipelineBaseContext) error 
 			return c.member(appCtx, store, ctx.ID, ctx.NotFound, func(m *model.PipelineBase) error {
 				switch m.Status {
 				case model.Hibernating: // Through
-				case model.Closing, model.ClosingError, model.Closed:
+				case model.ClosingStarting, model.ClosingRunning, model.ClosingError, model.Closed:
 					return ctx.OK(PipelineBaseModelToMediaType(m))
 				default:
 					return ctx.Conflict(fmt.Errorf("Can't resize because the PipelineBase %q is %s", m.Id, m.Status))
@@ -65,7 +65,7 @@ func (c *PipelineBaseController) Create(ctx *app.CreatePipelineBaseContext) erro
 		appCtx := appengine.NewContext(ctx.Request)
 		m := PipelineBasePayloadToModel(ctx.Payload)
 		m.Parent = orgKey
-		m.Status = model.Opening
+		m.Status = model.OpeningRunning
 		err := datastore.RunInTransaction(appCtx, func(c context.Context) error {
 			store := &model.PipelineBaseStore{}
 			_, err := store.Put(c, &m)
