@@ -112,6 +112,33 @@ func (h *JobHandler) BulkGetJobs(c echo.Context) error {
 	return c.JSON(http.StatusOK, r)
 }
 
+type BulkJobStatusesMediaType struct {
+	Jobs   map[string]int   `json:"jobs"`
+	Errors map[string]error `json:"errors"`
+}
+
+// curl -v -X POST http://localhost:8080/pipelines/3/bulk_job_statuses --data '{"job_ids":["1","2","5"]}' -H 'Content-Type: application/json'
+func (h *JobHandler) BulkJobStatuses(c echo.Context) error {
+	ctx := c.Get("aecontext").(context.Context)
+	payload := &BulkGetJobsPayload{}
+	if err := c.Bind(payload); err != nil {
+		log.Errorf(ctx, "err: %v\n", err)
+		log.Errorf(ctx, "req: %v\n", c.Request())
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+	}
+	pl := c.Get("pipeline").(*models.Pipeline)
+	jobs, errors := pl.JobAccessor().BulkGet(ctx, payload.JobIds)
+	jobStatusMap := map[string]int{}
+	for _, job := range jobs {
+		jobStatusMap[job.IdByClient] = int(job.Status)
+	}
+	r := &BulkJobStatusesMediaType{
+		Jobs:   jobStatusMap,
+		Errors: errors,
+	}
+	return c.JSON(http.StatusOK, r)
+}
+
 // curl -v http://localhost:8080/jobs/1
 func (h *JobHandler) show(c echo.Context) error {
 	job := c.Get("job").(*models.Job)
