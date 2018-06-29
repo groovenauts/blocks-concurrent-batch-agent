@@ -30,6 +30,8 @@ types:
     media_type: Pipeline-Base
     fields:
       Name: *string_required
+      ProjectID: *string_required
+      Zone: *string_required
       InstanceGroup: InstanceGroupBody
       Container: PipelineContainer
       HibernationDelay:
