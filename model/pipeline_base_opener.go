@@ -9,22 +9,22 @@ import (
 	"google.golang.org/appengine/log"
 )
 
-type PipelineOpener struct {
+type PipelineBaseOpener struct {
 	deployer DeploymentServicer
 }
 
-func NewPipelineOpener(ctx context.Context) (*PipelineOpener, error) {
+func NewPipelineBaseOpener(ctx context.Context) (*PipelineBaseOpener, error) {
 	deployer, err := DefaultDeploymentServicer(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &PipelineOpener{deployer: deployer}, nil
+	return &PipelineBaseOpener{deployer: deployer}, nil
 }
 
-func (b *PipelineOpener) Process(ctx context.Context, pl *InstanceGroup) (*CloudAsyncOperation, error) {
+func (b *PipelineBaseOpener) Process(ctx context.Context, pl *PipelineBase) (*CloudAsyncOperation, error) {
 	deployment, err := b.BuildDeployment(pl)
 	if err != nil {
-		log.Errorf(ctx, "Failed to BuildDeployment: %v\nInstanceGroup: %v\n", err, pl)
+		log.Errorf(ctx, "Failed to BuildDeployment: %v\nPipelineBase: %v\n", err, pl)
 		return nil, err
 	}
 	ope, err := b.deployer.Insert(ctx, pl.ProjectID, deployment)
@@ -36,7 +36,7 @@ func (b *PipelineOpener) Process(ctx context.Context, pl *InstanceGroup) (*Cloud
 	log.Infof(ctx, "Built pipeline successfully %v\n", pl)
 
 	operation := &CloudAsyncOperation{
-		OwnerType:     "InstanceGroup",
+		OwnerType:     "PipelineBase",
 		OwnerID:       pl.Id,
 		ProjectId:     pl.ProjectID,
 		Zone:          pl.Zone,
@@ -49,7 +49,7 @@ func (b *PipelineOpener) Process(ctx context.Context, pl *InstanceGroup) (*Cloud
 	return operation, nil
 }
 
-func (b *PipelineOpener) BuildDeployment(pl *InstanceGroup) (*deploymentmanager.Deployment, error) {
+func (b *PipelineBaseOpener) BuildDeployment(pl *PipelineBase) (*deploymentmanager.Deployment, error) {
 	r := b.GenerateDeploymentResources(pl)
 	d, err := json.Marshal(r)
 	if err != nil {
@@ -74,7 +74,7 @@ type (
 	}
 )
 
-func (b *PipelineOpener) GenerateDeploymentResources(pl *InstanceGroup) *Resources {
+func (b *PipelineBaseOpener) GenerateDeploymentResources(pl *PipelineBase) *Resources {
 	t := []Resource{}
 	pubsubs := []Pubsub{
 		Pubsub{Name: "job", AckDeadline: 600},
