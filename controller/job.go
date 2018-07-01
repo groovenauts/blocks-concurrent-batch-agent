@@ -42,7 +42,7 @@ func (c *JobController) Activate(ctx *app.ActivateJobContext) error {
 				switch m.Status {
 				case model.Inactive: // Through
 				default:
-					return ctx.Conflict(fmt.Errorf("Can't resize because the Job %q is %s", m.Id, m.Status))
+					return ctx.Conflict(fmt.Errorf("Can't activate because the Job %q is %s", m.Id, m.Status))
 				}
 
 				m.Status = model.Publishing
@@ -137,9 +137,29 @@ func (c *JobController) PublishingTask(ctx *app.PublishingTaskJobContext) error 
 	// JobController_PublishingTask: start_implement
 
 	// Put your logic here
+	appCtx := appengine.NewContext(ctx.Request)
 
-	res := &app.Job{}
-	return ctx.OK(res)
+	store := &model.JobStore{}
+	return c.member(appCtx, store, ctx.ID, ctx.NotFound, func(m *model.Job) error {
+		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
+			switch m.Status {
+			case model.Publishing: // Through
+			default:
+				return ctx.Conflict(fmt.Errorf("Can't publish because the Job %q is %s", m.Id, m.Status))
+			}
+
+			err := m.Publish(appCtx)
+			if err != nil {
+				return err
+			}
+
+			if _, err := store.Update(appCtx, m); err != nil {
+				log.Errorf(ctx, "Failed to save successfully published message as a Job message: %v, topic: %q, job: %v\n", msg, topic, m)
+				return err
+			}
+		})
+	})
+
 	// JobController_PublishingTask: end_implement
 }
 
