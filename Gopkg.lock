@@ -172,7 +172,8 @@
     "deploymentmanager/v2",
     "gensupport",
     "googleapi",
-    "googleapi/internal/uritemplates"
+    "googleapi/internal/uritemplates",
+    "pubsub/v1"
   ]
   revision = "3639d6d93f377f39a1de765fa4ef37b3c7ca8bd9"
 
@@ -208,6 +209,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "51e4a90794dd72e883fd6b77252333c2a6c05fcce56ceac05f53193ef6d69a7c"
+  inputs-digest = "1d3dee6fd4ef3d9b1f5d1de68673a112f0144336f4295ecde25c976ac504fab7"
   solver-name = "gps-cdcl"
   solver-version = 1
