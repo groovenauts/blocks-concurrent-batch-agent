@@ -1,16 +1,10 @@
 package model
 
 import (
-	"fmt"
 	"time"
 
 	"golang.org/x/net/context"
-	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
-
-	"github.com/goadesign/goa/uuid"
-
-	"github.com/mjibson/goon"
 )
 
 func (job *Job) Publish(ctx context.Context) error {
@@ -32,4 +26,7 @@ func (job *Job) Publish(ctx context.Context) error {
 	m.Status = Published
 
 	return nil
+}
+
+func (job *Job) BuildMessage(ctx context.Context) error {
 }
