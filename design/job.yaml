@@ -17,6 +17,7 @@ types:
         type: string
         datastore_tag: noindex
   JobMessage:
+    conv: custom
     fields:
       AttributeEntries: "[]JobKeyValuePair"
       Data:
