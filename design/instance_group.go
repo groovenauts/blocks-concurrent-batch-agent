@@ -29,6 +29,23 @@ var InstanceGroupAccelerators = Type("InstanceGroupAccelerators", func() {
 	Required("count", "type")
 })
 
+var InstanceGroupHealthCheckConfig = Type("InstanceGroupHealthCheckConfig", func() {
+	Member("interval", Integer, "Interval in second", func() {
+		Default(300)
+		Example(60)
+	})
+	Member("minimum_running_size", Integer, "Minimum ", func() {
+		Default(1)
+		Example(2)
+		Description("Go health_check_error if running instance size is less than this")
+	})
+	Member("minimum_running_percentage", Integer, "Percentage", func() {
+		Default(50)
+		Example(20)
+		Description("Go health_check_error if running instance size rate is less than this")
+	})
+})
+
 var instanceGroupBodyRequired = []string{
 	"boot_disk", "machine_type",
 }
@@ -40,6 +57,7 @@ var InstanceGroupBody = Type("InstanceGroupBody", func() {
 	})
 	Member("gpu_accelerators", InstanceGroupAccelerators, "GPU Accelerators")
 	Member("preemptible", Boolean, "Use preemptible VMs")
+	Member("health_check", InstanceGroupHealthCheckConfig, "Health Check setting")
 
 	Member("instance_size", Integer, "Instance size", func() {
 		Example(3)
@@ -100,6 +118,7 @@ var InstanceGroup = MediaType("application/vnd.instance-group+json", func() {
 		"boot_disk",
 		"machine_type",
 		"gpu_accelerators",
+		"health_check",
 		"preemptible",
 		"instance_size",
 		"instance_size_requested",
@@ -110,8 +129,10 @@ var InstanceGroup = MediaType("application/vnd.instance-group+json", func() {
 	Attributes(func() {
 		UseTrait(IdTrait)
 		Attribute("status", String, "Instance Group Status", func() {
-			Enum("construction_starting", "construction_running", "construction_error", "constructed",
-				"resize_starting", "resize_running",
+			Enum("construction_starting", "construction_running", "construction_error",
+				"constructed",
+				"health_check_error",
+				"resize_starting", "resize_running", "resize_waiting",
 				"destruction_starting", "destruction_running", "destruction_error", "destructed")
 			Example("construction_starting")
 		})
@@ -122,6 +143,7 @@ var InstanceGroup = MediaType("application/vnd.instance-group+json", func() {
 		Attribute("instance_size", Integer, "Instance size", func() {
 			Example(3)
 		})
+		Attribute("health_check_task_id", String, "Health check task ID")
 		UseTrait(TimestampsAttrTrait)
 
 		requiredAttrs := append([]string{"id", "status"}, attrNames...)
@@ -195,9 +217,18 @@ var _ = Resource("InstanceGroup", func() {
 		Routing(DELETE("/:id"))
 		Params(func() {
 			Param("id")
-			Required("id")
 		})
 		Response(OK, InstanceGroup)
+		UseTrait(DefaultResponseTrait)
+	})
+	Action("start_health_check", func() {
+		Description("Start health check")
+		Routing(POST("/:id/start_health_check"))
+		Params(func() {
+			Param("id")
+		})
+		Response(OK, InstanceGroup)
+		Response(Created, InstanceGroup)
 		UseTrait(DefaultResponseTrait)
 	})
 })
@@ -218,4 +249,48 @@ var _ = Resource("InstanceGroupResizingTask", func() {
 	BasePath("/resizing_tasks")
 	UseTrait(DefineResourceTrait)
 	UseTrait(CloudAsyncOperationResourceTrait)
+})
+
+var InstanceGroupHealthCheckInstanceGroup = Type("InstanceGroupHealthCheckInstanceGroup", func() {
+	Member("id", String, "Instance Group ID")
+	Member("status", String, "Instance Group Status")
+	Required("id", "status")
+})
+
+var InstanceGroupHealthCheck = MediaType("application/vnd.instance-group-health-check+json", func() {
+	Description("instance-group-health-check")
+
+	Attributes(func() {
+		UseTrait(IdTrait)
+		Attribute("instance_group", InstanceGroupHealthCheckInstanceGroup)
+		Attribute("last_result", String, "Last result")
+		UseTrait(TimestampsAttrTrait)
+		Required("id", "instance_group")
+	})
+	View("default", func() {
+		Attribute("id")
+		Attribute("instance_group")
+		Attribute("last_result")
+		UseTrait(TimestampsViewTrait)
+	})
+})
+
+var _ = Resource("InstanceGroupHealthCheck", func() {
+	BasePath("/instance_group_health_checks")
+	DefaultMedia(InstanceGroupHealthCheck)
+	UseTrait(DefineResourceTrait)
+
+	Action("execute", func() {
+		Description("Execute health check")
+		Routing(PUT("/:id"))
+		Params(func() {
+			Param("id")
+		})
+		Response(OK, InstanceGroupHealthCheck)             // 200 終了
+		Response(Created, InstanceGroupHealthCheck)        // 201 エラーなし
+		Response(Accepted, InstanceGroupHealthCheck)       // 202 致命的なエラーあり
+		Response(NoContent, InstanceGroupHealthCheck)      // 204 タスクエラー
+		Response(PartialContent, InstanceGroupHealthCheck) // 206 致命的でないエラーあり
+		UseTrait(DefaultResponseTrait)
+	})
 })

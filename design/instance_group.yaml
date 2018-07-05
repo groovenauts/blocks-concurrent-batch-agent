@@ -20,6 +20,11 @@ types:
     fields:
       Count: int
       Type: {}
+  InstanceGroupHealthCheckConfig:
+    fields:
+      Interval: int
+      MinimumRunningSize: int
+      MinimumRunningPercentage: int
   InstanceGroupBody:
     fields: &InstanceGroupBodyFields
       BootDisk:
@@ -27,9 +32,9 @@ types:
         required: true
       MachineType: *string_required
       GpuAccelerators: InstanceGroupAccelerators
+      HealthCheck: InstanceGroupHealthCheckConfig
       Preemptible: bool
       InstanceSizeRequested: int
-      InstanceSize: int
       StartupScript: {}
       DeploymentName: {}
       TokenConsumption: int
@@ -47,6 +52,8 @@ types:
       ProjectID: *string_required
       Zone: *string_required
       <<: *InstanceGroupBodyFields
+      InstanceSize: int
+      HealthCheckTaskId: string
       Status:
         type: InstanceGroupStatus
         required: true
