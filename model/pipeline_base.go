@@ -46,11 +46,11 @@ type PipelineBase struct {
 	Name             string             `json:"name" validate:"required"`
 	ProjectID        string             `json:"project_id" validate:"required"`
 	Zone             string             `json:"zone" validate:"required"`
-	InstanceGroup    InstanceGroupBody  `json:"instance_group,omitempty"`
-	Container        PipelineContainer  `json:"container,omitempty"`
+	InstanceGroup    InstanceGroupBody  `json:"instance_group" validate:"required"`
+	Container        PipelineContainer  `json:"container" validate:"required"`
 	HibernationDelay int                `json:"hibernation_delay" validate:"required"`
 	Status           PipelineBaseStatus `json:"status" validate:"required"`
-	IntanceGroupID   string             `json:"intance_group_id" validate:"required"`
+	IntanceGroupID   string             `json:"intance_group_id,omitempty"`
 	CreatedAt        time.Time          `json:"created_at" validate:"required"`
 	UpdatedAt        time.Time          `json:"updated_at" validate:"required"`
 }

@@ -61,9 +61,6 @@ func InstanceGroupBodyPayloadToModel(src *app.InstanceGroupBody) model.InstanceG
 		StartupScript:         StringPointerToString(src.StartupScript),
 		DeploymentName:        StringPointerToString(src.DeploymentName),
 		TokenConsumption:      IntPointerToInt(src.TokenConsumption),
-		// ProjectID no payload field
-		// Zone no payload field
-		// Status no payload field
 	}
 }
 
@@ -81,9 +78,6 @@ func InstanceGroupBodyModelToMediaType(src *model.InstanceGroupBody) *app.Instan
 		StartupScript:         &src.StartupScript,
 		DeploymentName:        &src.DeploymentName,
 		TokenConsumption:      &src.TokenConsumption,
-		// ProjectID no media type field
-		// Zone no media type field
-		// Status no media type field
 	}
 }
 
@@ -125,9 +119,9 @@ func InstanceGroupModelToMediaType(src *model.InstanceGroup) *app.InstanceGroup 
 		InstanceSizeRequested: src.InstanceSizeRequested,
 		InstanceSize:          src.InstanceSize,
 		StartupScript:         src.StartupScript,
-		Status:                string(src.Status),
 		DeploymentName:        src.DeploymentName,
 		TokenConsumption:      src.TokenConsumption,
+		Status:                string(src.Status),
 		CreatedAt:             &src.CreatedAt,
 		UpdatedAt:             &src.UpdatedAt,
 		// ProjectID no media type field
