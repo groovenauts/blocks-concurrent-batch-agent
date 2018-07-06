@@ -7,7 +7,7 @@ import (
 
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/datastore"
-	//"google.golang.org/appengine/log"
+	"google.golang.org/appengine/log"
 
 	"github.com/goadesign/goa"
 	"github.com/mjibson/goon"
@@ -36,7 +36,6 @@ func (c *JobController) Activate(ctx *app.ActivateJobContext) error {
 
 		// TODO Check if orgKey is included in the ancestors of the key from :id
 		store := &model.JobStore{}
-		m, err := store.Get(appCtx, ctx.ID)
 		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
 			return c.member(appCtx, store, ctx.ID, ctx.NotFound, func(m *model.Job) error {
 				switch m.Status {
@@ -154,10 +153,12 @@ func (c *JobController) PublishingTask(ctx *app.PublishingTaskJobContext) error 
 			}
 
 			if _, err := store.Update(appCtx, m); err != nil {
-				log.Errorf(ctx, "Failed to save successfully published message as a Job message: %v, topic: %q, job: %v\n", msg, topic, m)
+				log.Errorf(ctx, "Failed to save successfully published job message %v\n", m)
 				return err
 			}
-		})
+
+			return nil
+		}, nil)
 	})
 
 	// JobController_PublishingTask: end_implement
