@@ -43,7 +43,6 @@ func TestGoonUsage(t *testing.T) {
 			},
 			MachineType: "f1-micro",
 			InstanceSizeRequested: 1,
-			InstanceSize: 1,
 			StartupScript: "",
 		},
 		Container: PipelineContainer{
