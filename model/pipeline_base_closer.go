@@ -31,19 +31,19 @@ func WithNewPipelineBaseCloser(ctx context.Context, f func(*PipelineBaseCloser) 
 
 func (b *PipelineBaseCloser) Process(ctx context.Context, pl *PipelineBase) (*CloudAsyncOperation, error) {
 	// https://cloud.google.com/deployment-manager/docs/reference/latest/deployments/delete#examples
-	ope, err := b.deployer.Delete(ctx, pl.InstanceGroup.ProjectID, pl.InstanceGroup.DeploymentName)
+	ope, err := b.deployer.Delete(ctx, pl.ProjectID, pl.InstanceGroup.DeploymentName)
 	if err != nil {
-		log.Errorf(ctx, "Failed to close deployment %v\nproject: %v deployment: %v\n", err, pl.InstanceGroup.ProjectID, pl.InstanceGroup.DeploymentName)
+		log.Errorf(ctx, "Failed to close deployment %v\nproject: %v deployment: %v\n", err, pl.ProjectID, pl.InstanceGroup.DeploymentName)
 		return nil, err
 	}
 
-	log.Infof(ctx, "Closing operation successfully started: %v deployment: %v\n", pl.InstanceGroup.ProjectID, pl.InstanceGroup.DeploymentName)
+	log.Infof(ctx, "Closing operation successfully started: %v deployment: %v\n", pl.ProjectID, pl.InstanceGroup.DeploymentName)
 
 	operation := &CloudAsyncOperation{
 		OwnerType:     "PipelineBase",
 		OwnerID:       pl.Id,
-		ProjectId:     pl.InstanceGroup.ProjectID,
-		Zone:          pl.InstanceGroup.Zone,
+		ProjectId:     pl.ProjectID,
+		Zone:          pl.Zone,
 		Service:       "deploymentmanager",
 		Name:          ope.Name,
 		OperationType: ope.OperationType,
