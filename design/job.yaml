@@ -16,10 +16,12 @@ types:
       Value:
         type: string
         datastore_tag: noindex
+  JobKeyValuePairs:
+    base: "[]JobKeyValuePair"
   JobMessage:
     conv: custom
     fields:
-      AttributeEntries: "[]JobKeyValuePair"
+      AttributeEntries: JobKeyValuePairs
       Data:
         type: string
         datastore_tag: noindex
