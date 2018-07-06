@@ -181,6 +181,7 @@
   name = "google.golang.org/appengine"
   packages = [
     ".",
+    "aetest",
     "datastore",
     "internal",
     "internal/app_identity",
@@ -192,10 +193,12 @@
     "internal/remote_api",
     "internal/taskqueue",
     "internal/urlfetch",
+    "internal/user",
     "log",
     "memcache",
     "taskqueue",
-    "urlfetch"
+    "urlfetch",
+    "user"
   ]
   revision = "150dc57a1b433e64154302bdc40b6bb8aefa313a"
   version = "v1.0.0"
@@ -209,6 +212,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "1d3dee6fd4ef3d9b1f5d1de68673a112f0144336f4295ecde25c976ac504fab7"
+  inputs-digest = "985b7a2224ec57da5cca552c68d2779ecbcb9984629fdb7c229911f0615c2906"
   solver-name = "gps-cdcl"
   solver-version = 1
