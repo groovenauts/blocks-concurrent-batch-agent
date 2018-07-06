@@ -70,11 +70,11 @@ func TestGoonUsage(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, jobKey)
 
-	log.Debugf(ctx, "orgKey: %v orgKey.StringID() => %v", orgKey, orgKey.StringID())
-	log.Debugf(ctx, "pbKey: %v pbKey.StringID() => %v", pbKey, pbKey.StringID())
-	log.Debugf(ctx, "jobKey: %v jobKey.StringID() => %v", jobKey, jobKey.StringID())
+	log.Debugf(ctx, "orgKey: %v orgKey.IntID() => %v", orgKey, orgKey.IntID())
+	log.Debugf(ctx, "pbKey: %v pbKey.IntID() => %v", pbKey, pbKey.IntID())
+	log.Debugf(ctx, "jobKey: %v jobKey.IntID() => %v", jobKey, jobKey.IntID())
 
-	pb2, err := pbStore.Get(ctx, job.Parent.StringID())
+	pb2, err := pbStore.Get(ctx, job.Parent.IntID())
 	assert.NoError(t, err)
 	assert.NotNil(t, pb2)
 	assert.Equal(t, pb.Id, pb2.Id)

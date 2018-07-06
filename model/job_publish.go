@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/base64"
+	"strconv"
 	"time"
 
 	"golang.org/x/net/context"
@@ -14,7 +15,7 @@ func (m *Job) Publish(ctx context.Context) error {
 	msg := m.BuildMessage()
 
 	pbStore := &PipelineBaseStore{}
-	pb, err := pbStore.Get(ctx, m.Parent.StringID())
+	pb, err := pbStore.Get(ctx, m.Parent.IntID())
 	if err != nil {
 		return err
 	}
@@ -41,7 +42,7 @@ func (m *Job) Publish(ctx context.Context) error {
 const JobIdKey = "concurrent_batch.job_id"
 
 func (m *Job) BuildMessage() *pubsub.PubsubMessage {
-	entry := JobKeyValuePair{Name: JobIdKey, Value: m.Id}
+	entry := JobKeyValuePair{Name: JobIdKey, Value: strconv.FormatInt(m.Id, 10)}
 	m.Message.AttributeEntries = append(m.Message.AttributeEntries, entry)
 	return &pubsub.PubsubMessage{
 		Attributes: m.Message.AttributeEntries.Map(),
