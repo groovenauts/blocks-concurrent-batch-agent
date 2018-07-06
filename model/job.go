@@ -31,9 +31,11 @@ type JobKeyValuePair struct {
 	Value string `json:"value,omitempty" datastore:"noindex"`
 }
 
+type JobKeyValuePairs []JobKeyValuePair
+
 type JobMessage struct {
-	AttributeEntries []JobKeyValuePair `json:"attribute_entries,omitempty"`
-	Data             string            `json:"data,omitempty" datastore:"noindex"`
+	AttributeEntries JobKeyValuePairs `json:"attribute_entries,omitempty"`
+	Data             string           `json:"data,omitempty" datastore:"noindex"`
 }
 
 type Job struct {
