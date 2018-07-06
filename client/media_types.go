@@ -128,6 +128,7 @@ type InstanceGroup struct {
 	DeploymentName string `form:"deployment_name" json:"deployment_name" yaml:"deployment_name" xml:"deployment_name"`
 	// GPU Accelerators
 	GpuAccelerators *InstanceGroupAccelerators `form:"gpu_accelerators" json:"gpu_accelerators" yaml:"gpu_accelerators" xml:"gpu_accelerators"`
+	HealthCheck     string                     `form:"health_check" json:"health_check" yaml:"health_check" xml:"health_check"`
 	// ID
 	ID string `form:"id" json:"id" yaml:"id" xml:"id"`
 	// Instance size
@@ -180,6 +181,9 @@ func (mt *InstanceGroup) Validate() (err error) {
 	if mt.GpuAccelerators == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "gpu_accelerators"))
 	}
+	if mt.HealthCheck == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "health_check"))
+	}
 
 	if mt.StartupScript == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "startup_script"))
@@ -198,8 +202,8 @@ func (mt *InstanceGroup) Validate() (err error) {
 			err = goa.MergeErrors(err, err2)
 		}
 	}
-	if !(mt.Status == "construction_starting" || mt.Status == "construction_running" || mt.Status == "construction_error" || mt.Status == "constructed" || mt.Status == "resize_starting" || mt.Status == "resize_running" || mt.Status == "destruction_starting" || mt.Status == "destruction_running" || mt.Status == "destruction_error" || mt.Status == "destructed") {
-		err = goa.MergeErrors(err, goa.InvalidEnumValueError(`response.status`, mt.Status, []interface{}{"construction_starting", "construction_running", "construction_error", "constructed", "resize_starting", "resize_running", "destruction_starting", "destruction_running", "destruction_error", "destructed"}))
+	if !(mt.Status == "construction_starting" || mt.Status == "construction_running" || mt.Status == "construction_error" || mt.Status == "constructed" || mt.Status == "health_check_error" || mt.Status == "resize_starting" || mt.Status == "resize_running" || mt.Status == "resize_waiting" || mt.Status == "destruction_starting" || mt.Status == "destruction_running" || mt.Status == "destruction_error" || mt.Status == "destructed") {
+		err = goa.MergeErrors(err, goa.InvalidEnumValueError(`response.status`, mt.Status, []interface{}{"construction_starting", "construction_running", "construction_error", "constructed", "health_check_error", "resize_starting", "resize_running", "resize_waiting", "destruction_starting", "destruction_running", "destruction_error", "destructed"}))
 	}
 	return
 }
@@ -207,6 +211,44 @@ func (mt *InstanceGroup) Validate() (err error) {
 // DecodeInstanceGroup decodes the InstanceGroup instance encoded in resp body.
 func (c *Client) DecodeInstanceGroup(resp *http.Response) (*InstanceGroup, error) {
 	var decoded InstanceGroup
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
+
+// instance-group-health-check (default view)
+//
+// Identifier: application/vnd.instance-group-health-check+json; view=default
+type InstanceGroupHealthCheck struct {
+	// Datetime created
+	CreatedAt *time.Time `form:"created_at,omitempty" json:"created_at,omitempty" yaml:"created_at,omitempty" xml:"created_at,omitempty"`
+	// ID
+	ID            string                                 `form:"id" json:"id" yaml:"id" xml:"id"`
+	InstanceGroup *InstanceGroupHealthCheckInstanceGroup `form:"instance_group" json:"instance_group" yaml:"instance_group" xml:"instance_group"`
+	// Last result
+	LastResult *string `form:"last_result,omitempty" json:"last_result,omitempty" yaml:"last_result,omitempty" xml:"last_result,omitempty"`
+	// Datetime updated
+	UpdatedAt *time.Time `form:"updated_at,omitempty" json:"updated_at,omitempty" yaml:"updated_at,omitempty" xml:"updated_at,omitempty"`
+}
+
+// Validate validates the InstanceGroupHealthCheck media type instance.
+func (mt *InstanceGroupHealthCheck) Validate() (err error) {
+	if mt.ID == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "id"))
+	}
+	if mt.InstanceGroup == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "instance_group"))
+	}
+	if mt.InstanceGroup != nil {
+		if err2 := mt.InstanceGroup.Validate(); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// DecodeInstanceGroupHealthCheck decodes the InstanceGroupHealthCheck instance encoded in resp body.
+func (c *Client) DecodeInstanceGroupHealthCheck(resp *http.Response) (*InstanceGroupHealthCheck, error) {
+	var decoded InstanceGroupHealthCheck
 	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
 	return &decoded, err
 }

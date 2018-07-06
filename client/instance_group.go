@@ -198,8 +198,8 @@ func (c *Client) NewResizeInstanceGroupRequest(ctx context.Context, path string,
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
 	values := u.Query()
-	tmp42 := strconv.Itoa(newSize)
-	values.Set("new_size", tmp42)
+	tmp44 := strconv.Itoa(newSize)
+	values.Set("new_size", tmp44)
 	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
@@ -237,6 +237,41 @@ func (c *Client) NewShowInstanceGroupRequest(ctx context.Context, path string) (
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
 	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
+	return req, nil
+}
+
+// StartHealthCheckInstanceGroupPath computes a request path to the start_health_check action of InstanceGroup.
+func StartHealthCheckInstanceGroupPath(id string) string {
+	param0 := id
+
+	return fmt.Sprintf("/instance_groups/%s/start_health_check", param0)
+}
+
+// Start health check
+func (c *Client) StartHealthCheckInstanceGroup(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.NewStartHealthCheckInstanceGroupRequest(ctx, path)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewStartHealthCheckInstanceGroupRequest create the request corresponding to the start_health_check action endpoint of the InstanceGroup resource.
+func (c *Client) NewStartHealthCheckInstanceGroupRequest(ctx context.Context, path string) (*http.Request, error) {
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "http"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		return nil, err
 	}

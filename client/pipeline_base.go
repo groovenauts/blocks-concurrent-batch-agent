@@ -164,8 +164,8 @@ func (c *Client) NewHibernationCheckingTaskPipelineBaseRequest(ctx context.Conte
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
 	values := u.Query()
-	tmp43 := since.Format(time.RFC3339)
-	values.Set("since", tmp43)
+	tmp45 := since.Format(time.RFC3339)
+	values.Set("since", tmp45)
 	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {

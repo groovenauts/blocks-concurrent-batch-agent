@@ -18,8 +18,10 @@ const (
 	ConstructionRunning  InstanceGroupStatus = "construction_running"
 	ConstructionError    InstanceGroupStatus = "construction_error"
 	Constructed          InstanceGroupStatus = "constructed"
+	HealthCheckError     InstanceGroupStatus = "health_check_error"
 	ResizeStarting       InstanceGroupStatus = "resize_starting"
 	ResizeRunning        InstanceGroupStatus = "resize_running"
+	ResizeWaiting        InstanceGroupStatus = "resize_waiting"
 	DestructionStarting  InstanceGroupStatus = "destruction_starting"
 	DestructionRunning   InstanceGroupStatus = "destruction_running"
 	DestructionError     InstanceGroupStatus = "destruction_error"
@@ -37,36 +39,44 @@ type InstanceGroupAccelerators struct {
 	Type  string `json:"type,omitempty"`
 }
 
+type InstanceGroupHealthCheckConfig struct {
+	Interval                 int `json:"interval,omitempty"`
+	MinimumRunningSize       int `json:"minimum_running_size,omitempty"`
+	MinimumRunningPercentage int `json:"minimum_running_percentage,omitempty"`
+}
+
 type InstanceGroupBody struct {
-	BootDisk              InstanceGroupVMDisk       `json:"boot_disk" validate:"required"`
-	MachineType           string                    `json:"machine_type" validate:"required"`
-	GpuAccelerators       InstanceGroupAccelerators `json:"gpu_accelerators,omitempty"`
-	Preemptible           bool                      `json:"preemptible,omitempty"`
-	InstanceSizeRequested int                       `json:"instance_size_requested,omitempty"`
-	InstanceSize          int                       `json:"instance_size,omitempty"`
-	StartupScript         string                    `json:"startup_script,omitempty"`
-	DeploymentName        string                    `json:"deployment_name,omitempty"`
-	TokenConsumption      int                       `json:"token_consumption,omitempty"`
+	BootDisk              InstanceGroupVMDisk            `json:"boot_disk" validate:"required"`
+	MachineType           string                         `json:"machine_type" validate:"required"`
+	GpuAccelerators       InstanceGroupAccelerators      `json:"gpu_accelerators,omitempty"`
+	HealthCheck           InstanceGroupHealthCheckConfig `json:"health_check,omitempty"`
+	Preemptible           bool                           `json:"preemptible,omitempty"`
+	InstanceSizeRequested int                            `json:"instance_size_requested,omitempty"`
+	StartupScript         string                         `json:"startup_script,omitempty"`
+	DeploymentName        string                         `json:"deployment_name,omitempty"`
+	TokenConsumption      int                            `json:"token_consumption,omitempty"`
 }
 
 type InstanceGroup struct {
-	Id                    int64                     `datastore:"-" goon:"id" json:"id"`
-	Parent                *datastore.Key            `datastore:"-" goon:"parent" json:"-"`
-	Name                  string                    `json:"name" validate:"required"`
-	ProjectID             string                    `json:"project_id" validate:"required"`
-	Zone                  string                    `json:"zone" validate:"required"`
-	BootDisk              InstanceGroupVMDisk       `json:"boot_disk" validate:"required"`
-	MachineType           string                    `json:"machine_type" validate:"required"`
-	GpuAccelerators       InstanceGroupAccelerators `json:"gpu_accelerators,omitempty"`
-	Preemptible           bool                      `json:"preemptible,omitempty"`
-	InstanceSizeRequested int                       `json:"instance_size_requested,omitempty"`
-	InstanceSize          int                       `json:"instance_size,omitempty"`
-	StartupScript         string                    `json:"startup_script,omitempty"`
-	DeploymentName        string                    `json:"deployment_name,omitempty"`
-	TokenConsumption      int                       `json:"token_consumption,omitempty"`
-	Status                InstanceGroupStatus       `json:"status" validate:"required"`
-	CreatedAt             time.Time                 `json:"created_at" validate:"required"`
-	UpdatedAt             time.Time                 `json:"updated_at" validate:"required"`
+	Id                    int64                          `datastore:"-" goon:"id" json:"id"`
+	Parent                *datastore.Key                 `datastore:"-" goon:"parent" json:"-"`
+	Name                  string                         `json:"name" validate:"required"`
+	ProjectID             string                         `json:"project_id" validate:"required"`
+	Zone                  string                         `json:"zone" validate:"required"`
+	BootDisk              InstanceGroupVMDisk            `json:"boot_disk" validate:"required"`
+	MachineType           string                         `json:"machine_type" validate:"required"`
+	GpuAccelerators       InstanceGroupAccelerators      `json:"gpu_accelerators,omitempty"`
+	HealthCheck           InstanceGroupHealthCheckConfig `json:"health_check,omitempty"`
+	Preemptible           bool                           `json:"preemptible,omitempty"`
+	InstanceSizeRequested int                            `json:"instance_size_requested,omitempty"`
+	StartupScript         string                         `json:"startup_script,omitempty"`
+	DeploymentName        string                         `json:"deployment_name,omitempty"`
+	TokenConsumption      int                            `json:"token_consumption,omitempty"`
+	InstanceSize          int                            `json:"instance_size,omitempty"`
+	HealthCheckTaskId     string                         `json:"health_check_task_id,omitempty"`
+	Status                InstanceGroupStatus            `json:"status" validate:"required"`
+	CreatedAt             time.Time                      `json:"created_at" validate:"required"`
+	UpdatedAt             time.Time                      `json:"updated_at" validate:"required"`
 }
 
 func (m *InstanceGroup) PrepareToCreate() error {

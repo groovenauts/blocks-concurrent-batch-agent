@@ -70,6 +70,8 @@ type instanceGroupBody struct {
 	DeploymentName *string `form:"deployment_name,omitempty" json:"deployment_name,omitempty" yaml:"deployment_name,omitempty" xml:"deployment_name,omitempty"`
 	// GPU Accelerators
 	GpuAccelerators *instanceGroupAccelerators `form:"gpu_accelerators,omitempty" json:"gpu_accelerators,omitempty" yaml:"gpu_accelerators,omitempty" xml:"gpu_accelerators,omitempty"`
+	// Health Check setting
+	HealthCheck *instanceGroupHealthCheckConfig `form:"health_check,omitempty" json:"health_check,omitempty" yaml:"health_check,omitempty" xml:"health_check,omitempty"`
 	// Instance size
 	InstanceSize *int `form:"instance_size,omitempty" json:"instance_size,omitempty" yaml:"instance_size,omitempty" xml:"instance_size,omitempty"`
 	// Instance size requested
@@ -82,6 +84,24 @@ type instanceGroupBody struct {
 	StartupScript *string `form:"startup_script,omitempty" json:"startup_script,omitempty" yaml:"startup_script,omitempty" xml:"startup_script,omitempty"`
 	// Token Consumption
 	TokenConsumption *int `form:"token_consumption,omitempty" json:"token_consumption,omitempty" yaml:"token_consumption,omitempty" xml:"token_consumption,omitempty"`
+}
+
+// Finalize sets the default values for instanceGroupBody type instance.
+func (ut *instanceGroupBody) Finalize() {
+	if ut.HealthCheck != nil {
+		var defaultInterval = 300
+		if ut.HealthCheck.Interval == nil {
+			ut.HealthCheck.Interval = &defaultInterval
+		}
+		var defaultMinimumRunningPercentage = 50
+		if ut.HealthCheck.MinimumRunningPercentage == nil {
+			ut.HealthCheck.MinimumRunningPercentage = &defaultMinimumRunningPercentage
+		}
+		var defaultMinimumRunningSize = 1
+		if ut.HealthCheck.MinimumRunningSize == nil {
+			ut.HealthCheck.MinimumRunningSize = &defaultMinimumRunningSize
+		}
+	}
 }
 
 // Validate validates the instanceGroupBody type instance.
@@ -117,6 +137,9 @@ func (ut *instanceGroupBody) Publicize() *InstanceGroupBody {
 	if ut.GpuAccelerators != nil {
 		pub.GpuAccelerators = ut.GpuAccelerators.Publicize()
 	}
+	if ut.HealthCheck != nil {
+		pub.HealthCheck = ut.HealthCheck.Publicize()
+	}
 	if ut.InstanceSize != nil {
 		pub.InstanceSize = ut.InstanceSize
 	}
@@ -146,6 +169,8 @@ type InstanceGroupBody struct {
 	DeploymentName *string `form:"deployment_name,omitempty" json:"deployment_name,omitempty" yaml:"deployment_name,omitempty" xml:"deployment_name,omitempty"`
 	// GPU Accelerators
 	GpuAccelerators *InstanceGroupAccelerators `form:"gpu_accelerators,omitempty" json:"gpu_accelerators,omitempty" yaml:"gpu_accelerators,omitempty" xml:"gpu_accelerators,omitempty"`
+	// Health Check setting
+	HealthCheck *InstanceGroupHealthCheckConfig `form:"health_check,omitempty" json:"health_check,omitempty" yaml:"health_check,omitempty" xml:"health_check,omitempty"`
 	// Instance size
 	InstanceSize *int `form:"instance_size,omitempty" json:"instance_size,omitempty" yaml:"instance_size,omitempty" xml:"instance_size,omitempty"`
 	// Instance size requested
@@ -177,6 +202,107 @@ func (ut *InstanceGroupBody) Validate() (err error) {
 		if err2 := ut.GpuAccelerators.Validate(); err2 != nil {
 			err = goa.MergeErrors(err, err2)
 		}
+	}
+	return
+}
+
+// instanceGroupHealthCheckConfig user type.
+type instanceGroupHealthCheckConfig struct {
+	// Interval in second
+	Interval *int `form:"interval,omitempty" json:"interval,omitempty" yaml:"interval,omitempty" xml:"interval,omitempty"`
+	// Go health_check_error if running instance size rate is less than this
+	MinimumRunningPercentage *int `form:"minimum_running_percentage,omitempty" json:"minimum_running_percentage,omitempty" yaml:"minimum_running_percentage,omitempty" xml:"minimum_running_percentage,omitempty"`
+	// Go health_check_error if running instance size is less than this
+	MinimumRunningSize *int `form:"minimum_running_size,omitempty" json:"minimum_running_size,omitempty" yaml:"minimum_running_size,omitempty" xml:"minimum_running_size,omitempty"`
+}
+
+// Finalize sets the default values for instanceGroupHealthCheckConfig type instance.
+func (ut *instanceGroupHealthCheckConfig) Finalize() {
+	var defaultInterval = 300
+	if ut.Interval == nil {
+		ut.Interval = &defaultInterval
+	}
+	var defaultMinimumRunningPercentage = 50
+	if ut.MinimumRunningPercentage == nil {
+		ut.MinimumRunningPercentage = &defaultMinimumRunningPercentage
+	}
+	var defaultMinimumRunningSize = 1
+	if ut.MinimumRunningSize == nil {
+		ut.MinimumRunningSize = &defaultMinimumRunningSize
+	}
+}
+
+// Publicize creates InstanceGroupHealthCheckConfig from instanceGroupHealthCheckConfig
+func (ut *instanceGroupHealthCheckConfig) Publicize() *InstanceGroupHealthCheckConfig {
+	var pub InstanceGroupHealthCheckConfig
+	if ut.Interval != nil {
+		pub.Interval = *ut.Interval
+	}
+	if ut.MinimumRunningPercentage != nil {
+		pub.MinimumRunningPercentage = *ut.MinimumRunningPercentage
+	}
+	if ut.MinimumRunningSize != nil {
+		pub.MinimumRunningSize = *ut.MinimumRunningSize
+	}
+	return &pub
+}
+
+// InstanceGroupHealthCheckConfig user type.
+type InstanceGroupHealthCheckConfig struct {
+	// Interval in second
+	Interval int `form:"interval" json:"interval" yaml:"interval" xml:"interval"`
+	// Go health_check_error if running instance size rate is less than this
+	MinimumRunningPercentage int `form:"minimum_running_percentage" json:"minimum_running_percentage" yaml:"minimum_running_percentage" xml:"minimum_running_percentage"`
+	// Go health_check_error if running instance size is less than this
+	MinimumRunningSize int `form:"minimum_running_size" json:"minimum_running_size" yaml:"minimum_running_size" xml:"minimum_running_size"`
+}
+
+// instanceGroupHealthCheckInstanceGroup user type.
+type instanceGroupHealthCheckInstanceGroup struct {
+	// Instance Group ID
+	ID *string `form:"id,omitempty" json:"id,omitempty" yaml:"id,omitempty" xml:"id,omitempty"`
+	// Instance Group Status
+	Status *string `form:"status,omitempty" json:"status,omitempty" yaml:"status,omitempty" xml:"status,omitempty"`
+}
+
+// Validate validates the instanceGroupHealthCheckInstanceGroup type instance.
+func (ut *instanceGroupHealthCheckInstanceGroup) Validate() (err error) {
+	if ut.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "id"))
+	}
+	if ut.Status == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "status"))
+	}
+	return
+}
+
+// Publicize creates InstanceGroupHealthCheckInstanceGroup from instanceGroupHealthCheckInstanceGroup
+func (ut *instanceGroupHealthCheckInstanceGroup) Publicize() *InstanceGroupHealthCheckInstanceGroup {
+	var pub InstanceGroupHealthCheckInstanceGroup
+	if ut.ID != nil {
+		pub.ID = *ut.ID
+	}
+	if ut.Status != nil {
+		pub.Status = *ut.Status
+	}
+	return &pub
+}
+
+// InstanceGroupHealthCheckInstanceGroup user type.
+type InstanceGroupHealthCheckInstanceGroup struct {
+	// Instance Group ID
+	ID string `form:"id" json:"id" yaml:"id" xml:"id"`
+	// Instance Group Status
+	Status string `form:"status" json:"status" yaml:"status" xml:"status"`
+}
+
+// Validate validates the InstanceGroupHealthCheckInstanceGroup type instance.
+func (ut *InstanceGroupHealthCheckInstanceGroup) Validate() (err error) {
+	if ut.ID == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "id"))
+	}
+	if ut.Status == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "status"))
 	}
 	return
 }
@@ -486,6 +612,22 @@ func (ut *pipelineBasePayload) Finalize() {
 			ut.Container.Size = &defaultSize
 		}
 	}
+	if ut.InstanceGroup != nil {
+		if ut.InstanceGroup.HealthCheck != nil {
+			var defaultInterval = 300
+			if ut.InstanceGroup.HealthCheck.Interval == nil {
+				ut.InstanceGroup.HealthCheck.Interval = &defaultInterval
+			}
+			var defaultMinimumRunningPercentage = 50
+			if ut.InstanceGroup.HealthCheck.MinimumRunningPercentage == nil {
+				ut.InstanceGroup.HealthCheck.MinimumRunningPercentage = &defaultMinimumRunningPercentage
+			}
+			var defaultMinimumRunningSize = 1
+			if ut.InstanceGroup.HealthCheck.MinimumRunningSize == nil {
+				ut.InstanceGroup.HealthCheck.MinimumRunningSize = &defaultMinimumRunningSize
+			}
+		}
+	}
 }
 
 // Validate validates the pipelineBasePayload type instance.
@@ -604,6 +746,22 @@ func (ut *pipelineBasePayloadBody) Finalize() {
 		var defaultSize = 1
 		if ut.Container.Size == nil {
 			ut.Container.Size = &defaultSize
+		}
+	}
+	if ut.InstanceGroup != nil {
+		if ut.InstanceGroup.HealthCheck != nil {
+			var defaultInterval = 300
+			if ut.InstanceGroup.HealthCheck.Interval == nil {
+				ut.InstanceGroup.HealthCheck.Interval = &defaultInterval
+			}
+			var defaultMinimumRunningPercentage = 50
+			if ut.InstanceGroup.HealthCheck.MinimumRunningPercentage == nil {
+				ut.InstanceGroup.HealthCheck.MinimumRunningPercentage = &defaultMinimumRunningPercentage
+			}
+			var defaultMinimumRunningSize = 1
+			if ut.InstanceGroup.HealthCheck.MinimumRunningSize == nil {
+				ut.InstanceGroup.HealthCheck.MinimumRunningSize = &defaultMinimumRunningSize
+			}
 		}
 	}
 }
@@ -770,6 +928,22 @@ func (ut *pipelinePayload) Finalize() {
 		var defaultSize = 1
 		if ut.Container.Size == nil {
 			ut.Container.Size = &defaultSize
+		}
+	}
+	if ut.InstanceGroup != nil {
+		if ut.InstanceGroup.HealthCheck != nil {
+			var defaultInterval = 300
+			if ut.InstanceGroup.HealthCheck.Interval == nil {
+				ut.InstanceGroup.HealthCheck.Interval = &defaultInterval
+			}
+			var defaultMinimumRunningPercentage = 50
+			if ut.InstanceGroup.HealthCheck.MinimumRunningPercentage == nil {
+				ut.InstanceGroup.HealthCheck.MinimumRunningPercentage = &defaultMinimumRunningPercentage
+			}
+			var defaultMinimumRunningSize = 1
+			if ut.InstanceGroup.HealthCheck.MinimumRunningSize == nil {
+				ut.InstanceGroup.HealthCheck.MinimumRunningSize = &defaultMinimumRunningSize
+			}
 		}
 	}
 }

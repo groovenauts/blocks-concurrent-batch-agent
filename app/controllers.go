@@ -41,6 +41,7 @@ type InstanceGroupController interface {
 	List(*ListInstanceGroupContext) error
 	Resize(*ResizeInstanceGroupContext) error
 	Show(*ShowInstanceGroupContext) error
+	StartHealthCheck(*StartHealthCheckInstanceGroupContext) error
 }
 
 // MountInstanceGroupController "mounts" a InstanceGroup resource controller on the given service.
@@ -51,6 +52,7 @@ func MountInstanceGroupController(service *goa.Service, ctrl InstanceGroupContro
 	service.Mux.Handle("OPTIONS", "/instance_groups/:id", ctrl.MuxHandler("preflight", handleInstanceGroupOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/instance_groups/:id/destruct", ctrl.MuxHandler("preflight", handleInstanceGroupOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/instance_groups/:id/resize", ctrl.MuxHandler("preflight", handleInstanceGroupOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/instance_groups/:id/start_health_check", ctrl.MuxHandler("preflight", handleInstanceGroupOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -159,6 +161,23 @@ func MountInstanceGroupController(service *goa.Service, ctrl InstanceGroupContro
 	h = handleInstanceGroupOrigin(h)
 	service.Mux.Handle("GET", "/instance_groups/:id", ctrl.MuxHandler("show", h, nil))
 	service.LogInfo("mount", "ctrl", "InstanceGroup", "action", "Show", "route", "GET /instance_groups/:id", "security", "api_key")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewStartHealthCheckInstanceGroupContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.StartHealthCheck(rctx)
+	}
+	h = handleSecurity("api_key", h)
+	h = handleInstanceGroupOrigin(h)
+	service.Mux.Handle("POST", "/instance_groups/:id/start_health_check", ctrl.MuxHandler("start_health_check", h, nil))
+	service.LogInfo("mount", "ctrl", "InstanceGroup", "action", "StartHealthCheck", "route", "POST /instance_groups/:id/start_health_check", "security", "api_key")
 }
 
 // handleInstanceGroupOrigin applies the CORS response headers corresponding to the origin.
@@ -326,6 +345,61 @@ func MountInstanceGroupDestructionTaskController(service *goa.Service, ctrl Inst
 
 // handleInstanceGroupDestructionTaskOrigin applies the CORS response headers corresponding to the origin.
 func handleInstanceGroupDestructionTaskOrigin(h goa.Handler) goa.Handler {
+
+	return func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		origin := req.Header.Get("Origin")
+		if origin == "" {
+			// Not a CORS request
+			return h(ctx, rw, req)
+		}
+		if cors.MatchOrigin(origin, "*") {
+			ctx = goa.WithLogContext(ctx, "origin", origin)
+			rw.Header().Set("Access-Control-Allow-Origin", origin)
+			rw.Header().Set("Access-Control-Max-Age", "600")
+			rw.Header().Set("Access-Control-Allow-Credentials", "true")
+			if acrm := req.Header.Get("Access-Control-Request-Method"); acrm != "" {
+				// We are handling a preflight request
+				rw.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			}
+			return h(ctx, rw, req)
+		}
+
+		return h(ctx, rw, req)
+	}
+}
+
+// InstanceGroupHealthCheckController is the controller interface for the InstanceGroupHealthCheck actions.
+type InstanceGroupHealthCheckController interface {
+	goa.Muxer
+	Execute(*ExecuteInstanceGroupHealthCheckContext) error
+}
+
+// MountInstanceGroupHealthCheckController "mounts" a InstanceGroupHealthCheck resource controller on the given service.
+func MountInstanceGroupHealthCheckController(service *goa.Service, ctrl InstanceGroupHealthCheckController) {
+	initService(service)
+	var h goa.Handler
+	service.Mux.Handle("OPTIONS", "/instance_group_health_checks/:id", ctrl.MuxHandler("preflight", handleInstanceGroupHealthCheckOrigin(cors.HandlePreflight()), nil))
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewExecuteInstanceGroupHealthCheckContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Execute(rctx)
+	}
+	h = handleSecurity("api_key", h)
+	h = handleInstanceGroupHealthCheckOrigin(h)
+	service.Mux.Handle("PUT", "/instance_group_health_checks/:id", ctrl.MuxHandler("execute", h, nil))
+	service.LogInfo("mount", "ctrl", "InstanceGroupHealthCheck", "action", "Execute", "route", "PUT /instance_group_health_checks/:id", "security", "api_key")
+}
+
+// handleInstanceGroupHealthCheckOrigin applies the CORS response headers corresponding to the origin.
+func handleInstanceGroupHealthCheckOrigin(h goa.Handler) goa.Handler {
 
 	return func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		origin := req.Header.Get("Origin")

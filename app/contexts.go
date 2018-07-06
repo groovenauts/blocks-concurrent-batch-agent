@@ -484,6 +484,87 @@ func (ctx *ShowInstanceGroupContext) InternalServerError(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
+// StartHealthCheckInstanceGroupContext provides the InstanceGroup start_health_check action context.
+type StartHealthCheckInstanceGroupContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID string
+}
+
+// NewStartHealthCheckInstanceGroupContext parses the incoming request URL and body, performs validations and creates the
+// context used by the InstanceGroup controller start_health_check action.
+func NewStartHealthCheckInstanceGroupContext(ctx context.Context, r *http.Request, service *goa.Service) (*StartHealthCheckInstanceGroupContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := StartHealthCheckInstanceGroupContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *StartHealthCheckInstanceGroupContext) OK(r *InstanceGroup) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// Created sends a HTTP response with status code 201.
+func (ctx *StartHealthCheckInstanceGroupContext) Created(r *InstanceGroup) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *StartHealthCheckInstanceGroupContext) BadRequest(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
+// Unauthorized sends a HTTP response with status code 401.
+func (ctx *StartHealthCheckInstanceGroupContext) Unauthorized(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *StartHealthCheckInstanceGroupContext) NotFound(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *StartHealthCheckInstanceGroupContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *StartHealthCheckInstanceGroupContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
 // StartInstanceGroupConstructionTaskContext provides the InstanceGroupConstructionTask start action context.
 type StartInstanceGroupConstructionTaskContext struct {
 	context.Context
@@ -902,6 +983,111 @@ func (ctx *WatchInstanceGroupDestructionTaskContext) Conflict(r error) error {
 
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *WatchInstanceGroupDestructionTaskContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// ExecuteInstanceGroupHealthCheckContext provides the InstanceGroupHealthCheck execute action context.
+type ExecuteInstanceGroupHealthCheckContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID string
+}
+
+// NewExecuteInstanceGroupHealthCheckContext parses the incoming request URL and body, performs validations and creates the
+// context used by the InstanceGroupHealthCheck controller execute action.
+func NewExecuteInstanceGroupHealthCheckContext(ctx context.Context, r *http.Request, service *goa.Service) (*ExecuteInstanceGroupHealthCheckContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := ExecuteInstanceGroupHealthCheckContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *ExecuteInstanceGroupHealthCheckContext) OK(r *InstanceGroupHealthCheck) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-health-check+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// Created sends a HTTP response with status code 201.
+func (ctx *ExecuteInstanceGroupHealthCheckContext) Created(r *InstanceGroupHealthCheck) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-health-check+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
+}
+
+// Accepted sends a HTTP response with status code 202.
+func (ctx *ExecuteInstanceGroupHealthCheckContext) Accepted(r *InstanceGroupHealthCheck) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-health-check+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 202, r)
+}
+
+// NoContent sends a HTTP response with status code 204.
+func (ctx *ExecuteInstanceGroupHealthCheckContext) NoContent(r *InstanceGroupHealthCheck) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-health-check+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 204, r)
+}
+
+// PartialContent sends a HTTP response with status code 206.
+func (ctx *ExecuteInstanceGroupHealthCheckContext) PartialContent(r *InstanceGroupHealthCheck) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-health-check+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 206, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *ExecuteInstanceGroupHealthCheckContext) BadRequest(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
+// Unauthorized sends a HTTP response with status code 401.
+func (ctx *ExecuteInstanceGroupHealthCheckContext) Unauthorized(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *ExecuteInstanceGroupHealthCheckContext) NotFound(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *ExecuteInstanceGroupHealthCheckContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *ExecuteInstanceGroupHealthCheckContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}

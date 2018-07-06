@@ -47,6 +47,28 @@ func InstanceGroupAcceleratorsModelToMediaType(src *model.InstanceGroupAccelerat
 	}
 }
 
+func InstanceGroupHealthCheckConfigPayloadToModel(src *app.InstanceGroupHealthCheckConfig) model.InstanceGroupHealthCheckConfig {
+	if src == nil {
+		return model.InstanceGroupHealthCheckConfig{}
+	}
+	return model.InstanceGroupHealthCheckConfig{
+		Interval:                 src.Interval,
+		MinimumRunningSize:       src.MinimumRunningSize,
+		MinimumRunningPercentage: src.MinimumRunningPercentage,
+	}
+}
+
+func InstanceGroupHealthCheckConfigModelToMediaType(src *model.InstanceGroupHealthCheckConfig) *app.InstanceGroupHealthCheckConfig {
+	if src == nil {
+		return nil
+	}
+	return &app.InstanceGroupHealthCheckConfig{
+		Interval:                 src.Interval,
+		MinimumRunningSize:       src.MinimumRunningSize,
+		MinimumRunningPercentage: src.MinimumRunningPercentage,
+	}
+}
+
 func InstanceGroupBodyPayloadToModel(src *app.InstanceGroupBody) model.InstanceGroupBody {
 	if src == nil {
 		return model.InstanceGroupBody{}
@@ -55,12 +77,13 @@ func InstanceGroupBodyPayloadToModel(src *app.InstanceGroupBody) model.InstanceG
 		BootDisk:              InstanceGroupVMDiskPayloadToModel(src.BootDisk),
 		MachineType:           src.MachineType,
 		GpuAccelerators:       InstanceGroupAcceleratorsPayloadToModel(src.GpuAccelerators),
+		HealthCheck:           InstanceGroupHealthCheckConfigPayloadToModel(src.HealthCheck),
 		Preemptible:           BoolPointerToBool(src.Preemptible),
 		InstanceSizeRequested: IntPointerToInt(src.InstanceSizeRequested),
-		InstanceSize:          IntPointerToInt(src.InstanceSize),
 		StartupScript:         StringPointerToString(src.StartupScript),
 		DeploymentName:        StringPointerToString(src.DeploymentName),
 		TokenConsumption:      IntPointerToInt(src.TokenConsumption),
+		// No model field for payload field "instance_size"
 	}
 }
 
@@ -72,12 +95,13 @@ func InstanceGroupBodyModelToMediaType(src *model.InstanceGroupBody) *app.Instan
 		BootDisk:              InstanceGroupVMDiskModelToMediaType(&src.BootDisk),
 		MachineType:           src.MachineType,
 		GpuAccelerators:       InstanceGroupAcceleratorsModelToMediaType(&src.GpuAccelerators),
+		HealthCheck:           InstanceGroupHealthCheckConfigModelToMediaType(&src.HealthCheck),
 		Preemptible:           &src.Preemptible,
 		InstanceSizeRequested: &src.InstanceSizeRequested,
-		InstanceSize:          &src.InstanceSize,
 		StartupScript:         &src.StartupScript,
 		DeploymentName:        &src.DeploymentName,
 		TokenConsumption:      &src.TokenConsumption,
+		// No field for media type field "instance_size"
 	}
 }
 
@@ -97,7 +121,9 @@ func InstanceGroupPayloadToModel(src *app.InstanceGroupPayload) model.InstanceGr
 		StartupScript:         StringPointerToString(src.StartupScript),
 		DeploymentName:        StringPointerToString(src.DeploymentName),
 		TokenConsumption:      IntPointerToInt(src.TokenConsumption),
+		// HealthCheck no payload field
 		// InstanceSize no payload field
+		// HealthCheckTaskId no payload field
 		// Status no payload field
 		// CreatedAt no payload field
 		// UpdatedAt no payload field
@@ -115,16 +141,18 @@ func InstanceGroupModelToMediaType(src *model.InstanceGroup) *app.InstanceGroup 
 		BootDisk:              InstanceGroupVMDiskModelToMediaType(&src.BootDisk),
 		MachineType:           src.MachineType,
 		GpuAccelerators:       InstanceGroupAcceleratorsModelToMediaType(&src.GpuAccelerators),
+		HealthCheck:           InstanceGroupHealthCheckConfigModelToMediaType(&src.HealthCheck),
 		Preemptible:           src.Preemptible,
 		InstanceSizeRequested: src.InstanceSizeRequested,
-		InstanceSize:          src.InstanceSize,
 		StartupScript:         src.StartupScript,
 		DeploymentName:        src.DeploymentName,
 		TokenConsumption:      src.TokenConsumption,
+		InstanceSize:          src.InstanceSize,
 		Status:                string(src.Status),
 		CreatedAt:             &src.CreatedAt,
 		UpdatedAt:             &src.UpdatedAt,
 		// ProjectID no media type field
+		// HealthCheckTaskId no media type field
 		// No field for media type field "id"
 	}
 }
