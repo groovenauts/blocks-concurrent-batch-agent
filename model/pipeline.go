@@ -78,6 +78,9 @@ func (s *PipelineStore) GetAll(ctx context.Context) ([]*Pipeline, error) {
 func (s *PipelineStore) Get(ctx context.Context, id string) (*Pipeline, error) {
 	g := goon.FromContext(ctx)
 	r := Pipeline{Id: id}
+	if s.ParentKey != nil {
+		r.Parent = s.ParentKey
+	}
 	err := g.Get(&r)
 	if err != nil {
 		log.Errorf(ctx, "Failed to Get Pipeline because of %v\n", err)
@@ -137,7 +140,7 @@ func (s *PipelineStore) ValidateParent(m *Pipeline) error {
 		return nil
 	}
 	if m.Parent == nil {
-		return fmt.Errorf("No Parent given to %v", m)
+		m.Parent = s.ParentKey
 	}
 	if !s.ParentKey.Equal(m.Parent) {
 		return fmt.Errorf("Invalid Parent for %v", m)

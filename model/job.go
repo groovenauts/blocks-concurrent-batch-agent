@@ -95,6 +95,9 @@ func (s *JobStore) GetAll(ctx context.Context) ([]*Job, error) {
 func (s *JobStore) Get(ctx context.Context, id string) (*Job, error) {
 	g := goon.FromContext(ctx)
 	r := Job{Id: id}
+	if s.ParentKey != nil {
+		r.Parent = s.ParentKey
+	}
 	err := g.Get(&r)
 	if err != nil {
 		log.Errorf(ctx, "Failed to Get Job because of %v\n", err)
@@ -154,7 +157,7 @@ func (s *JobStore) ValidateParent(m *Job) error {
 		return nil
 	}
 	if m.Parent == nil {
-		return fmt.Errorf("No Parent given to %v", m)
+		m.Parent = s.ParentKey
 	}
 	if !s.ParentKey.Equal(m.Parent) {
 		return fmt.Errorf("Invalid Parent for %v", m)

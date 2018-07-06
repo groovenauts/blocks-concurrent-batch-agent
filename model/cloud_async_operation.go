@@ -79,6 +79,9 @@ func (s *CloudAsyncOperationStore) GetAll(ctx context.Context) ([]*CloudAsyncOpe
 func (s *CloudAsyncOperationStore) Get(ctx context.Context, id string) (*CloudAsyncOperation, error) {
 	g := goon.FromContext(ctx)
 	r := CloudAsyncOperation{Id: id}
+	if s.ParentKey != nil {
+		r.Parent = s.ParentKey
+	}
 	err := g.Get(&r)
 	if err != nil {
 		log.Errorf(ctx, "Failed to Get CloudAsyncOperation because of %v\n", err)
@@ -138,7 +141,7 @@ func (s *CloudAsyncOperationStore) ValidateParent(m *CloudAsyncOperation) error 
 		return nil
 	}
 	if m.Parent == nil {
-		return fmt.Errorf("No Parent given to %v", m)
+		m.Parent = s.ParentKey
 	}
 	if !s.ParentKey.Equal(m.Parent) {
 		return fmt.Errorf("Invalid Parent for %v", m)
