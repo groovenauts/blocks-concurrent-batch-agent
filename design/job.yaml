@@ -5,6 +5,9 @@ anchors:
 - &time_required
   type: time.Time
   required: true
+- &int64_required
+  type: int64
+  required: true
 
 types:
   JobStatus:
@@ -30,7 +33,7 @@ types:
       # id: int64
       # id: string
       # id: UUID (type: string)
-      id: UUID
+      id: int64
       ancestor: PipelineBase
     payload: JobPayload
     media_type: Job
@@ -44,8 +47,8 @@ types:
       Message: JobMessage
       MessageID: string
       Output: string
-      PipelineId: string
-      PipelineBaseId: *string_required
+      PipelineId: int64
+      PipelineBaseId: *int64_required
       PublishedAt: time.Time
       StartedAt: time.Time
       FinishedAt: time.Time

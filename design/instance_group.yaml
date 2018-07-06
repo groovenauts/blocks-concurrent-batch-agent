@@ -38,7 +38,7 @@ types:
       # id: int64
       # id: string
       # id: UUID (type: string)
-      id: UUID
+      id: int64
       ancestor: Organization
     # payload: InstanceGroupPayload
     media_type: Instance-Group

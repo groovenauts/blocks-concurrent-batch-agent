@@ -5,6 +5,10 @@ anchors:
 - &time_required
   type: time.Time
   required: true
+- &int64_required
+  type: int64
+  required: true
+
 
 types:
   # See https://godoc.org/google.golang.org/api/deploymentmanager/v2#OperationErrorErrors
@@ -25,13 +29,13 @@ types:
       # id: int64
       # id: string
       # id: UUID (type: string)
-      id: UUID
+      id: int64
       ancestor: Organization
     payload: ""
     media_type: Cloud-Async-Operation
     fields:
       OwnerType: *string_required
-      OwnerID: *string_required
+      OwnerID: *int64_required
       Name: *string_required
       Service: *string_required
       OperationType: *string_required
