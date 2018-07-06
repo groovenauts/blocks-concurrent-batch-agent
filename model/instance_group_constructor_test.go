@@ -53,7 +53,7 @@ func TestGenerateContent(t *testing.T) {
 		}
 	}
 	assert.Equal(t, expected, result)
-	props0 := result.Resources[4].Properties
+	props0 := result.Resources[0].Properties
 	assert.IsType(t, map[string]interface{}(nil), props0["properties"])
 	props1 := props0["properties"].(map[string]interface{})
 	assert.IsType(t, map[string]interface{}(nil), props1["scheduling"])
@@ -63,7 +63,7 @@ func TestGenerateContent(t *testing.T) {
 	// preemptible
 	pl.Preemptible = true
 	result = b.GenerateDeploymentResources(&pl)
-	props0 = result.Resources[4].Properties
+	props0 = result.Resources[0].Properties
 	assert.IsType(t, map[string]interface{}(nil), props0["properties"])
 	props1 = props0["properties"].(map[string]interface{})
 	assert.IsType(t, map[string]interface{}(nil), props1["scheduling"])
@@ -153,7 +153,7 @@ func TestBuildDeploymentWithGPU(t *testing.T) {
 	assert.NoError(t, err)
 	actual := b.buildItProperties(pl)
 	assert.NoError(t, err)
-	assert.Equal(t, expected.Resources[4].Properties["properties"], actual)
+	assert.Equal(t, expected.Resources[0].Properties["properties"], actual)
 }
 
 func TestBuildBootDisk(t *testing.T) {
