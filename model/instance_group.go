@@ -8,8 +8,6 @@ import (
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 
-	"github.com/goadesign/goa/uuid"
-
 	"github.com/mjibson/goon"
 )
 
@@ -52,7 +50,7 @@ type InstanceGroupBody struct {
 }
 
 type InstanceGroup struct {
-	Id                    string                    `datastore:"-" goon:"id" json:"id"`
+	Id                    int64                     `datastore:"-" goon:"id" json:"id"`
 	Parent                *datastore.Key            `datastore:"-" goon:"parent" json:"-"`
 	Name                  string                    `json:"name" validate:"required"`
 	ProjectID             string                    `json:"project_id" validate:"required"`
@@ -106,7 +104,7 @@ func (s *InstanceGroupStore) GetAll(ctx context.Context) ([]*InstanceGroup, erro
 	return r, nil
 }
 
-func (s *InstanceGroupStore) Get(ctx context.Context, id string) (*InstanceGroup, error) {
+func (s *InstanceGroupStore) Get(ctx context.Context, id int64) (*InstanceGroup, error) {
 	g := goon.FromContext(ctx)
 	r := InstanceGroup{Id: id}
 	if s.ParentKey != nil {
@@ -151,9 +149,6 @@ func (s *InstanceGroupStore) ValidateAndPut(ctx context.Context, m *InstanceGrou
 
 func (s *InstanceGroupStore) Put(ctx context.Context, m *InstanceGroup) (*datastore.Key, error) {
 	g := goon.FromContext(ctx)
-	if m.Id == "" {
-		m.Id = uuid.NewV4().String()
-	}
 	if err := s.ValidateParent(m); err != nil {
 		log.Errorf(ctx, "Invalid parent key for InstanceGroup because of %v\n", err)
 		return nil, err

@@ -8,8 +8,6 @@ import (
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 
-	"github.com/goadesign/goa/uuid"
-
 	"github.com/mjibson/goon"
 )
 
@@ -25,10 +23,10 @@ type CloudAsyncOperationLog struct {
 }
 
 type CloudAsyncOperation struct {
-	Id            string                     `datastore:"-" goon:"id" json:"id"`
+	Id            int64                      `datastore:"-" goon:"id" json:"id"`
 	Parent        *datastore.Key             `datastore:"-" goon:"parent" json:"-"`
 	OwnerType     string                     `json:"owner_type" validate:"required"`
-	OwnerID       string                     `json:"owner_id" validate:"required"`
+	OwnerID       int64                      `json:"owner_id" validate:"required"`
 	Name          string                     `json:"name" validate:"required"`
 	Service       string                     `json:"service" validate:"required"`
 	OperationType string                     `json:"operation_type" validate:"required"`
@@ -76,7 +74,7 @@ func (s *CloudAsyncOperationStore) GetAll(ctx context.Context) ([]*CloudAsyncOpe
 	return r, nil
 }
 
-func (s *CloudAsyncOperationStore) Get(ctx context.Context, id string) (*CloudAsyncOperation, error) {
+func (s *CloudAsyncOperationStore) Get(ctx context.Context, id int64) (*CloudAsyncOperation, error) {
 	g := goon.FromContext(ctx)
 	r := CloudAsyncOperation{Id: id}
 	if s.ParentKey != nil {
@@ -121,9 +119,6 @@ func (s *CloudAsyncOperationStore) ValidateAndPut(ctx context.Context, m *CloudA
 
 func (s *CloudAsyncOperationStore) Put(ctx context.Context, m *CloudAsyncOperation) (*datastore.Key, error) {
 	g := goon.FromContext(ctx)
-	if m.Id == "" {
-		m.Id = uuid.NewV4().String()
-	}
 	if err := s.ValidateParent(m); err != nil {
 		log.Errorf(ctx, "Invalid parent key for CloudAsyncOperation because of %v\n", err)
 		return nil, err

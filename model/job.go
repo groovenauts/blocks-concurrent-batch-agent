@@ -8,8 +8,6 @@ import (
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 
-	"github.com/goadesign/goa/uuid"
-
 	"github.com/mjibson/goon"
 )
 
@@ -39,7 +37,7 @@ type JobMessage struct {
 }
 
 type Job struct {
-	Id             string         `datastore:"-" goon:"id" json:"id"`
+	Id             int64          `datastore:"-" goon:"id" json:"id"`
 	Parent         *datastore.Key `datastore:"-" goon:"parent" json:"-"`
 	IDByClient     string         `json:"id_by_client" validate:"required"`
 	Status         JobStatus      `json:"status" validate:"required"`
@@ -48,8 +46,8 @@ type Job struct {
 	Message        JobMessage     `json:"message,omitempty"`
 	MessageID      string         `json:"message_id,omitempty"`
 	Output         string         `json:"output,omitempty"`
-	PipelineId     string         `json:"pipeline_id,omitempty"`
-	PipelineBaseId string         `json:"pipeline_base_id" validate:"required"`
+	PipelineId     int64          `json:"pipeline_id,omitempty"`
+	PipelineBaseId int64          `json:"pipeline_base_id" validate:"required"`
 	PublishedAt    time.Time      `json:"published_at,omitempty"`
 	StartedAt      time.Time      `json:"started_at,omitempty"`
 	FinishedAt     time.Time      `json:"finished_at,omitempty"`
@@ -92,7 +90,7 @@ func (s *JobStore) GetAll(ctx context.Context) ([]*Job, error) {
 	return r, nil
 }
 
-func (s *JobStore) Get(ctx context.Context, id string) (*Job, error) {
+func (s *JobStore) Get(ctx context.Context, id int64) (*Job, error) {
 	g := goon.FromContext(ctx)
 	r := Job{Id: id}
 	if s.ParentKey != nil {
@@ -137,9 +135,6 @@ func (s *JobStore) ValidateAndPut(ctx context.Context, m *Job) (*datastore.Key, 
 
 func (s *JobStore) Put(ctx context.Context, m *Job) (*datastore.Key, error) {
 	g := goon.FromContext(ctx)
-	if m.Id == "" {
-		m.Id = uuid.NewV4().String()
-	}
 	if err := s.ValidateParent(m); err != nil {
 		log.Errorf(ctx, "Invalid parent key for Job because of %v\n", err)
 		return nil, err

@@ -8,8 +8,6 @@ import (
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 
-	"github.com/goadesign/goa/uuid"
-
 	"github.com/mjibson/goon"
 )
 
@@ -26,7 +24,7 @@ const (
 )
 
 type Pipeline struct {
-	Id               string            `datastore:"-" goon:"id" json:"id"`
+	Id               int64             `datastore:"-" goon:"id" json:"id"`
 	Parent           *datastore.Key    `datastore:"-" goon:"parent" json:"-"`
 	Name             string            `json:"name" validate:"required"`
 	ProjectID        string            `json:"project_id" validate:"required"`
@@ -75,7 +73,7 @@ func (s *PipelineStore) GetAll(ctx context.Context) ([]*Pipeline, error) {
 	return r, nil
 }
 
-func (s *PipelineStore) Get(ctx context.Context, id string) (*Pipeline, error) {
+func (s *PipelineStore) Get(ctx context.Context, id int64) (*Pipeline, error) {
 	g := goon.FromContext(ctx)
 	r := Pipeline{Id: id}
 	if s.ParentKey != nil {
@@ -120,9 +118,6 @@ func (s *PipelineStore) ValidateAndPut(ctx context.Context, m *Pipeline) (*datas
 
 func (s *PipelineStore) Put(ctx context.Context, m *Pipeline) (*datastore.Key, error) {
 	g := goon.FromContext(ctx)
-	if m.Id == "" {
-		m.Id = uuid.NewV4().String()
-	}
 	if err := s.ValidateParent(m); err != nil {
 		log.Errorf(ctx, "Invalid parent key for Pipeline because of %v\n", err)
 		return nil, err
