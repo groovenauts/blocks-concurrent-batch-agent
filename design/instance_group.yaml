@@ -22,8 +22,6 @@ types:
       Type: {}
   InstanceGroupBody:
     fields: &InstanceGroupBodyFields
-      ProjectID: *string_required
-      Zone: *string_required
       BootDisk:
         type: InstanceGroupVMDisk
         required: true
@@ -33,9 +31,6 @@ types:
       InstanceSizeRequested: int
       InstanceSize: int
       StartupScript: {}
-      Status:
-        type: InstanceGroupStatus
-        required: true
       DeploymentName: {}
       TokenConsumption: int
   InstanceGroup:
@@ -49,6 +44,11 @@ types:
     media_type: Instance-Group
     fields:
       Name: *string_required
+      ProjectID: *string_required
+      Zone: *string_required
       <<: *InstanceGroupBodyFields
+      Status:
+        type: InstanceGroupStatus
+        required: true
       CreatedAt: *time_required
       UpdatedAt: *time_required

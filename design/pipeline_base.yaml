@@ -32,14 +32,18 @@ types:
       Name: *string_required
       ProjectID: *string_required
       Zone: *string_required
-      InstanceGroup: InstanceGroupBody
-      Container: PipelineContainer
+      InstanceGroup:
+        type: InstanceGroupBody
+        required: true
+      Container:
+        type: PipelineContainer
+        required: true
       HibernationDelay:
         type: int
         required: true
       Status:
         type: PipelineBaseStatus
         required: true
-      IntanceGroupID: *string_required
+      IntanceGroupID: string
       CreatedAt: *time_required
       UpdatedAt: *time_required
