@@ -252,25 +252,17 @@ var _ = Resource("InstanceGroupResizingTask", func() {
 	UseTrait(CloudAsyncOperationResourceTrait)
 })
 
-var InstanceGroupHealthCheckInstanceGroup = Type("InstanceGroupHealthCheckInstanceGroup", func() {
-	Member("id", String, "Instance Group ID")
-	Member("status", String, "Instance Group Status")
-	Required("id", "status")
-})
-
 var InstanceGroupHealthCheck = MediaType("application/vnd.instance-group-health-check+json", func() {
 	Description("instance-group-health-check")
 
 	Attributes(func() {
 		UseTrait(IdTrait)
-		Attribute("instance_group", InstanceGroupHealthCheckInstanceGroup)
 		Attribute("last_result", String, "Last result")
 		UseTrait(TimestampsAttrTrait)
-		Required("id", "instance_group")
+		Required("id", "created_at", "updated_at")
 	})
 	View("default", func() {
 		Attribute("id")
-		Attribute("instance_group")
 		Attribute("last_result")
 		UseTrait(TimestampsViewTrait)
 	})

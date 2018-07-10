@@ -53,9 +53,18 @@ types:
       Zone: *string_required
       <<: *InstanceGroupBodyFields
       InstanceSize: int
-      HealthCheckTaskId: string
+      HealthCheckId: string
       Status:
         type: InstanceGroupStatus
         required: true
+      CreatedAt: *time_required
+      UpdatedAt: *time_required
+  InstanceGroupHealthCheck:
+    goon:
+      id: int64
+      ancestor: InstanceGroup
+    media_type: "Instance-Group-Health-Check"
+    fields:
+      LastResult: string
       CreatedAt: *time_required
       UpdatedAt: *time_required
