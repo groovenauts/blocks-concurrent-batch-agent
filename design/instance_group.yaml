@@ -40,10 +40,10 @@ types:
       TokenConsumption: int
   InstanceGroup:
     goon:
-      # id: int64
-      # id: string
-      # id: UUID (type: string)
-      id: int64
+      # id_type: int64
+      # id_type: string
+      # id_type: UUID (type: string)
+      id_type: int64
       ancestor: Organization
     # payload: InstanceGroupPayload
     media_type: Instance-Group
@@ -61,7 +61,7 @@ types:
       UpdatedAt: *time_required
   InstanceGroupHealthCheck:
     goon:
-      id: int64
+      id_type: int64
       ancestor: InstanceGroup
     media_type: "Instance-Group-Health-Check"
     fields:

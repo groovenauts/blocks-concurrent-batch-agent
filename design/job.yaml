@@ -30,10 +30,10 @@ types:
         datastore_tag: noindex
   Job:
     goon:
-      # id: int64
-      # id: string
-      # id: UUID (type: string)
-      id: int64
+      # id_type: int64
+      # id_type: string
+      # id_type: UUID (type: string)
+      id_type: int64
       ancestor: PipelineBase
     payload: JobPayload
     media_type: Job
