@@ -96,6 +96,7 @@ var InstanceGroupPayload = Type("InstanceGroupPayload", func() {
 		"boot_disk",
 		"machine_type",
 		"gpu_accelerators",
+		"health_check",
 		"preemptible",
 		"instance_size_requested",
 		"startup_script",
