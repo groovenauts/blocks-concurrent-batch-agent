@@ -116,12 +116,12 @@ func InstanceGroupPayloadToModel(src *app.InstanceGroupPayload) model.InstanceGr
 		BootDisk:              InstanceGroupVMDiskPayloadToModel(src.BootDisk),
 		MachineType:           src.MachineType,
 		GpuAccelerators:       InstanceGroupAcceleratorsPayloadToModel(src.GpuAccelerators),
+		HealthCheck:           InstanceGroupHealthCheckConfigPayloadToModel(src.HealthCheck),
 		Preemptible:           BoolPointerToBool(src.Preemptible),
 		InstanceSizeRequested: IntPointerToInt(src.InstanceSizeRequested),
 		StartupScript:         StringPointerToString(src.StartupScript),
 		DeploymentName:        StringPointerToString(src.DeploymentName),
 		TokenConsumption:      IntPointerToInt(src.TokenConsumption),
-		// HealthCheck no payload field
 		// InstanceSize no payload field
 		// HealthCheckTaskId no payload field
 		// Status no payload field

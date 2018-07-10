@@ -315,6 +315,8 @@ type instanceGroupPayload struct {
 	DeploymentName *string `form:"deployment_name,omitempty" json:"deployment_name,omitempty" yaml:"deployment_name,omitempty" xml:"deployment_name,omitempty"`
 	// GPU Accelerators
 	GpuAccelerators *instanceGroupAccelerators `form:"gpu_accelerators,omitempty" json:"gpu_accelerators,omitempty" yaml:"gpu_accelerators,omitempty" xml:"gpu_accelerators,omitempty"`
+	// Health Check setting
+	HealthCheck *instanceGroupHealthCheckConfig `form:"health_check,omitempty" json:"health_check,omitempty" yaml:"health_check,omitempty" xml:"health_check,omitempty"`
 	// Instance size requested
 	InstanceSizeRequested *int `form:"instance_size_requested,omitempty" json:"instance_size_requested,omitempty" yaml:"instance_size_requested,omitempty" xml:"instance_size_requested,omitempty"`
 	// GCE Machine Type
@@ -333,6 +335,24 @@ type instanceGroupPayload struct {
 	TokenConsumption *int `form:"token_consumption,omitempty" json:"token_consumption,omitempty" yaml:"token_consumption,omitempty" xml:"token_consumption,omitempty"`
 	// GCP zone
 	Zone *string `form:"zone,omitempty" json:"zone,omitempty" yaml:"zone,omitempty" xml:"zone,omitempty"`
+}
+
+// Finalize sets the default values for instanceGroupPayload type instance.
+func (ut *instanceGroupPayload) Finalize() {
+	if ut.HealthCheck != nil {
+		var defaultInterval = 300
+		if ut.HealthCheck.Interval == nil {
+			ut.HealthCheck.Interval = &defaultInterval
+		}
+		var defaultMinimumRunningPercentage = 50
+		if ut.HealthCheck.MinimumRunningPercentage == nil {
+			ut.HealthCheck.MinimumRunningPercentage = &defaultMinimumRunningPercentage
+		}
+		var defaultMinimumRunningSize = 1
+		if ut.HealthCheck.MinimumRunningSize == nil {
+			ut.HealthCheck.MinimumRunningSize = &defaultMinimumRunningSize
+		}
+	}
 }
 
 // Validate validates the instanceGroupPayload type instance.
@@ -377,6 +397,9 @@ func (ut *instanceGroupPayload) Publicize() *InstanceGroupPayload {
 	if ut.GpuAccelerators != nil {
 		pub.GpuAccelerators = ut.GpuAccelerators.Publicize()
 	}
+	if ut.HealthCheck != nil {
+		pub.HealthCheck = ut.HealthCheck.Publicize()
+	}
 	if ut.InstanceSizeRequested != nil {
 		pub.InstanceSizeRequested = ut.InstanceSizeRequested
 	}
@@ -415,6 +438,8 @@ type InstanceGroupPayload struct {
 	DeploymentName *string `form:"deployment_name,omitempty" json:"deployment_name,omitempty" yaml:"deployment_name,omitempty" xml:"deployment_name,omitempty"`
 	// GPU Accelerators
 	GpuAccelerators *InstanceGroupAccelerators `form:"gpu_accelerators,omitempty" json:"gpu_accelerators,omitempty" yaml:"gpu_accelerators,omitempty" xml:"gpu_accelerators,omitempty"`
+	// Health Check setting
+	HealthCheck *InstanceGroupHealthCheckConfig `form:"health_check,omitempty" json:"health_check,omitempty" yaml:"health_check,omitempty" xml:"health_check,omitempty"`
 	// Instance size requested
 	InstanceSizeRequested *int `form:"instance_size_requested,omitempty" json:"instance_size_requested,omitempty" yaml:"instance_size_requested,omitempty" xml:"instance_size_requested,omitempty"`
 	// GCE Machine Type

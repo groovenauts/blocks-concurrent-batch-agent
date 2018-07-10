@@ -397,18 +397,23 @@ Payload example:
       "disk_type": "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
       "source_image": "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable"
    },
-   "deployment_name": "Itaque corporis.",
+   "deployment_name": "Corporis voluptatem et sint hic est sit.",
    "gpu_accelerators": {
       "count": 2,
       "type": "nvidia-tesla-p100"
+   },
+   "health_check": {
+      "interval": 60,
+      "minimum_running_percentage": 20,
+      "minimum_running_size": 2
    },
    "instance_size_requested": 3,
    "machine_type": "f1-micro",
    "name": "pipeline1-123-ig-456",
    "pipeline_base_id": "bd2d5ee3-d8be-4024-85a7-334dee9c1c88",
-   "preemptible": true,
+   "preemptible": false,
    "project_id": "dummy-proj-999",
-   "startup_script": "Sint hic est sit qui non.",
+   "startup_script": "Architecto mollitia voluptatibus ducimus nisi nesciunt ab.",
    "token_consumption": 2,
    "zone": "us-central1-f"
 }`,
@@ -426,12 +431,12 @@ Payload example:
 Payload example:
 
 {
-   "id_by_client": "Mollitia voluptatibus.",
+   "id_by_client": "Modi et modi enim beatae.",
    "message": {
       "attributes": {
-         "Aut illo.": "Qui rerum."
+         "Numquam culpa non.": "Illo saepe qui rerum quaerat perspiciatis nulla."
       },
-      "data": "Perspiciatis nulla esse enim animi veritatis."
+      "data": "Enim animi veritatis nisi veritatis corporis."
    }
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
@@ -450,19 +455,19 @@ Payload example:
 {
    "container": {
       "command": "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
-      "name": "Autem dolor rem repellendus.",
+      "name": "Velit voluptatem quidem laudantium voluptatem.",
       "options": "--restart=on-failure:3",
       "size": 2,
       "stackdriver_agent": false
    },
-   "hibernation_delay": 7905869257183502390,
+   "hibernation_delay": 2635589131871293006,
    "instance_group": {
       "boot_disk": {
          "disk_size_gb": 50,
          "disk_type": "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
          "source_image": "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable"
       },
-      "deployment_name": "Magni ea.",
+      "deployment_name": "Molestiae et voluptatem quaerat unde.",
       "gpu_accelerators": {
          "count": 2,
          "type": "nvidia-tesla-p100"
@@ -476,7 +481,7 @@ Payload example:
       "instance_size_requested": 3,
       "machine_type": "f1-micro",
       "preemptible": false,
-      "startup_script": "Molestiae et voluptatem quaerat unde.",
+      "startup_script": "Nihil cupiditate voluptatum.",
       "token_consumption": 2
    },
    "name": "pipeline1",
@@ -499,19 +504,19 @@ Payload example:
 {
    "container": {
       "command": "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
-      "name": "Autem dolor rem repellendus.",
+      "name": "Velit voluptatem quidem laudantium voluptatem.",
       "options": "--restart=on-failure:3",
       "size": 2,
       "stackdriver_agent": false
    },
-   "hibernation_delay": 1624425974747996522,
+   "hibernation_delay": 6150860458417472263,
    "instance_group": {
       "boot_disk": {
          "disk_size_gb": 50,
          "disk_type": "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
          "source_image": "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable"
       },
-      "deployment_name": "Magni ea.",
+      "deployment_name": "Molestiae et voluptatem quaerat unde.",
       "gpu_accelerators": {
          "count": 2,
          "type": "nvidia-tesla-p100"
@@ -525,7 +530,7 @@ Payload example:
       "instance_size_requested": 3,
       "machine_type": "f1-micro",
       "preemptible": false,
-      "startup_script": "Molestiae et voluptatem quaerat unde.",
+      "startup_script": "Nihil cupiditate voluptatum.",
       "token_consumption": 2
    },
    "name": "pipeline1-123",

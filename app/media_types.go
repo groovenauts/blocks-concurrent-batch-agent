@@ -106,7 +106,8 @@ type InstanceGroup struct {
 	DeploymentName string `form:"deployment_name" json:"deployment_name" yaml:"deployment_name" xml:"deployment_name"`
 	// GPU Accelerators
 	GpuAccelerators *InstanceGroupAccelerators `form:"gpu_accelerators" json:"gpu_accelerators" yaml:"gpu_accelerators" xml:"gpu_accelerators"`
-	HealthCheck     string                     `form:"health_check" json:"health_check" yaml:"health_check" xml:"health_check"`
+	// Health Check setting
+	HealthCheck *InstanceGroupHealthCheckConfig `form:"health_check" json:"health_check" yaml:"health_check" xml:"health_check"`
 	// ID
 	ID string `form:"id" json:"id" yaml:"id" xml:"id"`
 	// Instance size
@@ -159,7 +160,7 @@ func (mt *InstanceGroup) Validate() (err error) {
 	if mt.GpuAccelerators == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "gpu_accelerators"))
 	}
-	if mt.HealthCheck == "" {
+	if mt.HealthCheck == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "health_check"))
 	}
 
