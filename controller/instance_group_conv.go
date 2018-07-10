@@ -123,7 +123,7 @@ func InstanceGroupPayloadToModel(src *app.InstanceGroupPayload) model.InstanceGr
 		DeploymentName:        StringPointerToString(src.DeploymentName),
 		TokenConsumption:      IntPointerToInt(src.TokenConsumption),
 		// InstanceSize no payload field
-		// HealthCheckTaskId no payload field
+		// HealthCheckId no payload field
 		// Status no payload field
 		// CreatedAt no payload field
 		// UpdatedAt no payload field
@@ -152,7 +152,19 @@ func InstanceGroupModelToMediaType(src *model.InstanceGroup) *app.InstanceGroup 
 		CreatedAt:             &src.CreatedAt,
 		UpdatedAt:             &src.UpdatedAt,
 		// ProjectID no media type field
-		// HealthCheckTaskId no media type field
+		// HealthCheckId no media type field
+		// No field for media type field "id"
+	}
+}
+
+func InstanceGroupHealthCheckModelToMediaType(src *model.InstanceGroupHealthCheck) *app.InstanceGroupHealthCheck {
+	if src == nil {
+		return nil
+	}
+	return &app.InstanceGroupHealthCheck{
+		LastResult: &src.LastResult,
+		CreatedAt:  src.CreatedAt,
+		UpdatedAt:  src.UpdatedAt,
 		// No field for media type field "id"
 	}
 }

@@ -73,10 +73,18 @@ type InstanceGroup struct {
 	DeploymentName        string                         `json:"deployment_name,omitempty"`
 	TokenConsumption      int                            `json:"token_consumption,omitempty"`
 	InstanceSize          int                            `json:"instance_size,omitempty"`
-	HealthCheckTaskId     string                         `json:"health_check_task_id,omitempty"`
+	HealthCheckId         string                         `json:"health_check_id,omitempty"`
 	Status                InstanceGroupStatus            `json:"status" validate:"required"`
 	CreatedAt             time.Time                      `json:"created_at" validate:"required"`
 	UpdatedAt             time.Time                      `json:"updated_at" validate:"required"`
+}
+
+type InstanceGroupHealthCheck struct {
+	Id         int64          `datastore:"-" goon:"id" json:"id"`
+	Parent     *datastore.Key `datastore:"-" goon:"parent" json:"-"`
+	LastResult string         `json:"last_result,omitempty"`
+	CreatedAt  time.Time      `json:"created_at" validate:"required"`
+	UpdatedAt  time.Time      `json:"updated_at" validate:"required"`
 }
 
 func (m *InstanceGroup) PrepareToCreate() error {
@@ -90,6 +98,21 @@ func (m *InstanceGroup) PrepareToCreate() error {
 }
 
 func (m *InstanceGroup) PrepareToUpdate() error {
+	m.UpdatedAt = time.Now()
+	return nil
+}
+
+func (m *InstanceGroupHealthCheck) PrepareToCreate() error {
+	if m.CreatedAt.IsZero() {
+		m.CreatedAt = time.Now()
+	}
+	if m.UpdatedAt.IsZero() {
+		m.UpdatedAt = time.Now()
+	}
+	return nil
+}
+
+func (m *InstanceGroupHealthCheck) PrepareToUpdate() error {
 	m.UpdatedAt = time.Now()
 	return nil
 }
@@ -185,6 +208,111 @@ func (s *InstanceGroupStore) ValidateParent(m *InstanceGroup) error {
 }
 
 func (s *InstanceGroupStore) Delete(ctx context.Context, m *InstanceGroup) error {
+	g := goon.FromContext(ctx)
+	key, err := g.KeyError(m)
+	if err != nil {
+		log.Errorf(ctx, "Failed to Get %v because of %v\n", m, err)
+		return err
+	}
+	err = g.Delete(key)
+	if err != nil {
+		log.Errorf(ctx, "Failed to Delete %v because of %v\n", m, err)
+		return err
+	}
+	return nil
+}
+
+type InstanceGroupHealthCheckStore struct {
+	ParentKey *datastore.Key
+}
+
+func (s *InstanceGroupHealthCheckStore) GetAll(ctx context.Context) ([]*InstanceGroupHealthCheck, error) {
+	g := goon.FromContext(ctx)
+	r := []*InstanceGroupHealthCheck{}
+	k := g.Kind(new(InstanceGroupHealthCheck))
+	log.Infof(ctx, "Kind is %v\n", k)
+	q := datastore.NewQuery(k)
+	q = q.Ancestor(s.ParentKey)
+	log.Infof(ctx, "q is %v\n", q)
+	_, err := g.GetAll(q.EventualConsistency(), &r)
+	if err != nil {
+		log.Errorf(ctx, "Failed to GetAll InstanceGroupHealthCheck because of %v\n", err)
+		return nil, err
+	}
+	return r, nil
+}
+
+func (s *InstanceGroupHealthCheckStore) Get(ctx context.Context, id int64) (*InstanceGroupHealthCheck, error) {
+	g := goon.FromContext(ctx)
+	r := InstanceGroupHealthCheck{Id: id}
+	if s.ParentKey != nil {
+		r.Parent = s.ParentKey
+	}
+	err := g.Get(&r)
+	if err != nil {
+		log.Errorf(ctx, "Failed to Get InstanceGroupHealthCheck because of %v\n", err)
+		return nil, err
+	}
+	if err := s.ValidateParent(&r); err != nil {
+		log.Errorf(ctx, "Invalid parent key for InstanceGroupHealthCheck because of %v\n", err)
+		return nil, err
+	}
+
+	return &r, nil
+}
+
+func (s *InstanceGroupHealthCheckStore) Create(ctx context.Context, m *InstanceGroupHealthCheck) (*datastore.Key, error) {
+	err := m.PrepareToCreate()
+	if err != nil {
+		return nil, err
+	}
+	return s.ValidateAndPut(ctx, m)
+}
+
+func (s *InstanceGroupHealthCheckStore) Update(ctx context.Context, m *InstanceGroupHealthCheck) (*datastore.Key, error) {
+	err := m.PrepareToUpdate()
+	if err != nil {
+		return nil, err
+	}
+	return s.ValidateAndPut(ctx, m)
+}
+
+func (s *InstanceGroupHealthCheckStore) ValidateAndPut(ctx context.Context, m *InstanceGroupHealthCheck) (*datastore.Key, error) {
+	err := m.Validate()
+	if err != nil {
+		return nil, err
+	}
+	return s.Put(ctx, m)
+}
+
+func (s *InstanceGroupHealthCheckStore) Put(ctx context.Context, m *InstanceGroupHealthCheck) (*datastore.Key, error) {
+	g := goon.FromContext(ctx)
+	if err := s.ValidateParent(m); err != nil {
+		log.Errorf(ctx, "Invalid parent key for InstanceGroupHealthCheck because of %v\n", err)
+		return nil, err
+	}
+	key, err := g.Put(m)
+	if err != nil {
+		log.Errorf(ctx, "Failed to Put %v because of %v\n", m, err)
+		return nil, err
+	}
+	return key, nil
+}
+
+func (s *InstanceGroupHealthCheckStore) ValidateParent(m *InstanceGroupHealthCheck) error {
+	if s.ParentKey == nil {
+		return nil
+	}
+	if m.Parent == nil {
+		m.Parent = s.ParentKey
+	}
+	if !s.ParentKey.Equal(m.Parent) {
+		return fmt.Errorf("Invalid Parent for %v", m)
+	}
+	return nil
+}
+
+func (s *InstanceGroupHealthCheckStore) Delete(ctx context.Context, m *InstanceGroupHealthCheck) error {
 	g := goon.FromContext(ctx)
 	key, err := g.KeyError(m)
 	if err != nil {

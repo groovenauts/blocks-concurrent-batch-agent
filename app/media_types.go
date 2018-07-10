@@ -192,14 +192,13 @@ func (mt *InstanceGroup) Validate() (err error) {
 // Identifier: application/vnd.instance-group-health-check+json; view=default
 type InstanceGroupHealthCheck struct {
 	// Datetime created
-	CreatedAt *time.Time `form:"created_at,omitempty" json:"created_at,omitempty" yaml:"created_at,omitempty" xml:"created_at,omitempty"`
+	CreatedAt time.Time `form:"created_at" json:"created_at" yaml:"created_at" xml:"created_at"`
 	// ID
-	ID            string                                 `form:"id" json:"id" yaml:"id" xml:"id"`
-	InstanceGroup *InstanceGroupHealthCheckInstanceGroup `form:"instance_group" json:"instance_group" yaml:"instance_group" xml:"instance_group"`
+	ID string `form:"id" json:"id" yaml:"id" xml:"id"`
 	// Last result
 	LastResult *string `form:"last_result,omitempty" json:"last_result,omitempty" yaml:"last_result,omitempty" xml:"last_result,omitempty"`
 	// Datetime updated
-	UpdatedAt *time.Time `form:"updated_at,omitempty" json:"updated_at,omitempty" yaml:"updated_at,omitempty" xml:"updated_at,omitempty"`
+	UpdatedAt time.Time `form:"updated_at" json:"updated_at" yaml:"updated_at" xml:"updated_at"`
 }
 
 // Validate validates the InstanceGroupHealthCheck media type instance.
@@ -207,14 +206,7 @@ func (mt *InstanceGroupHealthCheck) Validate() (err error) {
 	if mt.ID == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "id"))
 	}
-	if mt.InstanceGroup == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "instance_group"))
-	}
-	if mt.InstanceGroup != nil {
-		if err2 := mt.InstanceGroup.Validate(); err2 != nil {
-			err = goa.MergeErrors(err, err2)
-		}
-	}
+
 	return
 }
 

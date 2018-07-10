@@ -397,7 +397,7 @@ Payload example:
       "disk_type": "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
       "source_image": "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable"
    },
-   "deployment_name": "Corporis voluptatem et sint hic est sit.",
+   "deployment_name": "Quae commodi beatae.",
    "gpu_accelerators": {
       "count": 2,
       "type": "nvidia-tesla-p100"
@@ -411,9 +411,9 @@ Payload example:
    "machine_type": "f1-micro",
    "name": "pipeline1-123-ig-456",
    "pipeline_base_id": "bd2d5ee3-d8be-4024-85a7-334dee9c1c88",
-   "preemptible": false,
+   "preemptible": true,
    "project_id": "dummy-proj-999",
-   "startup_script": "Architecto mollitia voluptatibus ducimus nisi nesciunt ab.",
+   "startup_script": "Ea ducimus aspernatur perspiciatis.",
    "token_consumption": 2,
    "zone": "us-central1-f"
 }`,
@@ -431,12 +431,12 @@ Payload example:
 Payload example:
 
 {
-   "id_by_client": "Modi et modi enim beatae.",
+   "id_by_client": "Est accusamus a perferendis.",
    "message": {
       "attributes": {
-         "Numquam culpa non.": "Illo saepe qui rerum quaerat perspiciatis nulla."
+         "Eum enim eum aliquam eaque.": "Consequuntur dignissimos."
       },
-      "data": "Enim animi veritatis nisi veritatis corporis."
+      "data": "Delectus cum veritatis."
    }
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
@@ -455,19 +455,19 @@ Payload example:
 {
    "container": {
       "command": "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
-      "name": "Velit voluptatem quidem laudantium voluptatem.",
+      "name": "Quis sit a magnam mollitia laboriosam.",
       "options": "--restart=on-failure:3",
       "size": 2,
-      "stackdriver_agent": false
+      "stackdriver_agent": true
    },
-   "hibernation_delay": 2635589131871293006,
+   "hibernation_delay": 2361093690673464986,
    "instance_group": {
       "boot_disk": {
          "disk_size_gb": 50,
          "disk_type": "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
          "source_image": "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable"
       },
-      "deployment_name": "Molestiae et voluptatem quaerat unde.",
+      "deployment_name": "Autem dolor rem repellendus.",
       "gpu_accelerators": {
          "count": 2,
          "type": "nvidia-tesla-p100"
@@ -481,7 +481,7 @@ Payload example:
       "instance_size_requested": 3,
       "machine_type": "f1-micro",
       "preemptible": false,
-      "startup_script": "Nihil cupiditate voluptatum.",
+      "startup_script": "Velit voluptatem quidem laudantium voluptatem.",
       "token_consumption": 2
    },
    "name": "pipeline1",
@@ -504,19 +504,19 @@ Payload example:
 {
    "container": {
       "command": "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
-      "name": "Velit voluptatem quidem laudantium voluptatem.",
+      "name": "Quis sit a magnam mollitia laboriosam.",
       "options": "--restart=on-failure:3",
       "size": 2,
-      "stackdriver_agent": false
+      "stackdriver_agent": true
    },
-   "hibernation_delay": 6150860458417472263,
+   "hibernation_delay": 6355281312410403137,
    "instance_group": {
       "boot_disk": {
          "disk_size_gb": 50,
          "disk_type": "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
          "source_image": "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable"
       },
-      "deployment_name": "Molestiae et voluptatem quaerat unde.",
+      "deployment_name": "Autem dolor rem repellendus.",
       "gpu_accelerators": {
          "count": 2,
          "type": "nvidia-tesla-p100"
@@ -530,7 +530,7 @@ Payload example:
       "instance_size_requested": 3,
       "machine_type": "f1-micro",
       "preemptible": false,
-      "startup_script": "Nihil cupiditate voluptatum.",
+      "startup_script": "Velit voluptatem quidem laudantium voluptatem.",
       "token_consumption": 2
    },
    "name": "pipeline1-123",

@@ -257,56 +257,6 @@ type InstanceGroupHealthCheckConfig struct {
 	MinimumRunningSize int `form:"minimum_running_size" json:"minimum_running_size" yaml:"minimum_running_size" xml:"minimum_running_size"`
 }
 
-// instanceGroupHealthCheckInstanceGroup user type.
-type instanceGroupHealthCheckInstanceGroup struct {
-	// Instance Group ID
-	ID *string `form:"id,omitempty" json:"id,omitempty" yaml:"id,omitempty" xml:"id,omitempty"`
-	// Instance Group Status
-	Status *string `form:"status,omitempty" json:"status,omitempty" yaml:"status,omitempty" xml:"status,omitempty"`
-}
-
-// Validate validates the instanceGroupHealthCheckInstanceGroup type instance.
-func (ut *instanceGroupHealthCheckInstanceGroup) Validate() (err error) {
-	if ut.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "id"))
-	}
-	if ut.Status == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "status"))
-	}
-	return
-}
-
-// Publicize creates InstanceGroupHealthCheckInstanceGroup from instanceGroupHealthCheckInstanceGroup
-func (ut *instanceGroupHealthCheckInstanceGroup) Publicize() *InstanceGroupHealthCheckInstanceGroup {
-	var pub InstanceGroupHealthCheckInstanceGroup
-	if ut.ID != nil {
-		pub.ID = *ut.ID
-	}
-	if ut.Status != nil {
-		pub.Status = *ut.Status
-	}
-	return &pub
-}
-
-// InstanceGroupHealthCheckInstanceGroup user type.
-type InstanceGroupHealthCheckInstanceGroup struct {
-	// Instance Group ID
-	ID string `form:"id" json:"id" yaml:"id" xml:"id"`
-	// Instance Group Status
-	Status string `form:"status" json:"status" yaml:"status" xml:"status"`
-}
-
-// Validate validates the InstanceGroupHealthCheckInstanceGroup type instance.
-func (ut *InstanceGroupHealthCheckInstanceGroup) Validate() (err error) {
-	if ut.ID == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "id"))
-	}
-	if ut.Status == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "status"))
-	}
-	return
-}
-
 // instanceGroupPayload user type.
 type instanceGroupPayload struct {
 	// Boot disk
