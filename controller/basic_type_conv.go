@@ -26,6 +26,15 @@ func IntPointerToIntWith(v *int, d int) int {
 	return *v
 }
 
+func IntToInt64(v int) int64 {
+	return int64(v)
+}
+
+func IntToInt64Pointer(v int) *int64 {
+	r := IntToInt64(v)
+	return &r
+}
+
 func StringPointerToString(v *string) string {
 	return StringPointerToStringWith(v, "")
 }
