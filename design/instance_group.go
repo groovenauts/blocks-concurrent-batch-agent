@@ -184,18 +184,18 @@ var _ = Resource("InstanceGroup", func() {
 	})
 	Action("show", func() {
 		Description("show")
-		Routing(GET("/:id"))
+		Routing(GET("/:name"))
 		Params(func() {
-			Param("id")
+			Param("name")
 		})
 		Response(OK, InstanceGroup)
 		UseTrait(DefaultResponseTrait)
 	})
 	Action("resize", func() {
 		Description("Resize")
-		Routing(PUT("/:id/resize"))
+		Routing(PUT("/:name/resize"))
 		Params(func() {
-			Param("id")
+			Param("name")
 			Param("new_size", Integer, "New Instance Size")
 			Required("new_size")
 		})
@@ -205,9 +205,9 @@ var _ = Resource("InstanceGroup", func() {
 	})
 	Action("destruct", func() {
 		Description("Destruct")
-		Routing(PUT("/:id/destruct"))
+		Routing(PUT("/:name/destruct"))
 		Params(func() {
-			Param("id")
+			Param("name")
 		})
 		Response(OK, InstanceGroup)
 		Response(Created, InstanceGroup)
@@ -215,18 +215,18 @@ var _ = Resource("InstanceGroup", func() {
 	})
 	Action("delete", func() {
 		Description("delete")
-		Routing(DELETE("/:id"))
+		Routing(DELETE("/:name"))
 		Params(func() {
-			Param("id")
+			Param("name")
 		})
 		Response(OK, InstanceGroup)
 		UseTrait(DefaultResponseTrait)
 	})
 	Action("start_health_check", func() {
 		Description("Start health check")
-		Routing(POST("/:id/start_health_check"))
+		Routing(POST("/:name/start_health_check"))
 		Params(func() {
-			Param("id")
+			Param("name")
 		})
 		Response(OK, InstanceGroup)
 		Response(Created, InstanceGroup)
@@ -235,19 +235,19 @@ var _ = Resource("InstanceGroup", func() {
 })
 
 var _ = Resource("InstanceGroupConstructionTask", func() {
-	BasePath("/construction_tasks")
+	BasePath("/instance_groups/:name/construction_tasks")
 	UseTrait(DefineResourceTrait)
 	UseTrait(CloudAsyncOperationResourceTrait)
 })
 
 var _ = Resource("InstanceGroupDestructionTask", func() {
-	BasePath("/destruction_tasks")
+	BasePath("/instance_groups/:name/destruction_tasks")
 	UseTrait(DefineResourceTrait)
 	UseTrait(CloudAsyncOperationResourceTrait)
 })
 
 var _ = Resource("InstanceGroupResizingTask", func() {
-	BasePath("/resizing_tasks")
+	BasePath("/instance_groups/:name/resizing_tasks")
 	UseTrait(DefineResourceTrait)
 	UseTrait(CloudAsyncOperationResourceTrait)
 })
@@ -269,7 +269,7 @@ var InstanceGroupHealthCheck = MediaType("application/vnd.instance-group-health-
 })
 
 var _ = Resource("InstanceGroupHealthCheck", func() {
-	BasePath("/instance_group_health_checks")
+	BasePath("/instance_groups/:name/health_checks")
 	DefaultMedia(InstanceGroupHealthCheck)
 	UseTrait(DefineResourceTrait)
 
@@ -277,6 +277,7 @@ var _ = Resource("InstanceGroupHealthCheck", func() {
 		Description("Execute health check")
 		Routing(PUT("/:id"))
 		Params(func() {
+			Param("name")
 			Param("id")
 		})
 		Response(OK, InstanceGroupHealthCheck)             // 200 終了

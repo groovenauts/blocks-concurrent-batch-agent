@@ -9,6 +9,18 @@ anchors:
   type: int64
   required: true
 
+templates:
+- &CloudAsyncOperationFields
+  Name: *string_required
+  Service: *string_required
+  OperationType: *string_required
+  Status: *string_required
+  ProjectId: *string_required
+  Zone: *string_required
+  Errors: "[]CloudAsyncOperationError"
+  Logs: "[]CloudAsyncOperationLog"
+  CreatedAt: *time_required
+  UpdatedAt: *time_required
 
 types:
   # See https://godoc.org/google.golang.org/api/deploymentmanager/v2#OperationErrorErrors
@@ -24,25 +36,17 @@ types:
       CreatedAt: *time_required
   # See https://godoc.org/google.golang.org/api/deploymentmanager/v2#Operation
   #     https://godoc.org/google.golang.org/api/compute/v1#Operation
-  CloudAsyncOperation:
+  InstanceGroupOperation:
     goon:
-      # id_type: int64
-      # id_type: string
-      # id_type: UUID (type: string)
       id_type: int64
-      parent: Organization
+      parent: InstanceGroup
     payload: ""
     media_type: Cloud-Async-Operation
-    fields:
-      OwnerType: *string_required
-      OwnerID: *int64_required
-      Name: *string_required
-      Service: *string_required
-      OperationType: *string_required
-      Status: *string_required
-      ProjectId: *string_required
-      Zone: *string_required
-      Errors: "[]CloudAsyncOperationError"
-      Logs: "[]CloudAsyncOperationLog"
-      CreatedAt: *time_required
-      UpdatedAt: *time_required
+    fields: *CloudAsyncOperationFields
+  PipelineBaseOperation:
+    goon:
+      id_type: int64
+      parent: PipelineBase
+    payload: ""
+    media_type: Cloud-Async-Operation
+    fields: *CloudAsyncOperationFields

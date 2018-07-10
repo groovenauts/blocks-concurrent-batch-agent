@@ -101,18 +101,18 @@ var _ = Resource("Pipeline", func() {
 	})
 	Action("show", func() {
 		Description("show")
-		Routing(GET("/:id"))
+		Routing(GET("/:name"))
 		Params(func() {
-			Param("id")
+			Param("name")
 		})
 		Response(OK, Pipeline)
 		UseTrait(DefaultResponseTrait)
 	})
 	Action("preparing_finalize_task", func() {
 		Description("Task to finalize current_preparing or next_preparing status")
-		Routing(PUT("/:id/preparing_finalize_task"))
+		Routing(PUT("/:name/preparing_finalize_task"))
 		Params(func() {
-			Param("id")
+			Param("name")
 			Param("operation_id")
 			Param("error")
 		})
@@ -121,9 +121,9 @@ var _ = Resource("Pipeline", func() {
 	})
 	Action("current", func() {
 		Description("Update current pipeline base")
-		Routing(PUT("/:id/current"))
+		Routing(PUT("/:name/current"))
 		Params(func() {
-			Param("id")
+			Param("name")
 			Param("pipeline_base_id")
 			Required("pipeline_base_id")
 		})
@@ -132,19 +132,18 @@ var _ = Resource("Pipeline", func() {
 	})
 	Action("stop", func() {
 		Description("Stop pipeline")
-		Routing(PUT("/:id/stop"))
+		Routing(PUT("/:name/stop"))
 		Params(func() {
-			Param("id")
+			Param("name")
 		})
 		Response(OK, Pipeline)
 		UseTrait(DefaultResponseTrait)
 	})
 	Action("delete", func() {
 		Description("delete")
-		Routing(DELETE("/:id"))
+		Routing(DELETE("/:name"))
 		Params(func() {
-			Param("id")
-			Required("id")
+			Param("name")
 		})
 		Response(OK, Pipeline)
 		UseTrait(DefaultResponseTrait)

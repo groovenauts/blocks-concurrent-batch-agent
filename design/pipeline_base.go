@@ -125,18 +125,18 @@ var _ = Resource("PipelineBase", func() {
 	})
 	Action("show", func() {
 		Description("show")
-		Routing(GET("/:id"))
+		Routing(GET("/:name"))
 		Params(func() {
-			Param("id")
+			Param("name")
 		})
 		Response(OK, PipelineBase)
 		UseTrait(DefaultResponseTrait)
 	})
 	Action("wakeup_done_task", func() {
 		Description("Task to accept wakeup(construction) done notification")
-		Routing(PUT("/:id/wakeup_done_task"))
+		Routing(PUT("/:name/wakeup_done_task"))
 		Params(func() {
-			Param("id")
+			Param("name")
 			Param("operation_id")
 			Param("error")
 		})
@@ -148,18 +148,18 @@ var _ = Resource("PipelineBase", func() {
 	})
 	Action("pull_task", func() {
 		Description("Task to pull progress messages")
-		Routing(PUT("/:id/pull_task"))
+		Routing(PUT("/:name/pull_task"))
 		Params(func() {
-			Param("id")
+			Param("name")
 		})
 		Response(OK, PipelineBase)
 		UseTrait(DefaultResponseTrait)
 	})
 	Action("hibernation_checking_task", func() {
 		Description("Task to check if it starts hibernation")
-		Routing(PUT("/:id/hibernation_checking_task"))
+		Routing(PUT("/:name/hibernation_checking_task"))
 		Params(func() {
-			Param("id")
+			Param("name")
 			Param("since", DateTime) // RFC3339
 			Required("since")
 		})
@@ -170,9 +170,9 @@ var _ = Resource("PipelineBase", func() {
 	})
 	Action("hibernation_done_task", func() {
 		Description("Task to accept hibernation(destruction) done notification")
-		Routing(PUT("/:id/hibernation_done_task"))
+		Routing(PUT("/:name/hibernation_done_task"))
 		Params(func() {
-			Param("id")
+			Param("name")
 			Param("operation_id")
 			Param("error")
 		})
@@ -184,9 +184,9 @@ var _ = Resource("PipelineBase", func() {
 	})
 	Action("close", func() {
 		Description("Close")
-		Routing(PUT("/:id"))
+		Routing(PUT("/:name"))
 		Params(func() {
-			Param("id")
+			Param("name")
 		})
 		Response(OK, PipelineBase)
 		Response(Created, PipelineBase)
@@ -194,10 +194,9 @@ var _ = Resource("PipelineBase", func() {
 	})
 	Action("delete", func() {
 		Description("delete")
-		Routing(DELETE("/:id"))
+		Routing(DELETE("/:name"))
 		Params(func() {
-			Param("id")
-			Required("id")
+			Param("name")
 		})
 		Response(OK, PipelineBase)
 		UseTrait(DefaultResponseTrait)
@@ -206,13 +205,13 @@ var _ = Resource("PipelineBase", func() {
 
 // For pubsub (topic + subscription) * (job + progress)
 var _ = Resource("PipelineBaseOpeningTask", func() {
-	BasePath("/opening_tasks")
+	BasePath("/pipeline_bases/:name/opening_tasks")
 	UseTrait(DefineResourceTrait)
 	UseTrait(CloudAsyncOperationResourceTrait)
 })
 
 var _ = Resource("PipelineBaseClosingTask", func() {
-	BasePath("/closing_tasks")
+	BasePath("/pipeline_bases/:name/closing_tasks")
 	UseTrait(DefineResourceTrait)
 	UseTrait(CloudAsyncOperationResourceTrait)
 })
