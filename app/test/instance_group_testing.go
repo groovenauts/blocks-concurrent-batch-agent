@@ -569,7 +569,7 @@ func CreateInstanceGroupUnauthorized(t goatest.TInterface, ctx context.Context, 
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func DeleteInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, error) {
+func DeleteInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -590,14 +590,14 @@ func DeleteInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, se
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v", id),
+		Path: fmt.Sprintf("/instance_groups/%v", name),
 	}
 	req, err := http.NewRequest("DELETE", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -638,7 +638,7 @@ func DeleteInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, se
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func DeleteInstanceGroupConflict(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, error) {
+func DeleteInstanceGroupConflict(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -659,14 +659,14 @@ func DeleteInstanceGroupConflict(t goatest.TInterface, ctx context.Context, serv
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v", id),
+		Path: fmt.Sprintf("/instance_groups/%v", name),
 	}
 	req, err := http.NewRequest("DELETE", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -707,7 +707,7 @@ func DeleteInstanceGroupConflict(t goatest.TInterface, ctx context.Context, serv
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func DeleteInstanceGroupInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, error) {
+func DeleteInstanceGroupInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -728,14 +728,14 @@ func DeleteInstanceGroupInternalServerError(t goatest.TInterface, ctx context.Co
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v", id),
+		Path: fmt.Sprintf("/instance_groups/%v", name),
 	}
 	req, err := http.NewRequest("DELETE", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -776,7 +776,7 @@ func DeleteInstanceGroupInternalServerError(t goatest.TInterface, ctx context.Co
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func DeleteInstanceGroupNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, error) {
+func DeleteInstanceGroupNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -797,14 +797,14 @@ func DeleteInstanceGroupNotFound(t goatest.TInterface, ctx context.Context, serv
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v", id),
+		Path: fmt.Sprintf("/instance_groups/%v", name),
 	}
 	req, err := http.NewRequest("DELETE", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -845,7 +845,7 @@ func DeleteInstanceGroupNotFound(t goatest.TInterface, ctx context.Context, serv
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func DeleteInstanceGroupOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, *app.InstanceGroup) {
+func DeleteInstanceGroupOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string) (http.ResponseWriter, *app.InstanceGroup) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -866,14 +866,14 @@ func DeleteInstanceGroupOK(t goatest.TInterface, ctx context.Context, service *g
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v", id),
+		Path: fmt.Sprintf("/instance_groups/%v", name),
 	}
 	req, err := http.NewRequest("DELETE", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -919,7 +919,7 @@ func DeleteInstanceGroupOK(t goatest.TInterface, ctx context.Context, service *g
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func DeleteInstanceGroupUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, error) {
+func DeleteInstanceGroupUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -940,14 +940,14 @@ func DeleteInstanceGroupUnauthorized(t goatest.TInterface, ctx context.Context, 
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v", id),
+		Path: fmt.Sprintf("/instance_groups/%v", name),
 	}
 	req, err := http.NewRequest("DELETE", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -988,7 +988,7 @@ func DeleteInstanceGroupUnauthorized(t goatest.TInterface, ctx context.Context, 
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func DestructInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, error) {
+func DestructInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1009,14 +1009,14 @@ func DestructInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, 
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/destruct", id),
+		Path: fmt.Sprintf("/instance_groups/%v/destruct", name),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -1057,7 +1057,7 @@ func DestructInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, 
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func DestructInstanceGroupConflict(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, error) {
+func DestructInstanceGroupConflict(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1078,14 +1078,14 @@ func DestructInstanceGroupConflict(t goatest.TInterface, ctx context.Context, se
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/destruct", id),
+		Path: fmt.Sprintf("/instance_groups/%v/destruct", name),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -1126,7 +1126,7 @@ func DestructInstanceGroupConflict(t goatest.TInterface, ctx context.Context, se
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func DestructInstanceGroupCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, *app.InstanceGroup) {
+func DestructInstanceGroupCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string) (http.ResponseWriter, *app.InstanceGroup) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1147,14 +1147,14 @@ func DestructInstanceGroupCreated(t goatest.TInterface, ctx context.Context, ser
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/destruct", id),
+		Path: fmt.Sprintf("/instance_groups/%v/destruct", name),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -1200,7 +1200,7 @@ func DestructInstanceGroupCreated(t goatest.TInterface, ctx context.Context, ser
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func DestructInstanceGroupInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, error) {
+func DestructInstanceGroupInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1221,14 +1221,14 @@ func DestructInstanceGroupInternalServerError(t goatest.TInterface, ctx context.
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/destruct", id),
+		Path: fmt.Sprintf("/instance_groups/%v/destruct", name),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -1269,7 +1269,7 @@ func DestructInstanceGroupInternalServerError(t goatest.TInterface, ctx context.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func DestructInstanceGroupNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, error) {
+func DestructInstanceGroupNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1290,14 +1290,14 @@ func DestructInstanceGroupNotFound(t goatest.TInterface, ctx context.Context, se
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/destruct", id),
+		Path: fmt.Sprintf("/instance_groups/%v/destruct", name),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -1338,7 +1338,7 @@ func DestructInstanceGroupNotFound(t goatest.TInterface, ctx context.Context, se
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func DestructInstanceGroupOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, *app.InstanceGroup) {
+func DestructInstanceGroupOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string) (http.ResponseWriter, *app.InstanceGroup) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1359,14 +1359,14 @@ func DestructInstanceGroupOK(t goatest.TInterface, ctx context.Context, service 
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/destruct", id),
+		Path: fmt.Sprintf("/instance_groups/%v/destruct", name),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -1412,7 +1412,7 @@ func DestructInstanceGroupOK(t goatest.TInterface, ctx context.Context, service 
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func DestructInstanceGroupUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, error) {
+func DestructInstanceGroupUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1433,14 +1433,14 @@ func DestructInstanceGroupUnauthorized(t goatest.TInterface, ctx context.Context
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/destruct", id),
+		Path: fmt.Sprintf("/instance_groups/%v/destruct", name),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -1894,7 +1894,7 @@ func ListInstanceGroupUnauthorized(t goatest.TInterface, ctx context.Context, se
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ResizeInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string, newSize int) (http.ResponseWriter, error) {
+func ResizeInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string, newSize int) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1920,7 +1920,7 @@ func ResizeInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, se
 		query["new_size"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/instance_groups/%v/resize", id),
+		Path:     fmt.Sprintf("/instance_groups/%v/resize", name),
 		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
@@ -1928,7 +1928,7 @@ func ResizeInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, se
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	{
 		sliceVal := []string{strconv.Itoa(newSize)}
 		prms["new_size"] = sliceVal
@@ -1973,7 +1973,7 @@ func ResizeInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, se
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ResizeInstanceGroupConflict(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string, newSize int) (http.ResponseWriter, error) {
+func ResizeInstanceGroupConflict(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string, newSize int) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1999,7 +1999,7 @@ func ResizeInstanceGroupConflict(t goatest.TInterface, ctx context.Context, serv
 		query["new_size"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/instance_groups/%v/resize", id),
+		Path:     fmt.Sprintf("/instance_groups/%v/resize", name),
 		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
@@ -2007,7 +2007,7 @@ func ResizeInstanceGroupConflict(t goatest.TInterface, ctx context.Context, serv
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	{
 		sliceVal := []string{strconv.Itoa(newSize)}
 		prms["new_size"] = sliceVal
@@ -2052,7 +2052,7 @@ func ResizeInstanceGroupConflict(t goatest.TInterface, ctx context.Context, serv
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ResizeInstanceGroupCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string, newSize int) (http.ResponseWriter, *app.InstanceGroup) {
+func ResizeInstanceGroupCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string, newSize int) (http.ResponseWriter, *app.InstanceGroup) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -2078,7 +2078,7 @@ func ResizeInstanceGroupCreated(t goatest.TInterface, ctx context.Context, servi
 		query["new_size"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/instance_groups/%v/resize", id),
+		Path:     fmt.Sprintf("/instance_groups/%v/resize", name),
 		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
@@ -2086,7 +2086,7 @@ func ResizeInstanceGroupCreated(t goatest.TInterface, ctx context.Context, servi
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	{
 		sliceVal := []string{strconv.Itoa(newSize)}
 		prms["new_size"] = sliceVal
@@ -2136,7 +2136,7 @@ func ResizeInstanceGroupCreated(t goatest.TInterface, ctx context.Context, servi
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ResizeInstanceGroupInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string, newSize int) (http.ResponseWriter, error) {
+func ResizeInstanceGroupInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string, newSize int) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -2162,7 +2162,7 @@ func ResizeInstanceGroupInternalServerError(t goatest.TInterface, ctx context.Co
 		query["new_size"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/instance_groups/%v/resize", id),
+		Path:     fmt.Sprintf("/instance_groups/%v/resize", name),
 		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
@@ -2170,7 +2170,7 @@ func ResizeInstanceGroupInternalServerError(t goatest.TInterface, ctx context.Co
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	{
 		sliceVal := []string{strconv.Itoa(newSize)}
 		prms["new_size"] = sliceVal
@@ -2215,7 +2215,7 @@ func ResizeInstanceGroupInternalServerError(t goatest.TInterface, ctx context.Co
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ResizeInstanceGroupNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string, newSize int) (http.ResponseWriter, error) {
+func ResizeInstanceGroupNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string, newSize int) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -2241,7 +2241,7 @@ func ResizeInstanceGroupNotFound(t goatest.TInterface, ctx context.Context, serv
 		query["new_size"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/instance_groups/%v/resize", id),
+		Path:     fmt.Sprintf("/instance_groups/%v/resize", name),
 		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
@@ -2249,7 +2249,7 @@ func ResizeInstanceGroupNotFound(t goatest.TInterface, ctx context.Context, serv
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	{
 		sliceVal := []string{strconv.Itoa(newSize)}
 		prms["new_size"] = sliceVal
@@ -2294,7 +2294,7 @@ func ResizeInstanceGroupNotFound(t goatest.TInterface, ctx context.Context, serv
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ResizeInstanceGroupOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string, newSize int) (http.ResponseWriter, *app.InstanceGroup) {
+func ResizeInstanceGroupOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string, newSize int) (http.ResponseWriter, *app.InstanceGroup) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -2320,7 +2320,7 @@ func ResizeInstanceGroupOK(t goatest.TInterface, ctx context.Context, service *g
 		query["new_size"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/instance_groups/%v/resize", id),
+		Path:     fmt.Sprintf("/instance_groups/%v/resize", name),
 		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
@@ -2328,7 +2328,7 @@ func ResizeInstanceGroupOK(t goatest.TInterface, ctx context.Context, service *g
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	{
 		sliceVal := []string{strconv.Itoa(newSize)}
 		prms["new_size"] = sliceVal
@@ -2378,7 +2378,7 @@ func ResizeInstanceGroupOK(t goatest.TInterface, ctx context.Context, service *g
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ResizeInstanceGroupUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string, newSize int) (http.ResponseWriter, error) {
+func ResizeInstanceGroupUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string, newSize int) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -2404,7 +2404,7 @@ func ResizeInstanceGroupUnauthorized(t goatest.TInterface, ctx context.Context, 
 		query["new_size"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/instance_groups/%v/resize", id),
+		Path:     fmt.Sprintf("/instance_groups/%v/resize", name),
 		RawQuery: query.Encode(),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
@@ -2412,7 +2412,7 @@ func ResizeInstanceGroupUnauthorized(t goatest.TInterface, ctx context.Context, 
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	{
 		sliceVal := []string{strconv.Itoa(newSize)}
 		prms["new_size"] = sliceVal
@@ -2457,7 +2457,7 @@ func ResizeInstanceGroupUnauthorized(t goatest.TInterface, ctx context.Context, 
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ShowInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, error) {
+func ShowInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -2478,14 +2478,14 @@ func ShowInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, serv
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v", id),
+		Path: fmt.Sprintf("/instance_groups/%v", name),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -2526,7 +2526,7 @@ func ShowInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, serv
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ShowInstanceGroupConflict(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, error) {
+func ShowInstanceGroupConflict(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -2547,14 +2547,14 @@ func ShowInstanceGroupConflict(t goatest.TInterface, ctx context.Context, servic
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v", id),
+		Path: fmt.Sprintf("/instance_groups/%v", name),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -2595,7 +2595,7 @@ func ShowInstanceGroupConflict(t goatest.TInterface, ctx context.Context, servic
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ShowInstanceGroupInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, error) {
+func ShowInstanceGroupInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -2616,14 +2616,14 @@ func ShowInstanceGroupInternalServerError(t goatest.TInterface, ctx context.Cont
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v", id),
+		Path: fmt.Sprintf("/instance_groups/%v", name),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -2664,7 +2664,7 @@ func ShowInstanceGroupInternalServerError(t goatest.TInterface, ctx context.Cont
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ShowInstanceGroupNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, error) {
+func ShowInstanceGroupNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -2685,14 +2685,14 @@ func ShowInstanceGroupNotFound(t goatest.TInterface, ctx context.Context, servic
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v", id),
+		Path: fmt.Sprintf("/instance_groups/%v", name),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -2733,7 +2733,7 @@ func ShowInstanceGroupNotFound(t goatest.TInterface, ctx context.Context, servic
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ShowInstanceGroupOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, *app.InstanceGroup) {
+func ShowInstanceGroupOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string) (http.ResponseWriter, *app.InstanceGroup) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -2754,14 +2754,14 @@ func ShowInstanceGroupOK(t goatest.TInterface, ctx context.Context, service *goa
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v", id),
+		Path: fmt.Sprintf("/instance_groups/%v", name),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -2807,7 +2807,7 @@ func ShowInstanceGroupOK(t goatest.TInterface, ctx context.Context, service *goa
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ShowInstanceGroupUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, error) {
+func ShowInstanceGroupUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -2828,14 +2828,14 @@ func ShowInstanceGroupUnauthorized(t goatest.TInterface, ctx context.Context, se
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v", id),
+		Path: fmt.Sprintf("/instance_groups/%v", name),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -2876,7 +2876,7 @@ func ShowInstanceGroupUnauthorized(t goatest.TInterface, ctx context.Context, se
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func StartHealthCheckInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, error) {
+func StartHealthCheckInstanceGroupBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -2897,14 +2897,14 @@ func StartHealthCheckInstanceGroupBadRequest(t goatest.TInterface, ctx context.C
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/start_health_check", id),
+		Path: fmt.Sprintf("/instance_groups/%v/start_health_check", name),
 	}
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -2945,7 +2945,7 @@ func StartHealthCheckInstanceGroupBadRequest(t goatest.TInterface, ctx context.C
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func StartHealthCheckInstanceGroupConflict(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, error) {
+func StartHealthCheckInstanceGroupConflict(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -2966,14 +2966,14 @@ func StartHealthCheckInstanceGroupConflict(t goatest.TInterface, ctx context.Con
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/start_health_check", id),
+		Path: fmt.Sprintf("/instance_groups/%v/start_health_check", name),
 	}
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -3014,7 +3014,7 @@ func StartHealthCheckInstanceGroupConflict(t goatest.TInterface, ctx context.Con
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func StartHealthCheckInstanceGroupCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, *app.InstanceGroup) {
+func StartHealthCheckInstanceGroupCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string) (http.ResponseWriter, *app.InstanceGroup) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -3035,14 +3035,14 @@ func StartHealthCheckInstanceGroupCreated(t goatest.TInterface, ctx context.Cont
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/start_health_check", id),
+		Path: fmt.Sprintf("/instance_groups/%v/start_health_check", name),
 	}
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -3088,7 +3088,7 @@ func StartHealthCheckInstanceGroupCreated(t goatest.TInterface, ctx context.Cont
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func StartHealthCheckInstanceGroupInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, error) {
+func StartHealthCheckInstanceGroupInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -3109,14 +3109,14 @@ func StartHealthCheckInstanceGroupInternalServerError(t goatest.TInterface, ctx 
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/start_health_check", id),
+		Path: fmt.Sprintf("/instance_groups/%v/start_health_check", name),
 	}
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -3157,7 +3157,7 @@ func StartHealthCheckInstanceGroupInternalServerError(t goatest.TInterface, ctx 
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func StartHealthCheckInstanceGroupNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, error) {
+func StartHealthCheckInstanceGroupNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -3178,14 +3178,14 @@ func StartHealthCheckInstanceGroupNotFound(t goatest.TInterface, ctx context.Con
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/start_health_check", id),
+		Path: fmt.Sprintf("/instance_groups/%v/start_health_check", name),
 	}
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -3226,7 +3226,7 @@ func StartHealthCheckInstanceGroupNotFound(t goatest.TInterface, ctx context.Con
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func StartHealthCheckInstanceGroupOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, *app.InstanceGroup) {
+func StartHealthCheckInstanceGroupOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string) (http.ResponseWriter, *app.InstanceGroup) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -3247,14 +3247,14 @@ func StartHealthCheckInstanceGroupOK(t goatest.TInterface, ctx context.Context, 
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/start_health_check", id),
+		Path: fmt.Sprintf("/instance_groups/%v/start_health_check", name),
 	}
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -3300,7 +3300,7 @@ func StartHealthCheckInstanceGroupOK(t goatest.TInterface, ctx context.Context, 
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func StartHealthCheckInstanceGroupUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, id string) (http.ResponseWriter, error) {
+func StartHealthCheckInstanceGroupUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupController, name string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -3321,14 +3321,14 @@ func StartHealthCheckInstanceGroupUnauthorized(t goatest.TInterface, ctx context
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/start_health_check", id),
+		Path: fmt.Sprintf("/instance_groups/%v/start_health_check", name),
 	}
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
-	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
 	}

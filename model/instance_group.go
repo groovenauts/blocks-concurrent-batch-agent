@@ -58,9 +58,8 @@ type InstanceGroupBody struct {
 }
 
 type InstanceGroup struct {
-	Id                    int64                          `datastore:"-" goon:"id" json:"id"`
+	Name                  string                         `datastore:"-" goon:"id" json:"name"`
 	Parent                *datastore.Key                 `datastore:"-" goon:"parent" json:"-"`
-	Name                  string                         `json:"name" validate:"required"`
 	ProjectID             string                         `json:"project_id" validate:"required"`
 	Zone                  string                         `json:"zone" validate:"required"`
 	BootDisk              InstanceGroupVMDisk            `json:"boot_disk" validate:"required"`
@@ -137,7 +136,7 @@ func (s *InstanceGroupStore) GetAll(ctx context.Context) ([]*InstanceGroup, erro
 	return r, nil
 }
 
-func (s *InstanceGroupStore) Get(ctx context.Context, id int64) (*InstanceGroup, error) {
+func (s *InstanceGroupStore) Get(ctx context.Context, id string) (*InstanceGroup, error) {
 	g := goon.FromContext(ctx)
 	r := InstanceGroup{Id: id}
 	if s.ParentKey != nil {

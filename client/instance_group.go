@@ -71,8 +71,8 @@ func (c *Client) NewCreateInstanceGroupRequest(ctx context.Context, path string,
 }
 
 // DeleteInstanceGroupPath computes a request path to the delete action of InstanceGroup.
-func DeleteInstanceGroupPath(id string) string {
-	param0 := id
+func DeleteInstanceGroupPath(name string) string {
+	param0 := name
 
 	return fmt.Sprintf("/instance_groups/%s", param0)
 }
@@ -106,8 +106,8 @@ func (c *Client) NewDeleteInstanceGroupRequest(ctx context.Context, path string)
 }
 
 // DestructInstanceGroupPath computes a request path to the destruct action of InstanceGroup.
-func DestructInstanceGroupPath(id string) string {
-	param0 := id
+func DestructInstanceGroupPath(name string) string {
+	param0 := name
 
 	return fmt.Sprintf("/instance_groups/%s/destruct", param0)
 }
@@ -175,8 +175,8 @@ func (c *Client) NewListInstanceGroupRequest(ctx context.Context, path string) (
 }
 
 // ResizeInstanceGroupPath computes a request path to the resize action of InstanceGroup.
-func ResizeInstanceGroupPath(id string) string {
-	param0 := id
+func ResizeInstanceGroupPath(name string) string {
+	param0 := name
 
 	return fmt.Sprintf("/instance_groups/%s/resize", param0)
 }
@@ -214,8 +214,8 @@ func (c *Client) NewResizeInstanceGroupRequest(ctx context.Context, path string,
 }
 
 // ShowInstanceGroupPath computes a request path to the show action of InstanceGroup.
-func ShowInstanceGroupPath(id string) string {
-	param0 := id
+func ShowInstanceGroupPath(name string) string {
+	param0 := name
 
 	return fmt.Sprintf("/instance_groups/%s", param0)
 }
@@ -249,8 +249,8 @@ func (c *Client) NewShowInstanceGroupRequest(ctx context.Context, path string) (
 }
 
 // StartHealthCheckInstanceGroupPath computes a request path to the start_health_check action of InstanceGroup.
-func StartHealthCheckInstanceGroupPath(id string) string {
-	param0 := id
+func StartHealthCheckInstanceGroupPath(name string) string {
+	param0 := name
 
 	return fmt.Sprintf("/instance_groups/%s/start_health_check", param0)
 }

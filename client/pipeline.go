@@ -70,8 +70,8 @@ func (c *Client) NewCreatePipelineRequest(ctx context.Context, path string, payl
 }
 
 // CurrentPipelinePath computes a request path to the current action of Pipeline.
-func CurrentPipelinePath(id string) string {
-	param0 := id
+func CurrentPipelinePath(name string) string {
+	param0 := name
 
 	return fmt.Sprintf("/pipelines/%s/current", param0)
 }
@@ -108,8 +108,8 @@ func (c *Client) NewCurrentPipelineRequest(ctx context.Context, path string, pip
 }
 
 // DeletePipelinePath computes a request path to the delete action of Pipeline.
-func DeletePipelinePath(id string) string {
-	param0 := id
+func DeletePipelinePath(name string) string {
+	param0 := name
 
 	return fmt.Sprintf("/pipelines/%s", param0)
 }
@@ -180,8 +180,8 @@ func (c *Client) NewListPipelineRequest(ctx context.Context, path string, orgID 
 }
 
 // PreparingFinalizeTaskPipelinePath computes a request path to the preparing_finalize_task action of Pipeline.
-func PreparingFinalizeTaskPipelinePath(id string) string {
-	param0 := id
+func PreparingFinalizeTaskPipelinePath(name string) string {
+	param0 := name
 
 	return fmt.Sprintf("/pipelines/%s/preparing_finalize_task", param0)
 }
@@ -223,8 +223,8 @@ func (c *Client) NewPreparingFinalizeTaskPipelineRequest(ctx context.Context, pa
 }
 
 // ShowPipelinePath computes a request path to the show action of Pipeline.
-func ShowPipelinePath(id string) string {
-	param0 := id
+func ShowPipelinePath(name string) string {
+	param0 := name
 
 	return fmt.Sprintf("/pipelines/%s", param0)
 }
@@ -258,8 +258,8 @@ func (c *Client) NewShowPipelineRequest(ctx context.Context, path string) (*http
 }
 
 // StopPipelinePath computes a request path to the stop action of Pipeline.
-func StopPipelinePath(id string) string {
-	param0 := id
+func StopPipelinePath(name string) string {
+	param0 := name
 
 	return fmt.Sprintf("/pipelines/%s/stop", param0)
 }

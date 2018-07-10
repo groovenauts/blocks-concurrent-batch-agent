@@ -18,14 +18,15 @@ import (
 )
 
 // StartInstanceGroupConstructionTaskPath computes a request path to the start action of InstanceGroupConstructionTask.
-func StartInstanceGroupConstructionTaskPath() string {
+func StartInstanceGroupConstructionTaskPath(name string) string {
+	param0 := name
 
-	return fmt.Sprintf("/construction_tasks")
+	return fmt.Sprintf("/instance_groups/%s/construction_tasks", param0)
 }
 
 // Start operation
-func (c *Client) StartInstanceGroupConstructionTask(ctx context.Context, path string, resourceID string) (*http.Response, error) {
-	req, err := c.NewStartInstanceGroupConstructionTaskRequest(ctx, path, resourceID)
+func (c *Client) StartInstanceGroupConstructionTask(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.NewStartInstanceGroupConstructionTaskRequest(ctx, path)
 	if err != nil {
 		return nil, err
 	}
@@ -33,15 +34,12 @@ func (c *Client) StartInstanceGroupConstructionTask(ctx context.Context, path st
 }
 
 // NewStartInstanceGroupConstructionTaskRequest create the request corresponding to the start action endpoint of the InstanceGroupConstructionTask resource.
-func (c *Client) NewStartInstanceGroupConstructionTaskRequest(ctx context.Context, path string, resourceID string) (*http.Request, error) {
+func (c *Client) NewStartInstanceGroupConstructionTaskRequest(ctx context.Context, path string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "http"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
-	values := u.Query()
-	values.Set("resource_id", resourceID)
-	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		return nil, err
@@ -55,10 +53,11 @@ func (c *Client) NewStartInstanceGroupConstructionTaskRequest(ctx context.Contex
 }
 
 // WatchInstanceGroupConstructionTaskPath computes a request path to the watch action of InstanceGroupConstructionTask.
-func WatchInstanceGroupConstructionTaskPath(id string) string {
-	param0 := id
+func WatchInstanceGroupConstructionTaskPath(name string, id string) string {
+	param0 := name
+	param1 := id
 
-	return fmt.Sprintf("/construction_tasks/%s", param0)
+	return fmt.Sprintf("/instance_groups/%s/construction_tasks/%s", param0, param1)
 }
 
 // Watch

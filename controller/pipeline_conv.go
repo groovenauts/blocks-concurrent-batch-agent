@@ -10,7 +10,6 @@ func PipelinePayloadToModel(src *app.PipelinePayload) model.Pipeline {
 		return model.Pipeline{}
 	}
 	return model.Pipeline{
-		Name:             src.Name,
 		ProjectID:        src.ProjectID,
 		Zone:             src.Zone,
 		InstanceGroup:    InstanceGroupBodyPayloadToModel(src.InstanceGroup),
@@ -20,6 +19,7 @@ func PipelinePayloadToModel(src *app.PipelinePayload) model.Pipeline {
 		// IntanceGroupID no payload field
 		// CreatedAt no payload field
 		// UpdatedAt no payload field
+		// No model field for payload field "name"
 	}
 }
 
@@ -28,7 +28,6 @@ func PipelineModelToMediaType(src *model.Pipeline) *app.Pipeline {
 		return nil
 	}
 	return &app.Pipeline{
-		Name:             src.Name,
 		Zone:             src.Zone,
 		InstanceGroup:    InstanceGroupBodyModelToMediaType(&src.InstanceGroup),
 		Container:        PipelineContainerModelToMediaType(&src.Container),
@@ -40,6 +39,7 @@ func PipelineModelToMediaType(src *model.Pipeline) *app.Pipeline {
 		// IntanceGroupID no media type field
 		// No field for media type field "curr_base_id"
 		// No field for media type field "id"
+		// No field for media type field "name"
 		// No field for media type field "next_base_id"
 		// No field for media type field "prev_base_id"
 	}

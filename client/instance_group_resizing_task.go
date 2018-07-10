@@ -18,14 +18,15 @@ import (
 )
 
 // StartInstanceGroupResizingTaskPath computes a request path to the start action of InstanceGroupResizingTask.
-func StartInstanceGroupResizingTaskPath() string {
+func StartInstanceGroupResizingTaskPath(name string) string {
+	param0 := name
 
-	return fmt.Sprintf("/resizing_tasks")
+	return fmt.Sprintf("/instance_groups/%s/resizing_tasks", param0)
 }
 
 // Start operation
-func (c *Client) StartInstanceGroupResizingTask(ctx context.Context, path string, resourceID string) (*http.Response, error) {
-	req, err := c.NewStartInstanceGroupResizingTaskRequest(ctx, path, resourceID)
+func (c *Client) StartInstanceGroupResizingTask(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.NewStartInstanceGroupResizingTaskRequest(ctx, path)
 	if err != nil {
 		return nil, err
 	}
@@ -33,15 +34,12 @@ func (c *Client) StartInstanceGroupResizingTask(ctx context.Context, path string
 }
 
 // NewStartInstanceGroupResizingTaskRequest create the request corresponding to the start action endpoint of the InstanceGroupResizingTask resource.
-func (c *Client) NewStartInstanceGroupResizingTaskRequest(ctx context.Context, path string, resourceID string) (*http.Request, error) {
+func (c *Client) NewStartInstanceGroupResizingTaskRequest(ctx context.Context, path string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "http"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
-	values := u.Query()
-	values.Set("resource_id", resourceID)
-	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		return nil, err
@@ -55,10 +53,11 @@ func (c *Client) NewStartInstanceGroupResizingTaskRequest(ctx context.Context, p
 }
 
 // WatchInstanceGroupResizingTaskPath computes a request path to the watch action of InstanceGroupResizingTask.
-func WatchInstanceGroupResizingTaskPath(id string) string {
-	param0 := id
+func WatchInstanceGroupResizingTaskPath(name string, id string) string {
+	param0 := name
+	param1 := id
 
-	return fmt.Sprintf("/resizing_tasks/%s", param0)
+	return fmt.Sprintf("/instance_groups/%s/resizing_tasks/%s", param0, param1)
 }
 
 // Watch

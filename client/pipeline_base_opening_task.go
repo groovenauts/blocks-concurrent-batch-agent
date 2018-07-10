@@ -18,14 +18,15 @@ import (
 )
 
 // StartPipelineBaseOpeningTaskPath computes a request path to the start action of PipelineBaseOpeningTask.
-func StartPipelineBaseOpeningTaskPath() string {
+func StartPipelineBaseOpeningTaskPath(name string) string {
+	param0 := name
 
-	return fmt.Sprintf("/opening_tasks")
+	return fmt.Sprintf("/pipeline_bases/%s/opening_tasks", param0)
 }
 
 // Start operation
-func (c *Client) StartPipelineBaseOpeningTask(ctx context.Context, path string, resourceID string) (*http.Response, error) {
-	req, err := c.NewStartPipelineBaseOpeningTaskRequest(ctx, path, resourceID)
+func (c *Client) StartPipelineBaseOpeningTask(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.NewStartPipelineBaseOpeningTaskRequest(ctx, path)
 	if err != nil {
 		return nil, err
 	}
@@ -33,15 +34,12 @@ func (c *Client) StartPipelineBaseOpeningTask(ctx context.Context, path string, 
 }
 
 // NewStartPipelineBaseOpeningTaskRequest create the request corresponding to the start action endpoint of the PipelineBaseOpeningTask resource.
-func (c *Client) NewStartPipelineBaseOpeningTaskRequest(ctx context.Context, path string, resourceID string) (*http.Request, error) {
+func (c *Client) NewStartPipelineBaseOpeningTaskRequest(ctx context.Context, path string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "http"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
-	values := u.Query()
-	values.Set("resource_id", resourceID)
-	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		return nil, err
@@ -55,10 +53,11 @@ func (c *Client) NewStartPipelineBaseOpeningTaskRequest(ctx context.Context, pat
 }
 
 // WatchPipelineBaseOpeningTaskPath computes a request path to the watch action of PipelineBaseOpeningTask.
-func WatchPipelineBaseOpeningTaskPath(id string) string {
-	param0 := id
+func WatchPipelineBaseOpeningTaskPath(name string, id string) string {
+	param0 := name
+	param1 := id
 
-	return fmt.Sprintf("/opening_tasks/%s", param0)
+	return fmt.Sprintf("/pipeline_bases/%s/opening_tasks/%s", param0, param1)
 }
 
 // Watch

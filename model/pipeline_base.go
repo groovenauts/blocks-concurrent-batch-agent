@@ -39,9 +39,8 @@ type PipelineContainer struct {
 }
 
 type PipelineBase struct {
-	Id               int64              `datastore:"-" goon:"id" json:"id"`
+	Name             string             `datastore:"-" goon:"id" json:"name"`
 	Parent           *datastore.Key     `datastore:"-" goon:"parent" json:"-"`
-	Name             string             `json:"name" validate:"required"`
 	ProjectID        string             `json:"project_id" validate:"required"`
 	Zone             string             `json:"zone" validate:"required"`
 	InstanceGroup    InstanceGroupBody  `json:"instance_group" validate:"required"`
@@ -88,7 +87,7 @@ func (s *PipelineBaseStore) GetAll(ctx context.Context) ([]*PipelineBase, error)
 	return r, nil
 }
 
-func (s *PipelineBaseStore) Get(ctx context.Context, id int64) (*PipelineBase, error) {
+func (s *PipelineBaseStore) Get(ctx context.Context, id string) (*PipelineBase, error) {
 	g := goon.FromContext(ctx)
 	r := PipelineBase{Id: id}
 	if s.ParentKey != nil {

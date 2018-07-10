@@ -20,8 +20,8 @@ import (
 )
 
 // ClosePipelineBasePath computes a request path to the close action of PipelineBase.
-func ClosePipelineBasePath(id string) string {
-	param0 := id
+func ClosePipelineBasePath(name string) string {
+	param0 := name
 
 	return fmt.Sprintf("/pipeline_bases/%s", param0)
 }
@@ -106,8 +106,8 @@ func (c *Client) NewCreatePipelineBaseRequest(ctx context.Context, path string, 
 }
 
 // DeletePipelineBasePath computes a request path to the delete action of PipelineBase.
-func DeletePipelineBasePath(id string) string {
-	param0 := id
+func DeletePipelineBasePath(name string) string {
+	param0 := name
 
 	return fmt.Sprintf("/pipeline_bases/%s", param0)
 }
@@ -141,8 +141,8 @@ func (c *Client) NewDeletePipelineBaseRequest(ctx context.Context, path string) 
 }
 
 // HibernationCheckingTaskPipelineBasePath computes a request path to the hibernation_checking_task action of PipelineBase.
-func HibernationCheckingTaskPipelineBasePath(id string) string {
-	param0 := id
+func HibernationCheckingTaskPipelineBasePath(name string) string {
+	param0 := name
 
 	return fmt.Sprintf("/pipeline_bases/%s/hibernation_checking_task", param0)
 }
@@ -180,8 +180,8 @@ func (c *Client) NewHibernationCheckingTaskPipelineBaseRequest(ctx context.Conte
 }
 
 // HibernationDoneTaskPipelineBasePath computes a request path to the hibernation_done_task action of PipelineBase.
-func HibernationDoneTaskPipelineBasePath(id string) string {
-	param0 := id
+func HibernationDoneTaskPipelineBasePath(name string) string {
+	param0 := name
 
 	return fmt.Sprintf("/pipeline_bases/%s/hibernation_done_task", param0)
 }
@@ -260,8 +260,8 @@ func (c *Client) NewListPipelineBaseRequest(ctx context.Context, path string, or
 }
 
 // PullTaskPipelineBasePath computes a request path to the pull_task action of PipelineBase.
-func PullTaskPipelineBasePath(id string) string {
-	param0 := id
+func PullTaskPipelineBasePath(name string) string {
+	param0 := name
 
 	return fmt.Sprintf("/pipeline_bases/%s/pull_task", param0)
 }
@@ -295,8 +295,8 @@ func (c *Client) NewPullTaskPipelineBaseRequest(ctx context.Context, path string
 }
 
 // ShowPipelineBasePath computes a request path to the show action of PipelineBase.
-func ShowPipelineBasePath(id string) string {
-	param0 := id
+func ShowPipelineBasePath(name string) string {
+	param0 := name
 
 	return fmt.Sprintf("/pipeline_bases/%s", param0)
 }
@@ -330,8 +330,8 @@ func (c *Client) NewShowPipelineBaseRequest(ctx context.Context, path string) (*
 }
 
 // WakeupDoneTaskPipelineBasePath computes a request path to the wakeup_done_task action of PipelineBase.
-func WakeupDoneTaskPipelineBasePath(id string) string {
-	param0 := id
+func WakeupDoneTaskPipelineBasePath(name string) string {
+	param0 := name
 
 	return fmt.Sprintf("/pipeline_bases/%s/wakeup_done_task", param0)
 }

@@ -99,7 +99,7 @@ type DeleteInstanceGroupContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID string
+	Name string
 }
 
 // NewDeleteInstanceGroupContext parses the incoming request URL and body, performs validations and creates the
@@ -111,10 +111,10 @@ func NewDeleteInstanceGroupContext(ctx context.Context, r *http.Request, service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := DeleteInstanceGroupContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramID := req.Params["id"]
-	if len(paramID) > 0 {
-		rawID := paramID[0]
-		rctx.ID = rawID
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	return &rctx, err
 }
@@ -172,7 +172,7 @@ type DestructInstanceGroupContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID string
+	Name string
 }
 
 // NewDestructInstanceGroupContext parses the incoming request URL and body, performs validations and creates the
@@ -184,10 +184,10 @@ func NewDestructInstanceGroupContext(ctx context.Context, r *http.Request, servi
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := DestructInstanceGroupContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramID := req.Params["id"]
-	if len(paramID) > 0 {
-		rawID := paramID[0]
-		rctx.ID = rawID
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	return &rctx, err
 }
@@ -323,7 +323,7 @@ type ResizeInstanceGroupContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID      string
+	Name    string
 	NewSize int
 }
 
@@ -336,10 +336,10 @@ func NewResizeInstanceGroupContext(ctx context.Context, r *http.Request, service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := ResizeInstanceGroupContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramID := req.Params["id"]
-	if len(paramID) > 0 {
-		rawID := paramID[0]
-		rctx.ID = rawID
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	paramNewSize := req.Params["new_size"]
 	if len(paramNewSize) == 0 {
@@ -416,7 +416,7 @@ type ShowInstanceGroupContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID string
+	Name string
 }
 
 // NewShowInstanceGroupContext parses the incoming request URL and body, performs validations and creates the
@@ -428,10 +428,10 @@ func NewShowInstanceGroupContext(ctx context.Context, r *http.Request, service *
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := ShowInstanceGroupContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramID := req.Params["id"]
-	if len(paramID) > 0 {
-		rawID := paramID[0]
-		rctx.ID = rawID
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	return &rctx, err
 }
@@ -489,7 +489,7 @@ type StartHealthCheckInstanceGroupContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID string
+	Name string
 }
 
 // NewStartHealthCheckInstanceGroupContext parses the incoming request URL and body, performs validations and creates the
@@ -501,10 +501,10 @@ func NewStartHealthCheckInstanceGroupContext(ctx context.Context, r *http.Reques
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := StartHealthCheckInstanceGroupContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramID := req.Params["id"]
-	if len(paramID) > 0 {
-		rawID := paramID[0]
-		rctx.ID = rawID
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	return &rctx, err
 }
@@ -570,7 +570,7 @@ type StartInstanceGroupConstructionTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ResourceID string
+	Name string
 }
 
 // NewStartInstanceGroupConstructionTaskContext parses the incoming request URL and body, performs validations and creates the
@@ -582,12 +582,10 @@ func NewStartInstanceGroupConstructionTaskContext(ctx context.Context, r *http.R
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := StartInstanceGroupConstructionTaskContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramResourceID := req.Params["resource_id"]
-	if len(paramResourceID) == 0 {
-		err = goa.MergeErrors(err, goa.MissingParamError("resource_id"))
-	} else {
-		rawResourceID := paramResourceID[0]
-		rctx.ResourceID = rawResourceID
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	return &rctx, err
 }
@@ -677,7 +675,8 @@ type WatchInstanceGroupConstructionTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID string
+	ID   string
+	Name string
 }
 
 // NewWatchInstanceGroupConstructionTaskContext parses the incoming request URL and body, performs validations and creates the
@@ -693,6 +692,11 @@ func NewWatchInstanceGroupConstructionTaskContext(ctx context.Context, r *http.R
 	if len(paramID) > 0 {
 		rawID := paramID[0]
 		rctx.ID = rawID
+	}
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	return &rctx, err
 }
@@ -782,7 +786,7 @@ type StartInstanceGroupDestructionTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ResourceID string
+	Name string
 }
 
 // NewStartInstanceGroupDestructionTaskContext parses the incoming request URL and body, performs validations and creates the
@@ -794,12 +798,10 @@ func NewStartInstanceGroupDestructionTaskContext(ctx context.Context, r *http.Re
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := StartInstanceGroupDestructionTaskContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramResourceID := req.Params["resource_id"]
-	if len(paramResourceID) == 0 {
-		err = goa.MergeErrors(err, goa.MissingParamError("resource_id"))
-	} else {
-		rawResourceID := paramResourceID[0]
-		rctx.ResourceID = rawResourceID
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	return &rctx, err
 }
@@ -889,7 +891,8 @@ type WatchInstanceGroupDestructionTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID string
+	ID   string
+	Name string
 }
 
 // NewWatchInstanceGroupDestructionTaskContext parses the incoming request URL and body, performs validations and creates the
@@ -905,6 +908,11 @@ func NewWatchInstanceGroupDestructionTaskContext(ctx context.Context, r *http.Re
 	if len(paramID) > 0 {
 		rawID := paramID[0]
 		rctx.ID = rawID
+	}
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	return &rctx, err
 }
@@ -994,7 +1002,8 @@ type ExecuteInstanceGroupHealthCheckContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID string
+	ID   string
+	Name string
 }
 
 // NewExecuteInstanceGroupHealthCheckContext parses the incoming request URL and body, performs validations and creates the
@@ -1010,6 +1019,11 @@ func NewExecuteInstanceGroupHealthCheckContext(ctx context.Context, r *http.Requ
 	if len(paramID) > 0 {
 		rawID := paramID[0]
 		rctx.ID = rawID
+	}
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	return &rctx, err
 }
@@ -1099,7 +1113,7 @@ type StartInstanceGroupResizingTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ResourceID string
+	Name string
 }
 
 // NewStartInstanceGroupResizingTaskContext parses the incoming request URL and body, performs validations and creates the
@@ -1111,12 +1125,10 @@ func NewStartInstanceGroupResizingTaskContext(ctx context.Context, r *http.Reque
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := StartInstanceGroupResizingTaskContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramResourceID := req.Params["resource_id"]
-	if len(paramResourceID) == 0 {
-		err = goa.MergeErrors(err, goa.MissingParamError("resource_id"))
-	} else {
-		rawResourceID := paramResourceID[0]
-		rctx.ResourceID = rawResourceID
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	return &rctx, err
 }
@@ -1206,7 +1218,8 @@ type WatchInstanceGroupResizingTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID string
+	ID   string
+	Name string
 }
 
 // NewWatchInstanceGroupResizingTaskContext parses the incoming request URL and body, performs validations and creates the
@@ -1222,6 +1235,11 @@ func NewWatchInstanceGroupResizingTaskContext(ctx context.Context, r *http.Reque
 	if len(paramID) > 0 {
 		rawID := paramID[0]
 		rctx.ID = rawID
+	}
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	return &rctx, err
 }
@@ -1919,7 +1937,7 @@ type CurrentPipelineContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID             string
+	Name           string
 	PipelineBaseID string
 }
 
@@ -1932,10 +1950,10 @@ func NewCurrentPipelineContext(ctx context.Context, r *http.Request, service *go
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := CurrentPipelineContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramID := req.Params["id"]
-	if len(paramID) > 0 {
-		rawID := paramID[0]
-		rctx.ID = rawID
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	paramPipelineBaseID := req.Params["pipeline_base_id"]
 	if len(paramPipelineBaseID) == 0 {
@@ -2000,7 +2018,7 @@ type DeletePipelineContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID string
+	Name string
 }
 
 // NewDeletePipelineContext parses the incoming request URL and body, performs validations and creates the
@@ -2012,10 +2030,10 @@ func NewDeletePipelineContext(ctx context.Context, r *http.Request, service *goa
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := DeletePipelineContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramID := req.Params["id"]
-	if len(paramID) > 0 {
-		rawID := paramID[0]
-		rctx.ID = rawID
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	return &rctx, err
 }
@@ -2152,7 +2170,7 @@ type PreparingFinalizeTaskPipelineContext struct {
 	*goa.ResponseData
 	*goa.RequestData
 	Error       *string
-	ID          string
+	Name        string
 	OperationID *string
 }
 
@@ -2170,10 +2188,10 @@ func NewPreparingFinalizeTaskPipelineContext(ctx context.Context, r *http.Reques
 		rawError := paramError[0]
 		rctx.Error = &rawError
 	}
-	paramID := req.Params["id"]
-	if len(paramID) > 0 {
-		rawID := paramID[0]
-		rctx.ID = rawID
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	paramOperationID := req.Params["operation_id"]
 	if len(paramOperationID) > 0 {
@@ -2236,7 +2254,7 @@ type ShowPipelineContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID string
+	Name string
 }
 
 // NewShowPipelineContext parses the incoming request URL and body, performs validations and creates the
@@ -2248,10 +2266,10 @@ func NewShowPipelineContext(ctx context.Context, r *http.Request, service *goa.S
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := ShowPipelineContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramID := req.Params["id"]
-	if len(paramID) > 0 {
-		rawID := paramID[0]
-		rctx.ID = rawID
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	return &rctx, err
 }
@@ -2309,7 +2327,7 @@ type StopPipelineContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID string
+	Name string
 }
 
 // NewStopPipelineContext parses the incoming request URL and body, performs validations and creates the
@@ -2321,10 +2339,10 @@ func NewStopPipelineContext(ctx context.Context, r *http.Request, service *goa.S
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := StopPipelineContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramID := req.Params["id"]
-	if len(paramID) > 0 {
-		rawID := paramID[0]
-		rctx.ID = rawID
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	return &rctx, err
 }
@@ -2382,7 +2400,7 @@ type ClosePipelineBaseContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID string
+	Name string
 }
 
 // NewClosePipelineBaseContext parses the incoming request URL and body, performs validations and creates the
@@ -2394,10 +2412,10 @@ func NewClosePipelineBaseContext(ctx context.Context, r *http.Request, service *
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := ClosePipelineBaseContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramID := req.Params["id"]
-	if len(paramID) > 0 {
-		rawID := paramID[0]
-		rctx.ID = rawID
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	return &rctx, err
 }
@@ -2539,7 +2557,7 @@ type DeletePipelineBaseContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID string
+	Name string
 }
 
 // NewDeletePipelineBaseContext parses the incoming request URL and body, performs validations and creates the
@@ -2551,10 +2569,10 @@ func NewDeletePipelineBaseContext(ctx context.Context, r *http.Request, service 
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := DeletePipelineBaseContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramID := req.Params["id"]
-	if len(paramID) > 0 {
-		rawID := paramID[0]
-		rctx.ID = rawID
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	return &rctx, err
 }
@@ -2612,7 +2630,7 @@ type HibernationCheckingTaskPipelineBaseContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID    string
+	Name  string
 	Since time.Time
 }
 
@@ -2625,10 +2643,10 @@ func NewHibernationCheckingTaskPipelineBaseContext(ctx context.Context, r *http.
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := HibernationCheckingTaskPipelineBaseContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramID := req.Params["id"]
-	if len(paramID) > 0 {
-		rawID := paramID[0]
-		rctx.ID = rawID
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	paramSince := req.Params["since"]
 	if len(paramSince) == 0 {
@@ -2714,7 +2732,7 @@ type HibernationDoneTaskPipelineBaseContext struct {
 	*goa.ResponseData
 	*goa.RequestData
 	Error       *string
-	ID          string
+	Name        string
 	OperationID *string
 }
 
@@ -2732,10 +2750,10 @@ func NewHibernationDoneTaskPipelineBaseContext(ctx context.Context, r *http.Requ
 		rawError := paramError[0]
 		rctx.Error = &rawError
 	}
-	paramID := req.Params["id"]
-	if len(paramID) > 0 {
-		rawID := paramID[0]
-		rctx.ID = rawID
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	paramOperationID := req.Params["operation_id"]
 	if len(paramOperationID) > 0 {
@@ -2900,7 +2918,7 @@ type PullTaskPipelineBaseContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID string
+	Name string
 }
 
 // NewPullTaskPipelineBaseContext parses the incoming request URL and body, performs validations and creates the
@@ -2912,10 +2930,10 @@ func NewPullTaskPipelineBaseContext(ctx context.Context, r *http.Request, servic
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := PullTaskPipelineBaseContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramID := req.Params["id"]
-	if len(paramID) > 0 {
-		rawID := paramID[0]
-		rctx.ID = rawID
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	return &rctx, err
 }
@@ -2973,7 +2991,7 @@ type ShowPipelineBaseContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID string
+	Name string
 }
 
 // NewShowPipelineBaseContext parses the incoming request URL and body, performs validations and creates the
@@ -2985,10 +3003,10 @@ func NewShowPipelineBaseContext(ctx context.Context, r *http.Request, service *g
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := ShowPipelineBaseContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramID := req.Params["id"]
-	if len(paramID) > 0 {
-		rawID := paramID[0]
-		rctx.ID = rawID
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	return &rctx, err
 }
@@ -3047,7 +3065,7 @@ type WakeupDoneTaskPipelineBaseContext struct {
 	*goa.ResponseData
 	*goa.RequestData
 	Error       *string
-	ID          string
+	Name        string
 	OperationID *string
 }
 
@@ -3065,10 +3083,10 @@ func NewWakeupDoneTaskPipelineBaseContext(ctx context.Context, r *http.Request, 
 		rawError := paramError[0]
 		rctx.Error = &rawError
 	}
-	paramID := req.Params["id"]
-	if len(paramID) > 0 {
-		rawID := paramID[0]
-		rctx.ID = rawID
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	paramOperationID := req.Params["operation_id"]
 	if len(paramOperationID) > 0 {
@@ -3155,7 +3173,7 @@ type StartPipelineBaseClosingTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ResourceID string
+	Name string
 }
 
 // NewStartPipelineBaseClosingTaskContext parses the incoming request URL and body, performs validations and creates the
@@ -3167,12 +3185,10 @@ func NewStartPipelineBaseClosingTaskContext(ctx context.Context, r *http.Request
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := StartPipelineBaseClosingTaskContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramResourceID := req.Params["resource_id"]
-	if len(paramResourceID) == 0 {
-		err = goa.MergeErrors(err, goa.MissingParamError("resource_id"))
-	} else {
-		rawResourceID := paramResourceID[0]
-		rctx.ResourceID = rawResourceID
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	return &rctx, err
 }
@@ -3262,7 +3278,8 @@ type WatchPipelineBaseClosingTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID string
+	ID   string
+	Name string
 }
 
 // NewWatchPipelineBaseClosingTaskContext parses the incoming request URL and body, performs validations and creates the
@@ -3278,6 +3295,11 @@ func NewWatchPipelineBaseClosingTaskContext(ctx context.Context, r *http.Request
 	if len(paramID) > 0 {
 		rawID := paramID[0]
 		rctx.ID = rawID
+	}
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	return &rctx, err
 }
@@ -3367,7 +3389,7 @@ type StartPipelineBaseOpeningTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ResourceID string
+	Name string
 }
 
 // NewStartPipelineBaseOpeningTaskContext parses the incoming request URL and body, performs validations and creates the
@@ -3379,12 +3401,10 @@ func NewStartPipelineBaseOpeningTaskContext(ctx context.Context, r *http.Request
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := StartPipelineBaseOpeningTaskContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramResourceID := req.Params["resource_id"]
-	if len(paramResourceID) == 0 {
-		err = goa.MergeErrors(err, goa.MissingParamError("resource_id"))
-	} else {
-		rawResourceID := paramResourceID[0]
-		rctx.ResourceID = rawResourceID
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	return &rctx, err
 }
@@ -3474,7 +3494,8 @@ type WatchPipelineBaseOpeningTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID string
+	ID   string
+	Name string
 }
 
 // NewWatchPipelineBaseOpeningTaskContext parses the incoming request URL and body, performs validations and creates the
@@ -3490,6 +3511,11 @@ func NewWatchPipelineBaseOpeningTaskContext(ctx context.Context, r *http.Request
 	if len(paramID) > 0 {
 		rawID := paramID[0]
 		rctx.ID = rawID
+	}
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
 	}
 	return &rctx, err
 }

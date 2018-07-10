@@ -24,9 +24,8 @@ const (
 )
 
 type Pipeline struct {
-	Id               int64             `datastore:"-" goon:"id" json:"id"`
+	Name             string            `datastore:"-" goon:"id" json:"name"`
 	Parent           *datastore.Key    `datastore:"-" goon:"parent" json:"-"`
-	Name             string            `json:"name" validate:"required"`
 	ProjectID        string            `json:"project_id" validate:"required"`
 	Zone             string            `json:"zone" validate:"required"`
 	InstanceGroup    InstanceGroupBody `json:"instance_group,omitempty"`
@@ -73,7 +72,7 @@ func (s *PipelineStore) GetAll(ctx context.Context) ([]*Pipeline, error) {
 	return r, nil
 }
 
-func (s *PipelineStore) Get(ctx context.Context, id int64) (*Pipeline, error) {
+func (s *PipelineStore) Get(ctx context.Context, id string) (*Pipeline, error) {
 	g := goon.FromContext(ctx)
 	r := Pipeline{Id: id}
 	if s.ParentKey != nil {

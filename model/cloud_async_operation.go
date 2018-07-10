@@ -22,11 +22,9 @@ type CloudAsyncOperationLog struct {
 	CreatedAt time.Time `json:"created_at" validate:"required"`
 }
 
-type CloudAsyncOperation struct {
+type InstanceGroupOperation struct {
 	Id            int64                      `datastore:"-" goon:"id" json:"id"`
 	Parent        *datastore.Key             `datastore:"-" goon:"parent" json:"-"`
-	OwnerType     string                     `json:"owner_type" validate:"required"`
-	OwnerID       int64                      `json:"owner_id" validate:"required"`
 	Name          string                     `json:"name" validate:"required"`
 	Service       string                     `json:"service" validate:"required"`
 	OperationType string                     `json:"operation_type" validate:"required"`
@@ -39,7 +37,22 @@ type CloudAsyncOperation struct {
 	UpdatedAt     time.Time                  `json:"updated_at" validate:"required"`
 }
 
-func (m *CloudAsyncOperation) PrepareToCreate() error {
+type PipelineBaseOperation struct {
+	Id            int64                      `datastore:"-" goon:"id" json:"id"`
+	Parent        *datastore.Key             `datastore:"-" goon:"parent" json:"-"`
+	Name          string                     `json:"name" validate:"required"`
+	Service       string                     `json:"service" validate:"required"`
+	OperationType string                     `json:"operation_type" validate:"required"`
+	Status        string                     `json:"status" validate:"required"`
+	ProjectId     string                     `json:"project_id" validate:"required"`
+	Zone          string                     `json:"zone" validate:"required"`
+	Errors        []CloudAsyncOperationError `json:"errors,omitempty"`
+	Logs          []CloudAsyncOperationLog   `json:"logs,omitempty"`
+	CreatedAt     time.Time                  `json:"created_at" validate:"required"`
+	UpdatedAt     time.Time                  `json:"updated_at" validate:"required"`
+}
+
+func (m *InstanceGroupOperation) PrepareToCreate() error {
 	if m.CreatedAt.IsZero() {
 		m.CreatedAt = time.Now()
 	}
@@ -49,51 +62,66 @@ func (m *CloudAsyncOperation) PrepareToCreate() error {
 	return nil
 }
 
-func (m *CloudAsyncOperation) PrepareToUpdate() error {
+func (m *InstanceGroupOperation) PrepareToUpdate() error {
 	m.UpdatedAt = time.Now()
 	return nil
 }
 
-type CloudAsyncOperationStore struct {
+func (m *PipelineBaseOperation) PrepareToCreate() error {
+	if m.CreatedAt.IsZero() {
+		m.CreatedAt = time.Now()
+	}
+	if m.UpdatedAt.IsZero() {
+		m.UpdatedAt = time.Now()
+	}
+	return nil
+}
+
+func (m *PipelineBaseOperation) PrepareToUpdate() error {
+	m.UpdatedAt = time.Now()
+	return nil
+}
+
+type InstanceGroupOperationStore struct {
 	ParentKey *datastore.Key
 }
 
-func (s *CloudAsyncOperationStore) GetAll(ctx context.Context) ([]*CloudAsyncOperation, error) {
+func (s *InstanceGroupOperationStore) GetAll(ctx context.Context) ([]*InstanceGroupOperation, error) {
 	g := goon.FromContext(ctx)
-	r := []*CloudAsyncOperation{}
-	k := g.Kind(new(CloudAsyncOperation))
+	r := []*InstanceGroupOperation{}
+	k := g.Kind(new(InstanceGroupOperation))
 	log.Infof(ctx, "Kind is %v\n", k)
 	q := datastore.NewQuery(k)
 	q = q.Ancestor(s.ParentKey)
 	log.Infof(ctx, "q is %v\n", q)
 	_, err := g.GetAll(q.EventualConsistency(), &r)
 	if err != nil {
-		log.Errorf(ctx, "Failed to GetAll CloudAsyncOperation because of %v\n", err)
+		log.Errorf(ctx, "Failed to GetAll InstanceGroupOperation because of %v\n", err)
 		return nil, err
 	}
 	return r, nil
 }
 
-func (s *CloudAsyncOperationStore) Get(ctx context.Context, id int64) (*CloudAsyncOperation, error) {
+func (s *InstanceGroupOperationStore) Get(ctx context.Context, id int64) (*InstanceGroupOperation, error) {
 	g := goon.FromContext(ctx)
-	r := CloudAsyncOperation{Id: id}
+	r := InstanceGroupOperation{Id: id}
 	if s.ParentKey != nil {
 		r.Parent = s.ParentKey
 	}
 	err := g.Get(&r)
 	if err != nil {
-		log.Errorf(ctx, "Failed to Get CloudAsyncOperation because of %v\n", err)
+		log.Errorf(ctx, "Failed to Get InstanceGroupOperation because of %v\n", err)
 		return nil, err
 	}
 	if err := s.ValidateParent(&r); err != nil {
-		log.Errorf(ctx, "Invalid parent key for CloudAsyncOperation because of %v\n", err)
+		log.Errorf(ctx, "Invalid parent key for InstanceGroupOperation because of %v\n", err)
 		return nil, err
 	}
 
 	return &r, nil
 }
 
-func (s *CloudAsyncOperationStore) Create(ctx context.Context, m *CloudAsyncOperation) (*datastore.Key, error) {
+func (s *InstanceGroupOperationStore) Create(ctx context.Context, m *InstanceGroupOperation) (*datastore.Key, error) {
 	err := m.PrepareToCreate()
 	if err != nil {
 		return nil, err
@@ -101,7 +129,7 @@ func (s *CloudAsyncOperationStore) Create(ctx context.Context, m *CloudAsyncOper
 	return s.ValidateAndPut(ctx, m)
 }
 
-func (s *CloudAsyncOperationStore) Update(ctx context.Context, m *CloudAsyncOperation) (*datastore.Key, error) {
+func (s *InstanceGroupOperationStore) Update(ctx context.Context, m *InstanceGroupOperation) (*datastore.Key, error) {
 	err := m.PrepareToUpdate()
 	if err != nil {
 		return nil, err
@@ -109,7 +137,7 @@ func (s *CloudAsyncOperationStore) Update(ctx context.Context, m *CloudAsyncOper
 	return s.ValidateAndPut(ctx, m)
 }
 
-func (s *CloudAsyncOperationStore) ValidateAndPut(ctx context.Context, m *CloudAsyncOperation) (*datastore.Key, error) {
+func (s *InstanceGroupOperationStore) ValidateAndPut(ctx context.Context, m *InstanceGroupOperation) (*datastore.Key, error) {
 	err := m.Validate()
 	if err != nil {
 		return nil, err
@@ -117,10 +145,10 @@ func (s *CloudAsyncOperationStore) ValidateAndPut(ctx context.Context, m *CloudA
 	return s.Put(ctx, m)
 }
 
-func (s *CloudAsyncOperationStore) Put(ctx context.Context, m *CloudAsyncOperation) (*datastore.Key, error) {
+func (s *InstanceGroupOperationStore) Put(ctx context.Context, m *InstanceGroupOperation) (*datastore.Key, error) {
 	g := goon.FromContext(ctx)
 	if err := s.ValidateParent(m); err != nil {
-		log.Errorf(ctx, "Invalid parent key for CloudAsyncOperation because of %v\n", err)
+		log.Errorf(ctx, "Invalid parent key for InstanceGroupOperation because of %v\n", err)
 		return nil, err
 	}
 	key, err := g.Put(m)
@@ -131,7 +159,7 @@ func (s *CloudAsyncOperationStore) Put(ctx context.Context, m *CloudAsyncOperati
 	return key, nil
 }
 
-func (s *CloudAsyncOperationStore) ValidateParent(m *CloudAsyncOperation) error {
+func (s *InstanceGroupOperationStore) ValidateParent(m *InstanceGroupOperation) error {
 	if s.ParentKey == nil {
 		return nil
 	}
@@ -144,7 +172,112 @@ func (s *CloudAsyncOperationStore) ValidateParent(m *CloudAsyncOperation) error 
 	return nil
 }
 
-func (s *CloudAsyncOperationStore) Delete(ctx context.Context, m *CloudAsyncOperation) error {
+func (s *InstanceGroupOperationStore) Delete(ctx context.Context, m *InstanceGroupOperation) error {
+	g := goon.FromContext(ctx)
+	key, err := g.KeyError(m)
+	if err != nil {
+		log.Errorf(ctx, "Failed to Get %v because of %v\n", m, err)
+		return err
+	}
+	err = g.Delete(key)
+	if err != nil {
+		log.Errorf(ctx, "Failed to Delete %v because of %v\n", m, err)
+		return err
+	}
+	return nil
+}
+
+type PipelineBaseOperationStore struct {
+	ParentKey *datastore.Key
+}
+
+func (s *PipelineBaseOperationStore) GetAll(ctx context.Context) ([]*PipelineBaseOperation, error) {
+	g := goon.FromContext(ctx)
+	r := []*PipelineBaseOperation{}
+	k := g.Kind(new(PipelineBaseOperation))
+	log.Infof(ctx, "Kind is %v\n", k)
+	q := datastore.NewQuery(k)
+	q = q.Ancestor(s.ParentKey)
+	log.Infof(ctx, "q is %v\n", q)
+	_, err := g.GetAll(q.EventualConsistency(), &r)
+	if err != nil {
+		log.Errorf(ctx, "Failed to GetAll PipelineBaseOperation because of %v\n", err)
+		return nil, err
+	}
+	return r, nil
+}
+
+func (s *PipelineBaseOperationStore) Get(ctx context.Context, id int64) (*PipelineBaseOperation, error) {
+	g := goon.FromContext(ctx)
+	r := PipelineBaseOperation{Id: id}
+	if s.ParentKey != nil {
+		r.Parent = s.ParentKey
+	}
+	err := g.Get(&r)
+	if err != nil {
+		log.Errorf(ctx, "Failed to Get PipelineBaseOperation because of %v\n", err)
+		return nil, err
+	}
+	if err := s.ValidateParent(&r); err != nil {
+		log.Errorf(ctx, "Invalid parent key for PipelineBaseOperation because of %v\n", err)
+		return nil, err
+	}
+
+	return &r, nil
+}
+
+func (s *PipelineBaseOperationStore) Create(ctx context.Context, m *PipelineBaseOperation) (*datastore.Key, error) {
+	err := m.PrepareToCreate()
+	if err != nil {
+		return nil, err
+	}
+	return s.ValidateAndPut(ctx, m)
+}
+
+func (s *PipelineBaseOperationStore) Update(ctx context.Context, m *PipelineBaseOperation) (*datastore.Key, error) {
+	err := m.PrepareToUpdate()
+	if err != nil {
+		return nil, err
+	}
+	return s.ValidateAndPut(ctx, m)
+}
+
+func (s *PipelineBaseOperationStore) ValidateAndPut(ctx context.Context, m *PipelineBaseOperation) (*datastore.Key, error) {
+	err := m.Validate()
+	if err != nil {
+		return nil, err
+	}
+	return s.Put(ctx, m)
+}
+
+func (s *PipelineBaseOperationStore) Put(ctx context.Context, m *PipelineBaseOperation) (*datastore.Key, error) {
+	g := goon.FromContext(ctx)
+	if err := s.ValidateParent(m); err != nil {
+		log.Errorf(ctx, "Invalid parent key for PipelineBaseOperation because of %v\n", err)
+		return nil, err
+	}
+	key, err := g.Put(m)
+	if err != nil {
+		log.Errorf(ctx, "Failed to Put %v because of %v\n", m, err)
+		return nil, err
+	}
+	return key, nil
+}
+
+func (s *PipelineBaseOperationStore) ValidateParent(m *PipelineBaseOperation) error {
+	if s.ParentKey == nil {
+		return nil
+	}
+	if m.Parent == nil {
+		m.Parent = s.ParentKey
+	}
+	if !s.ParentKey.Equal(m.Parent) {
+		return fmt.Errorf("Invalid Parent for %v", m)
+	}
+	return nil
+}
+
+func (s *PipelineBaseOperationStore) Delete(ctx context.Context, m *PipelineBaseOperation) error {
 	g := goon.FromContext(ctx)
 	key, err := g.KeyError(m)
 	if err != nil {

@@ -18,14 +18,15 @@ import (
 )
 
 // StartPipelineBaseClosingTaskPath computes a request path to the start action of PipelineBaseClosingTask.
-func StartPipelineBaseClosingTaskPath() string {
+func StartPipelineBaseClosingTaskPath(name string) string {
+	param0 := name
 
-	return fmt.Sprintf("/closing_tasks")
+	return fmt.Sprintf("/pipeline_bases/%s/closing_tasks", param0)
 }
 
 // Start operation
-func (c *Client) StartPipelineBaseClosingTask(ctx context.Context, path string, resourceID string) (*http.Response, error) {
-	req, err := c.NewStartPipelineBaseClosingTaskRequest(ctx, path, resourceID)
+func (c *Client) StartPipelineBaseClosingTask(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.NewStartPipelineBaseClosingTaskRequest(ctx, path)
 	if err != nil {
 		return nil, err
 	}
@@ -33,15 +34,12 @@ func (c *Client) StartPipelineBaseClosingTask(ctx context.Context, path string, 
 }
 
 // NewStartPipelineBaseClosingTaskRequest create the request corresponding to the start action endpoint of the PipelineBaseClosingTask resource.
-func (c *Client) NewStartPipelineBaseClosingTaskRequest(ctx context.Context, path string, resourceID string) (*http.Request, error) {
+func (c *Client) NewStartPipelineBaseClosingTaskRequest(ctx context.Context, path string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "http"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
-	values := u.Query()
-	values.Set("resource_id", resourceID)
-	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		return nil, err
@@ -55,10 +53,11 @@ func (c *Client) NewStartPipelineBaseClosingTaskRequest(ctx context.Context, pat
 }
 
 // WatchPipelineBaseClosingTaskPath computes a request path to the watch action of PipelineBaseClosingTask.
-func WatchPipelineBaseClosingTaskPath(id string) string {
-	param0 := id
+func WatchPipelineBaseClosingTaskPath(name string, id string) string {
+	param0 := name
+	param1 := id
 
-	return fmt.Sprintf("/closing_tasks/%s", param0)
+	return fmt.Sprintf("/pipeline_bases/%s/closing_tasks/%s", param0, param1)
 }
 
 // Watch

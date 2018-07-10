@@ -16,9 +16,9 @@ import (
 )
 
 // InstanceGroupHref returns the resource href.
-func InstanceGroupHref(id interface{}) string {
-	paramid := strings.TrimLeftFunc(fmt.Sprintf("%v", id), func(r rune) bool { return r == '/' })
-	return fmt.Sprintf("/instance_groups/%v", paramid)
+func InstanceGroupHref(name interface{}) string {
+	paramname := strings.TrimLeftFunc(fmt.Sprintf("%v", name), func(r rune) bool { return r == '/' })
+	return fmt.Sprintf("/instance_groups/%v", paramname)
 }
 
 // JobHref returns the resource href.
@@ -28,13 +28,13 @@ func JobHref(id interface{}) string {
 }
 
 // PipelineHref returns the resource href.
-func PipelineHref(id interface{}) string {
-	paramid := strings.TrimLeftFunc(fmt.Sprintf("%v", id), func(r rune) bool { return r == '/' })
-	return fmt.Sprintf("/pipelines/%v", paramid)
+func PipelineHref(name interface{}) string {
+	paramname := strings.TrimLeftFunc(fmt.Sprintf("%v", name), func(r rune) bool { return r == '/' })
+	return fmt.Sprintf("/pipelines/%v", paramname)
 }
 
 // PipelineBaseHref returns the resource href.
-func PipelineBaseHref(id interface{}) string {
-	paramid := strings.TrimLeftFunc(fmt.Sprintf("%v", id), func(r rune) bool { return r == '/' })
-	return fmt.Sprintf("/pipeline_bases/%v", paramid)
+func PipelineBaseHref(name interface{}) string {
+	paramname := strings.TrimLeftFunc(fmt.Sprintf("%v", name), func(r rune) bool { return r == '/' })
+	return fmt.Sprintf("/pipeline_bases/%v", paramname)
 }

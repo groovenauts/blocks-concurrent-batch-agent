@@ -18,14 +18,15 @@ import (
 )
 
 // StartInstanceGroupDestructionTaskPath computes a request path to the start action of InstanceGroupDestructionTask.
-func StartInstanceGroupDestructionTaskPath() string {
+func StartInstanceGroupDestructionTaskPath(name string) string {
+	param0 := name
 
-	return fmt.Sprintf("/destruction_tasks")
+	return fmt.Sprintf("/instance_groups/%s/destruction_tasks", param0)
 }
 
 // Start operation
-func (c *Client) StartInstanceGroupDestructionTask(ctx context.Context, path string, resourceID string) (*http.Response, error) {
-	req, err := c.NewStartInstanceGroupDestructionTaskRequest(ctx, path, resourceID)
+func (c *Client) StartInstanceGroupDestructionTask(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.NewStartInstanceGroupDestructionTaskRequest(ctx, path)
 	if err != nil {
 		return nil, err
 	}
@@ -33,15 +34,12 @@ func (c *Client) StartInstanceGroupDestructionTask(ctx context.Context, path str
 }
 
 // NewStartInstanceGroupDestructionTaskRequest create the request corresponding to the start action endpoint of the InstanceGroupDestructionTask resource.
-func (c *Client) NewStartInstanceGroupDestructionTaskRequest(ctx context.Context, path string, resourceID string) (*http.Request, error) {
+func (c *Client) NewStartInstanceGroupDestructionTaskRequest(ctx context.Context, path string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "http"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
-	values := u.Query()
-	values.Set("resource_id", resourceID)
-	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		return nil, err
@@ -55,10 +53,11 @@ func (c *Client) NewStartInstanceGroupDestructionTaskRequest(ctx context.Context
 }
 
 // WatchInstanceGroupDestructionTaskPath computes a request path to the watch action of InstanceGroupDestructionTask.
-func WatchInstanceGroupDestructionTaskPath(id string) string {
-	param0 := id
+func WatchInstanceGroupDestructionTaskPath(name string, id string) string {
+	param0 := name
+	param1 := id
 
-	return fmt.Sprintf("/destruction_tasks/%s", param0)
+	return fmt.Sprintf("/instance_groups/%s/destruction_tasks/%s", param0, param1)
 }
 
 // Watch

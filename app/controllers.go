@@ -49,10 +49,10 @@ func MountInstanceGroupController(service *goa.Service, ctrl InstanceGroupContro
 	initService(service)
 	var h goa.Handler
 	service.Mux.Handle("OPTIONS", "/instance_groups", ctrl.MuxHandler("preflight", handleInstanceGroupOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/instance_groups/:id", ctrl.MuxHandler("preflight", handleInstanceGroupOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/instance_groups/:id/destruct", ctrl.MuxHandler("preflight", handleInstanceGroupOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/instance_groups/:id/resize", ctrl.MuxHandler("preflight", handleInstanceGroupOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/instance_groups/:id/start_health_check", ctrl.MuxHandler("preflight", handleInstanceGroupOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/instance_groups/:name", ctrl.MuxHandler("preflight", handleInstanceGroupOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/instance_groups/:name/destruct", ctrl.MuxHandler("preflight", handleInstanceGroupOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/instance_groups/:name/resize", ctrl.MuxHandler("preflight", handleInstanceGroupOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/instance_groups/:name/start_health_check", ctrl.MuxHandler("preflight", handleInstanceGroupOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -91,8 +91,8 @@ func MountInstanceGroupController(service *goa.Service, ctrl InstanceGroupContro
 	}
 	h = handleSecurity("api_key", h)
 	h = handleInstanceGroupOrigin(h)
-	service.Mux.Handle("DELETE", "/instance_groups/:id", ctrl.MuxHandler("delete", h, nil))
-	service.LogInfo("mount", "ctrl", "InstanceGroup", "action", "Delete", "route", "DELETE /instance_groups/:id", "security", "api_key")
+	service.Mux.Handle("DELETE", "/instance_groups/:name", ctrl.MuxHandler("delete", h, nil))
+	service.LogInfo("mount", "ctrl", "InstanceGroup", "action", "Delete", "route", "DELETE /instance_groups/:name", "security", "api_key")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -108,8 +108,8 @@ func MountInstanceGroupController(service *goa.Service, ctrl InstanceGroupContro
 	}
 	h = handleSecurity("api_key", h)
 	h = handleInstanceGroupOrigin(h)
-	service.Mux.Handle("PUT", "/instance_groups/:id/destruct", ctrl.MuxHandler("destruct", h, nil))
-	service.LogInfo("mount", "ctrl", "InstanceGroup", "action", "Destruct", "route", "PUT /instance_groups/:id/destruct", "security", "api_key")
+	service.Mux.Handle("PUT", "/instance_groups/:name/destruct", ctrl.MuxHandler("destruct", h, nil))
+	service.LogInfo("mount", "ctrl", "InstanceGroup", "action", "Destruct", "route", "PUT /instance_groups/:name/destruct", "security", "api_key")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -142,8 +142,8 @@ func MountInstanceGroupController(service *goa.Service, ctrl InstanceGroupContro
 	}
 	h = handleSecurity("api_key", h)
 	h = handleInstanceGroupOrigin(h)
-	service.Mux.Handle("PUT", "/instance_groups/:id/resize", ctrl.MuxHandler("resize", h, nil))
-	service.LogInfo("mount", "ctrl", "InstanceGroup", "action", "Resize", "route", "PUT /instance_groups/:id/resize", "security", "api_key")
+	service.Mux.Handle("PUT", "/instance_groups/:name/resize", ctrl.MuxHandler("resize", h, nil))
+	service.LogInfo("mount", "ctrl", "InstanceGroup", "action", "Resize", "route", "PUT /instance_groups/:name/resize", "security", "api_key")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -159,8 +159,8 @@ func MountInstanceGroupController(service *goa.Service, ctrl InstanceGroupContro
 	}
 	h = handleSecurity("api_key", h)
 	h = handleInstanceGroupOrigin(h)
-	service.Mux.Handle("GET", "/instance_groups/:id", ctrl.MuxHandler("show", h, nil))
-	service.LogInfo("mount", "ctrl", "InstanceGroup", "action", "Show", "route", "GET /instance_groups/:id", "security", "api_key")
+	service.Mux.Handle("GET", "/instance_groups/:name", ctrl.MuxHandler("show", h, nil))
+	service.LogInfo("mount", "ctrl", "InstanceGroup", "action", "Show", "route", "GET /instance_groups/:name", "security", "api_key")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -176,8 +176,8 @@ func MountInstanceGroupController(service *goa.Service, ctrl InstanceGroupContro
 	}
 	h = handleSecurity("api_key", h)
 	h = handleInstanceGroupOrigin(h)
-	service.Mux.Handle("POST", "/instance_groups/:id/start_health_check", ctrl.MuxHandler("start_health_check", h, nil))
-	service.LogInfo("mount", "ctrl", "InstanceGroup", "action", "StartHealthCheck", "route", "POST /instance_groups/:id/start_health_check", "security", "api_key")
+	service.Mux.Handle("POST", "/instance_groups/:name/start_health_check", ctrl.MuxHandler("start_health_check", h, nil))
+	service.LogInfo("mount", "ctrl", "InstanceGroup", "action", "StartHealthCheck", "route", "POST /instance_groups/:name/start_health_check", "security", "api_key")
 }
 
 // handleInstanceGroupOrigin applies the CORS response headers corresponding to the origin.
@@ -232,8 +232,8 @@ type InstanceGroupConstructionTaskController interface {
 func MountInstanceGroupConstructionTaskController(service *goa.Service, ctrl InstanceGroupConstructionTaskController) {
 	initService(service)
 	var h goa.Handler
-	service.Mux.Handle("OPTIONS", "/construction_tasks", ctrl.MuxHandler("preflight", handleInstanceGroupConstructionTaskOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/construction_tasks/:id", ctrl.MuxHandler("preflight", handleInstanceGroupConstructionTaskOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/instance_groups/:name/construction_tasks", ctrl.MuxHandler("preflight", handleInstanceGroupConstructionTaskOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/instance_groups/:name/construction_tasks/:id", ctrl.MuxHandler("preflight", handleInstanceGroupConstructionTaskOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -249,8 +249,8 @@ func MountInstanceGroupConstructionTaskController(service *goa.Service, ctrl Ins
 	}
 	h = handleSecurity("api_key", h)
 	h = handleInstanceGroupConstructionTaskOrigin(h)
-	service.Mux.Handle("POST", "/construction_tasks", ctrl.MuxHandler("start", h, nil))
-	service.LogInfo("mount", "ctrl", "InstanceGroupConstructionTask", "action", "Start", "route", "POST /construction_tasks", "security", "api_key")
+	service.Mux.Handle("POST", "/instance_groups/:name/construction_tasks", ctrl.MuxHandler("start", h, nil))
+	service.LogInfo("mount", "ctrl", "InstanceGroupConstructionTask", "action", "Start", "route", "POST /instance_groups/:name/construction_tasks", "security", "api_key")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -266,8 +266,8 @@ func MountInstanceGroupConstructionTaskController(service *goa.Service, ctrl Ins
 	}
 	h = handleSecurity("api_key", h)
 	h = handleInstanceGroupConstructionTaskOrigin(h)
-	service.Mux.Handle("PUT", "/construction_tasks/:id", ctrl.MuxHandler("watch", h, nil))
-	service.LogInfo("mount", "ctrl", "InstanceGroupConstructionTask", "action", "Watch", "route", "PUT /construction_tasks/:id", "security", "api_key")
+	service.Mux.Handle("PUT", "/instance_groups/:name/construction_tasks/:id", ctrl.MuxHandler("watch", h, nil))
+	service.LogInfo("mount", "ctrl", "InstanceGroupConstructionTask", "action", "Watch", "route", "PUT /instance_groups/:name/construction_tasks/:id", "security", "api_key")
 }
 
 // handleInstanceGroupConstructionTaskOrigin applies the CORS response headers corresponding to the origin.
@@ -306,8 +306,8 @@ type InstanceGroupDestructionTaskController interface {
 func MountInstanceGroupDestructionTaskController(service *goa.Service, ctrl InstanceGroupDestructionTaskController) {
 	initService(service)
 	var h goa.Handler
-	service.Mux.Handle("OPTIONS", "/destruction_tasks", ctrl.MuxHandler("preflight", handleInstanceGroupDestructionTaskOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/destruction_tasks/:id", ctrl.MuxHandler("preflight", handleInstanceGroupDestructionTaskOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/instance_groups/:name/destruction_tasks", ctrl.MuxHandler("preflight", handleInstanceGroupDestructionTaskOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/instance_groups/:name/destruction_tasks/:id", ctrl.MuxHandler("preflight", handleInstanceGroupDestructionTaskOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -323,8 +323,8 @@ func MountInstanceGroupDestructionTaskController(service *goa.Service, ctrl Inst
 	}
 	h = handleSecurity("api_key", h)
 	h = handleInstanceGroupDestructionTaskOrigin(h)
-	service.Mux.Handle("POST", "/destruction_tasks", ctrl.MuxHandler("start", h, nil))
-	service.LogInfo("mount", "ctrl", "InstanceGroupDestructionTask", "action", "Start", "route", "POST /destruction_tasks", "security", "api_key")
+	service.Mux.Handle("POST", "/instance_groups/:name/destruction_tasks", ctrl.MuxHandler("start", h, nil))
+	service.LogInfo("mount", "ctrl", "InstanceGroupDestructionTask", "action", "Start", "route", "POST /instance_groups/:name/destruction_tasks", "security", "api_key")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -340,8 +340,8 @@ func MountInstanceGroupDestructionTaskController(service *goa.Service, ctrl Inst
 	}
 	h = handleSecurity("api_key", h)
 	h = handleInstanceGroupDestructionTaskOrigin(h)
-	service.Mux.Handle("PUT", "/destruction_tasks/:id", ctrl.MuxHandler("watch", h, nil))
-	service.LogInfo("mount", "ctrl", "InstanceGroupDestructionTask", "action", "Watch", "route", "PUT /destruction_tasks/:id", "security", "api_key")
+	service.Mux.Handle("PUT", "/instance_groups/:name/destruction_tasks/:id", ctrl.MuxHandler("watch", h, nil))
+	service.LogInfo("mount", "ctrl", "InstanceGroupDestructionTask", "action", "Watch", "route", "PUT /instance_groups/:name/destruction_tasks/:id", "security", "api_key")
 }
 
 // handleInstanceGroupDestructionTaskOrigin applies the CORS response headers corresponding to the origin.
@@ -379,7 +379,7 @@ type InstanceGroupHealthCheckController interface {
 func MountInstanceGroupHealthCheckController(service *goa.Service, ctrl InstanceGroupHealthCheckController) {
 	initService(service)
 	var h goa.Handler
-	service.Mux.Handle("OPTIONS", "/instance_group_health_checks/:id", ctrl.MuxHandler("preflight", handleInstanceGroupHealthCheckOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/instance_groups/:name/health_checks/:id", ctrl.MuxHandler("preflight", handleInstanceGroupHealthCheckOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -395,8 +395,8 @@ func MountInstanceGroupHealthCheckController(service *goa.Service, ctrl Instance
 	}
 	h = handleSecurity("api_key", h)
 	h = handleInstanceGroupHealthCheckOrigin(h)
-	service.Mux.Handle("PUT", "/instance_group_health_checks/:id", ctrl.MuxHandler("execute", h, nil))
-	service.LogInfo("mount", "ctrl", "InstanceGroupHealthCheck", "action", "Execute", "route", "PUT /instance_group_health_checks/:id", "security", "api_key")
+	service.Mux.Handle("PUT", "/instance_groups/:name/health_checks/:id", ctrl.MuxHandler("execute", h, nil))
+	service.LogInfo("mount", "ctrl", "InstanceGroupHealthCheck", "action", "Execute", "route", "PUT /instance_groups/:name/health_checks/:id", "security", "api_key")
 }
 
 // handleInstanceGroupHealthCheckOrigin applies the CORS response headers corresponding to the origin.
@@ -435,8 +435,8 @@ type InstanceGroupResizingTaskController interface {
 func MountInstanceGroupResizingTaskController(service *goa.Service, ctrl InstanceGroupResizingTaskController) {
 	initService(service)
 	var h goa.Handler
-	service.Mux.Handle("OPTIONS", "/resizing_tasks", ctrl.MuxHandler("preflight", handleInstanceGroupResizingTaskOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/resizing_tasks/:id", ctrl.MuxHandler("preflight", handleInstanceGroupResizingTaskOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/instance_groups/:name/resizing_tasks", ctrl.MuxHandler("preflight", handleInstanceGroupResizingTaskOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/instance_groups/:name/resizing_tasks/:id", ctrl.MuxHandler("preflight", handleInstanceGroupResizingTaskOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -452,8 +452,8 @@ func MountInstanceGroupResizingTaskController(service *goa.Service, ctrl Instanc
 	}
 	h = handleSecurity("api_key", h)
 	h = handleInstanceGroupResizingTaskOrigin(h)
-	service.Mux.Handle("POST", "/resizing_tasks", ctrl.MuxHandler("start", h, nil))
-	service.LogInfo("mount", "ctrl", "InstanceGroupResizingTask", "action", "Start", "route", "POST /resizing_tasks", "security", "api_key")
+	service.Mux.Handle("POST", "/instance_groups/:name/resizing_tasks", ctrl.MuxHandler("start", h, nil))
+	service.LogInfo("mount", "ctrl", "InstanceGroupResizingTask", "action", "Start", "route", "POST /instance_groups/:name/resizing_tasks", "security", "api_key")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -469,8 +469,8 @@ func MountInstanceGroupResizingTaskController(service *goa.Service, ctrl Instanc
 	}
 	h = handleSecurity("api_key", h)
 	h = handleInstanceGroupResizingTaskOrigin(h)
-	service.Mux.Handle("PUT", "/resizing_tasks/:id", ctrl.MuxHandler("watch", h, nil))
-	service.LogInfo("mount", "ctrl", "InstanceGroupResizingTask", "action", "Watch", "route", "PUT /resizing_tasks/:id", "security", "api_key")
+	service.Mux.Handle("PUT", "/instance_groups/:name/resizing_tasks/:id", ctrl.MuxHandler("watch", h, nil))
+	service.LogInfo("mount", "ctrl", "InstanceGroupResizingTask", "action", "Watch", "route", "PUT /instance_groups/:name/resizing_tasks/:id", "security", "api_key")
 }
 
 // handleInstanceGroupResizingTaskOrigin applies the CORS response headers corresponding to the origin.
@@ -704,10 +704,10 @@ func MountPipelineController(service *goa.Service, ctrl PipelineController) {
 	initService(service)
 	var h goa.Handler
 	service.Mux.Handle("OPTIONS", "/pipelines", ctrl.MuxHandler("preflight", handlePipelineOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/pipelines/:id/current", ctrl.MuxHandler("preflight", handlePipelineOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/pipelines/:id", ctrl.MuxHandler("preflight", handlePipelineOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/pipelines/:id/preparing_finalize_task", ctrl.MuxHandler("preflight", handlePipelineOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/pipelines/:id/stop", ctrl.MuxHandler("preflight", handlePipelineOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/pipelines/:name/current", ctrl.MuxHandler("preflight", handlePipelineOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/pipelines/:name", ctrl.MuxHandler("preflight", handlePipelineOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/pipelines/:name/preparing_finalize_task", ctrl.MuxHandler("preflight", handlePipelineOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/pipelines/:name/stop", ctrl.MuxHandler("preflight", handlePipelineOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -746,8 +746,8 @@ func MountPipelineController(service *goa.Service, ctrl PipelineController) {
 	}
 	h = handleSecurity("api_key", h)
 	h = handlePipelineOrigin(h)
-	service.Mux.Handle("PUT", "/pipelines/:id/current", ctrl.MuxHandler("current", h, nil))
-	service.LogInfo("mount", "ctrl", "Pipeline", "action", "Current", "route", "PUT /pipelines/:id/current", "security", "api_key")
+	service.Mux.Handle("PUT", "/pipelines/:name/current", ctrl.MuxHandler("current", h, nil))
+	service.LogInfo("mount", "ctrl", "Pipeline", "action", "Current", "route", "PUT /pipelines/:name/current", "security", "api_key")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -763,8 +763,8 @@ func MountPipelineController(service *goa.Service, ctrl PipelineController) {
 	}
 	h = handleSecurity("api_key", h)
 	h = handlePipelineOrigin(h)
-	service.Mux.Handle("DELETE", "/pipelines/:id", ctrl.MuxHandler("delete", h, nil))
-	service.LogInfo("mount", "ctrl", "Pipeline", "action", "Delete", "route", "DELETE /pipelines/:id", "security", "api_key")
+	service.Mux.Handle("DELETE", "/pipelines/:name", ctrl.MuxHandler("delete", h, nil))
+	service.LogInfo("mount", "ctrl", "Pipeline", "action", "Delete", "route", "DELETE /pipelines/:name", "security", "api_key")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -797,8 +797,8 @@ func MountPipelineController(service *goa.Service, ctrl PipelineController) {
 	}
 	h = handleSecurity("api_key", h)
 	h = handlePipelineOrigin(h)
-	service.Mux.Handle("PUT", "/pipelines/:id/preparing_finalize_task", ctrl.MuxHandler("preparing_finalize_task", h, nil))
-	service.LogInfo("mount", "ctrl", "Pipeline", "action", "PreparingFinalizeTask", "route", "PUT /pipelines/:id/preparing_finalize_task", "security", "api_key")
+	service.Mux.Handle("PUT", "/pipelines/:name/preparing_finalize_task", ctrl.MuxHandler("preparing_finalize_task", h, nil))
+	service.LogInfo("mount", "ctrl", "Pipeline", "action", "PreparingFinalizeTask", "route", "PUT /pipelines/:name/preparing_finalize_task", "security", "api_key")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -814,8 +814,8 @@ func MountPipelineController(service *goa.Service, ctrl PipelineController) {
 	}
 	h = handleSecurity("api_key", h)
 	h = handlePipelineOrigin(h)
-	service.Mux.Handle("GET", "/pipelines/:id", ctrl.MuxHandler("show", h, nil))
-	service.LogInfo("mount", "ctrl", "Pipeline", "action", "Show", "route", "GET /pipelines/:id", "security", "api_key")
+	service.Mux.Handle("GET", "/pipelines/:name", ctrl.MuxHandler("show", h, nil))
+	service.LogInfo("mount", "ctrl", "Pipeline", "action", "Show", "route", "GET /pipelines/:name", "security", "api_key")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -831,8 +831,8 @@ func MountPipelineController(service *goa.Service, ctrl PipelineController) {
 	}
 	h = handleSecurity("api_key", h)
 	h = handlePipelineOrigin(h)
-	service.Mux.Handle("PUT", "/pipelines/:id/stop", ctrl.MuxHandler("stop", h, nil))
-	service.LogInfo("mount", "ctrl", "Pipeline", "action", "Stop", "route", "PUT /pipelines/:id/stop", "security", "api_key")
+	service.Mux.Handle("PUT", "/pipelines/:name/stop", ctrl.MuxHandler("stop", h, nil))
+	service.LogInfo("mount", "ctrl", "Pipeline", "action", "Stop", "route", "PUT /pipelines/:name/stop", "security", "api_key")
 }
 
 // handlePipelineOrigin applies the CORS response headers corresponding to the origin.
@@ -894,12 +894,12 @@ type PipelineBaseController interface {
 func MountPipelineBaseController(service *goa.Service, ctrl PipelineBaseController) {
 	initService(service)
 	var h goa.Handler
-	service.Mux.Handle("OPTIONS", "/pipeline_bases/:id", ctrl.MuxHandler("preflight", handlePipelineBaseOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/pipeline_bases/:name", ctrl.MuxHandler("preflight", handlePipelineBaseOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/pipeline_bases", ctrl.MuxHandler("preflight", handlePipelineBaseOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/pipeline_bases/:id/hibernation_checking_task", ctrl.MuxHandler("preflight", handlePipelineBaseOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/pipeline_bases/:id/hibernation_done_task", ctrl.MuxHandler("preflight", handlePipelineBaseOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/pipeline_bases/:id/pull_task", ctrl.MuxHandler("preflight", handlePipelineBaseOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/pipeline_bases/:id/wakeup_done_task", ctrl.MuxHandler("preflight", handlePipelineBaseOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/pipeline_bases/:name/hibernation_checking_task", ctrl.MuxHandler("preflight", handlePipelineBaseOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/pipeline_bases/:name/hibernation_done_task", ctrl.MuxHandler("preflight", handlePipelineBaseOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/pipeline_bases/:name/pull_task", ctrl.MuxHandler("preflight", handlePipelineBaseOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/pipeline_bases/:name/wakeup_done_task", ctrl.MuxHandler("preflight", handlePipelineBaseOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -915,8 +915,8 @@ func MountPipelineBaseController(service *goa.Service, ctrl PipelineBaseControll
 	}
 	h = handleSecurity("api_key", h)
 	h = handlePipelineBaseOrigin(h)
-	service.Mux.Handle("PUT", "/pipeline_bases/:id", ctrl.MuxHandler("close", h, nil))
-	service.LogInfo("mount", "ctrl", "PipelineBase", "action", "Close", "route", "PUT /pipeline_bases/:id", "security", "api_key")
+	service.Mux.Handle("PUT", "/pipeline_bases/:name", ctrl.MuxHandler("close", h, nil))
+	service.LogInfo("mount", "ctrl", "PipelineBase", "action", "Close", "route", "PUT /pipeline_bases/:name", "security", "api_key")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -955,8 +955,8 @@ func MountPipelineBaseController(service *goa.Service, ctrl PipelineBaseControll
 	}
 	h = handleSecurity("api_key", h)
 	h = handlePipelineBaseOrigin(h)
-	service.Mux.Handle("DELETE", "/pipeline_bases/:id", ctrl.MuxHandler("delete", h, nil))
-	service.LogInfo("mount", "ctrl", "PipelineBase", "action", "Delete", "route", "DELETE /pipeline_bases/:id", "security", "api_key")
+	service.Mux.Handle("DELETE", "/pipeline_bases/:name", ctrl.MuxHandler("delete", h, nil))
+	service.LogInfo("mount", "ctrl", "PipelineBase", "action", "Delete", "route", "DELETE /pipeline_bases/:name", "security", "api_key")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -972,8 +972,8 @@ func MountPipelineBaseController(service *goa.Service, ctrl PipelineBaseControll
 	}
 	h = handleSecurity("api_key", h)
 	h = handlePipelineBaseOrigin(h)
-	service.Mux.Handle("PUT", "/pipeline_bases/:id/hibernation_checking_task", ctrl.MuxHandler("hibernation_checking_task", h, nil))
-	service.LogInfo("mount", "ctrl", "PipelineBase", "action", "HibernationCheckingTask", "route", "PUT /pipeline_bases/:id/hibernation_checking_task", "security", "api_key")
+	service.Mux.Handle("PUT", "/pipeline_bases/:name/hibernation_checking_task", ctrl.MuxHandler("hibernation_checking_task", h, nil))
+	service.LogInfo("mount", "ctrl", "PipelineBase", "action", "HibernationCheckingTask", "route", "PUT /pipeline_bases/:name/hibernation_checking_task", "security", "api_key")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -989,8 +989,8 @@ func MountPipelineBaseController(service *goa.Service, ctrl PipelineBaseControll
 	}
 	h = handleSecurity("api_key", h)
 	h = handlePipelineBaseOrigin(h)
-	service.Mux.Handle("PUT", "/pipeline_bases/:id/hibernation_done_task", ctrl.MuxHandler("hibernation_done_task", h, nil))
-	service.LogInfo("mount", "ctrl", "PipelineBase", "action", "HibernationDoneTask", "route", "PUT /pipeline_bases/:id/hibernation_done_task", "security", "api_key")
+	service.Mux.Handle("PUT", "/pipeline_bases/:name/hibernation_done_task", ctrl.MuxHandler("hibernation_done_task", h, nil))
+	service.LogInfo("mount", "ctrl", "PipelineBase", "action", "HibernationDoneTask", "route", "PUT /pipeline_bases/:name/hibernation_done_task", "security", "api_key")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -1023,8 +1023,8 @@ func MountPipelineBaseController(service *goa.Service, ctrl PipelineBaseControll
 	}
 	h = handleSecurity("api_key", h)
 	h = handlePipelineBaseOrigin(h)
-	service.Mux.Handle("PUT", "/pipeline_bases/:id/pull_task", ctrl.MuxHandler("pull_task", h, nil))
-	service.LogInfo("mount", "ctrl", "PipelineBase", "action", "PullTask", "route", "PUT /pipeline_bases/:id/pull_task", "security", "api_key")
+	service.Mux.Handle("PUT", "/pipeline_bases/:name/pull_task", ctrl.MuxHandler("pull_task", h, nil))
+	service.LogInfo("mount", "ctrl", "PipelineBase", "action", "PullTask", "route", "PUT /pipeline_bases/:name/pull_task", "security", "api_key")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -1040,8 +1040,8 @@ func MountPipelineBaseController(service *goa.Service, ctrl PipelineBaseControll
 	}
 	h = handleSecurity("api_key", h)
 	h = handlePipelineBaseOrigin(h)
-	service.Mux.Handle("GET", "/pipeline_bases/:id", ctrl.MuxHandler("show", h, nil))
-	service.LogInfo("mount", "ctrl", "PipelineBase", "action", "Show", "route", "GET /pipeline_bases/:id", "security", "api_key")
+	service.Mux.Handle("GET", "/pipeline_bases/:name", ctrl.MuxHandler("show", h, nil))
+	service.LogInfo("mount", "ctrl", "PipelineBase", "action", "Show", "route", "GET /pipeline_bases/:name", "security", "api_key")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -1057,8 +1057,8 @@ func MountPipelineBaseController(service *goa.Service, ctrl PipelineBaseControll
 	}
 	h = handleSecurity("api_key", h)
 	h = handlePipelineBaseOrigin(h)
-	service.Mux.Handle("PUT", "/pipeline_bases/:id/wakeup_done_task", ctrl.MuxHandler("wakeup_done_task", h, nil))
-	service.LogInfo("mount", "ctrl", "PipelineBase", "action", "WakeupDoneTask", "route", "PUT /pipeline_bases/:id/wakeup_done_task", "security", "api_key")
+	service.Mux.Handle("PUT", "/pipeline_bases/:name/wakeup_done_task", ctrl.MuxHandler("wakeup_done_task", h, nil))
+	service.LogInfo("mount", "ctrl", "PipelineBase", "action", "WakeupDoneTask", "route", "PUT /pipeline_bases/:name/wakeup_done_task", "security", "api_key")
 }
 
 // handlePipelineBaseOrigin applies the CORS response headers corresponding to the origin.
@@ -1113,8 +1113,8 @@ type PipelineBaseClosingTaskController interface {
 func MountPipelineBaseClosingTaskController(service *goa.Service, ctrl PipelineBaseClosingTaskController) {
 	initService(service)
 	var h goa.Handler
-	service.Mux.Handle("OPTIONS", "/closing_tasks", ctrl.MuxHandler("preflight", handlePipelineBaseClosingTaskOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/closing_tasks/:id", ctrl.MuxHandler("preflight", handlePipelineBaseClosingTaskOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/pipeline_bases/:name/closing_tasks", ctrl.MuxHandler("preflight", handlePipelineBaseClosingTaskOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/pipeline_bases/:name/closing_tasks/:id", ctrl.MuxHandler("preflight", handlePipelineBaseClosingTaskOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -1130,8 +1130,8 @@ func MountPipelineBaseClosingTaskController(service *goa.Service, ctrl PipelineB
 	}
 	h = handleSecurity("api_key", h)
 	h = handlePipelineBaseClosingTaskOrigin(h)
-	service.Mux.Handle("POST", "/closing_tasks", ctrl.MuxHandler("start", h, nil))
-	service.LogInfo("mount", "ctrl", "PipelineBaseClosingTask", "action", "Start", "route", "POST /closing_tasks", "security", "api_key")
+	service.Mux.Handle("POST", "/pipeline_bases/:name/closing_tasks", ctrl.MuxHandler("start", h, nil))
+	service.LogInfo("mount", "ctrl", "PipelineBaseClosingTask", "action", "Start", "route", "POST /pipeline_bases/:name/closing_tasks", "security", "api_key")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -1147,8 +1147,8 @@ func MountPipelineBaseClosingTaskController(service *goa.Service, ctrl PipelineB
 	}
 	h = handleSecurity("api_key", h)
 	h = handlePipelineBaseClosingTaskOrigin(h)
-	service.Mux.Handle("PUT", "/closing_tasks/:id", ctrl.MuxHandler("watch", h, nil))
-	service.LogInfo("mount", "ctrl", "PipelineBaseClosingTask", "action", "Watch", "route", "PUT /closing_tasks/:id", "security", "api_key")
+	service.Mux.Handle("PUT", "/pipeline_bases/:name/closing_tasks/:id", ctrl.MuxHandler("watch", h, nil))
+	service.LogInfo("mount", "ctrl", "PipelineBaseClosingTask", "action", "Watch", "route", "PUT /pipeline_bases/:name/closing_tasks/:id", "security", "api_key")
 }
 
 // handlePipelineBaseClosingTaskOrigin applies the CORS response headers corresponding to the origin.
@@ -1187,8 +1187,8 @@ type PipelineBaseOpeningTaskController interface {
 func MountPipelineBaseOpeningTaskController(service *goa.Service, ctrl PipelineBaseOpeningTaskController) {
 	initService(service)
 	var h goa.Handler
-	service.Mux.Handle("OPTIONS", "/opening_tasks", ctrl.MuxHandler("preflight", handlePipelineBaseOpeningTaskOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/opening_tasks/:id", ctrl.MuxHandler("preflight", handlePipelineBaseOpeningTaskOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/pipeline_bases/:name/opening_tasks", ctrl.MuxHandler("preflight", handlePipelineBaseOpeningTaskOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/pipeline_bases/:name/opening_tasks/:id", ctrl.MuxHandler("preflight", handlePipelineBaseOpeningTaskOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -1204,8 +1204,8 @@ func MountPipelineBaseOpeningTaskController(service *goa.Service, ctrl PipelineB
 	}
 	h = handleSecurity("api_key", h)
 	h = handlePipelineBaseOpeningTaskOrigin(h)
-	service.Mux.Handle("POST", "/opening_tasks", ctrl.MuxHandler("start", h, nil))
-	service.LogInfo("mount", "ctrl", "PipelineBaseOpeningTask", "action", "Start", "route", "POST /opening_tasks", "security", "api_key")
+	service.Mux.Handle("POST", "/pipeline_bases/:name/opening_tasks", ctrl.MuxHandler("start", h, nil))
+	service.LogInfo("mount", "ctrl", "PipelineBaseOpeningTask", "action", "Start", "route", "POST /pipeline_bases/:name/opening_tasks", "security", "api_key")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -1221,8 +1221,8 @@ func MountPipelineBaseOpeningTaskController(service *goa.Service, ctrl PipelineB
 	}
 	h = handleSecurity("api_key", h)
 	h = handlePipelineBaseOpeningTaskOrigin(h)
-	service.Mux.Handle("PUT", "/opening_tasks/:id", ctrl.MuxHandler("watch", h, nil))
-	service.LogInfo("mount", "ctrl", "PipelineBaseOpeningTask", "action", "Watch", "route", "PUT /opening_tasks/:id", "security", "api_key")
+	service.Mux.Handle("PUT", "/pipeline_bases/:name/opening_tasks/:id", ctrl.MuxHandler("watch", h, nil))
+	service.LogInfo("mount", "ctrl", "PipelineBaseOpeningTask", "action", "Watch", "route", "PUT /pipeline_bases/:name/opening_tasks/:id", "security", "api_key")
 }
 
 // handlePipelineBaseOpeningTaskOrigin applies the CORS response headers corresponding to the origin.
