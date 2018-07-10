@@ -9,6 +9,8 @@ import (
 	"google.golang.org/appengine/datastore"
 	//"google.golang.org/appengine/log"
 
+	"github.com/mjibson/goon"
+
 	"github.com/goadesign/goa"
 	"github.com/groovenauts/blocks-concurrent-batch-server/app"
 	"github.com/groovenauts/blocks-concurrent-batch-server/model"
@@ -196,8 +198,38 @@ func (c *InstanceGroupController) StartHealthCheck(ctx *app.StartHealthCheckInst
 	// InstanceGroupController_StartHealthCheck: start_implement
 
 	// Put your logic here
+	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
+		appCtx := appengine.NewContext(ctx.Request)
+		store := &model.InstanceGroupStore{ParentKey: orgKey}
 
-	res := &app.InstanceGroup{}
-	return ctx.OK(res)
+		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
+			return c.member(appCtx, store, ctx.ID, ctx.BadRequest, ctx.NotFound, func(m *model.InstanceGroup) error {
+				switch m.Status {
+				case model.Constructed, model.HealthCheckError, model.ResizeStarting, model.ResizeRunning: // Through
+				default:
+					return ctx.Conflict(fmt.Errorf("Can't resize because the InstanceGroup %q is %s", m.Id, m.Status))
+				}
+
+				hc := &model.InstanceGroupHealthCheck{}
+				g := goon.FromContext(appCtx)
+				hcStore := &model.InstanceGroupHealthCheckStore{ParentKey: g.Key(m)}
+
+				if _, err := hcStore.Create(appCtx, hc); err != nil {
+					return err
+				}
+
+				m.HealthCheckId = fmt.Sprintf("%d", hc.Id)
+				if _, err := store.Update(appCtx, m); err != nil {
+					return err
+				}
+
+				if err := PutTask(appCtx, fmt.Sprintf("/instance_group_health_checks/%d", hc.Id), 0); err != nil {
+					return err
+				}
+				return ctx.Created(InstanceGroupModelToMediaType(m))
+			})
+		}, nil)
+	})
+
 	// InstanceGroupController_StartHealthCheck: end_implement
 }
