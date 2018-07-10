@@ -30,7 +30,7 @@ types:
       # id_type: string
       # id_type: UUID (type: string)
       id_type: int64
-      ancestor: Organization
+      parent: Organization
     payload: ""
     media_type: Cloud-Async-Operation
     fields:

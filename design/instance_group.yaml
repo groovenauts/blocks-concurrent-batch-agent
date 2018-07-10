@@ -44,7 +44,7 @@ types:
       # id_type: string
       # id_type: UUID (type: string)
       id_type: int64
-      ancestor: Organization
+      parent: Organization
     # payload: InstanceGroupPayload
     media_type: Instance-Group
     fields:
@@ -62,7 +62,7 @@ types:
   InstanceGroupHealthCheck:
     goon:
       id_type: int64
-      ancestor: InstanceGroup
+      parent: InstanceGroup
     media_type: "Instance-Group-Health-Check"
     fields:
       LastResult: string

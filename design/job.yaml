@@ -34,7 +34,7 @@ types:
       # id_type: string
       # id_type: UUID (type: string)
       id_type: int64
-      ancestor: PipelineBase
+      parent: PipelineBase
     payload: JobPayload
     media_type: Job
     fields:
