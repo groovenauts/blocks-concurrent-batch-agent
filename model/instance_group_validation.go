@@ -31,3 +31,9 @@ func (m *InstanceGroup) Validate() error {
 	err := validator.Struct(m)
 	return err
 }
+
+func (m *InstanceGroupHealthCheck) Validate() error {
+	validator := validator.New()
+	err := validator.Struct(m)
+	return err
+}
