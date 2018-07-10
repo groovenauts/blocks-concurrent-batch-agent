@@ -34,7 +34,7 @@ func (c *PipelineBaseController) Close(ctx *app.ClosePipelineBaseContext) error 
 		store := &model.PipelineBaseStore{ParentKey: orgKey}
 
 		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
-			return c.member(appCtx, store, ctx.ID, ctx.NotFound, func(m *model.PipelineBase) error {
+			return c.member(appCtx, store, ctx.ID, ctx.BadRequest, ctx.NotFound, func(m *model.PipelineBase) error {
 				switch m.Status {
 				case model.Hibernating: // Through
 				case model.ClosingStarting, model.ClosingRunning, model.ClosingError, model.Closed:
@@ -43,7 +43,7 @@ func (c *PipelineBaseController) Close(ctx *app.ClosePipelineBaseContext) error 
 					return ctx.Conflict(fmt.Errorf("Can't resize because the PipelineBase %q is %s", m.Id, m.Status))
 				}
 
-				if err := PostTask(appCtx, "/closing_tasks?resource_id="+m.Id, 0); err != nil {
+				if err := PostTask(appCtx, fmt.Sprintf("/closing_tasks?resource_id=%d", m.Id), 0); err != nil {
 					return err
 				}
 				return ctx.Created(PipelineBaseModelToMediaType(m))
@@ -73,7 +73,7 @@ func (c *PipelineBaseController) Create(ctx *app.CreatePipelineBaseContext) erro
 				return ctx.BadRequest(goa.ErrBadRequest(err))
 			}
 
-			if err := PostTask(appCtx, "/opening_tasks?resource_id="+m.Id, 0); err != nil {
+			if err := PostTask(appCtx, fmt.Sprintf("/opening_tasks?resource_id=%d", m.Id), 0); err != nil {
 				return err
 			}
 			return nil
@@ -97,7 +97,7 @@ func (c *PipelineBaseController) Delete(ctx *app.DeletePipelineBaseContext) erro
 		appCtx := appengine.NewContext(ctx.Request)
 		store := &model.PipelineBaseStore{ParentKey: orgKey}
 		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
-			return c.member(appCtx, store, ctx.ID, ctx.NotFound, func(m *model.PipelineBase) error {
+			return c.member(appCtx, store, ctx.ID, ctx.BadRequest, ctx.NotFound, func(m *model.PipelineBase) error {
 				switch m.Status {
 				case model.OpeningError, model.WakingError, model.HibernationGoingError, model.ClosingError, model.Closed: // Through
 				default:
@@ -125,7 +125,7 @@ func (c *PipelineBaseController) HibernationCheckingTask(ctx *app.HibernationChe
 		appCtx := appengine.NewContext(ctx.Request)
 		store := &model.PipelineBaseStore{ParentKey: orgKey}
 		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
-			return c.member(appCtx, store, ctx.ID, ctx.NoContent, func(m *model.PipelineBase) error {
+			return c.member(appCtx, store, ctx.ID, ctx.BadRequest, ctx.NoContent, func(m *model.PipelineBase) error {
 				switch m.Status {
 				case model.HibernationChecking: // Through
 				case model.Awake, model.HibernationGoing, model.HibernationGoingError:
@@ -139,7 +139,7 @@ func (c *PipelineBaseController) HibernationCheckingTask(ctx *app.HibernationChe
 					return err
 				}
 
-				if err := PostTask(appCtx, "/destruction_tasks?resource_id="+m.IntanceGroupID, 0); err != nil {
+				if err := PostTask(appCtx, fmt.Sprintf("/destruction_tasks?resource_id=%d", m.IntanceGroupID), 0); err != nil {
 					return err
 				}
 
@@ -160,7 +160,7 @@ func (c *PipelineBaseController) HibernationDoneTask(ctx *app.HibernationDoneTas
 		appCtx := appengine.NewContext(ctx.Request)
 		store := &model.PipelineBaseStore{ParentKey: orgKey}
 		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
-			return c.member(appCtx, store, ctx.ID, ctx.NoContent, func(m *model.PipelineBase) error {
+			return c.member(appCtx, store, ctx.ID, ctx.BadRequest, ctx.NoContent, func(m *model.PipelineBase) error {
 				switch m.Status {
 				case model.HibernationGoing: // Through
 				case model.Awake, model.HibernationGoingError:
@@ -232,7 +232,7 @@ func (c *PipelineBaseController) Show(ctx *app.ShowPipelineBaseContext) error {
 	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
 		appCtx := appengine.NewContext(ctx.Request)
 		store := &model.PipelineBaseStore{ParentKey: orgKey}
-		return c.member(appCtx, store, ctx.ID, ctx.NotFound, func(m *model.PipelineBase) error {
+		return c.member(appCtx, store, ctx.ID, ctx.BadRequest, ctx.NotFound, func(m *model.PipelineBase) error {
 			return ctx.OK(PipelineBaseModelToMediaType(m))
 		})
 	})
@@ -249,7 +249,7 @@ func (c *PipelineBaseController) WakeupDoneTask(ctx *app.WakeupDoneTaskPipelineB
 		appCtx := appengine.NewContext(ctx.Request)
 		store := &model.PipelineBaseStore{ParentKey: orgKey}
 		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
-			return c.member(appCtx, store, ctx.ID, ctx.NoContent, func(m *model.PipelineBase) error {
+			return c.member(appCtx, store, ctx.ID, ctx.BadRequest, ctx.NoContent, func(m *model.PipelineBase) error {
 				switch m.Status {
 				case model.Waking: // Through
 				case model.WakingError, model.Awake:

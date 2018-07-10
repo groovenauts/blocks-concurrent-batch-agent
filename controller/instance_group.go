@@ -41,7 +41,7 @@ func (c *InstanceGroupController) Create(ctx *app.CreateInstanceGroupContext) er
 				return ctx.BadRequest(goa.ErrBadRequest(err))
 			}
 
-			if err := PostTask(appCtx, "/construction_tasks?resource_id="+m.Id, 0); err != nil {
+			if err := PostTask(appCtx, fmt.Sprintf("/construction_tasks?resource_id=%d", m.Id), 0); err != nil {
 				return err
 			}
 			return nil
@@ -64,7 +64,7 @@ func (c *InstanceGroupController) Delete(ctx *app.DeleteInstanceGroupContext) er
 		appCtx := appengine.NewContext(ctx.Request)
 		store := &model.InstanceGroupStore{ParentKey: orgKey}
 		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
-			return c.member(appCtx, store, ctx.ID, ctx.NotFound, func(m *model.InstanceGroup) error {
+			return c.member(appCtx, store, ctx.ID, ctx.BadRequest, ctx.NotFound, func(m *model.InstanceGroup) error {
 				switch m.Status {
 				case model.ConstructionError, model.DestructionError, model.Destructed: // Through
 				default:
@@ -92,7 +92,7 @@ func (c *InstanceGroupController) Destruct(ctx *app.DestructInstanceGroupContext
 		appCtx := appengine.NewContext(ctx.Request)
 		store := &model.InstanceGroupStore{ParentKey: orgKey}
 		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
-			return c.member(appCtx, store, ctx.ID, ctx.NotFound, func(m *model.InstanceGroup) error {
+			return c.member(appCtx, store, ctx.ID, ctx.BadRequest, ctx.NotFound, func(m *model.InstanceGroup) error {
 				switch m.Status {
 				case model.Constructed: // Through
 				default:
@@ -104,7 +104,7 @@ func (c *InstanceGroupController) Destruct(ctx *app.DestructInstanceGroupContext
 					return err
 				}
 
-				if err := PostTask(appCtx, "/destruction_tasks?resource_id="+m.Id, 0); err != nil {
+				if err := PostTask(appCtx, fmt.Sprintf("/destruction_tasks?resource_id=%d", m.Id), 0); err != nil {
 					return err
 				}
 				return ctx.Created(InstanceGroupModelToMediaType(m))
@@ -148,7 +148,7 @@ func (c *InstanceGroupController) Resize(ctx *app.ResizeInstanceGroupContext) er
 		store := &model.InstanceGroupStore{ParentKey: orgKey}
 
 		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
-			return c.member(appCtx, store, ctx.ID, ctx.NotFound, func(m *model.InstanceGroup) error {
+			return c.member(appCtx, store, ctx.ID, ctx.BadRequest, ctx.NotFound, func(m *model.InstanceGroup) error {
 				switch m.Status {
 				case model.Constructed, model.ResizeStarting, model.ResizeRunning: // Through
 				default:
@@ -164,7 +164,7 @@ func (c *InstanceGroupController) Resize(ctx *app.ResizeInstanceGroupContext) er
 					return err
 				}
 
-				if err := PostTask(appCtx, "/resizing_tasks?resource_id="+m.Id, 0); err != nil {
+				if err := PostTask(appCtx, fmt.Sprintf("/resizing_tasks?resource_id=%d", m.Id), 0); err != nil {
 					return err
 				}
 				return ctx.Created(InstanceGroupModelToMediaType(m))
@@ -183,7 +183,7 @@ func (c *InstanceGroupController) Show(ctx *app.ShowInstanceGroupContext) error 
 	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
 		appCtx := appengine.NewContext(ctx.Request)
 		store := &model.InstanceGroupStore{ParentKey: orgKey}
-		return c.member(appCtx, store, ctx.ID, ctx.NotFound, func(m *model.InstanceGroup) error {
+		return c.member(appCtx, store, ctx.ID, ctx.BadRequest, ctx.NotFound, func(m *model.InstanceGroup) error {
 			return ctx.OK(InstanceGroupModelToMediaType(m))
 		})
 	})

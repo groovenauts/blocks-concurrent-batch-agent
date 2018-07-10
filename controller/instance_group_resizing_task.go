@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"fmt"
+
 	"golang.org/x/net/context"
 
 	"google.golang.org/appengine"
@@ -36,7 +38,7 @@ func (c *InstanceGroupResizingTaskController) Start(ctx *app.StartInstanceGroupR
 			return model.NewInstanceGroupScaler(ctx)
 		},
 		WatchTaskPathFunc: func(ope *model.CloudAsyncOperation) string {
-			return "/resizing_tasks/" + ope.Id
+			return fmt.Sprintf("/resizing_tasks/%d", ope.Id)
 		},
 		RespondOK: ctx.OK,
 		RespondNoContent: ctx.NoContent,
@@ -72,7 +74,7 @@ func (c *InstanceGroupResizingTaskController) Watch(ctx *app.WatchInstanceGroupR
 			}, nil
 		},
 		WatchTaskPathFunc: func(ope *model.CloudAsyncOperation) string {
-			return "/resizing_tasks/" + ope.Id
+			return fmt.Sprintf("/resizing_tasks/%d", ope.Id)
 		},
 		RespondOK: ctx.OK,
 		RespondAccepted: ctx.Accepted,

@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"golang.org/x/net/context"
@@ -30,7 +31,13 @@ type InstanceGroupTaskBase struct {
 }
 
 // Start
-func (t *InstanceGroupTaskBase) Start(appCtx context.Context, resourceId string) error {
+func (t *InstanceGroupTaskBase) Start(appCtx context.Context, resourceIdString string) error {
+	resourceId, err := strconv.ParseInt(resourceIdString, 10, 64)
+	if err != nil {
+		log.Errorf(appCtx, "Invalid resource ID: %q\n", resourceIdString)
+		return t.RespondNoContent(nil)
+	}
+
 	store := &model.InstanceGroupStore{}
 	m, err := store.Get(appCtx, resourceId)
 	if err != nil {
@@ -78,7 +85,13 @@ func (t *InstanceGroupTaskBase) Start(appCtx context.Context, resourceId string)
 }
 
 // Watch
-func (t *InstanceGroupTaskBase) Watch(appCtx context.Context, opeId string) error {
+func (t *InstanceGroupTaskBase) Watch(appCtx context.Context, opeIdString string) error {
+	opeId, err := strconv.ParseInt(opeIdString, 10, 64)
+	if err != nil {
+		log.Errorf(appCtx, "Invalid operation ID: %q\n", opeIdString)
+		return t.RespondNoContent(nil)
+	}
+
 	opeStore := &model.CloudAsyncOperationStore{}
 	ope, err := opeStore.Get(appCtx, opeId)
 	if err != nil {

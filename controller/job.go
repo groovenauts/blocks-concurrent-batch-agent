@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"strconv"
 
 	"golang.org/x/net/context"
 
@@ -37,7 +38,7 @@ func (c *JobController) Activate(ctx *app.ActivateJobContext) error {
 		// TODO Check if orgKey is included in the ancestors of the key from :id
 		store := &model.JobStore{}
 		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
-			return c.member(appCtx, store, ctx.ID, ctx.NotFound, func(m *model.Job) error {
+			return c.member(appCtx, store, ctx.ID, ctx.BadRequest, ctx.NotFound, func(m *model.Job) error {
 				switch m.Status {
 				case model.Inactive: // Through
 				default:
@@ -49,7 +50,7 @@ func (c *JobController) Activate(ctx *app.ActivateJobContext) error {
 					return err
 				}
 
-				if err := PostTask(appCtx, "/jobs?/"+m.Id+"/publishing_task", 0); err != nil {
+				if err := PostTask(appCtx, fmt.Sprintf("/jobs/%d/publishing_task", m.Id), 0); err != nil {
 					return err
 				}
 				return ctx.Created(JobModelToMediaType(m))
@@ -70,8 +71,12 @@ func (c *JobController) Create(ctx *app.CreateJobContext) error {
 		if ctx.PipelineBaseID == nil {
 			return ctx.BadRequest(goa.ErrBadRequest(fmt.Sprintf("Now pipeline_base_id is required")))
 		}
+		pipelineBaseID, err := strconv.ParseInt(*ctx.PipelineBaseID, 10, 64)
+		if err != nil {
+			return ctx.BadRequest(goa.ErrBadRequest(fmt.Errorf("Invalid Pipeline Base ID %q", *ctx.PipelineBaseID)))
+		}
 		pbStore := &model.PipelineBaseStore{ParentKey: orgKey}
-		pb, err := pbStore.Get(appCtx, *ctx.PipelineBaseID)
+		pb, err := pbStore.Get(appCtx, pipelineBaseID)
 		if err != nil {
 			return ctx.BadRequest(goa.ErrBadRequest(err))
 		}
@@ -139,7 +144,7 @@ func (c *JobController) PublishingTask(ctx *app.PublishingTaskJobContext) error 
 	appCtx := appengine.NewContext(ctx.Request)
 
 	store := &model.JobStore{}
-	return c.member(appCtx, store, ctx.ID, ctx.NotFound, func(m *model.Job) error {
+	return c.member(appCtx, store, ctx.ID, ctx.BadRequest, ctx.NotFound, func(m *model.Job) error {
 		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
 			switch m.Status {
 			case model.Publishing: // Through

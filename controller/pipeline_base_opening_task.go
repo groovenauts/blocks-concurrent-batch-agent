@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"fmt"
+
 	"golang.org/x/net/context"
 
 	"google.golang.org/appengine"
@@ -38,7 +40,7 @@ func (c *PipelineBaseOpeningTaskController) Start(ctx *app.StartPipelineBaseOpen
 			return model.NewPipelineBaseOpener(ctx)
 		},
 		WatchTaskPathFunc: func(ope *model.CloudAsyncOperation) string {
-			return "/opening_tasks/" + ope.Id
+			return fmt.Sprintf("/opening_tasks/%d", ope.Id)
 		},
 		RespondOK:        ctx.OK,
 		RespondNoContent: ctx.NoContent,
@@ -77,7 +79,7 @@ func (c *PipelineBaseOpeningTaskController) Watch(ctx *app.WatchPipelineBaseOpen
 			}, nil
 		},
 		WatchTaskPathFunc: func(ope *model.CloudAsyncOperation) string {
-			return "/opening_tasks/" + ope.Id
+			return fmt.Sprintf("/opening_tasks/%d", ope.Id)
 		},
 		RespondOK:        ctx.OK,
 		RespondAccepted:  ctx.Accepted,
