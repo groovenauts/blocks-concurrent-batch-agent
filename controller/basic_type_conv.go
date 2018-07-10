@@ -1,5 +1,9 @@
 package controller
 
+import (
+	"strconv"
+)
+
 func BoolPointerToBool(v *bool) bool {
 	return BoolPointerToBoolWith(v, false)
 }
@@ -31,4 +35,17 @@ func StringPointerToStringWith(v *string, d string) string {
 		return d
 	}
 	return *v
+}
+
+func StringToInt64(v string) (int64, error) {
+	return strconv.ParseInt(v, 10, 64)
+}
+
+func Int64ToString(v int64) string {
+	return  strconv.FormatInt(v, 10)
+}
+
+func Int64ToStringPointer(v int64) *string {
+	s := Int64ToString(v)
+	return &s
 }
