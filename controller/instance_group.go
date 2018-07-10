@@ -190,3 +190,14 @@ func (c *InstanceGroupController) Show(ctx *app.ShowInstanceGroupContext) error 
 
 	// InstanceGroupController_Show: end_implement
 }
+
+// StartHealthCheck runs the start_health_check action.
+func (c *InstanceGroupController) StartHealthCheck(ctx *app.StartHealthCheckInstanceGroupContext) error {
+	// InstanceGroupController_StartHealthCheck: start_implement
+
+	// Put your logic here
+
+	res := &app.InstanceGroup{}
+	return ctx.OK(res)
+	// InstanceGroupController_StartHealthCheck: end_implement
+}
