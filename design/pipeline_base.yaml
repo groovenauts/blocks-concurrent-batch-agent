@@ -24,12 +24,12 @@ types:
       # id_type: int64
       # id_type: string
       # id_type: UUID (type: string)
-      id_type: int64
+      id_name: Name
+      id_type: string
       parent: Organization
     # payload: PipelineBasePayload
     media_type: Pipeline-Base
     fields:
-      Name: *string_required
       ProjectID: *string_required
       Zone: *string_required
       InstanceGroup:
