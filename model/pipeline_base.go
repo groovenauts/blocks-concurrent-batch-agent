@@ -87,9 +87,9 @@ func (s *PipelineBaseStore) GetAll(ctx context.Context) ([]*PipelineBase, error)
 	return r, nil
 }
 
-func (s *PipelineBaseStore) Get(ctx context.Context, id string) (*PipelineBase, error) {
+func (s *PipelineBaseStore) Get(ctx context.Context, name string) (*PipelineBase, error) {
 	g := goon.FromContext(ctx)
-	r := PipelineBase{Id: id}
+	r := PipelineBase{Name: name}
 	if s.ParentKey != nil {
 		r.Parent = s.ParentKey
 	}

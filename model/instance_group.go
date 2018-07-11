@@ -136,9 +136,9 @@ func (s *InstanceGroupStore) GetAll(ctx context.Context) ([]*InstanceGroup, erro
 	return r, nil
 }
 
-func (s *InstanceGroupStore) Get(ctx context.Context, id string) (*InstanceGroup, error) {
+func (s *InstanceGroupStore) Get(ctx context.Context, name string) (*InstanceGroup, error) {
 	g := goon.FromContext(ctx)
-	r := InstanceGroup{Id: id}
+	r := InstanceGroup{Name: name}
 	if s.ParentKey != nil {
 		r.Parent = s.ParentKey
 	}
