@@ -6,7 +6,7 @@ import (
 
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
-	// "google.golang.org/appengine/log"
+	"google.golang.org/appengine/log"
 
 	"gopkg.in/go-playground/validator.v9"
 )
@@ -82,6 +82,7 @@ func (m *PipelineOperation) Update(ctx context.Context) error {
 	m.UpdatedAt = time.Now()
 	key, err := datastore.DecodeKey(m.ID)
 	if err != nil {
+		log.Errorf(ctx, "Failed to datastore.DecodeKey(%q)\n", m.ID)
 		return err
 	}
 	_, err = m.ValidateAndPut(ctx, key)
@@ -94,11 +95,13 @@ func (m *PipelineOperation) Update(ctx context.Context) error {
 func (m *PipelineOperation) ValidateAndPut(ctx context.Context, key *datastore.Key) (*datastore.Key, error) {
 	err := m.Validate()
 	if err != nil {
+		log.Errorf(ctx, "Failed to Validate PipelineOperation %v\n", m)
 		return nil, err
 	}
 
 	key, err = datastore.Put(ctx, key, m)
 	if err != nil {
+		log.Errorf(ctx, "Failed to datastore.Put(ctx, %v, %v)\n", key, m)
 		return nil, err
 	}
 	return key, nil
@@ -167,6 +170,7 @@ func (m *PipelineOperation) HasError() bool {
 func (m *PipelineOperation) LoadPipeline(ctx context.Context) (*Pipeline, error) {
 	key, err := datastore.DecodeKey(m.ID)
 	if err != nil {
+		log.Errorf(ctx, "Failed to datastore.DecodeKey(%q)\n", m.ID)
 		return nil, err
 	}
 	parentKey := key.Parent()
