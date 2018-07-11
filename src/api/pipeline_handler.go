@@ -19,11 +19,11 @@ type PipelineHandler struct {
 }
 
 func (h *PipelineHandler) collection(action echo.HandlerFunc) echo.HandlerFunc {
-	return gae_support.With(orgBy(h.org_id_name, withAuth(action)))
+	return gae_support.With(orgBy(h.org_id_name, http.StatusNotFound, withAuth(action)))
 }
 
 func (h *PipelineHandler) member(action echo.HandlerFunc) echo.HandlerFunc {
-	return gae_support.With(plBy(h.pipeline_id_name, PlToOrg(withAuth(action))))
+	return gae_support.With(plBy(h.pipeline_id_name, http.StatusNotFound, PlToOrg(withAuth(action))))
 }
 
 // curl -v http://localhost:8080/orgs/2/pipelines
