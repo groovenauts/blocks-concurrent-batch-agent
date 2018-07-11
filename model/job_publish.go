@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/base64"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -14,8 +15,12 @@ import (
 func (m *Job) Publish(ctx context.Context) error {
 	msg := m.BuildMessage()
 
-	pbStore := &PipelineBaseStore{}
-	pb, err := pbStore.Get(ctx, m.Parent.IntID())
+	if m.Parent == nil {
+		return fmt.Errorf("No Parent for Job %v\n", m)
+	}
+
+	pbStore := &PipelineBaseStore{ParentKey: m.Parent.Parent()}
+	pb, err := pbStore.Get(ctx, m.Parent.StringID())
 	if err != nil {
 		return err
 	}
