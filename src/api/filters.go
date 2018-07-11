@@ -16,6 +16,9 @@ func orgBy(key string, statusNotFound int, f func(c echo.Context) error) func(ec
 		org_id := c.Param(key)
 		org, err := models.GlobalOrganizationAccessor.Find(ctx, org_id)
 		if err == models.ErrNoSuchOrganization {
+			if statusNotFound < 400 {
+				log.Errorf(ctx, "Organization not found for %v\n", org_id)
+			}
 			return c.JSON(statusNotFound, map[string]string{"message": "No Organization found for " + org_id})
 		}
 		if err != nil {
@@ -81,6 +84,9 @@ func plBy(key string, statusNotFound int, impl func(c echo.Context) error) func(
 		pl, err := accessor.Find(ctx, id)
 		switch {
 		case err == models.ErrNoSuchPipeline:
+			if statusNotFound < 400 {
+				log.Errorf(ctx, "Pipeline not found for %v\n", id)
+			}
 			return c.JSON(statusNotFound, map[string]string{"message": "Not found for " + id})
 		case err != nil:
 			log.Errorf(ctx, "plBy %v id: %v\n", err, id)
@@ -115,6 +121,9 @@ func jobBy(key string, statusNotFound int, impl func(c echo.Context) error) func
 		job, err := accessor.Find(ctx, id)
 		switch {
 		case err == models.ErrNoSuchJob:
+			if statusNotFound < 400 {
+				log.Errorf(ctx, "Job not found for %v\n", id)
+			}
 			return c.JSON(statusNotFound, map[string]string{"message": "Not found for " + id})
 		case err != nil:
 			log.Errorf(ctx, "plBy %v id: %v\n", err, id)
@@ -149,6 +158,9 @@ func operationBy(idName string, statusNotFound int, impl func(c echo.Context) er
 		operation, err := accessor.Find(ctx, id)
 		switch {
 		case err == models.ErrNoSuchPipelineOperation:
+			if statusNotFound < 400 {
+				log.Errorf(ctx, "Operation not found for %v\n", id)
+			}
 			return c.JSON(statusNotFound, map[string]string{"message": "Not found for " + id})
 		case err != nil:
 			log.Errorf(ctx, "operationBy %v id: %v\n", err, id)
