@@ -22,8 +22,8 @@ type InstanceGroupTaskBase struct {
 	ErrorStatus model.InstanceGroupStatus
 	SkipStatuses []model.InstanceGroupStatus
 	ProcessorFactory func(ctx context.Context) (model.InstanceGroupProcessor, error)
-	RemoteOpeFunc func(context.Context, *model.CloudAsyncOperation) (model.RemoteOperationWrapper, error)
-	WatchTaskPathFunc func(*model.CloudAsyncOperation) string
+	RemoteOpeFunc func(context.Context, *model.InstanceGroupOperation) (model.RemoteOperationWrapper, error)
+	WatchTaskPathFunc func(*model.InstanceGroupOperation) string
 	RespondOK func(*app.CloudAsyncOperation) error
 	RespondAccepted func(*app.CloudAsyncOperation) error
 	RespondNoContent func(*app.CloudAsyncOperation) error
@@ -31,18 +31,12 @@ type InstanceGroupTaskBase struct {
 }
 
 // Start
-func (t *InstanceGroupTaskBase) Start(appCtx context.Context, resourceIdString string) error {
-	resourceId, err := strconv.ParseInt(resourceIdString, 10, 64)
-	if err != nil {
-		log.Errorf(appCtx, "Invalid resource ID: %q\n", resourceIdString)
-		return t.RespondNoContent(nil)
-	}
-
+func (t *InstanceGroupTaskBase) Start(appCtx context.Context, name string) error {
 	store := &model.InstanceGroupStore{}
-	m, err := store.Get(appCtx, resourceId)
+	m, err := store.Get(appCtx, name)
 	if err != nil {
 		if err == datastore.ErrNoSuchEntity {
-			log.Errorf(appCtx, "InstanceGroup not found for %q\n", resourceId)
+			log.Errorf(appCtx, "InstanceGroup not found for %q\n", name)
 			return t.RespondNoContent(nil)
 		} else {
 			return err
@@ -51,10 +45,10 @@ func (t *InstanceGroupTaskBase) Start(appCtx context.Context, resourceIdString s
 
 	if m.Status != t.MainStatus {
 		if t.IsSkipped(m.Status) {
-			log.Infof(appCtx, "SKIPPING because InstanceGroup %s is already %v\n", m.Id, m.Status)
+			log.Infof(appCtx, "SKIPPING because InstanceGroup %s is already %v\n", m.Name, m.Status)
 			return t.RespondOK(nil)
 		} else {
-			log.Warningf(appCtx, "Invalid request because InstanceGroup %s is already %v\n", m.Id, m.Status)
+			log.Warningf(appCtx, "Invalid request because InstanceGroup %s is already %v\n", m.Name, m.Status)
 			return t.RespondNoContent(nil)
 		}
 	}
@@ -64,7 +58,7 @@ func (t *InstanceGroupTaskBase) Start(appCtx context.Context, resourceIdString s
 	if err != nil {
 		return err
 	}
-	opeStore := &model.CloudAsyncOperationStore{}
+	opeStore := &model.InstanceGroupOperationStore{}
 	_, err = opeStore.Put(appCtx, ope)
 	if err != nil {
 		return err
@@ -80,33 +74,33 @@ func (t *InstanceGroupTaskBase) Start(appCtx context.Context, resourceIdString s
 		if err := PutTask(appCtx, path, 0); err != nil {
 			return err
 		}
-		return t.RespondCreated(CloudAsyncOperationModelToMediaType(ope))
+		return t.RespondCreated(InstanceGroupOperationModelToMediaType(ope))
 	}, nil)
 }
 
 // Watch
-func (t *InstanceGroupTaskBase) Watch(appCtx context.Context, opeIdString string) error {
+func (t *InstanceGroupTaskBase) Watch(appCtx context.Context, name, opeIdString string) error {
 	opeId, err := strconv.ParseInt(opeIdString, 10, 64)
 	if err != nil {
 		log.Errorf(appCtx, "Invalid operation ID: %q\n", opeIdString)
 		return t.RespondNoContent(nil)
 	}
 
-	opeStore := &model.CloudAsyncOperationStore{}
+	opeStore := &model.InstanceGroupOperationStore{}
 	ope, err := opeStore.Get(appCtx, opeId)
 	if err != nil {
 		if err == datastore.ErrNoSuchEntity {
-			log.Errorf(appCtx, "CloudAsyncOperation not found for %q\n", opeId)
+			log.Errorf(appCtx, "InstanceGroupOperation not found for %q\n", opeId)
 			return t.RespondNoContent(nil)
 		} else {
 			return err
 		}
 	}
-	store := &model.InstanceGroupStore{}
-	m, err := store.Get(appCtx, ope.OwnerID)
+	store := &model.InstanceGroupStore{ParentKey: ope.Parent.Parent()}
+	m, err := store.Get(appCtx, ope.Parent.StringID())
 	if err != nil {
 		if err == datastore.ErrNoSuchEntity {
-			log.Errorf(appCtx, "InstanceGroup not found for %q\n", ope.OwnerID)
+			log.Errorf(appCtx, "InstanceGroup not found for %q\n", ope.Id)
 			return t.RespondNoContent(nil)
 		} else {
 			return err
@@ -147,7 +141,7 @@ func (t *InstanceGroupTaskBase) Watch(appCtx context.Context, opeIdString string
 		if err := PutTask(appCtx, path, 1 * time.Minute); err != nil {
 			return err
 		}
-		return t.RespondCreated(CloudAsyncOperationModelToMediaType(ope))
+		return t.RespondCreated(InstanceGroupOperationModelToMediaType(ope))
 	}
 
 	errors := remoteOpe.Errors()
@@ -174,7 +168,7 @@ func (t *InstanceGroupTaskBase) Watch(appCtx context.Context, opeIdString string
 			return err
 		}
 		// TODO Add calling PipelineBase callback
-		return f(CloudAsyncOperationModelToMediaType(ope))
+		return f(InstanceGroupOperationModelToMediaType(ope))
 	}, nil)
 }
 

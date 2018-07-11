@@ -37,14 +37,14 @@ func (c *InstanceGroupResizingTaskController) Start(ctx *app.StartInstanceGroupR
 		ProcessorFactory: func(ctx context.Context) (model.InstanceGroupProcessor, error) {
 			return model.NewInstanceGroupScaler(ctx)
 		},
-		WatchTaskPathFunc: func(ope *model.CloudAsyncOperation) string {
+		WatchTaskPathFunc: func(ope *model.InstanceGroupOperation) string {
 			return fmt.Sprintf("/resizing_tasks/%d", ope.Id)
 		},
 		RespondOK: ctx.OK,
 		RespondNoContent: ctx.NoContent,
 		RespondCreated: ctx.Created,
 	}
-	return base.Start(appengine.NewContext(ctx.Request), ctx.ResourceID)
+	return base.Start(appengine.NewContext(ctx.Request), ctx.Name)
 
 	// InstanceGroupResizingTaskController_Start: end_implement
 }
@@ -59,7 +59,7 @@ func (c *InstanceGroupResizingTaskController) Watch(ctx *app.WatchInstanceGroupR
 		NextStatus: model.Constructed,
 		ErrorStatus: model.Constructed,
 		SkipStatuses: []model.InstanceGroupStatus{},
-		RemoteOpeFunc: func(ctx context.Context, ope *model.CloudAsyncOperation) (model.RemoteOperationWrapper, error) {
+		RemoteOpeFunc: func(ctx context.Context, ope *model.InstanceGroupOperation) (model.RemoteOperationWrapper, error) {
 			servicer, err := model.DefaultInstanceGroupServicer(ctx)
 			if err != nil {
 				return nil, err
@@ -73,7 +73,7 @@ func (c *InstanceGroupResizingTaskController) Watch(ctx *app.WatchInstanceGroupR
 				Original: remoteOpeOriginal,
 			}, nil
 		},
-		WatchTaskPathFunc: func(ope *model.CloudAsyncOperation) string {
+		WatchTaskPathFunc: func(ope *model.InstanceGroupOperation) string {
 			return fmt.Sprintf("/resizing_tasks/%d", ope.Id)
 		},
 		RespondOK: ctx.OK,
@@ -81,7 +81,7 @@ func (c *InstanceGroupResizingTaskController) Watch(ctx *app.WatchInstanceGroupR
 		RespondNoContent: ctx.NoContent,
 		RespondCreated: ctx.Created,
 	}
-	return base.Watch(appengine.NewContext(ctx.Request), ctx.ID)
+	return base.Watch(appengine.NewContext(ctx.Request), ctx.Name, ctx.ID)
 
 	// InstanceGroupResizingTaskController_Watch: end_implement
 }
