@@ -7,8 +7,6 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
-
-	"github.com/mjibson/goon"
 )
 
 type PipelineBaseStatus string
@@ -72,7 +70,7 @@ type PipelineBaseStore struct {
 }
 
 func (s *PipelineBaseStore) GetAll(ctx context.Context) ([]*PipelineBase, error) {
-	g := goon.FromContext(ctx)
+	g := GoonFromContext(ctx)
 	r := []*PipelineBase{}
 	k := g.Kind(new(PipelineBase))
 	log.Infof(ctx, "Kind is %v\n", k)
@@ -88,7 +86,7 @@ func (s *PipelineBaseStore) GetAll(ctx context.Context) ([]*PipelineBase, error)
 }
 
 func (s *PipelineBaseStore) Get(ctx context.Context, name string) (*PipelineBase, error) {
-	g := goon.FromContext(ctx)
+	g := GoonFromContext(ctx)
 	r := PipelineBase{Name: name}
 	if s.ParentKey != nil {
 		r.Parent = s.ParentKey
@@ -131,7 +129,7 @@ func (s *PipelineBaseStore) ValidateAndPut(ctx context.Context, m *PipelineBase)
 }
 
 func (s *PipelineBaseStore) Put(ctx context.Context, m *PipelineBase) (*datastore.Key, error) {
-	g := goon.FromContext(ctx)
+	g := GoonFromContext(ctx)
 	if err := s.ValidateParent(m); err != nil {
 		log.Errorf(ctx, "Invalid parent key for PipelineBase because of %v\n", err)
 		return nil, err
@@ -158,7 +156,7 @@ func (s *PipelineBaseStore) ValidateParent(m *PipelineBase) error {
 }
 
 func (s *PipelineBaseStore) Delete(ctx context.Context, m *PipelineBase) error {
-	g := goon.FromContext(ctx)
+	g := GoonFromContext(ctx)
 	key, err := g.KeyError(m)
 	if err != nil {
 		log.Errorf(ctx, "Failed to Get %v because of %v\n", m, err)

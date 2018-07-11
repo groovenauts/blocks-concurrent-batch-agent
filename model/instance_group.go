@@ -7,8 +7,6 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
-
-	"github.com/mjibson/goon"
 )
 
 type InstanceGroupStatus string
@@ -121,7 +119,7 @@ type InstanceGroupStore struct {
 }
 
 func (s *InstanceGroupStore) GetAll(ctx context.Context) ([]*InstanceGroup, error) {
-	g := goon.FromContext(ctx)
+	g := GoonFromContext(ctx)
 	r := []*InstanceGroup{}
 	k := g.Kind(new(InstanceGroup))
 	log.Infof(ctx, "Kind is %v\n", k)
@@ -137,7 +135,7 @@ func (s *InstanceGroupStore) GetAll(ctx context.Context) ([]*InstanceGroup, erro
 }
 
 func (s *InstanceGroupStore) Get(ctx context.Context, name string) (*InstanceGroup, error) {
-	g := goon.FromContext(ctx)
+	g := GoonFromContext(ctx)
 	r := InstanceGroup{Name: name}
 	if s.ParentKey != nil {
 		r.Parent = s.ParentKey
@@ -180,7 +178,7 @@ func (s *InstanceGroupStore) ValidateAndPut(ctx context.Context, m *InstanceGrou
 }
 
 func (s *InstanceGroupStore) Put(ctx context.Context, m *InstanceGroup) (*datastore.Key, error) {
-	g := goon.FromContext(ctx)
+	g := GoonFromContext(ctx)
 	if err := s.ValidateParent(m); err != nil {
 		log.Errorf(ctx, "Invalid parent key for InstanceGroup because of %v\n", err)
 		return nil, err
@@ -207,7 +205,7 @@ func (s *InstanceGroupStore) ValidateParent(m *InstanceGroup) error {
 }
 
 func (s *InstanceGroupStore) Delete(ctx context.Context, m *InstanceGroup) error {
-	g := goon.FromContext(ctx)
+	g := GoonFromContext(ctx)
 	key, err := g.KeyError(m)
 	if err != nil {
 		log.Errorf(ctx, "Failed to Get %v because of %v\n", m, err)
@@ -226,7 +224,7 @@ type InstanceGroupHealthCheckStore struct {
 }
 
 func (s *InstanceGroupHealthCheckStore) GetAll(ctx context.Context) ([]*InstanceGroupHealthCheck, error) {
-	g := goon.FromContext(ctx)
+	g := GoonFromContext(ctx)
 	r := []*InstanceGroupHealthCheck{}
 	k := g.Kind(new(InstanceGroupHealthCheck))
 	log.Infof(ctx, "Kind is %v\n", k)
@@ -242,7 +240,7 @@ func (s *InstanceGroupHealthCheckStore) GetAll(ctx context.Context) ([]*Instance
 }
 
 func (s *InstanceGroupHealthCheckStore) Get(ctx context.Context, id int64) (*InstanceGroupHealthCheck, error) {
-	g := goon.FromContext(ctx)
+	g := GoonFromContext(ctx)
 	r := InstanceGroupHealthCheck{Id: id}
 	if s.ParentKey != nil {
 		r.Parent = s.ParentKey
@@ -285,7 +283,7 @@ func (s *InstanceGroupHealthCheckStore) ValidateAndPut(ctx context.Context, m *I
 }
 
 func (s *InstanceGroupHealthCheckStore) Put(ctx context.Context, m *InstanceGroupHealthCheck) (*datastore.Key, error) {
-	g := goon.FromContext(ctx)
+	g := GoonFromContext(ctx)
 	if err := s.ValidateParent(m); err != nil {
 		log.Errorf(ctx, "Invalid parent key for InstanceGroupHealthCheck because of %v\n", err)
 		return nil, err
@@ -312,7 +310,7 @@ func (s *InstanceGroupHealthCheckStore) ValidateParent(m *InstanceGroupHealthChe
 }
 
 func (s *InstanceGroupHealthCheckStore) Delete(ctx context.Context, m *InstanceGroupHealthCheck) error {
-	g := goon.FromContext(ctx)
+	g := GoonFromContext(ctx)
 	key, err := g.KeyError(m)
 	if err != nil {
 		log.Errorf(ctx, "Failed to Get %v because of %v\n", m, err)

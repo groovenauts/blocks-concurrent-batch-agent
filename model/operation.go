@@ -9,8 +9,6 @@ import (
 	"google.golang.org/appengine/log"
 
 	"github.com/goadesign/goa/uuid"
-
-	"github.com/mjibson/goon"
 )
 
 type Operation struct {
@@ -33,7 +31,7 @@ type OperationStore struct {
 }
 
 func (s *OperationStore) GetAll(ctx context.Context) ([]*Operation, error) {
-	g := goon.FromContext(ctx)
+	g := GoonFromContext(ctx)
 	r := []*Operation{}
 	k := g.Kind(new(Operation))
 	log.Infof(ctx, "Kind is %v\n", k)
@@ -49,7 +47,7 @@ func (s *OperationStore) GetAll(ctx context.Context) ([]*Operation, error) {
 }
 
 func (s *OperationStore) Get(ctx context.Context, id string) (*Operation, error) {
-	g := goon.FromContext(ctx)
+	g := GoonFromContext(ctx)
 	r := Operation{Id: id}
 	err := g.Get(&r)
 	if err != nil {
@@ -65,7 +63,7 @@ func (s *OperationStore) Get(ctx context.Context, id string) (*Operation, error)
 }
 
 func (s *OperationStore) Put(ctx context.Context, m *Operation) (*datastore.Key, error) {
-	g := goon.FromContext(ctx)
+	g := GoonFromContext(ctx)
 	if m.Id == "" {
 		m.Id = uuid.NewV4().String()
 	}

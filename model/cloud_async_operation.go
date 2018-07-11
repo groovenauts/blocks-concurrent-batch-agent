@@ -7,8 +7,6 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
-
-	"github.com/mjibson/goon"
 )
 
 type CloudAsyncOperationError struct {
@@ -87,7 +85,7 @@ type InstanceGroupOperationStore struct {
 }
 
 func (s *InstanceGroupOperationStore) GetAll(ctx context.Context) ([]*InstanceGroupOperation, error) {
-	g := goon.FromContext(ctx)
+	g := GoonFromContext(ctx)
 	r := []*InstanceGroupOperation{}
 	k := g.Kind(new(InstanceGroupOperation))
 	log.Infof(ctx, "Kind is %v\n", k)
@@ -103,7 +101,7 @@ func (s *InstanceGroupOperationStore) GetAll(ctx context.Context) ([]*InstanceGr
 }
 
 func (s *InstanceGroupOperationStore) Get(ctx context.Context, id int64) (*InstanceGroupOperation, error) {
-	g := goon.FromContext(ctx)
+	g := GoonFromContext(ctx)
 	r := InstanceGroupOperation{Id: id}
 	if s.ParentKey != nil {
 		r.Parent = s.ParentKey
@@ -146,7 +144,7 @@ func (s *InstanceGroupOperationStore) ValidateAndPut(ctx context.Context, m *Ins
 }
 
 func (s *InstanceGroupOperationStore) Put(ctx context.Context, m *InstanceGroupOperation) (*datastore.Key, error) {
-	g := goon.FromContext(ctx)
+	g := GoonFromContext(ctx)
 	if err := s.ValidateParent(m); err != nil {
 		log.Errorf(ctx, "Invalid parent key for InstanceGroupOperation because of %v\n", err)
 		return nil, err
@@ -173,7 +171,7 @@ func (s *InstanceGroupOperationStore) ValidateParent(m *InstanceGroupOperation) 
 }
 
 func (s *InstanceGroupOperationStore) Delete(ctx context.Context, m *InstanceGroupOperation) error {
-	g := goon.FromContext(ctx)
+	g := GoonFromContext(ctx)
 	key, err := g.KeyError(m)
 	if err != nil {
 		log.Errorf(ctx, "Failed to Get %v because of %v\n", m, err)
@@ -192,7 +190,7 @@ type PipelineBaseOperationStore struct {
 }
 
 func (s *PipelineBaseOperationStore) GetAll(ctx context.Context) ([]*PipelineBaseOperation, error) {
-	g := goon.FromContext(ctx)
+	g := GoonFromContext(ctx)
 	r := []*PipelineBaseOperation{}
 	k := g.Kind(new(PipelineBaseOperation))
 	log.Infof(ctx, "Kind is %v\n", k)
@@ -208,7 +206,7 @@ func (s *PipelineBaseOperationStore) GetAll(ctx context.Context) ([]*PipelineBas
 }
 
 func (s *PipelineBaseOperationStore) Get(ctx context.Context, id int64) (*PipelineBaseOperation, error) {
-	g := goon.FromContext(ctx)
+	g := GoonFromContext(ctx)
 	r := PipelineBaseOperation{Id: id}
 	if s.ParentKey != nil {
 		r.Parent = s.ParentKey
@@ -251,7 +249,7 @@ func (s *PipelineBaseOperationStore) ValidateAndPut(ctx context.Context, m *Pipe
 }
 
 func (s *PipelineBaseOperationStore) Put(ctx context.Context, m *PipelineBaseOperation) (*datastore.Key, error) {
-	g := goon.FromContext(ctx)
+	g := GoonFromContext(ctx)
 	if err := s.ValidateParent(m); err != nil {
 		log.Errorf(ctx, "Invalid parent key for PipelineBaseOperation because of %v\n", err)
 		return nil, err
@@ -278,7 +276,7 @@ func (s *PipelineBaseOperationStore) ValidateParent(m *PipelineBaseOperation) er
 }
 
 func (s *PipelineBaseOperationStore) Delete(ctx context.Context, m *PipelineBaseOperation) error {
-	g := goon.FromContext(ctx)
+	g := GoonFromContext(ctx)
 	key, err := g.KeyError(m)
 	if err != nil {
 		log.Errorf(ctx, "Failed to Get %v because of %v\n", m, err)

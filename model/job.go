@@ -7,8 +7,6 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
-
-	"github.com/mjibson/goon"
 )
 
 type JobStatus string
@@ -75,7 +73,7 @@ type JobStore struct {
 }
 
 func (s *JobStore) GetAll(ctx context.Context) ([]*Job, error) {
-	g := goon.FromContext(ctx)
+	g := GoonFromContext(ctx)
 	r := []*Job{}
 	k := g.Kind(new(Job))
 	log.Infof(ctx, "Kind is %v\n", k)
@@ -91,7 +89,7 @@ func (s *JobStore) GetAll(ctx context.Context) ([]*Job, error) {
 }
 
 func (s *JobStore) Get(ctx context.Context, id int64) (*Job, error) {
-	g := goon.FromContext(ctx)
+	g := GoonFromContext(ctx)
 	r := Job{Id: id}
 	if s.ParentKey != nil {
 		r.Parent = s.ParentKey
@@ -134,7 +132,7 @@ func (s *JobStore) ValidateAndPut(ctx context.Context, m *Job) (*datastore.Key, 
 }
 
 func (s *JobStore) Put(ctx context.Context, m *Job) (*datastore.Key, error) {
-	g := goon.FromContext(ctx)
+	g := GoonFromContext(ctx)
 	if err := s.ValidateParent(m); err != nil {
 		log.Errorf(ctx, "Invalid parent key for Job because of %v\n", err)
 		return nil, err
@@ -161,7 +159,7 @@ func (s *JobStore) ValidateParent(m *Job) error {
 }
 
 func (s *JobStore) Delete(ctx context.Context, m *Job) error {
-	g := goon.FromContext(ctx)
+	g := GoonFromContext(ctx)
 	key, err := g.KeyError(m)
 	if err != nil {
 		log.Errorf(ctx, "Failed to Get %v because of %v\n", m, err)
