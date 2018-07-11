@@ -1,0 +1,30 @@
+anchors:
+- &string_required
+  type: string
+  required: true
+- &time_required
+  type: time.Time
+  required: true
+
+types:
+  Auth:
+    media_type: ""
+    payload: ""
+    goon:
+      # id_type: int64
+      # id_type: string
+      # id_type: UUID (type: string)
+      id_name: ID
+      id_type: int64
+      parent: Organization
+    fields:
+      Token:
+        type: string
+        datastore_tag: "-"
+      Password:
+        type: string
+        datastore_tag: "-"
+      EncryptedPassword: string
+      Disabled: bool
+      CreatedAt: *time_required
+      UpdatedAt: *time_required
