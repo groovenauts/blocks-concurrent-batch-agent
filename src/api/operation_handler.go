@@ -60,6 +60,7 @@ func (h *OperationHandler) waitBuildingTask(c echo.Context) error {
 
 	log.Debugf(ctx, "waitBuildingTask #4\n")
 	if pl.Status != models.Opened {
+		log.Errorf(ctx, "Invalid state transition: Pipeline must be Opened but %v. pipeline: %v\n", pl.Status, pl)
 		return &models.InvalidStateTransition{
 			Msg: fmt.Sprintf("Unexpected Status: %v for Pipeline: %v", pl.Status, pl),
 		}
