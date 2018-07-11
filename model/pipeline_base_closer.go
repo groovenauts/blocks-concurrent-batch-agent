@@ -29,7 +29,7 @@ func WithNewPipelineBaseCloser(ctx context.Context, f func(*PipelineBaseCloser) 
 	return f(closer)
 }
 
-func (b *PipelineBaseCloser) Process(ctx context.Context, pl *PipelineBase) (*CloudAsyncOperation, error) {
+func (b *PipelineBaseCloser) Process(ctx context.Context, pl *PipelineBase) (*PipelineBaseOperation, error) {
 	// https://cloud.google.com/deployment-manager/docs/reference/latest/deployments/delete#examples
 	ope, err := b.deployer.Delete(ctx, pl.ProjectID, pl.InstanceGroup.DeploymentName)
 	if err != nil {
@@ -39,9 +39,7 @@ func (b *PipelineBaseCloser) Process(ctx context.Context, pl *PipelineBase) (*Cl
 
 	log.Infof(ctx, "Closing operation successfully started: %v deployment: %v\n", pl.ProjectID, pl.InstanceGroup.DeploymentName)
 
-	operation := &CloudAsyncOperation{
-		OwnerType:     "PipelineBase",
-		OwnerID:       pl.Id,
+	operation := &PipelineBaseOperation{
 		ProjectId:     pl.ProjectID,
 		Zone:          pl.Zone,
 		Service:       "deploymentmanager",

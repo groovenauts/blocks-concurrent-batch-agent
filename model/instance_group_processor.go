@@ -5,5 +5,5 @@ import (
 )
 
 type InstanceGroupProcessor interface {
-	Process(context.Context, *InstanceGroup) (*CloudAsyncOperation, error)
+	Process(context.Context, *InstanceGroup) (*InstanceGroupOperation, error)
 }

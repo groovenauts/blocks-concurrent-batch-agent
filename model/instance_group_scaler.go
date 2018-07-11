@@ -27,16 +27,14 @@ func WithInstanceGroupScaler(ctx context.Context, f func(*InstanceGroupScaler) e
 	return f(scaler)
 }
 
-func (s *InstanceGroupScaler) Process(ctx context.Context, pl *InstanceGroup) (*CloudAsyncOperation, error) {
+func (s *InstanceGroupScaler) Process(ctx context.Context, pl *InstanceGroup) (*InstanceGroupOperation, error) {
 	ope, err := s.igServicer.Resize(pl.ProjectID, pl.Zone, pl.DeploymentName+"-igm", int64(pl.InstanceSizeRequested))
 	if err != nil {
 		log.Errorf(ctx, "Failed to Resize %v/%v/%v to %d\n", pl.ProjectID, pl.Zone, pl.DeploymentName, pl.InstanceSizeRequested)
 		return nil, err
 	}
 
-	operation := &CloudAsyncOperation{
-		OwnerType:     "InstanceGroup",
-		OwnerID:       pl.Id,
+	operation := &InstanceGroupOperation{
 		ProjectId:     pl.ProjectID,
 		Zone:          pl.Zone,
 		Service:       "compute",

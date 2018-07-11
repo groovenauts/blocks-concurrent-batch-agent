@@ -20,7 +20,7 @@ func NewInstanceGroupConstructor(ctx context.Context) (*InstanceGroupConstructor
 	return &InstanceGroupConstructor{deployer: deployer}, nil
 }
 
-func (b *InstanceGroupConstructor) Process(ctx context.Context, pl *InstanceGroup) (*CloudAsyncOperation, error) {
+func (b *InstanceGroupConstructor) Process(ctx context.Context, pl *InstanceGroup) (*InstanceGroupOperation, error) {
 	deployment, err := b.BuildDeployment(pl)
 	if err != nil {
 		log.Errorf(ctx, "Failed to BuildDeployment: %v\nInstanceGroup: %v\n", err, pl)
@@ -34,9 +34,7 @@ func (b *InstanceGroupConstructor) Process(ctx context.Context, pl *InstanceGrou
 
 	log.Infof(ctx, "Built pipeline successfully %v\n", pl)
 
-	operation := &CloudAsyncOperation{
-		OwnerType:     "InstanceGroup",
-		OwnerID:       pl.Id,
+	operation := &InstanceGroupOperation{
 		ProjectId:     pl.ProjectID,
 		Zone:          pl.Zone,
 		Service:       "deploymentmanager",

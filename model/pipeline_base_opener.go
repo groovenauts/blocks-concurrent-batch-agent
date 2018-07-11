@@ -21,7 +21,7 @@ func NewPipelineBaseOpener(ctx context.Context) (*PipelineBaseOpener, error) {
 	return &PipelineBaseOpener{deployer: deployer}, nil
 }
 
-func (b *PipelineBaseOpener) Process(ctx context.Context, pl *PipelineBase) (*CloudAsyncOperation, error) {
+func (b *PipelineBaseOpener) Process(ctx context.Context, pl *PipelineBase) (*PipelineBaseOperation, error) {
 	deployment, err := b.BuildDeployment(pl)
 	if err != nil {
 		log.Errorf(ctx, "Failed to BuildDeployment: %v\nPipelineBase: %v\n", err, pl)
@@ -35,9 +35,7 @@ func (b *PipelineBaseOpener) Process(ctx context.Context, pl *PipelineBase) (*Cl
 
 	log.Infof(ctx, "Built pipeline successfully %v\n", pl)
 
-	operation := &CloudAsyncOperation{
-		OwnerType:     "PipelineBase",
-		OwnerID:       pl.Id,
+	operation := &PipelineBaseOperation{
 		ProjectId:     pl.ProjectID,
 		Zone:          pl.Zone,
 		Service:       "deploymentmanager",

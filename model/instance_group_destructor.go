@@ -29,7 +29,7 @@ func WithNewInstanceGroupDestructor(ctx context.Context, f func(*InstanceGroupDe
 	return f(closer)
 }
 
-func (b *InstanceGroupDestructor) Process(ctx context.Context, pl *InstanceGroup) (*CloudAsyncOperation, error) {
+func (b *InstanceGroupDestructor) Process(ctx context.Context, pl *InstanceGroup) (*InstanceGroupOperation, error) {
 	// https://cloud.google.com/deployment-manager/docs/reference/latest/deployments/delete#examples
 	ope, err := b.deployer.Delete(ctx, pl.ProjectID, pl.Name)
 	if err != nil {
@@ -39,9 +39,7 @@ func (b *InstanceGroupDestructor) Process(ctx context.Context, pl *InstanceGroup
 
 	log.Infof(ctx, "Closing operation successfully started: %v deployment: %v\n", pl.ProjectID, pl.Name)
 
-	operation := &CloudAsyncOperation{
-		OwnerType:     "InstanceGroup",
-		OwnerID:       pl.Id,
+	operation := &InstanceGroupOperation{
 		ProjectId:     pl.ProjectID,
 		Zone:          pl.Zone,
 		Service:       "deploymentmanager",

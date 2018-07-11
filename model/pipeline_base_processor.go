@@ -5,5 +5,5 @@ import (
 )
 
 type PipelineBaseProcessor interface {
-	Process(context.Context, *PipelineBase) (*CloudAsyncOperation, error)
+	Process(context.Context, *PipelineBase) (*PipelineBaseOperation, error)
 }
