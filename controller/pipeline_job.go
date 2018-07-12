@@ -1,35 +1,25 @@
 package controller
 
 import (
-	"fmt"
-	"strconv"
-
-	"golang.org/x/net/context"
-
-	"google.golang.org/appengine"
-	"google.golang.org/appengine/datastore"
-	"google.golang.org/appengine/log"
-
 	"github.com/goadesign/goa"
-	"github.com/mjibson/goon"
-
 	"github.com/groovenauts/blocks-concurrent-batch-server/app"
-	"github.com/groovenauts/blocks-concurrent-batch-server/model"
 )
 
-// JobController implements the Job resource.
-type JobController struct {
+// PipelineJobController implements the PipelineJob resource.
+type PipelineJobController struct {
 	*goa.Controller
 }
 
-// NewJobController creates a Job controller.
-func NewJobController(service *goa.Service) *JobController {
-	return &JobController{Controller: service.NewController("JobController")}
+// NewPipelineJobController creates a PipelineJob controller.
+func NewPipelineJobController(service *goa.Service) *PipelineJobController {
+	return &PipelineJobController{Controller: service.NewController("PipelineJobController")}
 }
 
 // Activate runs the activate action.
-func (c *JobController) Activate(ctx *app.ActivateJobContext) error {
-	// JobController_Activate: start_implement
+func (c *PipelineJobController) Activate(ctx *app.ActivatePipelineJobContext) error {
+	// PipelineJobController_Activate: start_implement
+
+	// Put your logic here
 
 	// Put your logic here
 	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
@@ -58,12 +48,12 @@ func (c *JobController) Activate(ctx *app.ActivateJobContext) error {
 		}, nil)
 	})
 
-	// JobController_Activate: end_implement
+	// PipelineJobController_Activate: end_implement
 }
 
 // Create runs the create action.
-func (c *JobController) Create(ctx *app.CreateJobContext) error {
-	// JobController_Create: start_implement
+func (c *PipelineJobController) Create(ctx *app.CreatePipelineJobContext) error {
+	// PipelineJobController_Create: start_implement
 
 	// Put your logic here
 	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
@@ -99,83 +89,49 @@ func (c *JobController) Create(ctx *app.CreateJobContext) error {
 		}, nil)
 	})
 
-	return nil
-	// JobController_Create: end_implement
+	// PipelineJobController_Create: end_implement
 }
 
 // Delete runs the delete action.
-func (c *JobController) Delete(ctx *app.DeleteJobContext) error {
-	// JobController_Delete: start_implement
+func (c *PipelineJobController) Delete(ctx *app.DeletePipelineJobContext) error {
+	// PipelineJobController_Delete: start_implement
 
 	// Put your logic here
 
 	res := &app.Job{}
 	return ctx.OK(res)
-	// JobController_Delete: end_implement
+	// PipelineJobController_Delete: end_implement
 }
 
 // Inactivate runs the inactivate action.
-func (c *JobController) Inactivate(ctx *app.InactivateJobContext) error {
-	// JobController_Inactivate: start_implement
+func (c *PipelineJobController) Inactivate(ctx *app.InactivatePipelineJobContext) error {
+	// PipelineJobController_Inactivate: start_implement
 
 	// Put your logic here
 
 	res := &app.Job{}
 	return ctx.OK(res)
-	// JobController_Inactivate: end_implement
+	// PipelineJobController_Inactivate: end_implement
 }
 
 // Output runs the output action.
-func (c *JobController) Output(ctx *app.OutputJobContext) error {
-	// JobController_Output: start_implement
+func (c *PipelineJobController) Output(ctx *app.OutputPipelineJobContext) error {
+	// PipelineJobController_Output: start_implement
 
 	// Put your logic here
 
 	res := &app.JobOutput{}
 	return ctx.OK(res)
-	// JobController_Output: end_implement
-}
-
-// PublishingTask runs the publishing_task action.
-func (c *JobController) PublishingTask(ctx *app.PublishingTaskJobContext) error {
-	// JobController_PublishingTask: start_implement
-
-	// Put your logic here
-	appCtx := appengine.NewContext(ctx.Request)
-
-	store := &model.JobStore{}
-	return c.member(appCtx, store, ctx.ID, ctx.BadRequest, ctx.NotFound, func(m *model.Job) error {
-		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
-			switch m.Status {
-			case model.Publishing: // Through
-			default:
-				return ctx.Conflict(fmt.Errorf("Can't publish because the Job %q is %s", m.Id, m.Status))
-			}
-
-			err := m.Publish(appCtx)
-			if err != nil {
-				return err
-			}
-
-			if _, err := store.Update(appCtx, m); err != nil {
-				log.Errorf(ctx, "Failed to save successfully published job message %v\n", m)
-				return err
-			}
-
-			return nil
-		}, nil)
-	})
-
-	// JobController_PublishingTask: end_implement
+	// PipelineJobController_Output: end_implement
 }
 
 // Show runs the show action.
-func (c *JobController) Show(ctx *app.ShowJobContext) error {
-	// JobController_Show: start_implement
+func (c *PipelineJobController) Show(ctx *app.ShowPipelineJobContext) error {
+	// PipelineJobController_Show: start_implement
 
 	// Put your logic here
 
 	res := &app.Job{}
 	return ctx.OK(res)
-	// JobController_Show: end_implement
+	// PipelineJobController_Show: end_implement
 }
