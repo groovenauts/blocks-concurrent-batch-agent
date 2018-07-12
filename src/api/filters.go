@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-	"net/http"
 
 	"models"
 
@@ -11,13 +10,16 @@ import (
 	"google.golang.org/appengine/log"
 )
 
-func orgBy(key string, f func(c echo.Context) error) func(echo.Context) error {
+func orgBy(key string, statusNotFound int, f func(c echo.Context) error) func(echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		org_id := c.Param(key)
 		org, err := models.GlobalOrganizationAccessor.Find(ctx, org_id)
 		if err == models.ErrNoSuchOrganization {
-			return c.JSON(http.StatusNotFound, map[string]string{"message": "No Organization found for " + org_id})
+			if statusNotFound < 400 {
+				log.Errorf(ctx, "Organization not found for %v\n", org_id)
+			}
+			return c.JSON(statusNotFound, map[string]string{"message": "No Organization found for " + org_id})
 		}
 		if err != nil {
 			log.Errorf(ctx, "Failed to find Organization id: %v because of %v\n", org_id, err)
@@ -58,7 +60,7 @@ func OperationToPl(impl func(c echo.Context) error) func(c echo.Context) error {
 	}
 }
 
-func plBy(key string, impl func(c echo.Context) error) func(c echo.Context) error {
+func plBy(key string, statusNotFound int, impl func(c echo.Context) error) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		id := c.Param(key)
@@ -82,7 +84,10 @@ func plBy(key string, impl func(c echo.Context) error) func(c echo.Context) erro
 		pl, err := accessor.Find(ctx, id)
 		switch {
 		case err == models.ErrNoSuchPipeline:
-			return c.JSON(http.StatusNotFound, map[string]string{"message": "Not found for " + id})
+			if statusNotFound < 400 {
+				log.Errorf(ctx, "Pipeline not found for %v\n", id)
+			}
+			return c.JSON(statusNotFound, map[string]string{"message": "Not found for " + id})
 		case err != nil:
 			log.Errorf(ctx, "plBy %v id: %v\n", err, id)
 			return err
@@ -92,7 +97,7 @@ func plBy(key string, impl func(c echo.Context) error) func(c echo.Context) erro
 	}
 }
 
-func jobBy(key string, impl func(c echo.Context) error) func(c echo.Context) error {
+func jobBy(key string, statusNotFound int, impl func(c echo.Context) error) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		id := c.Param(key)
@@ -116,7 +121,10 @@ func jobBy(key string, impl func(c echo.Context) error) func(c echo.Context) err
 		job, err := accessor.Find(ctx, id)
 		switch {
 		case err == models.ErrNoSuchJob:
-			return c.JSON(http.StatusNotFound, map[string]string{"message": "Not found for " + id})
+			if statusNotFound < 400 {
+				log.Errorf(ctx, "Job not found for %v\n", id)
+			}
+			return c.JSON(statusNotFound, map[string]string{"message": "Not found for " + id})
 		case err != nil:
 			log.Errorf(ctx, "plBy %v id: %v\n", err, id)
 			return err
@@ -126,7 +134,7 @@ func jobBy(key string, impl func(c echo.Context) error) func(c echo.Context) err
 	}
 }
 
-func operationBy(idName string, impl func(c echo.Context) error) func(c echo.Context) error {
+func operationBy(idName string, statusNotFound int, impl func(c echo.Context) error) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Get("aecontext").(context.Context)
 		id := c.Param(idName)
@@ -150,7 +158,10 @@ func operationBy(idName string, impl func(c echo.Context) error) func(c echo.Con
 		operation, err := accessor.Find(ctx, id)
 		switch {
 		case err == models.ErrNoSuchPipelineOperation:
-			return c.JSON(http.StatusNotFound, map[string]string{"message": "Not found for " + id})
+			if statusNotFound < 400 {
+				log.Errorf(ctx, "Operation not found for %v\n", id)
+			}
+			return c.JSON(statusNotFound, map[string]string{"message": "Not found for " + id})
 		case err != nil:
 			log.Errorf(ctx, "operationBy %v id: %v\n", err, id)
 			return err

@@ -27,9 +27,7 @@ func (h *PipelineHandler) buildTask(c echo.Context) error {
 			switch e2.Code {
 			case http.StatusConflict: // googleapi: Error 409: 'projects/optical-hangar-158902/global/deployments/pipeline-mjr-59-20170926-163820' already exists and cannot be created., duplicate
 				log.Warningf(ctx, "Skip building because of %v", e2.Message)
-				return ReturnJsonWith(c, pl, http.StatusNoContent, func() error {
-					return PostPipelineTask(c, "wait_building_task", pl)
-				})
+				return c.JSON(http.StatusNoContent, pl)
 			}
 		}
 		log.Errorf(ctx, "Failed to build a pipeline %v because of %v\n", pl, err)

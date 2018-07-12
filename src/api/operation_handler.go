@@ -20,11 +20,11 @@ type OperationHandler struct {
 }
 
 func (h *OperationHandler) collection(action echo.HandlerFunc) echo.HandlerFunc {
-	return gae_support.With(plBy(h.pipeline_id_name, PlToOrg(withAuth(action))))
+	return gae_support.With(plBy(h.pipeline_id_name, http.StatusNoContent, PlToOrg(withAuth(action))))
 }
 
 func (h *OperationHandler) member(action echo.HandlerFunc) echo.HandlerFunc {
-	return gae_support.With(operationBy(h.operation_id_name, OperationToPl(PlToOrg(withAuth(action)))))
+	return gae_support.With(operationBy(h.operation_id_name, http.StatusNoContent, OperationToPl(PlToOrg(withAuth(action)))))
 }
 
 // curl -v -X POST http://localhost:8080/operations/3/wait_building_task --data '' -H 'Content-Type: application/json'
@@ -32,12 +32,14 @@ func (h *OperationHandler) waitBuildingTask(c echo.Context) error {
 	started := time.Now()
 	ctx := c.Get("aecontext").(context.Context)
 	operation := c.Get("operation").(*models.PipelineOperation)
+	log.Debugf(ctx, "waitBuildingTask operation %v\n", operation)
 
 	err := models.WithDefaultDeploymentServicer(ctx, func(servicer models.DeploymentServicer) error {
 		updater := &models.DeploymentUpdater{Servicer: servicer}
 		return operation.ProcessDeploy(ctx, updater)
 	})
 	if err != nil {
+		log.Errorf(ctx, "Failed to ProcessDeploy operation %v\n", operation)
 		return err
 	}
 
@@ -51,7 +53,9 @@ func (h *OperationHandler) waitBuildingTask(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+
 	if pl.Status != models.Opened {
+		log.Errorf(ctx, "Invalid state transition: Pipeline must be Opened but %v. pipeline: %v\n", pl.Status, pl)
 		return &models.InvalidStateTransition{
 			Msg: fmt.Sprintf("Unexpected Status: %v for Pipeline: %v", pl.Status, pl),
 		}
@@ -73,12 +77,14 @@ func (h *OperationHandler) waitHibernationTask(c echo.Context) error {
 	started := time.Now()
 	ctx := c.Get("aecontext").(context.Context)
 	operation := c.Get("operation").(*models.PipelineOperation)
+	log.Debugf(ctx, "waitHibernationTask operation: %v\n", operation)
 
 	err := models.WithDefaultDeploymentServicer(ctx, func(servicer models.DeploymentServicer) error {
 		updater := &models.DeploymentUpdater{Servicer: servicer}
 		return operation.ProcessHibernation(ctx, updater)
 	})
 	if err != nil {
+		log.Errorf(ctx, "Failed to ProcessHibernation operation: %v\n", operation)
 		return err
 	}
 
@@ -136,6 +142,7 @@ func (h *OperationHandler) waitClosingTask(c echo.Context) error {
 	started := time.Now()
 	ctx := c.Get("aecontext").(context.Context)
 	operation := c.Get("operation").(*models.PipelineOperation)
+	log.Debugf(ctx, "waitClosingTask operation: %v\n", operation)
 
 	err := models.WithDefaultDeploymentServicer(ctx, func(servicer models.DeploymentServicer) error {
 		updater := &models.DeploymentUpdater{Servicer: servicer}
@@ -144,6 +151,7 @@ func (h *OperationHandler) waitClosingTask(c echo.Context) error {
 		})
 	})
 	if err != nil {
+		log.Errorf(ctx, "Failed to ProcessClosing operation: %v\n", operation)
 		return err
 	}
 
@@ -173,6 +181,7 @@ func (h *OperationHandler) waitScalingTask(c echo.Context) error {
 	started := time.Now()
 	ctx := c.Get("aecontext").(context.Context)
 	operation := c.Get("operation").(*models.PipelineOperation)
+	log.Debugf(ctx, "waitScalingTask operation: %v\n", operation)
 
 	return models.WithInstanceGroupServicer(ctx, func(servicer models.InstanceGroupServicer) error {
 		handler_called := false

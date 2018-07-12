@@ -21,11 +21,11 @@ type JobHandler struct {
 }
 
 func (h *JobHandler) collection(action echo.HandlerFunc) echo.HandlerFunc {
-	return gae_support.With(plBy(h.pipeline_id_name, PlToOrg(withAuth(action))))
+	return gae_support.With(plBy(h.pipeline_id_name, http.StatusNotFound, PlToOrg(withAuth(action))))
 }
 
 func (h *JobHandler) member(action echo.HandlerFunc) echo.HandlerFunc {
-	return gae_support.With(jobBy(h.job_id_name, JobToPl(PlToOrg(withAuth(action)))))
+	return gae_support.With(jobBy(h.job_id_name, http.StatusNotFound, JobToPl(PlToOrg(withAuth(action)))))
 }
 
 // curl -v -X POST http://localhost:8080/pipelines/3/jobs --data '{"id":"2","name":"akm"}' -H 'Content-Type: application/json'

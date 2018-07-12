@@ -19,12 +19,13 @@ var ErrNoSuchPipelineOperation = errors.New("No such data in PipelineOperations"
 func (aa *PipelineOperationAccessor) Find(ctx context.Context, id string) (*PipelineOperation, error) {
 	key, err := datastore.DecodeKey(id)
 	if err != nil {
-		log.Errorf(ctx, "Failed to DecodeKey at PipelineOperationAccessor#Find %v id: %q\n", err, id)
+		log.Errorf(ctx, "Failed to datastore.DecodeKey at PipelineOperationAccessor#Find %v id: %q\n", err, id)
 		return nil, err
 	}
 	if aa.Parent != nil {
 		parentKey, err := datastore.DecodeKey(aa.Parent.ID)
 		if err != nil {
+			log.Errorf(ctx, "Failed to datastore.DecodeKey at PipelineOperationAccessor#Find with Parent %v id: %q\n", err, id)
 			return nil, err
 		}
 		if !parentKey.Equal(key.Parent()) {
