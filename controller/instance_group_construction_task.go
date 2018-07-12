@@ -86,7 +86,7 @@ func (c *InstanceGroupConstructionTaskController) Watch(ctx *app.WatchInstanceGr
 		RespondNoContent: ctx.NoContent,
 		RespondCreated: ctx.Created,
 	}
-	return base.Watch(appengine.NewContext(ctx.Request), ctx.ID)
+	return base.Watch(appengine.NewContext(ctx.Request), ctx.Name, ctx.ID)
 
 	// InstanceGroupConstructionTaskController_Watch: end_implement
 }

@@ -36,7 +36,7 @@ func (m *Organization) PrepareToUpdate() error {
 type OrganizationStore struct {
 }
 
-func (s *OrganizationStore) GetAll(ctx context.Context) ([]*Organization, error) {
+func (s *OrganizationStore) All(ctx context.Context) ([]*Organization, error) {
 	g := GoonFromContext(ctx)
 	r := []*Organization{}
 	k := g.Kind(new(Organization))
@@ -51,16 +51,50 @@ func (s *OrganizationStore) GetAll(ctx context.Context) ([]*Organization, error)
 	return r, nil
 }
 
-func (s *OrganizationStore) Get(ctx context.Context, iD int64) (*Organization, error) {
-	g := GoonFromContext(ctx)
+func (s *OrganizationStore) ByID(ctx context.Context, iD int64) (*Organization, error) {
 	r := Organization{ID: iD}
-	err := g.Get(&r)
+	err := s.Get(ctx, &r)
 	if err != nil {
-		log.Errorf(ctx, "Failed to Get Organization because of %v\n", err)
+		return nil, err
+	}
+	return &r, nil
+}
+
+func (s *OrganizationStore) ByKey(ctx context.Context, key *datastore.Key) (*Organization, error) {
+	if err := s.IsValidKey(ctx, key); err != nil {
+		log.Errorf(ctx, "OrganizationStore.ByKey got Invalid key: %v because of %v\n", key, err)
 		return nil, err
 	}
 
+	r := Organization{ID: key.IntID()}
+	err := s.Get(ctx, &r)
+	if err != nil {
+		return nil, err
+	}
 	return &r, nil
+}
+
+func (s *OrganizationStore) Get(ctx context.Context, m *Organization) error {
+	g := GoonFromContext(ctx)
+	err := g.Get(m)
+	if err != nil {
+		log.Errorf(ctx, "Failed to Get Organization because of %v\n", err)
+		return err
+	}
+
+	return nil
+}
+
+func (s *OrganizationStore) IsValidKey(ctx context.Context, key *datastore.Key) error {
+	if key == nil {
+		return fmt.Errorf("key is nil")
+	}
+	g := GoonFromContext(ctx)
+	expected := g.Kind(&Organization{})
+	if key.Kind() != expected {
+		return fmt.Errorf("key kind must be %s but was %s", expected, key.Kind())
+	}
+	return nil
 }
 
 func (s *OrganizationStore) Create(ctx context.Context, m *Organization) (*datastore.Key, error) {

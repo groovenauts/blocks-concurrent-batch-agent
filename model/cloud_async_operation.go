@@ -22,7 +22,7 @@ type CloudAsyncOperationLog struct {
 
 type InstanceGroupOperation struct {
 	Id            int64                      `datastore:"-" goon:"id" json:"id"`
-	Parent        *datastore.Key             `datastore:"-" goon:"parent" json:"-"`
+	ParentKey     *datastore.Key             `datastore:"-" goon:"parent" json:"-"`
 	Name          string                     `json:"name" validate:"required"`
 	Service       string                     `json:"service" validate:"required"`
 	OperationType string                     `json:"operation_type" validate:"required"`
@@ -37,7 +37,7 @@ type InstanceGroupOperation struct {
 
 type PipelineBaseOperation struct {
 	Id            int64                      `datastore:"-" goon:"id" json:"id"`
-	Parent        *datastore.Key             `datastore:"-" goon:"parent" json:"-"`
+	ParentKey     *datastore.Key             `datastore:"-" goon:"parent" json:"-"`
 	Name          string                     `json:"name" validate:"required"`
 	Service       string                     `json:"service" validate:"required"`
 	OperationType string                     `json:"operation_type" validate:"required"`
@@ -65,6 +65,11 @@ func (m *InstanceGroupOperation) PrepareToUpdate() error {
 	return nil
 }
 
+func (m *InstanceGroupOperation) Parent(ctx context.Context) (*InstanceGroup, error) {
+	parentStore := &InstanceGroupStore{}
+	return parentStore.ByKey(ctx, m.ParentKey)
+}
+
 func (m *PipelineBaseOperation) PrepareToCreate() error {
 	if m.CreatedAt.IsZero() {
 		m.CreatedAt = time.Now()
@@ -80,11 +85,16 @@ func (m *PipelineBaseOperation) PrepareToUpdate() error {
 	return nil
 }
 
+func (m *PipelineBaseOperation) Parent(ctx context.Context) (*PipelineBase, error) {
+	parentStore := &PipelineBaseStore{}
+	return parentStore.ByKey(ctx, m.ParentKey)
+}
+
 type InstanceGroupOperationStore struct {
 	ParentKey *datastore.Key
 }
 
-func (s *InstanceGroupOperationStore) GetAll(ctx context.Context) ([]*InstanceGroupOperation, error) {
+func (s *InstanceGroupOperationStore) All(ctx context.Context) ([]*InstanceGroupOperation, error) {
 	g := GoonFromContext(ctx)
 	r := []*InstanceGroupOperation{}
 	k := g.Kind(new(InstanceGroupOperation))
@@ -100,23 +110,57 @@ func (s *InstanceGroupOperationStore) GetAll(ctx context.Context) ([]*InstanceGr
 	return r, nil
 }
 
-func (s *InstanceGroupOperationStore) Get(ctx context.Context, id int64) (*InstanceGroupOperation, error) {
-	g := GoonFromContext(ctx)
-	r := InstanceGroupOperation{Id: id}
-	if s.ParentKey != nil {
-		r.Parent = s.ParentKey
-	}
-	err := g.Get(&r)
+func (s *InstanceGroupOperationStore) ByID(ctx context.Context, id int64) (*InstanceGroupOperation, error) {
+	r := InstanceGroupOperation{ParentKey: s.ParentKey, Id: id}
+	err := s.Get(ctx, &r)
 	if err != nil {
-		log.Errorf(ctx, "Failed to Get InstanceGroupOperation because of %v\n", err)
 		return nil, err
 	}
-	if err := s.ValidateParent(&r); err != nil {
-		log.Errorf(ctx, "Invalid parent key for InstanceGroupOperation because of %v\n", err)
+	return &r, nil
+}
+
+func (s *InstanceGroupOperationStore) ByKey(ctx context.Context, key *datastore.Key) (*InstanceGroupOperation, error) {
+	if err := s.IsValidKey(ctx, key); err != nil {
+		log.Errorf(ctx, "InstanceGroupOperationStore.ByKey got Invalid key: %v because of %v\n", key, err)
 		return nil, err
 	}
 
+	r := InstanceGroupOperation{ParentKey: key.Parent(), Id: key.IntID()}
+	err := s.Get(ctx, &r)
+	if err != nil {
+		return nil, err
+	}
 	return &r, nil
+}
+
+func (s *InstanceGroupOperationStore) Get(ctx context.Context, m *InstanceGroupOperation) error {
+	g := GoonFromContext(ctx)
+	err := g.Get(m)
+	if err != nil {
+		log.Errorf(ctx, "Failed to Get InstanceGroupOperation because of %v\n", err)
+		return err
+	}
+	if err := s.ValidateParent(m); err != nil {
+		log.Errorf(ctx, "Invalid parent key for InstanceGroupOperation because of %v\n", err)
+		return err
+	}
+
+	return nil
+}
+
+func (s *InstanceGroupOperationStore) IsValidKey(ctx context.Context, key *datastore.Key) error {
+	if key == nil {
+		return fmt.Errorf("key is nil")
+	}
+	g := GoonFromContext(ctx)
+	expected := g.Kind(&InstanceGroupOperation{})
+	if key.Kind() != expected {
+		return fmt.Errorf("key kind must be %s but was %s", expected, key.Kind())
+	}
+	if key.Parent() == nil {
+		return fmt.Errorf("key parent must not be nil but was nil")
+	}
+	return nil
 }
 
 func (s *InstanceGroupOperationStore) Create(ctx context.Context, m *InstanceGroupOperation) (*datastore.Key, error) {
@@ -161,11 +205,11 @@ func (s *InstanceGroupOperationStore) ValidateParent(m *InstanceGroupOperation) 
 	if s.ParentKey == nil {
 		return nil
 	}
-	if m.Parent == nil {
-		m.Parent = s.ParentKey
+	if m.ParentKey == nil {
+		m.ParentKey = s.ParentKey
 	}
-	if !s.ParentKey.Equal(m.Parent) {
-		return fmt.Errorf("Invalid Parent for %v", m)
+	if !s.ParentKey.Equal(m.ParentKey) {
+		return fmt.Errorf("Invalid ParentKey for %v", m)
 	}
 	return nil
 }
@@ -189,7 +233,7 @@ type PipelineBaseOperationStore struct {
 	ParentKey *datastore.Key
 }
 
-func (s *PipelineBaseOperationStore) GetAll(ctx context.Context) ([]*PipelineBaseOperation, error) {
+func (s *PipelineBaseOperationStore) All(ctx context.Context) ([]*PipelineBaseOperation, error) {
 	g := GoonFromContext(ctx)
 	r := []*PipelineBaseOperation{}
 	k := g.Kind(new(PipelineBaseOperation))
@@ -205,23 +249,57 @@ func (s *PipelineBaseOperationStore) GetAll(ctx context.Context) ([]*PipelineBas
 	return r, nil
 }
 
-func (s *PipelineBaseOperationStore) Get(ctx context.Context, id int64) (*PipelineBaseOperation, error) {
-	g := GoonFromContext(ctx)
-	r := PipelineBaseOperation{Id: id}
-	if s.ParentKey != nil {
-		r.Parent = s.ParentKey
-	}
-	err := g.Get(&r)
+func (s *PipelineBaseOperationStore) ByID(ctx context.Context, id int64) (*PipelineBaseOperation, error) {
+	r := PipelineBaseOperation{ParentKey: s.ParentKey, Id: id}
+	err := s.Get(ctx, &r)
 	if err != nil {
-		log.Errorf(ctx, "Failed to Get PipelineBaseOperation because of %v\n", err)
 		return nil, err
 	}
-	if err := s.ValidateParent(&r); err != nil {
-		log.Errorf(ctx, "Invalid parent key for PipelineBaseOperation because of %v\n", err)
+	return &r, nil
+}
+
+func (s *PipelineBaseOperationStore) ByKey(ctx context.Context, key *datastore.Key) (*PipelineBaseOperation, error) {
+	if err := s.IsValidKey(ctx, key); err != nil {
+		log.Errorf(ctx, "PipelineBaseOperationStore.ByKey got Invalid key: %v because of %v\n", key, err)
 		return nil, err
 	}
 
+	r := PipelineBaseOperation{ParentKey: key.Parent(), Id: key.IntID()}
+	err := s.Get(ctx, &r)
+	if err != nil {
+		return nil, err
+	}
 	return &r, nil
+}
+
+func (s *PipelineBaseOperationStore) Get(ctx context.Context, m *PipelineBaseOperation) error {
+	g := GoonFromContext(ctx)
+	err := g.Get(m)
+	if err != nil {
+		log.Errorf(ctx, "Failed to Get PipelineBaseOperation because of %v\n", err)
+		return err
+	}
+	if err := s.ValidateParent(m); err != nil {
+		log.Errorf(ctx, "Invalid parent key for PipelineBaseOperation because of %v\n", err)
+		return err
+	}
+
+	return nil
+}
+
+func (s *PipelineBaseOperationStore) IsValidKey(ctx context.Context, key *datastore.Key) error {
+	if key == nil {
+		return fmt.Errorf("key is nil")
+	}
+	g := GoonFromContext(ctx)
+	expected := g.Kind(&PipelineBaseOperation{})
+	if key.Kind() != expected {
+		return fmt.Errorf("key kind must be %s but was %s", expected, key.Kind())
+	}
+	if key.Parent() == nil {
+		return fmt.Errorf("key parent must not be nil but was nil")
+	}
+	return nil
 }
 
 func (s *PipelineBaseOperationStore) Create(ctx context.Context, m *PipelineBaseOperation) (*datastore.Key, error) {
@@ -266,11 +344,11 @@ func (s *PipelineBaseOperationStore) ValidateParent(m *PipelineBaseOperation) er
 	if s.ParentKey == nil {
 		return nil
 	}
-	if m.Parent == nil {
-		m.Parent = s.ParentKey
+	if m.ParentKey == nil {
+		m.ParentKey = s.ParentKey
 	}
-	if !s.ParentKey.Equal(m.Parent) {
-		return fmt.Errorf("Invalid Parent for %v", m)
+	if !s.ParentKey.Equal(m.ParentKey) {
+		return fmt.Errorf("Invalid ParentKey for %v", m)
 	}
 	return nil
 }

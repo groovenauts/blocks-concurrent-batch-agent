@@ -42,8 +42,8 @@ func (aa *OrganizationAccessor) Find(ctx context.Context, id string) (*Organizat
 }
 
 func (aa *OrganizationAccessor) FindByKey(ctx context.Context, key *datastore.Key) (*Organization, error) {
-	m := &Organization{}
-	err := datastore.Get(ctx, key, m)
+	store := &OrganizationStore{}
+	m, err := store.ByKey(ctx, key)
 	switch {
 	case err == datastore.ErrNoSuchEntity:
 		return nil, ErrNoSuchOrganization
@@ -51,25 +51,5 @@ func (aa *OrganizationAccessor) FindByKey(ctx context.Context, key *datastore.Ke
 		log.Errorf(ctx, "OrganizationAccessor#Find %v id: %q\n", err, key.Encode())
 		return nil, err
 	}
-	m.ID = key.Encode()
 	return m, nil
-}
-
-func (aa *OrganizationAccessor) All(ctx context.Context) ([]*Organization, error) {
-	q := datastore.NewQuery("Organizations")
-	iter := q.Run(ctx)
-	var res = []*Organization{}
-	for {
-		m := &Organization{}
-		key, err := iter.Next(m)
-		if err == datastore.Done {
-			break
-		}
-		if err != nil {
-			return nil, err
-		}
-		m.ID = key.Encode()
-		res = append(res, m)
-	}
-	return res, nil
 }

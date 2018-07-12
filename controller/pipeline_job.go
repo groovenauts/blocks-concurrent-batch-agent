@@ -1,8 +1,17 @@
 package controller
 
 import (
+	"fmt"
+
+	"golang.org/x/net/context"
+
+	"google.golang.org/appengine"
+	"google.golang.org/appengine/datastore"
+	// "google.golang.org/appengine/log"
+
 	"github.com/goadesign/goa"
 	"github.com/groovenauts/blocks-concurrent-batch-server/app"
+	"github.com/groovenauts/blocks-concurrent-batch-server/model"
 )
 
 // PipelineJobController implements the PipelineJob resource.
@@ -58,26 +67,22 @@ func (c *PipelineJobController) Create(ctx *app.CreatePipelineJobContext) error 
 	// Put your logic here
 	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
 		appCtx := appengine.NewContext(ctx.Request)
-		if ctx.PipelineBaseID == nil {
+		if ctx.Name == "" {
 			return ctx.BadRequest(goa.ErrBadRequest(fmt.Sprintf("Now pipeline_base_id is required")))
 		}
-		pipelineBaseID, err := strconv.ParseInt(*ctx.PipelineBaseID, 10, 64)
-		if err != nil {
-			return ctx.BadRequest(goa.ErrBadRequest(fmt.Errorf("Invalid Pipeline Base ID %q", *ctx.PipelineBaseID)))
-		}
 		pbStore := &model.PipelineBaseStore{ParentKey: orgKey}
-		pb, err := pbStore.Get(appCtx, pipelineBaseID)
+		pb, err := pbStore.ByID(appCtx, ctx.Name)
 		if err != nil {
 			return ctx.BadRequest(goa.ErrBadRequest(err))
 		}
-		g := goon.FromContext(appCtx)
+		g := model.GoonFromContext(appCtx)
 		key, err := g.KeyError(pb)
 		if err != nil {
 			return ctx.BadRequest(goa.ErrBadRequest(err))
 		}
 
 		m := JobPayloadToModel(ctx.Payload)
-		m.Parent = key
+		m.ParentKey = key
 		m.Status = model.Inactive
 		return datastore.RunInTransaction(appCtx, func(c context.Context) error {
 			store := &model.JobStore{}

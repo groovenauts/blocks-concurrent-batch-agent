@@ -39,14 +39,14 @@ func (c *PipelineBaseOpeningTaskController) Start(ctx *app.StartPipelineBaseOpen
 		ProcessorFactory: func(ctx context.Context) (model.PipelineBaseProcessor, error) {
 			return model.NewPipelineBaseOpener(ctx)
 		},
-		WatchTaskPathFunc: func(ope *model.CloudAsyncOperation) string {
+		WatchTaskPathFunc: func(ope *model.PipelineBaseOperation) string {
 			return fmt.Sprintf("/opening_tasks/%d", ope.Id)
 		},
 		RespondOK:        ctx.OK,
 		RespondNoContent: ctx.NoContent,
 		RespondCreated:   ctx.Created,
 	}
-	return base.Start(appengine.NewContext(ctx.Request), ctx.ResourceID)
+	return base.Start(appengine.NewContext(ctx.Request), ctx.Name)
 
 	// PipelineBaseOpeningTaskController_Start: end_implement
 }
@@ -64,7 +64,7 @@ func (c *PipelineBaseOpeningTaskController) Watch(ctx *app.WatchPipelineBaseOpen
 			model.OpeningError,
 			model.Hibernating,
 		},
-		RemoteOpeFunc: func(ctx context.Context, ope *model.CloudAsyncOperation) (model.RemoteOperationWrapper, error) {
+		RemoteOpeFunc: func(ctx context.Context, ope *model.PipelineBaseOperation) (model.RemoteOperationWrapper, error) {
 			servicer, err := model.DefaultDeploymentServicer(ctx)
 			if err != nil {
 				return nil, err
@@ -78,7 +78,7 @@ func (c *PipelineBaseOpeningTaskController) Watch(ctx *app.WatchPipelineBaseOpen
 				Original: remoteOpeOriginal,
 			}, nil
 		},
-		WatchTaskPathFunc: func(ope *model.CloudAsyncOperation) string {
+		WatchTaskPathFunc: func(ope *model.PipelineBaseOperation) string {
 			return fmt.Sprintf("/opening_tasks/%d", ope.Id)
 		},
 		RespondOK:        ctx.OK,

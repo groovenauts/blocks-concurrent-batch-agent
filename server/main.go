@@ -30,12 +30,12 @@ func init() {
 	// Mount "InstanceGroupDestructionTask" controller
 	c3 := controller.NewInstanceGroupDestructionTaskController(service)
 	app.MountInstanceGroupDestructionTaskController(service, c3)
+	// Mount "InstanceGroupHealthCheck" controller
+	c4 := controller.NewInstanceGroupHealthCheckController(service)
+	app.MountInstanceGroupHealthCheckController(service, c4)
 	// Mount "InstanceGroupResizingTask" controller
-	c4 := controller.NewInstanceGroupResizingTaskController(service)
-	app.MountInstanceGroupResizingTaskController(service, c4)
-	// Mount "Job" controller
-	c5 := controller.NewJobController(service)
-	app.MountJobController(service, c5)
+	c5 := controller.NewInstanceGroupResizingTaskController(service)
+	app.MountInstanceGroupResizingTaskController(service, c5)
 	// Mount "Pipeline" controller
 	c6 := controller.NewPipelineController(service)
 	app.MountPipelineController(service, c6)
@@ -45,15 +45,21 @@ func init() {
 	// Mount "PipelineBaseClosingTask" controller
 	c8 := controller.NewPipelineBaseClosingTaskController(service)
 	app.MountPipelineBaseClosingTaskController(service, c8)
+	// Mount "PipelineBaseJob" controller
+	c9 := controller.NewPipelineBaseJobController(service)
+	app.MountPipelineBaseJobController(service, c9)
 	// Mount "PipelineBaseOpeningTask" controller
-	c9 := controller.NewPipelineBaseOpeningTaskController(service)
-	app.MountPipelineBaseOpeningTaskController(service, c9)
+	c10 := controller.NewPipelineBaseOpeningTaskController(service)
+	app.MountPipelineBaseOpeningTaskController(service, c10)
+	// Mount "PipelineJob" controller
+	c11 := controller.NewPipelineJobController(service)
+	app.MountPipelineJobController(service, c11)
 	// Mount "dummy-auths" controller
-	c10 := controller.NewDummyAuthsController(service)
-	app.MountDummyAuthsController(service, c10)
+	c12 := controller.NewDummyAuthsController(service)
+	app.MountDummyAuthsController(service, c12)
 	// Mount "swagger" controller
-	c11 := controller.NewSwaggerController(service)
-	app.MountSwaggerController(service, c11)
+	c13 := controller.NewSwaggerController(service)
+	app.MountSwaggerController(service, c13)
 
 	// // Start service
 	// if err := service.ListenAndServe(":8080"); err != nil {

@@ -22,8 +22,8 @@ type PipelineBaseTaskBase struct {
 	ErrorStatus       model.PipelineBaseStatus
 	SkipStatuses      []model.PipelineBaseStatus
 	ProcessorFactory  func(ctx context.Context) (model.PipelineBaseProcessor, error)
-	RemoteOpeFunc     func(context.Context, *model.CloudAsyncOperation) (model.RemoteOperationWrapper, error)
-	WatchTaskPathFunc func(*model.CloudAsyncOperation) string
+	RemoteOpeFunc     func(context.Context, *model.PipelineBaseOperation) (model.RemoteOperationWrapper, error)
+	WatchTaskPathFunc func(*model.PipelineBaseOperation) string
 	RespondOK         func(*app.CloudAsyncOperation) error
 	RespondAccepted   func(*app.CloudAsyncOperation) error
 	RespondNoContent  func(*app.CloudAsyncOperation) error
@@ -31,18 +31,12 @@ type PipelineBaseTaskBase struct {
 }
 
 // Start
-func (t *PipelineBaseTaskBase) Start(appCtx context.Context, resourceIdString string) error {
-	resourceId, err := strconv.ParseInt(resourceIdString, 10, 64)
-	if err != nil {
-		log.Errorf(appCtx, "Invalid resource ID: %q\n", resourceIdString)
-		return t.RespondNoContent(nil)
-	}
-
+func (t *PipelineBaseTaskBase) Start(appCtx context.Context, name string) error {
 	store := &model.PipelineBaseStore{}
-	m, err := store.Get(appCtx, resourceId)
+	m, err := store.ByID(appCtx, name)
 	if err != nil {
 		if err == datastore.ErrNoSuchEntity {
-			log.Errorf(appCtx, "PipelineBase not found for %q\n", resourceId)
+			log.Errorf(appCtx, "PipelineBase not found for %q\n", name)
 			return t.RespondNoContent(nil)
 		} else {
 			return err
@@ -51,10 +45,10 @@ func (t *PipelineBaseTaskBase) Start(appCtx context.Context, resourceIdString st
 
 	if m.Status != t.MainStatus {
 		if t.IsSkipped(m.Status) {
-			log.Infof(appCtx, "SKIPPING because PipelineBase %s is already %v\n", m.Id, m.Status)
+			log.Infof(appCtx, "SKIPPING because PipelineBase %s is already %v\n", m.Name, m.Status)
 			return t.RespondOK(nil)
 		} else {
-			log.Warningf(appCtx, "Invalid request because PipelineBase %s is already %v\n", m.Id, m.Status)
+			log.Warningf(appCtx, "Invalid request because PipelineBase %s is already %v\n", m.Name, m.Status)
 			return t.RespondNoContent(nil)
 		}
 	}
@@ -64,7 +58,7 @@ func (t *PipelineBaseTaskBase) Start(appCtx context.Context, resourceIdString st
 	if err != nil {
 		return err
 	}
-	opeStore := &model.CloudAsyncOperationStore{}
+	opeStore := &model.PipelineBaseOperationStore{}
 	_, err = opeStore.Put(appCtx, ope)
 	if err != nil {
 		return err
@@ -80,7 +74,7 @@ func (t *PipelineBaseTaskBase) Start(appCtx context.Context, resourceIdString st
 		if err := PutTask(appCtx, path, 0); err != nil {
 			return err
 		}
-		return t.RespondCreated(CloudAsyncOperationModelToMediaType(ope))
+		return t.RespondCreated(PipelineBaseOperationModelToMediaType(ope))
 	}, nil)
 }
 
@@ -92,8 +86,8 @@ func (t *PipelineBaseTaskBase) Watch(appCtx context.Context, opeIdString string)
 		return t.RespondNoContent(nil)
 	}
 
-	opeStore := &model.CloudAsyncOperationStore{}
-	ope, err := opeStore.Get(appCtx, opeId)
+	opeStore := &model.PipelineBaseOperationStore{}
+	ope, err := opeStore.ByID(appCtx, opeId)
 	if err != nil {
 		if err == datastore.ErrNoSuchEntity {
 			log.Errorf(appCtx, "CloudAsyncOperation not found for %q\n", opeId)
@@ -103,10 +97,10 @@ func (t *PipelineBaseTaskBase) Watch(appCtx context.Context, opeIdString string)
 		}
 	}
 	store := &model.PipelineBaseStore{}
-	m, err := store.Get(appCtx, ope.OwnerID)
+	m, err := store.ByKey(appCtx, ope.ParentKey)
 	if err != nil {
 		if err == datastore.ErrNoSuchEntity {
-			log.Errorf(appCtx, "PipelineBase not found for %q\n", ope.OwnerID)
+			log.Errorf(appCtx, "PipelineBase not found for %v\n", ope.ParentKey)
 			return t.RespondNoContent(nil)
 		} else {
 			return err
@@ -115,10 +109,10 @@ func (t *PipelineBaseTaskBase) Watch(appCtx context.Context, opeIdString string)
 
 	if m.Status != t.MainStatus {
 		if t.IsSkipped(m.Status) {
-			log.Infof(appCtx, "SKIPPING because PipelineBase %s is already %v\n", m.Id, m.Status)
+			log.Infof(appCtx, "SKIPPING because PipelineBase %s is already %v\n", m.Name, m.Status)
 			return t.RespondOK(nil)
 		} else {
-			log.Warningf(appCtx, "Invalid request because PipelineBase %s is already %v\n", m.Id, m.Status)
+			log.Warningf(appCtx, "Invalid request because PipelineBase %s is already %v\n", m.Name, m.Status)
 			return t.RespondNoContent(nil)
 		}
 	}
@@ -129,7 +123,7 @@ func (t *PipelineBaseTaskBase) Watch(appCtx context.Context, opeIdString string)
 	}
 
 	if ope.Status != remoteOpe.Status() {
-		ope.AppendLog(fmt.Sprintf("PipelineBase %q Status changed from %q to %q", m.Id, ope.Status, remoteOpe.Status()))
+		ope.AppendLog(fmt.Sprintf("PipelineBase %q Status changed from %q to %q", m.Name, ope.Status, remoteOpe.Status()))
 	}
 
 	// PENDING, RUNNING, or DONE
@@ -147,7 +141,7 @@ func (t *PipelineBaseTaskBase) Watch(appCtx context.Context, opeIdString string)
 		if err := PutTask(appCtx, path, 1*time.Minute); err != nil {
 			return err
 		}
-		return t.RespondCreated(CloudAsyncOperationModelToMediaType(ope))
+		return t.RespondCreated(PipelineBaseOperationModelToMediaType(ope))
 	}
 
 	errors := remoteOpe.Errors()
@@ -174,7 +168,7 @@ func (t *PipelineBaseTaskBase) Watch(appCtx context.Context, opeIdString string)
 			return err
 		}
 		// TODO Add calling PipelineBase callback
-		return f(CloudAsyncOperationModelToMediaType(ope))
+		return f(PipelineBaseOperationModelToMediaType(ope))
 	}, nil)
 }
 

@@ -33,7 +33,7 @@ type InstanceGroupTaskBase struct {
 // Start
 func (t *InstanceGroupTaskBase) Start(appCtx context.Context, name string) error {
 	store := &model.InstanceGroupStore{}
-	m, err := store.Get(appCtx, name)
+	m, err := store.ByID(appCtx, name)
 	if err != nil {
 		if err == datastore.ErrNoSuchEntity {
 			log.Errorf(appCtx, "InstanceGroup not found for %q\n", name)
@@ -87,7 +87,7 @@ func (t *InstanceGroupTaskBase) Watch(appCtx context.Context, name, opeIdString 
 	}
 
 	opeStore := &model.InstanceGroupOperationStore{}
-	ope, err := opeStore.Get(appCtx, opeId)
+	ope, err := opeStore.ByID(appCtx, opeId)
 	if err != nil {
 		if err == datastore.ErrNoSuchEntity {
 			log.Errorf(appCtx, "InstanceGroupOperation not found for %q\n", opeId)
@@ -96,8 +96,8 @@ func (t *InstanceGroupTaskBase) Watch(appCtx context.Context, name, opeIdString 
 			return err
 		}
 	}
-	store := &model.InstanceGroupStore{ParentKey: ope.Parent.Parent()}
-	m, err := store.Get(appCtx, ope.Parent.StringID())
+	store := &model.InstanceGroupStore{}
+	m, err := store.ByKey(appCtx, ope.ParentKey)
 	if err != nil {
 		if err == datastore.ErrNoSuchEntity {
 			log.Errorf(appCtx, "InstanceGroup not found for %q\n", ope.Id)
@@ -109,10 +109,10 @@ func (t *InstanceGroupTaskBase) Watch(appCtx context.Context, name, opeIdString 
 
 	if m.Status != t.MainStatus {
 		if t.IsSkipped(m.Status) {
-			log.Infof(appCtx, "SKIPPING because InstanceGroup %s is already %v\n", m.Id, m.Status)
+			log.Infof(appCtx, "SKIPPING because InstanceGroup %s is already %v\n", m.Name, m.Status)
 			return t.RespondOK(nil)
 		} else {
-			log.Warningf(appCtx, "Invalid request because InstanceGroup %s is already %v\n", m.Id, m.Status)
+			log.Warningf(appCtx, "Invalid request because InstanceGroup %s is already %v\n", m.Name, m.Status)
 			return t.RespondNoContent(nil)
 		}
 	}
@@ -123,7 +123,7 @@ func (t *InstanceGroupTaskBase) Watch(appCtx context.Context, name, opeIdString 
 	}
 
 	if ope.Status != remoteOpe.Status() {
-		ope.AppendLog(fmt.Sprintf("InstanceGroup %q Status changed from %q to %q", m.Id, ope.Status, remoteOpe.Status()))
+		ope.AppendLog(fmt.Sprintf("InstanceGroup %q Status changed from %q to %q", m.Name, ope.Status, remoteOpe.Status()))
 	}
 
 	// PENDING, RUNNING, or DONE

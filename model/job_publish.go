@@ -19,8 +19,8 @@ func (m *Job) Publish(ctx context.Context) error {
 		return fmt.Errorf("No Parent for Job %v\n", m)
 	}
 
-	pbStore := &PipelineBaseStore{ParentKey: m.Parent.Parent()}
-	pb, err := pbStore.Get(ctx, m.Parent.StringID())
+	pbStore := &PipelineBaseStore{}
+	pb, err := pbStore.ByKey(ctx, m.ParentKey)
 	if err != nil {
 		return err
 	}

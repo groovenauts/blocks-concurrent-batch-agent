@@ -57,7 +57,7 @@ type InstanceGroupBody struct {
 
 type InstanceGroup struct {
 	Name                  string                         `datastore:"-" goon:"id" json:"name"`
-	Parent                *datastore.Key                 `datastore:"-" goon:"parent" json:"-"`
+	ParentKey             *datastore.Key                 `datastore:"-" goon:"parent" json:"-"`
 	ProjectID             string                         `json:"project_id" validate:"required"`
 	Zone                  string                         `json:"zone" validate:"required"`
 	BootDisk              InstanceGroupVMDisk            `json:"boot_disk" validate:"required"`
@@ -78,7 +78,7 @@ type InstanceGroup struct {
 
 type InstanceGroupHealthCheck struct {
 	Id         int64          `datastore:"-" goon:"id" json:"id"`
-	Parent     *datastore.Key `datastore:"-" goon:"parent" json:"-"`
+	ParentKey  *datastore.Key `datastore:"-" goon:"parent" json:"-"`
 	LastResult string         `json:"last_result,omitempty"`
 	CreatedAt  time.Time      `json:"created_at" validate:"required"`
 	UpdatedAt  time.Time      `json:"updated_at" validate:"required"`
@@ -99,6 +99,11 @@ func (m *InstanceGroup) PrepareToUpdate() error {
 	return nil
 }
 
+func (m *InstanceGroup) Parent(ctx context.Context) (*Organization, error) {
+	parentStore := &OrganizationStore{}
+	return parentStore.ByKey(ctx, m.ParentKey)
+}
+
 func (m *InstanceGroupHealthCheck) PrepareToCreate() error {
 	if m.CreatedAt.IsZero() {
 		m.CreatedAt = time.Now()
@@ -114,11 +119,16 @@ func (m *InstanceGroupHealthCheck) PrepareToUpdate() error {
 	return nil
 }
 
+func (m *InstanceGroupHealthCheck) Parent(ctx context.Context) (*InstanceGroup, error) {
+	parentStore := &InstanceGroupStore{}
+	return parentStore.ByKey(ctx, m.ParentKey)
+}
+
 type InstanceGroupStore struct {
 	ParentKey *datastore.Key
 }
 
-func (s *InstanceGroupStore) GetAll(ctx context.Context) ([]*InstanceGroup, error) {
+func (s *InstanceGroupStore) All(ctx context.Context) ([]*InstanceGroup, error) {
 	g := GoonFromContext(ctx)
 	r := []*InstanceGroup{}
 	k := g.Kind(new(InstanceGroup))
@@ -134,23 +144,57 @@ func (s *InstanceGroupStore) GetAll(ctx context.Context) ([]*InstanceGroup, erro
 	return r, nil
 }
 
-func (s *InstanceGroupStore) Get(ctx context.Context, name string) (*InstanceGroup, error) {
-	g := GoonFromContext(ctx)
-	r := InstanceGroup{Name: name}
-	if s.ParentKey != nil {
-		r.Parent = s.ParentKey
-	}
-	err := g.Get(&r)
+func (s *InstanceGroupStore) ByID(ctx context.Context, name string) (*InstanceGroup, error) {
+	r := InstanceGroup{ParentKey: s.ParentKey, Name: name}
+	err := s.Get(ctx, &r)
 	if err != nil {
-		log.Errorf(ctx, "Failed to Get InstanceGroup because of %v\n", err)
 		return nil, err
 	}
-	if err := s.ValidateParent(&r); err != nil {
-		log.Errorf(ctx, "Invalid parent key for InstanceGroup because of %v\n", err)
+	return &r, nil
+}
+
+func (s *InstanceGroupStore) ByKey(ctx context.Context, key *datastore.Key) (*InstanceGroup, error) {
+	if err := s.IsValidKey(ctx, key); err != nil {
+		log.Errorf(ctx, "InstanceGroupStore.ByKey got Invalid key: %v because of %v\n", key, err)
 		return nil, err
 	}
 
+	r := InstanceGroup{ParentKey: key.Parent(), Name: key.StringID()}
+	err := s.Get(ctx, &r)
+	if err != nil {
+		return nil, err
+	}
 	return &r, nil
+}
+
+func (s *InstanceGroupStore) Get(ctx context.Context, m *InstanceGroup) error {
+	g := GoonFromContext(ctx)
+	err := g.Get(m)
+	if err != nil {
+		log.Errorf(ctx, "Failed to Get InstanceGroup because of %v\n", err)
+		return err
+	}
+	if err := s.ValidateParent(m); err != nil {
+		log.Errorf(ctx, "Invalid parent key for InstanceGroup because of %v\n", err)
+		return err
+	}
+
+	return nil
+}
+
+func (s *InstanceGroupStore) IsValidKey(ctx context.Context, key *datastore.Key) error {
+	if key == nil {
+		return fmt.Errorf("key is nil")
+	}
+	g := GoonFromContext(ctx)
+	expected := g.Kind(&InstanceGroup{})
+	if key.Kind() != expected {
+		return fmt.Errorf("key kind must be %s but was %s", expected, key.Kind())
+	}
+	if key.Parent() == nil {
+		return fmt.Errorf("key parent must not be nil but was nil")
+	}
+	return nil
 }
 
 func (s *InstanceGroupStore) Create(ctx context.Context, m *InstanceGroup) (*datastore.Key, error) {
@@ -195,11 +239,11 @@ func (s *InstanceGroupStore) ValidateParent(m *InstanceGroup) error {
 	if s.ParentKey == nil {
 		return nil
 	}
-	if m.Parent == nil {
-		m.Parent = s.ParentKey
+	if m.ParentKey == nil {
+		m.ParentKey = s.ParentKey
 	}
-	if !s.ParentKey.Equal(m.Parent) {
-		return fmt.Errorf("Invalid Parent for %v", m)
+	if !s.ParentKey.Equal(m.ParentKey) {
+		return fmt.Errorf("Invalid ParentKey for %v", m)
 	}
 	return nil
 }
@@ -223,7 +267,7 @@ type InstanceGroupHealthCheckStore struct {
 	ParentKey *datastore.Key
 }
 
-func (s *InstanceGroupHealthCheckStore) GetAll(ctx context.Context) ([]*InstanceGroupHealthCheck, error) {
+func (s *InstanceGroupHealthCheckStore) All(ctx context.Context) ([]*InstanceGroupHealthCheck, error) {
 	g := GoonFromContext(ctx)
 	r := []*InstanceGroupHealthCheck{}
 	k := g.Kind(new(InstanceGroupHealthCheck))
@@ -239,23 +283,57 @@ func (s *InstanceGroupHealthCheckStore) GetAll(ctx context.Context) ([]*Instance
 	return r, nil
 }
 
-func (s *InstanceGroupHealthCheckStore) Get(ctx context.Context, id int64) (*InstanceGroupHealthCheck, error) {
-	g := GoonFromContext(ctx)
-	r := InstanceGroupHealthCheck{Id: id}
-	if s.ParentKey != nil {
-		r.Parent = s.ParentKey
-	}
-	err := g.Get(&r)
+func (s *InstanceGroupHealthCheckStore) ByID(ctx context.Context, id int64) (*InstanceGroupHealthCheck, error) {
+	r := InstanceGroupHealthCheck{ParentKey: s.ParentKey, Id: id}
+	err := s.Get(ctx, &r)
 	if err != nil {
-		log.Errorf(ctx, "Failed to Get InstanceGroupHealthCheck because of %v\n", err)
 		return nil, err
 	}
-	if err := s.ValidateParent(&r); err != nil {
-		log.Errorf(ctx, "Invalid parent key for InstanceGroupHealthCheck because of %v\n", err)
+	return &r, nil
+}
+
+func (s *InstanceGroupHealthCheckStore) ByKey(ctx context.Context, key *datastore.Key) (*InstanceGroupHealthCheck, error) {
+	if err := s.IsValidKey(ctx, key); err != nil {
+		log.Errorf(ctx, "InstanceGroupHealthCheckStore.ByKey got Invalid key: %v because of %v\n", key, err)
 		return nil, err
 	}
 
+	r := InstanceGroupHealthCheck{ParentKey: key.Parent(), Id: key.IntID()}
+	err := s.Get(ctx, &r)
+	if err != nil {
+		return nil, err
+	}
 	return &r, nil
+}
+
+func (s *InstanceGroupHealthCheckStore) Get(ctx context.Context, m *InstanceGroupHealthCheck) error {
+	g := GoonFromContext(ctx)
+	err := g.Get(m)
+	if err != nil {
+		log.Errorf(ctx, "Failed to Get InstanceGroupHealthCheck because of %v\n", err)
+		return err
+	}
+	if err := s.ValidateParent(m); err != nil {
+		log.Errorf(ctx, "Invalid parent key for InstanceGroupHealthCheck because of %v\n", err)
+		return err
+	}
+
+	return nil
+}
+
+func (s *InstanceGroupHealthCheckStore) IsValidKey(ctx context.Context, key *datastore.Key) error {
+	if key == nil {
+		return fmt.Errorf("key is nil")
+	}
+	g := GoonFromContext(ctx)
+	expected := g.Kind(&InstanceGroupHealthCheck{})
+	if key.Kind() != expected {
+		return fmt.Errorf("key kind must be %s but was %s", expected, key.Kind())
+	}
+	if key.Parent() == nil {
+		return fmt.Errorf("key parent must not be nil but was nil")
+	}
+	return nil
 }
 
 func (s *InstanceGroupHealthCheckStore) Create(ctx context.Context, m *InstanceGroupHealthCheck) (*datastore.Key, error) {
@@ -300,11 +378,11 @@ func (s *InstanceGroupHealthCheckStore) ValidateParent(m *InstanceGroupHealthChe
 	if s.ParentKey == nil {
 		return nil
 	}
-	if m.Parent == nil {
-		m.Parent = s.ParentKey
+	if m.ParentKey == nil {
+		m.ParentKey = s.ParentKey
 	}
-	if !s.ParentKey.Equal(m.Parent) {
-		return fmt.Errorf("Invalid Parent for %v", m)
+	if !s.ParentKey.Equal(m.ParentKey) {
+		return fmt.Errorf("Invalid ParentKey for %v", m)
 	}
 	return nil
 }

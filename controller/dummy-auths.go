@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"time"
 
 	"google.golang.org/appengine"
@@ -32,19 +33,19 @@ func (c *DummyAuthsController) Create(ctx *app.CreateDummyAuthsContext) error {
 		Name: "dummy-" + t.Format(time.RFC3339),
 		TokenAmount: 100,
 	}
-	err := org.Create(appCtx)
+	key, err := org.Create(appCtx)
 	if err != nil {
 		return ctx.BadRequest(goa.ErrBadRequest(err))
 	}
 
-	auth := &model.Auth{Organization: org}
+	auth := &model.Auth{ParentKey: key}
 	err = auth.Create(appCtx)
 	if err != nil {
 		return ctx.BadRequest(goa.ErrBadRequest(err))
 	}
 
 	res := &app.DummyAuth{
-		OrganizationID: org.ID,
+		OrganizationID: fmt.Sprintf("%s", key.IntID()),
 		Token: auth.Token,
 	}
 	return ctx.Created(res)

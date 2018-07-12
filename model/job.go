@@ -36,7 +36,7 @@ type JobMessage struct {
 
 type Job struct {
 	Id             int64          `datastore:"-" goon:"id" json:"id"`
-	Parent         *datastore.Key `datastore:"-" goon:"parent" json:"-"`
+	ParentKey      *datastore.Key `datastore:"-" goon:"parent" json:"-"`
 	IDByClient     string         `json:"id_by_client" validate:"required"`
 	Status         JobStatus      `json:"status" validate:"required"`
 	Zone           string         `json:"zone,omitempty"`
@@ -68,11 +68,16 @@ func (m *Job) PrepareToUpdate() error {
 	return nil
 }
 
+func (m *Job) Parent(ctx context.Context) (*PipelineBase, error) {
+	parentStore := &PipelineBaseStore{}
+	return parentStore.ByKey(ctx, m.ParentKey)
+}
+
 type JobStore struct {
 	ParentKey *datastore.Key
 }
 
-func (s *JobStore) GetAll(ctx context.Context) ([]*Job, error) {
+func (s *JobStore) All(ctx context.Context) ([]*Job, error) {
 	g := GoonFromContext(ctx)
 	r := []*Job{}
 	k := g.Kind(new(Job))
@@ -88,23 +93,57 @@ func (s *JobStore) GetAll(ctx context.Context) ([]*Job, error) {
 	return r, nil
 }
 
-func (s *JobStore) Get(ctx context.Context, id int64) (*Job, error) {
-	g := GoonFromContext(ctx)
-	r := Job{Id: id}
-	if s.ParentKey != nil {
-		r.Parent = s.ParentKey
-	}
-	err := g.Get(&r)
+func (s *JobStore) ByID(ctx context.Context, id int64) (*Job, error) {
+	r := Job{ParentKey: s.ParentKey, Id: id}
+	err := s.Get(ctx, &r)
 	if err != nil {
-		log.Errorf(ctx, "Failed to Get Job because of %v\n", err)
 		return nil, err
 	}
-	if err := s.ValidateParent(&r); err != nil {
-		log.Errorf(ctx, "Invalid parent key for Job because of %v\n", err)
+	return &r, nil
+}
+
+func (s *JobStore) ByKey(ctx context.Context, key *datastore.Key) (*Job, error) {
+	if err := s.IsValidKey(ctx, key); err != nil {
+		log.Errorf(ctx, "JobStore.ByKey got Invalid key: %v because of %v\n", key, err)
 		return nil, err
 	}
 
+	r := Job{ParentKey: key.Parent(), Id: key.IntID()}
+	err := s.Get(ctx, &r)
+	if err != nil {
+		return nil, err
+	}
 	return &r, nil
+}
+
+func (s *JobStore) Get(ctx context.Context, m *Job) error {
+	g := GoonFromContext(ctx)
+	err := g.Get(m)
+	if err != nil {
+		log.Errorf(ctx, "Failed to Get Job because of %v\n", err)
+		return err
+	}
+	if err := s.ValidateParent(m); err != nil {
+		log.Errorf(ctx, "Invalid parent key for Job because of %v\n", err)
+		return err
+	}
+
+	return nil
+}
+
+func (s *JobStore) IsValidKey(ctx context.Context, key *datastore.Key) error {
+	if key == nil {
+		return fmt.Errorf("key is nil")
+	}
+	g := GoonFromContext(ctx)
+	expected := g.Kind(&Job{})
+	if key.Kind() != expected {
+		return fmt.Errorf("key kind must be %s but was %s", expected, key.Kind())
+	}
+	if key.Parent() == nil {
+		return fmt.Errorf("key parent must not be nil but was nil")
+	}
+	return nil
 }
 
 func (s *JobStore) Create(ctx context.Context, m *Job) (*datastore.Key, error) {
@@ -149,11 +188,11 @@ func (s *JobStore) ValidateParent(m *Job) error {
 	if s.ParentKey == nil {
 		return nil
 	}
-	if m.Parent == nil {
-		m.Parent = s.ParentKey
+	if m.ParentKey == nil {
+		m.ParentKey = s.ParentKey
 	}
-	if !s.ParentKey.Equal(m.Parent) {
-		return fmt.Errorf("Invalid Parent for %v", m)
+	if !s.ParentKey.Equal(m.ParentKey) {
+		return fmt.Errorf("Invalid ParentKey for %v", m)
 	}
 	return nil
 }

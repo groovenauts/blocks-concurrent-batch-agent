@@ -36,19 +36,8 @@ func (aa *AuthAccessor) Find(ctx context.Context, id string) (*Auth, error) {
 		log.Errorf(ctx, "@FindAuth %v id: %q\n", err, id)
 		return nil, err
 	}
-	if aa.Parent != nil {
-		parentKey, err := datastore.DecodeKey(aa.Parent.ID)
-		if err != nil {
-			return nil, err
-		}
-		if !parentKey.Equal(key.Parent()) {
-			return nil, &InvalidParent{id}
-		}
-	}
-	// log.Debugf(ctx, "@FindAuth key: %q\n", key)
-	ctx = context.WithValue(ctx, "Auth.key", key)
-	m := &Auth{ID: id}
-	err = datastore.Get(ctx, key, m)
+	store := &AuthStore{}
+	m, err := store.ByKey(ctx, key)
 	switch {
 	case err == datastore.ErrNoSuchEntity:
 		return nil, ErrNoSuchAuth
@@ -83,30 +72,4 @@ func (aa *AuthAccessor) FindWithToken(ctx context.Context, token string) (*Auth,
 		return nil, err
 	}
 	return auth, nil
-}
-
-func (aa *AuthAccessor) GetAll(ctx context.Context) ([]*Auth, error) {
-	q := datastore.NewQuery("Auths")
-	if aa.Parent != nil {
-		key, err := datastore.DecodeKey(aa.Parent.ID)
-		if err != nil {
-			return nil, err
-		}
-		q = q.Ancestor(key)
-	}
-	iter := q.Run(ctx)
-	var res = []*Auth{}
-	for {
-		m := Auth{}
-		key, err := iter.Next(&m)
-		if err == datastore.Done {
-			break
-		}
-		if err != nil {
-			return nil, err
-		}
-		m.ID = key.Encode()
-		res = append(res, &m)
-	}
-	return res, nil
 }

@@ -86,7 +86,7 @@ func (c *InstanceGroupDestructionTaskController) Watch(ctx *app.WatchInstanceGro
 		RespondNoContent: ctx.NoContent,
 		RespondCreated: ctx.Created,
 	}
-	return base.Watch(appengine.NewContext(ctx.Request), ctx.ID)
+	return base.Watch(appengine.NewContext(ctx.Request), ctx.Name, ctx.ID)
 
 	// InstanceGroupDestructionTaskController_Watch: end_implement
 }

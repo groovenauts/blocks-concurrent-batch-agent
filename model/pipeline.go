@@ -23,7 +23,7 @@ const (
 
 type Pipeline struct {
 	Name             string            `datastore:"-" goon:"id" json:"name"`
-	Parent           *datastore.Key    `datastore:"-" goon:"parent" json:"-"`
+	ParentKey        *datastore.Key    `datastore:"-" goon:"parent" json:"-"`
 	ProjectID        string            `json:"project_id" validate:"required"`
 	Zone             string            `json:"zone" validate:"required"`
 	InstanceGroup    InstanceGroupBody `json:"instance_group,omitempty"`
@@ -50,11 +50,16 @@ func (m *Pipeline) PrepareToUpdate() error {
 	return nil
 }
 
+func (m *Pipeline) Parent(ctx context.Context) (*Organization, error) {
+	parentStore := &OrganizationStore{}
+	return parentStore.ByKey(ctx, m.ParentKey)
+}
+
 type PipelineStore struct {
 	ParentKey *datastore.Key
 }
 
-func (s *PipelineStore) GetAll(ctx context.Context) ([]*Pipeline, error) {
+func (s *PipelineStore) All(ctx context.Context) ([]*Pipeline, error) {
 	g := GoonFromContext(ctx)
 	r := []*Pipeline{}
 	k := g.Kind(new(Pipeline))
@@ -70,23 +75,57 @@ func (s *PipelineStore) GetAll(ctx context.Context) ([]*Pipeline, error) {
 	return r, nil
 }
 
-func (s *PipelineStore) Get(ctx context.Context, name string) (*Pipeline, error) {
-	g := GoonFromContext(ctx)
-	r := Pipeline{Name: name}
-	if s.ParentKey != nil {
-		r.Parent = s.ParentKey
-	}
-	err := g.Get(&r)
+func (s *PipelineStore) ByID(ctx context.Context, name string) (*Pipeline, error) {
+	r := Pipeline{ParentKey: s.ParentKey, Name: name}
+	err := s.Get(ctx, &r)
 	if err != nil {
-		log.Errorf(ctx, "Failed to Get Pipeline because of %v\n", err)
 		return nil, err
 	}
-	if err := s.ValidateParent(&r); err != nil {
-		log.Errorf(ctx, "Invalid parent key for Pipeline because of %v\n", err)
+	return &r, nil
+}
+
+func (s *PipelineStore) ByKey(ctx context.Context, key *datastore.Key) (*Pipeline, error) {
+	if err := s.IsValidKey(ctx, key); err != nil {
+		log.Errorf(ctx, "PipelineStore.ByKey got Invalid key: %v because of %v\n", key, err)
 		return nil, err
 	}
 
+	r := Pipeline{ParentKey: key.Parent(), Name: key.StringID()}
+	err := s.Get(ctx, &r)
+	if err != nil {
+		return nil, err
+	}
 	return &r, nil
+}
+
+func (s *PipelineStore) Get(ctx context.Context, m *Pipeline) error {
+	g := GoonFromContext(ctx)
+	err := g.Get(m)
+	if err != nil {
+		log.Errorf(ctx, "Failed to Get Pipeline because of %v\n", err)
+		return err
+	}
+	if err := s.ValidateParent(m); err != nil {
+		log.Errorf(ctx, "Invalid parent key for Pipeline because of %v\n", err)
+		return err
+	}
+
+	return nil
+}
+
+func (s *PipelineStore) IsValidKey(ctx context.Context, key *datastore.Key) error {
+	if key == nil {
+		return fmt.Errorf("key is nil")
+	}
+	g := GoonFromContext(ctx)
+	expected := g.Kind(&Pipeline{})
+	if key.Kind() != expected {
+		return fmt.Errorf("key kind must be %s but was %s", expected, key.Kind())
+	}
+	if key.Parent() == nil {
+		return fmt.Errorf("key parent must not be nil but was nil")
+	}
+	return nil
 }
 
 func (s *PipelineStore) Create(ctx context.Context, m *Pipeline) (*datastore.Key, error) {
@@ -131,11 +170,11 @@ func (s *PipelineStore) ValidateParent(m *Pipeline) error {
 	if s.ParentKey == nil {
 		return nil
 	}
-	if m.Parent == nil {
-		m.Parent = s.ParentKey
+	if m.ParentKey == nil {
+		m.ParentKey = s.ParentKey
 	}
-	if !s.ParentKey.Equal(m.Parent) {
-		return fmt.Errorf("Invalid Parent for %v", m)
+	if !s.ParentKey.Equal(m.ParentKey) {
+		return fmt.Errorf("Invalid ParentKey for %v", m)
 	}
 	return nil
 }

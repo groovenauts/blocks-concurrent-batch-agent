@@ -11,7 +11,7 @@ import (
 
 type Auth struct {
 	ID                int64          `datastore:"-" goon:"id" json:"id"`
-	Parent            *datastore.Key `datastore:"-" goon:"parent" json:"-"`
+	ParentKey         *datastore.Key `datastore:"-" goon:"parent" json:"-"`
 	Token             string         `json:"token,omitempty" datastore:"-"`
 	Password          string         `json:"password,omitempty" datastore:"-"`
 	EncryptedPassword string         `json:"encrypted_password,omitempty"`
@@ -33,6 +33,11 @@ func (m *Auth) PrepareToCreate() error {
 func (m *Auth) PrepareToUpdate() error {
 	m.UpdatedAt = time.Now()
 	return nil
+}
+
+func (m *Auth) Parent(ctx context.Context) (*Organization, error) {
+	parentStore := &OrganizationStore{}
+	return parentStore.ByKey(ctx, m.ParentKey)
 }
 
 type AuthStore struct {
@@ -65,12 +70,12 @@ func (s *AuthStore) ByID(ctx context.Context, iD int64) (*Auth, error) {
 }
 
 func (s *AuthStore) ByKey(ctx context.Context, key *datastore.Key) (*Auth, error) {
-	if err := s.IsValidKey(key); err != nil {
+	if err := s.IsValidKey(ctx, key); err != nil {
 		log.Errorf(ctx, "AuthStore.ByKey got Invalid key: %v because of %v\n", key, err)
-		return err
+		return nil, err
 	}
 
-	r := Auth{ParentKey: key.Parent, ID: key.IntID()}
+	r := Auth{ParentKey: key.Parent(), ID: key.IntID()}
 	err := s.Get(ctx, &r)
 	if err != nil {
 		return nil, err
@@ -80,20 +85,18 @@ func (s *AuthStore) ByKey(ctx context.Context, key *datastore.Key) (*Auth, error
 
 func (s *AuthStore) Get(ctx context.Context, m *Auth) error {
 	g := GoonFromContext(ctx)
-	err := g.Get(&m)
+	err := g.Get(m)
 	if err != nil {
 		log.Errorf(ctx, "Failed to Get Auth because of %v\n", err)
-		return nil, err
+		return err
 	}
-	if err := s.ValidateParent(&m); err != nil {
+	if err := s.ValidateParent(m); err != nil {
 		log.Errorf(ctx, "Invalid parent key for Auth because of %v\n", err)
-		return nil, err
+		return err
 	}
 
 	return nil
 }
-
-
 
 func (s *AuthStore) IsValidKey(ctx context.Context, key *datastore.Key) error {
 	if key == nil {
@@ -109,7 +112,6 @@ func (s *AuthStore) IsValidKey(ctx context.Context, key *datastore.Key) error {
 	}
 	return nil
 }
-
 
 func (s *AuthStore) Create(ctx context.Context, m *Auth) (*datastore.Key, error) {
 	err := m.PrepareToCreate()
@@ -153,11 +155,11 @@ func (s *AuthStore) ValidateParent(m *Auth) error {
 	if s.ParentKey == nil {
 		return nil
 	}
-	if m.Parent == nil {
-		m.Parent = s.ParentKey
+	if m.ParentKey == nil {
+		m.ParentKey = s.ParentKey
 	}
-	if !s.ParentKey.Equal(m.Parent) {
-		return fmt.Errorf("Invalid Parent for %v", m)
+	if !s.ParentKey.Equal(m.ParentKey) {
+		return fmt.Errorf("Invalid ParentKey for %v", m)
 	}
 	return nil
 }

@@ -2,7 +2,7 @@ package controller
 
 import (
 	"fmt"
-	"strconv"
+	//"strconv"
 
 	"golang.org/x/net/context"
 
@@ -12,14 +12,14 @@ import (
 )
 
 func (c *PipelineBaseController) member(ctx context.Context, store *model.PipelineBaseStore, idString string, RespondBadRequest func(error) error, RespondNotFound func(error) error, f func(*model.PipelineBase) error) error {
-	id, err := strconv.ParseInt(idString, 10, 64)
-	if err != nil {
-		return RespondBadRequest(fmt.Errorf("Invalid id: %q", idString))
-	}
-	m, err := store.Get(ctx, id)
+	// id, err := strconv.ParseInt(idString, 10, 64)
+	// if err != nil {
+	// 	return RespondBadRequest(fmt.Errorf("Invalid id: %q", idString))
+	// }
+	m, err := store.ByID(ctx, idString)
 	if err != nil {
 		if err == datastore.ErrNoSuchEntity {
-			return RespondNotFound(fmt.Errorf("PipelineBase not found: %q", id))
+			return RespondNotFound(fmt.Errorf("PipelineBase not found: %q", idString))
 		} else {
 			return err
 		}

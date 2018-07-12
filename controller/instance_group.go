@@ -34,7 +34,7 @@ func (c *InstanceGroupController) Create(ctx *app.CreateInstanceGroupContext) er
 	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
 		appCtx := appengine.NewContext(ctx.Request)
 		m := InstanceGroupPayloadToModel(ctx.Payload)
-		m.Parent = orgKey
+		m.ParentKey = orgKey
 		m.Status = model.ConstructionStarting
 		err := datastore.RunInTransaction(appCtx, func(c context.Context) error {
 			store := &model.InstanceGroupStore{}
@@ -125,7 +125,7 @@ func (c *InstanceGroupController) List(ctx *app.ListInstanceGroupContext) error 
 	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
 		appCtx := appengine.NewContext(ctx.Request)
 		store := &model.InstanceGroupStore{ParentKey: orgKey}
-		models, err := store.GetAll(appCtx)
+		models, err := store.All(appCtx)
 		if err != nil {
 			return ctx.BadRequest(goa.ErrBadRequest(err))
 		}

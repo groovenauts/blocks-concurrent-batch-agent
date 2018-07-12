@@ -3,11 +3,10 @@ package model
 import (
 	"encoding/base64"
 	"math/rand"
-	"time"
 
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/net/context"
-	"google.golang.org/appengine/datastore"
+	// "google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 	"gopkg.in/go-playground/validator.v9"
 )
@@ -32,7 +31,7 @@ func (m *Auth) Create(ctx context.Context) error {
 	}
 	m.EncryptedPassword = string(enc_pw) // EncryptedPassword is binary string
 
-	store := &AuthStore{ParentKey: m.Parent}
+	store := &AuthStore{ParentKey: m.ParentKey}
 	key, err := store.Create(ctx, m)
 	if err != nil {
 		log.Errorf(ctx, "Failed to Create %v because of %v\n", m, err)
@@ -48,5 +47,5 @@ func (m *Auth) Create(ctx context.Context) error {
 func (m *Auth) generatePassword() string {
 	b := make([]byte, 12)
 	rand.Read(b)
-	base64.StdEncoding.EncodeToString(b)
+	return base64.StdEncoding.EncodeToString(b)
 }

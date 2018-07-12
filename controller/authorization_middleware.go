@@ -55,10 +55,7 @@ func NewAuthorizationMiddleware() goa.Middleware {
 				return ErrUnauthorized("invalid token")
 			}
 
-			orgKey, err := auth.OrganizationKey()
-			if err != nil {
-				return ErrUnauthorized(fmt.Sprintf("OrganizationKey error because of %v", err))
-			}
+			orgKey := auth.ParentKey
 			if orgKey == nil {
 				return ErrUnauthorized("Organization Key not found")
 			}
