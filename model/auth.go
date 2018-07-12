@@ -39,7 +39,7 @@ type AuthStore struct {
 	ParentKey *datastore.Key
 }
 
-func (s *AuthStore) GetAll(ctx context.Context) ([]*Auth, error) {
+func (s *AuthStore) All(ctx context.Context) ([]*Auth, error) {
 	g := GoonFromContext(ctx)
 	r := []*Auth{}
 	k := g.Kind(new(Auth))
@@ -55,24 +55,61 @@ func (s *AuthStore) GetAll(ctx context.Context) ([]*Auth, error) {
 	return r, nil
 }
 
-func (s *AuthStore) Get(ctx context.Context, iD int64) (*Auth, error) {
-	g := GoonFromContext(ctx)
-	r := Auth{ID: iD}
-	if s.ParentKey != nil {
-		r.Parent = s.ParentKey
+func (s *AuthStore) ByID(ctx context.Context, iD int64) (*Auth, error) {
+	r := Auth{ParentKey: s.ParentKey, ID: iD}
+	err := s.Get(ctx, &r)
+	if err != nil {
+		return nil, err
 	}
-	err := g.Get(&r)
+	return &r, nil
+}
+
+func (s *AuthStore) ByKey(ctx context.Context, key *datastore.Key) (*Auth, error) {
+	if err := s.IsValidKey(key); err != nil {
+		log.Errorf(ctx, "AuthStore.ByKey got Invalid key: %v because of %v\n", key, err)
+		return err
+	}
+
+	r := Auth{ParentKey: key.Parent, ID: key.IntID()}
+	err := s.Get(ctx, &r)
+	if err != nil {
+		return nil, err
+	}
+	return &r, nil
+}
+
+func (s *AuthStore) Get(ctx context.Context, m *Auth) error {
+	g := GoonFromContext(ctx)
+	err := g.Get(&m)
 	if err != nil {
 		log.Errorf(ctx, "Failed to Get Auth because of %v\n", err)
 		return nil, err
 	}
-	if err := s.ValidateParent(&r); err != nil {
+	if err := s.ValidateParent(&m); err != nil {
 		log.Errorf(ctx, "Invalid parent key for Auth because of %v\n", err)
 		return nil, err
 	}
 
-	return &r, nil
+	return nil
 }
+
+
+
+func (s *AuthStore) IsValidKey(ctx context.Context, key *datastore.Key) error {
+	if key == nil {
+		return fmt.Errorf("key is nil")
+	}
+	g := GoonFromContext(ctx)
+	expected := g.Kind(&Auth{})
+	if key.Kind() != expected {
+		return fmt.Errorf("key kind must be %s but was %s", expected, key.Kind())
+	}
+	if key.Parent() == nil {
+		return fmt.Errorf("key parent must not be nil but was nil")
+	}
+	return nil
+}
+
 
 func (s *AuthStore) Create(ctx context.Context, m *Auth) (*datastore.Key, error) {
 	err := m.PrepareToCreate()
