@@ -19,14 +19,15 @@ import (
 )
 
 // CreatePipelinePath computes a request path to the create action of Pipeline.
-func CreatePipelinePath() string {
+func CreatePipelinePath(orgID string) string {
+	param0 := orgID
 
-	return fmt.Sprintf("/pipelines")
+	return fmt.Sprintf("/orgs/%s/pipelines", param0)
 }
 
 // create
-func (c *Client) CreatePipeline(ctx context.Context, path string, payload *PipelinePayload, orgID string, contentType string) (*http.Response, error) {
-	req, err := c.NewCreatePipelineRequest(ctx, path, payload, orgID, contentType)
+func (c *Client) CreatePipeline(ctx context.Context, path string, payload *PipelinePayload, contentType string) (*http.Response, error) {
+	req, err := c.NewCreatePipelineRequest(ctx, path, payload, contentType)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +35,7 @@ func (c *Client) CreatePipeline(ctx context.Context, path string, payload *Pipel
 }
 
 // NewCreatePipelineRequest create the request corresponding to the create action endpoint of the Pipeline resource.
-func (c *Client) NewCreatePipelineRequest(ctx context.Context, path string, payload *PipelinePayload, orgID string, contentType string) (*http.Request, error) {
+func (c *Client) NewCreatePipelineRequest(ctx context.Context, path string, payload *PipelinePayload, contentType string) (*http.Request, error) {
 	var body bytes.Buffer
 	if contentType == "" {
 		contentType = "*/*" // Use default encoder
@@ -48,9 +49,6 @@ func (c *Client) NewCreatePipelineRequest(ctx context.Context, path string, payl
 		scheme = "http"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
-	values := u.Query()
-	values.Set("org_id", orgID)
-	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("POST", u.String(), &body)
 	if err != nil {
 		return nil, err
@@ -70,15 +68,16 @@ func (c *Client) NewCreatePipelineRequest(ctx context.Context, path string, payl
 }
 
 // CurrentPipelinePath computes a request path to the current action of Pipeline.
-func CurrentPipelinePath(name string) string {
-	param0 := name
+func CurrentPipelinePath(orgID string, name string) string {
+	param0 := orgID
+	param1 := name
 
-	return fmt.Sprintf("/pipelines/%s/current", param0)
+	return fmt.Sprintf("/orgs/%s/pipelines/%s/current", param0, param1)
 }
 
 // Update current pipeline base
-func (c *Client) CurrentPipeline(ctx context.Context, path string, pipelineBaseID string) (*http.Response, error) {
-	req, err := c.NewCurrentPipelineRequest(ctx, path, pipelineBaseID)
+func (c *Client) CurrentPipeline(ctx context.Context, path string, pipelineBaseName string) (*http.Response, error) {
+	req, err := c.NewCurrentPipelineRequest(ctx, path, pipelineBaseName)
 	if err != nil {
 		return nil, err
 	}
@@ -86,14 +85,14 @@ func (c *Client) CurrentPipeline(ctx context.Context, path string, pipelineBaseI
 }
 
 // NewCurrentPipelineRequest create the request corresponding to the current action endpoint of the Pipeline resource.
-func (c *Client) NewCurrentPipelineRequest(ctx context.Context, path string, pipelineBaseID string) (*http.Request, error) {
+func (c *Client) NewCurrentPipelineRequest(ctx context.Context, path string, pipelineBaseName string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "http"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
 	values := u.Query()
-	values.Set("pipeline_base_id", pipelineBaseID)
+	values.Set("pipeline_base_name", pipelineBaseName)
 	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
@@ -108,10 +107,11 @@ func (c *Client) NewCurrentPipelineRequest(ctx context.Context, path string, pip
 }
 
 // DeletePipelinePath computes a request path to the delete action of Pipeline.
-func DeletePipelinePath(name string) string {
-	param0 := name
+func DeletePipelinePath(orgID string, name string) string {
+	param0 := orgID
+	param1 := name
 
-	return fmt.Sprintf("/pipelines/%s", param0)
+	return fmt.Sprintf("/orgs/%s/pipelines/%s", param0, param1)
 }
 
 // delete
@@ -143,14 +143,15 @@ func (c *Client) NewDeletePipelineRequest(ctx context.Context, path string) (*ht
 }
 
 // ListPipelinePath computes a request path to the list action of Pipeline.
-func ListPipelinePath() string {
+func ListPipelinePath(orgID string) string {
+	param0 := orgID
 
-	return fmt.Sprintf("/pipelines")
+	return fmt.Sprintf("/orgs/%s/pipelines", param0)
 }
 
 // list
-func (c *Client) ListPipeline(ctx context.Context, path string, orgID string) (*http.Response, error) {
-	req, err := c.NewListPipelineRequest(ctx, path, orgID)
+func (c *Client) ListPipeline(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.NewListPipelineRequest(ctx, path)
 	if err != nil {
 		return nil, err
 	}
@@ -158,15 +159,12 @@ func (c *Client) ListPipeline(ctx context.Context, path string, orgID string) (*
 }
 
 // NewListPipelineRequest create the request corresponding to the list action endpoint of the Pipeline resource.
-func (c *Client) NewListPipelineRequest(ctx context.Context, path string, orgID string) (*http.Request, error) {
+func (c *Client) NewListPipelineRequest(ctx context.Context, path string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "http"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
-	values := u.Query()
-	values.Set("org_id", orgID)
-	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return nil, err
@@ -180,10 +178,11 @@ func (c *Client) NewListPipelineRequest(ctx context.Context, path string, orgID 
 }
 
 // PreparingFinalizeTaskPipelinePath computes a request path to the preparing_finalize_task action of Pipeline.
-func PreparingFinalizeTaskPipelinePath(name string) string {
-	param0 := name
+func PreparingFinalizeTaskPipelinePath(orgID string, name string) string {
+	param0 := orgID
+	param1 := name
 
-	return fmt.Sprintf("/pipelines/%s/preparing_finalize_task", param0)
+	return fmt.Sprintf("/orgs/%s/pipelines/%s/preparing_finalize_task", param0, param1)
 }
 
 // Task to finalize current_preparing or next_preparing status
@@ -223,10 +222,11 @@ func (c *Client) NewPreparingFinalizeTaskPipelineRequest(ctx context.Context, pa
 }
 
 // ShowPipelinePath computes a request path to the show action of Pipeline.
-func ShowPipelinePath(name string) string {
-	param0 := name
+func ShowPipelinePath(orgID string, name string) string {
+	param0 := orgID
+	param1 := name
 
-	return fmt.Sprintf("/pipelines/%s", param0)
+	return fmt.Sprintf("/orgs/%s/pipelines/%s", param0, param1)
 }
 
 // show
@@ -258,10 +258,11 @@ func (c *Client) NewShowPipelineRequest(ctx context.Context, path string) (*http
 }
 
 // StopPipelinePath computes a request path to the stop action of Pipeline.
-func StopPipelinePath(name string) string {
-	param0 := name
+func StopPipelinePath(orgID string, name string) string {
+	param0 := orgID
+	param1 := name
 
-	return fmt.Sprintf("/pipelines/%s/stop", param0)
+	return fmt.Sprintf("/orgs/%s/pipelines/%s/stop", param0, param1)
 }
 
 // Stop pipeline

@@ -20,10 +20,11 @@ import (
 )
 
 // ClosePipelineBasePath computes a request path to the close action of PipelineBase.
-func ClosePipelineBasePath(name string) string {
-	param0 := name
+func ClosePipelineBasePath(orgID string, name string) string {
+	param0 := orgID
+	param1 := name
 
-	return fmt.Sprintf("/pipeline_bases/%s", param0)
+	return fmt.Sprintf("/orgs/%s/pipeline_bases/%s", param0, param1)
 }
 
 // Close
@@ -55,14 +56,15 @@ func (c *Client) NewClosePipelineBaseRequest(ctx context.Context, path string) (
 }
 
 // CreatePipelineBasePath computes a request path to the create action of PipelineBase.
-func CreatePipelineBasePath() string {
+func CreatePipelineBasePath(orgID string) string {
+	param0 := orgID
 
-	return fmt.Sprintf("/pipeline_bases")
+	return fmt.Sprintf("/orgs/%s/pipeline_bases", param0)
 }
 
 // create
-func (c *Client) CreatePipelineBase(ctx context.Context, path string, payload *PipelineBasePayload, orgID string, contentType string) (*http.Response, error) {
-	req, err := c.NewCreatePipelineBaseRequest(ctx, path, payload, orgID, contentType)
+func (c *Client) CreatePipelineBase(ctx context.Context, path string, payload *PipelineBasePayload, contentType string) (*http.Response, error) {
+	req, err := c.NewCreatePipelineBaseRequest(ctx, path, payload, contentType)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +72,7 @@ func (c *Client) CreatePipelineBase(ctx context.Context, path string, payload *P
 }
 
 // NewCreatePipelineBaseRequest create the request corresponding to the create action endpoint of the PipelineBase resource.
-func (c *Client) NewCreatePipelineBaseRequest(ctx context.Context, path string, payload *PipelineBasePayload, orgID string, contentType string) (*http.Request, error) {
+func (c *Client) NewCreatePipelineBaseRequest(ctx context.Context, path string, payload *PipelineBasePayload, contentType string) (*http.Request, error) {
 	var body bytes.Buffer
 	if contentType == "" {
 		contentType = "*/*" // Use default encoder
@@ -84,9 +86,6 @@ func (c *Client) NewCreatePipelineBaseRequest(ctx context.Context, path string, 
 		scheme = "http"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
-	values := u.Query()
-	values.Set("org_id", orgID)
-	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("POST", u.String(), &body)
 	if err != nil {
 		return nil, err
@@ -106,10 +105,11 @@ func (c *Client) NewCreatePipelineBaseRequest(ctx context.Context, path string, 
 }
 
 // DeletePipelineBasePath computes a request path to the delete action of PipelineBase.
-func DeletePipelineBasePath(name string) string {
-	param0 := name
+func DeletePipelineBasePath(orgID string, name string) string {
+	param0 := orgID
+	param1 := name
 
-	return fmt.Sprintf("/pipeline_bases/%s", param0)
+	return fmt.Sprintf("/orgs/%s/pipeline_bases/%s", param0, param1)
 }
 
 // delete
@@ -141,10 +141,11 @@ func (c *Client) NewDeletePipelineBaseRequest(ctx context.Context, path string) 
 }
 
 // HibernationCheckingTaskPipelineBasePath computes a request path to the hibernation_checking_task action of PipelineBase.
-func HibernationCheckingTaskPipelineBasePath(name string) string {
-	param0 := name
+func HibernationCheckingTaskPipelineBasePath(orgID string, name string) string {
+	param0 := orgID
+	param1 := name
 
-	return fmt.Sprintf("/pipeline_bases/%s/hibernation_checking_task", param0)
+	return fmt.Sprintf("/orgs/%s/pipeline_bases/%s/hibernation_checking_task", param0, param1)
 }
 
 // Task to check if it starts hibernation
@@ -180,10 +181,11 @@ func (c *Client) NewHibernationCheckingTaskPipelineBaseRequest(ctx context.Conte
 }
 
 // HibernationDoneTaskPipelineBasePath computes a request path to the hibernation_done_task action of PipelineBase.
-func HibernationDoneTaskPipelineBasePath(name string) string {
-	param0 := name
+func HibernationDoneTaskPipelineBasePath(orgID string, name string) string {
+	param0 := orgID
+	param1 := name
 
-	return fmt.Sprintf("/pipeline_bases/%s/hibernation_done_task", param0)
+	return fmt.Sprintf("/orgs/%s/pipeline_bases/%s/hibernation_done_task", param0, param1)
 }
 
 // Task to accept hibernation(destruction) done notification
@@ -223,14 +225,15 @@ func (c *Client) NewHibernationDoneTaskPipelineBaseRequest(ctx context.Context, 
 }
 
 // ListPipelineBasePath computes a request path to the list action of PipelineBase.
-func ListPipelineBasePath() string {
+func ListPipelineBasePath(orgID string) string {
+	param0 := orgID
 
-	return fmt.Sprintf("/pipeline_bases")
+	return fmt.Sprintf("/orgs/%s/pipeline_bases", param0)
 }
 
 // list
-func (c *Client) ListPipelineBase(ctx context.Context, path string, orgID string) (*http.Response, error) {
-	req, err := c.NewListPipelineBaseRequest(ctx, path, orgID)
+func (c *Client) ListPipelineBase(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.NewListPipelineBaseRequest(ctx, path)
 	if err != nil {
 		return nil, err
 	}
@@ -238,15 +241,12 @@ func (c *Client) ListPipelineBase(ctx context.Context, path string, orgID string
 }
 
 // NewListPipelineBaseRequest create the request corresponding to the list action endpoint of the PipelineBase resource.
-func (c *Client) NewListPipelineBaseRequest(ctx context.Context, path string, orgID string) (*http.Request, error) {
+func (c *Client) NewListPipelineBaseRequest(ctx context.Context, path string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "http"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
-	values := u.Query()
-	values.Set("org_id", orgID)
-	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return nil, err
@@ -260,10 +260,11 @@ func (c *Client) NewListPipelineBaseRequest(ctx context.Context, path string, or
 }
 
 // PullTaskPipelineBasePath computes a request path to the pull_task action of PipelineBase.
-func PullTaskPipelineBasePath(name string) string {
-	param0 := name
+func PullTaskPipelineBasePath(orgID string, name string) string {
+	param0 := orgID
+	param1 := name
 
-	return fmt.Sprintf("/pipeline_bases/%s/pull_task", param0)
+	return fmt.Sprintf("/orgs/%s/pipeline_bases/%s/pull_task", param0, param1)
 }
 
 // Task to pull progress messages
@@ -295,10 +296,11 @@ func (c *Client) NewPullTaskPipelineBaseRequest(ctx context.Context, path string
 }
 
 // ShowPipelineBasePath computes a request path to the show action of PipelineBase.
-func ShowPipelineBasePath(name string) string {
-	param0 := name
+func ShowPipelineBasePath(orgID string, name string) string {
+	param0 := orgID
+	param1 := name
 
-	return fmt.Sprintf("/pipeline_bases/%s", param0)
+	return fmt.Sprintf("/orgs/%s/pipeline_bases/%s", param0, param1)
 }
 
 // show
@@ -330,10 +332,11 @@ func (c *Client) NewShowPipelineBaseRequest(ctx context.Context, path string) (*
 }
 
 // WakeupDoneTaskPipelineBasePath computes a request path to the wakeup_done_task action of PipelineBase.
-func WakeupDoneTaskPipelineBasePath(name string) string {
-	param0 := name
+func WakeupDoneTaskPipelineBasePath(orgID string, name string) string {
+	param0 := orgID
+	param1 := name
 
-	return fmt.Sprintf("/pipeline_bases/%s/wakeup_done_task", param0)
+	return fmt.Sprintf("/orgs/%s/pipeline_bases/%s/wakeup_done_task", param0, param1)
 }
 
 // Task to accept wakeup(construction) done notification

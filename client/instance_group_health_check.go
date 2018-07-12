@@ -18,11 +18,12 @@ import (
 )
 
 // ExecuteInstanceGroupHealthCheckPath computes a request path to the execute action of InstanceGroupHealthCheck.
-func ExecuteInstanceGroupHealthCheckPath(name string, id string) string {
-	param0 := name
-	param1 := id
+func ExecuteInstanceGroupHealthCheckPath(orgID string, name string, id string) string {
+	param0 := orgID
+	param1 := name
+	param2 := id
 
-	return fmt.Sprintf("/instance_groups/%s/health_checks/%s", param0, param1)
+	return fmt.Sprintf("/orgs/%s/instance_groups/%s/health_checks/%s", param0, param1, param2)
 }
 
 // Execute health check

@@ -18,10 +18,11 @@ import (
 )
 
 // StartPipelineBaseOpeningTaskPath computes a request path to the start action of PipelineBaseOpeningTask.
-func StartPipelineBaseOpeningTaskPath(name string) string {
-	param0 := name
+func StartPipelineBaseOpeningTaskPath(orgID string, name string) string {
+	param0 := orgID
+	param1 := name
 
-	return fmt.Sprintf("/pipeline_bases/%s/opening_tasks", param0)
+	return fmt.Sprintf("/orgs/%s/pipeline_bases/%s/opening_tasks", param0, param1)
 }
 
 // Start operation
@@ -53,11 +54,12 @@ func (c *Client) NewStartPipelineBaseOpeningTaskRequest(ctx context.Context, pat
 }
 
 // WatchPipelineBaseOpeningTaskPath computes a request path to the watch action of PipelineBaseOpeningTask.
-func WatchPipelineBaseOpeningTaskPath(name string, id string) string {
-	param0 := name
-	param1 := id
+func WatchPipelineBaseOpeningTaskPath(orgID string, name string, id string) string {
+	param0 := orgID
+	param1 := name
+	param2 := id
 
-	return fmt.Sprintf("/pipeline_bases/%s/opening_tasks/%s", param0, param1)
+	return fmt.Sprintf("/orgs/%s/pipeline_bases/%s/opening_tasks/%s", param0, param1, param2)
 }
 
 // Watch

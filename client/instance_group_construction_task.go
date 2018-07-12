@@ -18,10 +18,11 @@ import (
 )
 
 // StartInstanceGroupConstructionTaskPath computes a request path to the start action of InstanceGroupConstructionTask.
-func StartInstanceGroupConstructionTaskPath(name string) string {
-	param0 := name
+func StartInstanceGroupConstructionTaskPath(orgID string, name string) string {
+	param0 := orgID
+	param1 := name
 
-	return fmt.Sprintf("/instance_groups/%s/construction_tasks", param0)
+	return fmt.Sprintf("/orgs/%s/instance_groups/%s/construction_tasks", param0, param1)
 }
 
 // Start operation
@@ -53,11 +54,12 @@ func (c *Client) NewStartInstanceGroupConstructionTaskRequest(ctx context.Contex
 }
 
 // WatchInstanceGroupConstructionTaskPath computes a request path to the watch action of InstanceGroupConstructionTask.
-func WatchInstanceGroupConstructionTaskPath(name string, id string) string {
-	param0 := name
-	param1 := id
+func WatchInstanceGroupConstructionTaskPath(orgID string, name string, id string) string {
+	param0 := orgID
+	param1 := name
+	param2 := id
 
-	return fmt.Sprintf("/instance_groups/%s/construction_tasks/%s", param0, param1)
+	return fmt.Sprintf("/orgs/%s/instance_groups/%s/construction_tasks/%s", param0, param1, param2)
 }
 
 // Watch

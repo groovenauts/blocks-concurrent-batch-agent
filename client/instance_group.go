@@ -20,14 +20,15 @@ import (
 )
 
 // CreateInstanceGroupPath computes a request path to the create action of InstanceGroup.
-func CreateInstanceGroupPath() string {
+func CreateInstanceGroupPath(orgID string) string {
+	param0 := orgID
 
-	return fmt.Sprintf("/instance_groups")
+	return fmt.Sprintf("/orgs/%s/instance_groups", param0)
 }
 
 // create
-func (c *Client) CreateInstanceGroup(ctx context.Context, path string, payload *InstanceGroupPayload, orgID string, contentType string) (*http.Response, error) {
-	req, err := c.NewCreateInstanceGroupRequest(ctx, path, payload, orgID, contentType)
+func (c *Client) CreateInstanceGroup(ctx context.Context, path string, payload *InstanceGroupPayload, contentType string) (*http.Response, error) {
+	req, err := c.NewCreateInstanceGroupRequest(ctx, path, payload, contentType)
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +36,7 @@ func (c *Client) CreateInstanceGroup(ctx context.Context, path string, payload *
 }
 
 // NewCreateInstanceGroupRequest create the request corresponding to the create action endpoint of the InstanceGroup resource.
-func (c *Client) NewCreateInstanceGroupRequest(ctx context.Context, path string, payload *InstanceGroupPayload, orgID string, contentType string) (*http.Request, error) {
+func (c *Client) NewCreateInstanceGroupRequest(ctx context.Context, path string, payload *InstanceGroupPayload, contentType string) (*http.Request, error) {
 	var body bytes.Buffer
 	if contentType == "" {
 		contentType = "*/*" // Use default encoder
@@ -49,9 +50,6 @@ func (c *Client) NewCreateInstanceGroupRequest(ctx context.Context, path string,
 		scheme = "http"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
-	values := u.Query()
-	values.Set("org_id", orgID)
-	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("POST", u.String(), &body)
 	if err != nil {
 		return nil, err
@@ -71,10 +69,11 @@ func (c *Client) NewCreateInstanceGroupRequest(ctx context.Context, path string,
 }
 
 // DeleteInstanceGroupPath computes a request path to the delete action of InstanceGroup.
-func DeleteInstanceGroupPath(name string) string {
-	param0 := name
+func DeleteInstanceGroupPath(orgID string, name string) string {
+	param0 := orgID
+	param1 := name
 
-	return fmt.Sprintf("/instance_groups/%s", param0)
+	return fmt.Sprintf("/orgs/%s/instance_groups/%s", param0, param1)
 }
 
 // delete
@@ -106,10 +105,11 @@ func (c *Client) NewDeleteInstanceGroupRequest(ctx context.Context, path string)
 }
 
 // DestructInstanceGroupPath computes a request path to the destruct action of InstanceGroup.
-func DestructInstanceGroupPath(name string) string {
-	param0 := name
+func DestructInstanceGroupPath(orgID string, name string) string {
+	param0 := orgID
+	param1 := name
 
-	return fmt.Sprintf("/instance_groups/%s/destruct", param0)
+	return fmt.Sprintf("/orgs/%s/instance_groups/%s/destruct", param0, param1)
 }
 
 // Destruct
@@ -141,9 +141,10 @@ func (c *Client) NewDestructInstanceGroupRequest(ctx context.Context, path strin
 }
 
 // ListInstanceGroupPath computes a request path to the list action of InstanceGroup.
-func ListInstanceGroupPath() string {
+func ListInstanceGroupPath(orgID string) string {
+	param0 := orgID
 
-	return fmt.Sprintf("/instance_groups")
+	return fmt.Sprintf("/orgs/%s/instance_groups", param0)
 }
 
 // list
@@ -175,10 +176,11 @@ func (c *Client) NewListInstanceGroupRequest(ctx context.Context, path string) (
 }
 
 // ResizeInstanceGroupPath computes a request path to the resize action of InstanceGroup.
-func ResizeInstanceGroupPath(name string) string {
-	param0 := name
+func ResizeInstanceGroupPath(orgID string, name string) string {
+	param0 := orgID
+	param1 := name
 
-	return fmt.Sprintf("/instance_groups/%s/resize", param0)
+	return fmt.Sprintf("/orgs/%s/instance_groups/%s/resize", param0, param1)
 }
 
 // Resize
@@ -214,10 +216,11 @@ func (c *Client) NewResizeInstanceGroupRequest(ctx context.Context, path string,
 }
 
 // ShowInstanceGroupPath computes a request path to the show action of InstanceGroup.
-func ShowInstanceGroupPath(name string) string {
-	param0 := name
+func ShowInstanceGroupPath(orgID string, name string) string {
+	param0 := orgID
+	param1 := name
 
-	return fmt.Sprintf("/instance_groups/%s", param0)
+	return fmt.Sprintf("/orgs/%s/instance_groups/%s", param0, param1)
 }
 
 // show
@@ -249,10 +252,11 @@ func (c *Client) NewShowInstanceGroupRequest(ctx context.Context, path string) (
 }
 
 // StartHealthCheckInstanceGroupPath computes a request path to the start_health_check action of InstanceGroup.
-func StartHealthCheckInstanceGroupPath(name string) string {
-	param0 := name
+func StartHealthCheckInstanceGroupPath(orgID string, name string) string {
+	param0 := orgID
+	param1 := name
 
-	return fmt.Sprintf("/instance_groups/%s/start_health_check", param0)
+	return fmt.Sprintf("/orgs/%s/instance_groups/%s/start_health_check", param0, param1)
 }
 
 // Start health check

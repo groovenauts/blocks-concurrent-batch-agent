@@ -16,25 +16,30 @@ import (
 )
 
 // InstanceGroupHref returns the resource href.
-func InstanceGroupHref(name interface{}) string {
+func InstanceGroupHref(orgID, name interface{}) string {
+	paramorgID := strings.TrimLeftFunc(fmt.Sprintf("%v", orgID), func(r rune) bool { return r == '/' })
 	paramname := strings.TrimLeftFunc(fmt.Sprintf("%v", name), func(r rune) bool { return r == '/' })
-	return fmt.Sprintf("/instance_groups/%v", paramname)
-}
-
-// JobHref returns the resource href.
-func JobHref(id interface{}) string {
-	paramid := strings.TrimLeftFunc(fmt.Sprintf("%v", id), func(r rune) bool { return r == '/' })
-	return fmt.Sprintf("/jobs/%v", paramid)
+	return fmt.Sprintf("/orgs/%v/instance_groups/%v", paramorgID, paramname)
 }
 
 // PipelineHref returns the resource href.
-func PipelineHref(name interface{}) string {
+func PipelineHref(orgID, name interface{}) string {
+	paramorgID := strings.TrimLeftFunc(fmt.Sprintf("%v", orgID), func(r rune) bool { return r == '/' })
 	paramname := strings.TrimLeftFunc(fmt.Sprintf("%v", name), func(r rune) bool { return r == '/' })
-	return fmt.Sprintf("/pipelines/%v", paramname)
+	return fmt.Sprintf("/orgs/%v/pipelines/%v", paramorgID, paramname)
 }
 
 // PipelineBaseHref returns the resource href.
-func PipelineBaseHref(name interface{}) string {
+func PipelineBaseHref(orgID, name interface{}) string {
+	paramorgID := strings.TrimLeftFunc(fmt.Sprintf("%v", orgID), func(r rune) bool { return r == '/' })
 	paramname := strings.TrimLeftFunc(fmt.Sprintf("%v", name), func(r rune) bool { return r == '/' })
-	return fmt.Sprintf("/pipeline_bases/%v", paramname)
+	return fmt.Sprintf("/orgs/%v/pipeline_bases/%v", paramorgID, paramname)
+}
+
+// PipelineJobHref returns the resource href.
+func PipelineJobHref(orgID, name, id interface{}) string {
+	paramorgID := strings.TrimLeftFunc(fmt.Sprintf("%v", orgID), func(r rune) bool { return r == '/' })
+	paramname := strings.TrimLeftFunc(fmt.Sprintf("%v", name), func(r rune) bool { return r == '/' })
+	paramid := strings.TrimLeftFunc(fmt.Sprintf("%v", id), func(r rune) bool { return r == '/' })
+	return fmt.Sprintf("/orgs/%v/pipelines/%v/jobs/%v", paramorgID, paramname, paramid)
 }

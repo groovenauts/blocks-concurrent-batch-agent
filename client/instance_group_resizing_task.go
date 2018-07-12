@@ -18,10 +18,11 @@ import (
 )
 
 // StartInstanceGroupResizingTaskPath computes a request path to the start action of InstanceGroupResizingTask.
-func StartInstanceGroupResizingTaskPath(name string) string {
-	param0 := name
+func StartInstanceGroupResizingTaskPath(orgID string, name string) string {
+	param0 := orgID
+	param1 := name
 
-	return fmt.Sprintf("/instance_groups/%s/resizing_tasks", param0)
+	return fmt.Sprintf("/orgs/%s/instance_groups/%s/resizing_tasks", param0, param1)
 }
 
 // Start operation
@@ -53,11 +54,12 @@ func (c *Client) NewStartInstanceGroupResizingTaskRequest(ctx context.Context, p
 }
 
 // WatchInstanceGroupResizingTaskPath computes a request path to the watch action of InstanceGroupResizingTask.
-func WatchInstanceGroupResizingTaskPath(name string, id string) string {
-	param0 := name
-	param1 := id
+func WatchInstanceGroupResizingTaskPath(orgID string, name string, id string) string {
+	param0 := orgID
+	param1 := name
+	param2 := id
 
-	return fmt.Sprintf("/instance_groups/%s/resizing_tasks/%s", param0, param1)
+	return fmt.Sprintf("/orgs/%s/instance_groups/%s/resizing_tasks/%s", param0, param1, param2)
 }
 
 // Watch

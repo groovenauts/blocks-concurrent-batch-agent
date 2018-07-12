@@ -18,10 +18,11 @@ import (
 )
 
 // StartPipelineBaseClosingTaskPath computes a request path to the start action of PipelineBaseClosingTask.
-func StartPipelineBaseClosingTaskPath(name string) string {
-	param0 := name
+func StartPipelineBaseClosingTaskPath(orgID string, name string) string {
+	param0 := orgID
+	param1 := name
 
-	return fmt.Sprintf("/pipeline_bases/%s/closing_tasks", param0)
+	return fmt.Sprintf("/orgs/%s/pipeline_bases/%s/closing_tasks", param0, param1)
 }
 
 // Start operation
@@ -53,11 +54,12 @@ func (c *Client) NewStartPipelineBaseClosingTaskRequest(ctx context.Context, pat
 }
 
 // WatchPipelineBaseClosingTaskPath computes a request path to the watch action of PipelineBaseClosingTask.
-func WatchPipelineBaseClosingTaskPath(name string, id string) string {
-	param0 := name
-	param1 := id
+func WatchPipelineBaseClosingTaskPath(orgID string, name string, id string) string {
+	param0 := orgID
+	param1 := name
+	param2 := id
 
-	return fmt.Sprintf("/pipeline_bases/%s/closing_tasks/%s", param0, param1)
+	return fmt.Sprintf("/orgs/%s/pipeline_bases/%s/closing_tasks/%s", param0, param1, param2)
 }
 
 // Watch

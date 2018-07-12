@@ -28,7 +28,7 @@ import (
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func StartInstanceGroupDestructionTaskAccepted(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, name string) (http.ResponseWriter, *app.CloudAsyncOperation) {
+func StartInstanceGroupDestructionTaskAccepted(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, orgID string, name string) (http.ResponseWriter, *app.CloudAsyncOperation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -49,13 +49,14 @@ func StartInstanceGroupDestructionTaskAccepted(t goatest.TInterface, ctx context
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/destruction_tasks", name),
+		Path: fmt.Sprintf("/orgs/%v/instance_groups/%v/destruction_tasks", orgID, name),
 	}
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	prms["org_id"] = []string{fmt.Sprintf("%v", orgID)}
 	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
@@ -102,7 +103,7 @@ func StartInstanceGroupDestructionTaskAccepted(t goatest.TInterface, ctx context
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func StartInstanceGroupDestructionTaskBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, name string) (http.ResponseWriter, error) {
+func StartInstanceGroupDestructionTaskBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, orgID string, name string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -123,13 +124,14 @@ func StartInstanceGroupDestructionTaskBadRequest(t goatest.TInterface, ctx conte
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/destruction_tasks", name),
+		Path: fmt.Sprintf("/orgs/%v/instance_groups/%v/destruction_tasks", orgID, name),
 	}
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	prms["org_id"] = []string{fmt.Sprintf("%v", orgID)}
 	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
@@ -171,7 +173,7 @@ func StartInstanceGroupDestructionTaskBadRequest(t goatest.TInterface, ctx conte
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func StartInstanceGroupDestructionTaskConflict(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, name string) (http.ResponseWriter, error) {
+func StartInstanceGroupDestructionTaskConflict(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, orgID string, name string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -192,13 +194,14 @@ func StartInstanceGroupDestructionTaskConflict(t goatest.TInterface, ctx context
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/destruction_tasks", name),
+		Path: fmt.Sprintf("/orgs/%v/instance_groups/%v/destruction_tasks", orgID, name),
 	}
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	prms["org_id"] = []string{fmt.Sprintf("%v", orgID)}
 	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
@@ -240,7 +243,7 @@ func StartInstanceGroupDestructionTaskConflict(t goatest.TInterface, ctx context
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func StartInstanceGroupDestructionTaskCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, name string) (http.ResponseWriter, *app.CloudAsyncOperation) {
+func StartInstanceGroupDestructionTaskCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, orgID string, name string) (http.ResponseWriter, *app.CloudAsyncOperation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -261,13 +264,14 @@ func StartInstanceGroupDestructionTaskCreated(t goatest.TInterface, ctx context.
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/destruction_tasks", name),
+		Path: fmt.Sprintf("/orgs/%v/instance_groups/%v/destruction_tasks", orgID, name),
 	}
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	prms["org_id"] = []string{fmt.Sprintf("%v", orgID)}
 	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
@@ -314,7 +318,7 @@ func StartInstanceGroupDestructionTaskCreated(t goatest.TInterface, ctx context.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func StartInstanceGroupDestructionTaskInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, name string) (http.ResponseWriter, error) {
+func StartInstanceGroupDestructionTaskInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, orgID string, name string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -335,13 +339,14 @@ func StartInstanceGroupDestructionTaskInternalServerError(t goatest.TInterface, 
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/destruction_tasks", name),
+		Path: fmt.Sprintf("/orgs/%v/instance_groups/%v/destruction_tasks", orgID, name),
 	}
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	prms["org_id"] = []string{fmt.Sprintf("%v", orgID)}
 	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
@@ -383,7 +388,7 @@ func StartInstanceGroupDestructionTaskInternalServerError(t goatest.TInterface, 
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func StartInstanceGroupDestructionTaskNoContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, name string) (http.ResponseWriter, *app.CloudAsyncOperation) {
+func StartInstanceGroupDestructionTaskNoContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, orgID string, name string) (http.ResponseWriter, *app.CloudAsyncOperation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -404,13 +409,14 @@ func StartInstanceGroupDestructionTaskNoContent(t goatest.TInterface, ctx contex
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/destruction_tasks", name),
+		Path: fmt.Sprintf("/orgs/%v/instance_groups/%v/destruction_tasks", orgID, name),
 	}
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	prms["org_id"] = []string{fmt.Sprintf("%v", orgID)}
 	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
@@ -457,7 +463,7 @@ func StartInstanceGroupDestructionTaskNoContent(t goatest.TInterface, ctx contex
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func StartInstanceGroupDestructionTaskNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, name string) (http.ResponseWriter, error) {
+func StartInstanceGroupDestructionTaskNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, orgID string, name string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -478,13 +484,14 @@ func StartInstanceGroupDestructionTaskNotFound(t goatest.TInterface, ctx context
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/destruction_tasks", name),
+		Path: fmt.Sprintf("/orgs/%v/instance_groups/%v/destruction_tasks", orgID, name),
 	}
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	prms["org_id"] = []string{fmt.Sprintf("%v", orgID)}
 	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
@@ -526,7 +533,7 @@ func StartInstanceGroupDestructionTaskNotFound(t goatest.TInterface, ctx context
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func StartInstanceGroupDestructionTaskOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, name string) (http.ResponseWriter, *app.CloudAsyncOperation) {
+func StartInstanceGroupDestructionTaskOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, orgID string, name string) (http.ResponseWriter, *app.CloudAsyncOperation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -547,13 +554,14 @@ func StartInstanceGroupDestructionTaskOK(t goatest.TInterface, ctx context.Conte
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/destruction_tasks", name),
+		Path: fmt.Sprintf("/orgs/%v/instance_groups/%v/destruction_tasks", orgID, name),
 	}
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	prms["org_id"] = []string{fmt.Sprintf("%v", orgID)}
 	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
@@ -600,7 +608,7 @@ func StartInstanceGroupDestructionTaskOK(t goatest.TInterface, ctx context.Conte
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func StartInstanceGroupDestructionTaskResetContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, name string) (http.ResponseWriter, *app.CloudAsyncOperation) {
+func StartInstanceGroupDestructionTaskResetContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, orgID string, name string) (http.ResponseWriter, *app.CloudAsyncOperation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -621,13 +629,14 @@ func StartInstanceGroupDestructionTaskResetContent(t goatest.TInterface, ctx con
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/destruction_tasks", name),
+		Path: fmt.Sprintf("/orgs/%v/instance_groups/%v/destruction_tasks", orgID, name),
 	}
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	prms["org_id"] = []string{fmt.Sprintf("%v", orgID)}
 	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
@@ -674,7 +683,7 @@ func StartInstanceGroupDestructionTaskResetContent(t goatest.TInterface, ctx con
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func StartInstanceGroupDestructionTaskUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, name string) (http.ResponseWriter, error) {
+func StartInstanceGroupDestructionTaskUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, orgID string, name string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -695,13 +704,14 @@ func StartInstanceGroupDestructionTaskUnauthorized(t goatest.TInterface, ctx con
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/destruction_tasks", name),
+		Path: fmt.Sprintf("/orgs/%v/instance_groups/%v/destruction_tasks", orgID, name),
 	}
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	prms["org_id"] = []string{fmt.Sprintf("%v", orgID)}
 	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	if ctx == nil {
 		ctx = context.Background()
@@ -743,7 +753,7 @@ func StartInstanceGroupDestructionTaskUnauthorized(t goatest.TInterface, ctx con
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func WatchInstanceGroupDestructionTaskAccepted(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, name string, id string) (http.ResponseWriter, *app.CloudAsyncOperation) {
+func WatchInstanceGroupDestructionTaskAccepted(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, orgID string, name string, id string) (http.ResponseWriter, *app.CloudAsyncOperation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -764,13 +774,14 @@ func WatchInstanceGroupDestructionTaskAccepted(t goatest.TInterface, ctx context
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/destruction_tasks/%v", name, id),
+		Path: fmt.Sprintf("/orgs/%v/instance_groups/%v/destruction_tasks/%v", orgID, name, id),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	prms["org_id"] = []string{fmt.Sprintf("%v", orgID)}
 	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	prms["id"] = []string{fmt.Sprintf("%v", id)}
 	if ctx == nil {
@@ -818,7 +829,7 @@ func WatchInstanceGroupDestructionTaskAccepted(t goatest.TInterface, ctx context
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func WatchInstanceGroupDestructionTaskBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, name string, id string) (http.ResponseWriter, error) {
+func WatchInstanceGroupDestructionTaskBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, orgID string, name string, id string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -839,13 +850,14 @@ func WatchInstanceGroupDestructionTaskBadRequest(t goatest.TInterface, ctx conte
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/destruction_tasks/%v", name, id),
+		Path: fmt.Sprintf("/orgs/%v/instance_groups/%v/destruction_tasks/%v", orgID, name, id),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	prms["org_id"] = []string{fmt.Sprintf("%v", orgID)}
 	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	prms["id"] = []string{fmt.Sprintf("%v", id)}
 	if ctx == nil {
@@ -888,7 +900,7 @@ func WatchInstanceGroupDestructionTaskBadRequest(t goatest.TInterface, ctx conte
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func WatchInstanceGroupDestructionTaskConflict(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, name string, id string) (http.ResponseWriter, error) {
+func WatchInstanceGroupDestructionTaskConflict(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, orgID string, name string, id string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -909,13 +921,14 @@ func WatchInstanceGroupDestructionTaskConflict(t goatest.TInterface, ctx context
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/destruction_tasks/%v", name, id),
+		Path: fmt.Sprintf("/orgs/%v/instance_groups/%v/destruction_tasks/%v", orgID, name, id),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	prms["org_id"] = []string{fmt.Sprintf("%v", orgID)}
 	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	prms["id"] = []string{fmt.Sprintf("%v", id)}
 	if ctx == nil {
@@ -958,7 +971,7 @@ func WatchInstanceGroupDestructionTaskConflict(t goatest.TInterface, ctx context
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func WatchInstanceGroupDestructionTaskCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, name string, id string) (http.ResponseWriter, *app.CloudAsyncOperation) {
+func WatchInstanceGroupDestructionTaskCreated(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, orgID string, name string, id string) (http.ResponseWriter, *app.CloudAsyncOperation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -979,13 +992,14 @@ func WatchInstanceGroupDestructionTaskCreated(t goatest.TInterface, ctx context.
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/destruction_tasks/%v", name, id),
+		Path: fmt.Sprintf("/orgs/%v/instance_groups/%v/destruction_tasks/%v", orgID, name, id),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	prms["org_id"] = []string{fmt.Sprintf("%v", orgID)}
 	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	prms["id"] = []string{fmt.Sprintf("%v", id)}
 	if ctx == nil {
@@ -1033,7 +1047,7 @@ func WatchInstanceGroupDestructionTaskCreated(t goatest.TInterface, ctx context.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func WatchInstanceGroupDestructionTaskInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, name string, id string) (http.ResponseWriter, error) {
+func WatchInstanceGroupDestructionTaskInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, orgID string, name string, id string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1054,13 +1068,14 @@ func WatchInstanceGroupDestructionTaskInternalServerError(t goatest.TInterface, 
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/destruction_tasks/%v", name, id),
+		Path: fmt.Sprintf("/orgs/%v/instance_groups/%v/destruction_tasks/%v", orgID, name, id),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	prms["org_id"] = []string{fmt.Sprintf("%v", orgID)}
 	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	prms["id"] = []string{fmt.Sprintf("%v", id)}
 	if ctx == nil {
@@ -1103,7 +1118,7 @@ func WatchInstanceGroupDestructionTaskInternalServerError(t goatest.TInterface, 
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func WatchInstanceGroupDestructionTaskNoContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, name string, id string) (http.ResponseWriter, *app.CloudAsyncOperation) {
+func WatchInstanceGroupDestructionTaskNoContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, orgID string, name string, id string) (http.ResponseWriter, *app.CloudAsyncOperation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1124,13 +1139,14 @@ func WatchInstanceGroupDestructionTaskNoContent(t goatest.TInterface, ctx contex
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/destruction_tasks/%v", name, id),
+		Path: fmt.Sprintf("/orgs/%v/instance_groups/%v/destruction_tasks/%v", orgID, name, id),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	prms["org_id"] = []string{fmt.Sprintf("%v", orgID)}
 	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	prms["id"] = []string{fmt.Sprintf("%v", id)}
 	if ctx == nil {
@@ -1178,7 +1194,7 @@ func WatchInstanceGroupDestructionTaskNoContent(t goatest.TInterface, ctx contex
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func WatchInstanceGroupDestructionTaskNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, name string, id string) (http.ResponseWriter, error) {
+func WatchInstanceGroupDestructionTaskNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, orgID string, name string, id string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1199,13 +1215,14 @@ func WatchInstanceGroupDestructionTaskNotFound(t goatest.TInterface, ctx context
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/destruction_tasks/%v", name, id),
+		Path: fmt.Sprintf("/orgs/%v/instance_groups/%v/destruction_tasks/%v", orgID, name, id),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	prms["org_id"] = []string{fmt.Sprintf("%v", orgID)}
 	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	prms["id"] = []string{fmt.Sprintf("%v", id)}
 	if ctx == nil {
@@ -1248,7 +1265,7 @@ func WatchInstanceGroupDestructionTaskNotFound(t goatest.TInterface, ctx context
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func WatchInstanceGroupDestructionTaskOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, name string, id string) (http.ResponseWriter, *app.CloudAsyncOperation) {
+func WatchInstanceGroupDestructionTaskOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, orgID string, name string, id string) (http.ResponseWriter, *app.CloudAsyncOperation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1269,13 +1286,14 @@ func WatchInstanceGroupDestructionTaskOK(t goatest.TInterface, ctx context.Conte
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/destruction_tasks/%v", name, id),
+		Path: fmt.Sprintf("/orgs/%v/instance_groups/%v/destruction_tasks/%v", orgID, name, id),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	prms["org_id"] = []string{fmt.Sprintf("%v", orgID)}
 	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	prms["id"] = []string{fmt.Sprintf("%v", id)}
 	if ctx == nil {
@@ -1323,7 +1341,7 @@ func WatchInstanceGroupDestructionTaskOK(t goatest.TInterface, ctx context.Conte
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func WatchInstanceGroupDestructionTaskResetContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, name string, id string) (http.ResponseWriter, *app.CloudAsyncOperation) {
+func WatchInstanceGroupDestructionTaskResetContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, orgID string, name string, id string) (http.ResponseWriter, *app.CloudAsyncOperation) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1344,13 +1362,14 @@ func WatchInstanceGroupDestructionTaskResetContent(t goatest.TInterface, ctx con
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/destruction_tasks/%v", name, id),
+		Path: fmt.Sprintf("/orgs/%v/instance_groups/%v/destruction_tasks/%v", orgID, name, id),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	prms["org_id"] = []string{fmt.Sprintf("%v", orgID)}
 	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	prms["id"] = []string{fmt.Sprintf("%v", id)}
 	if ctx == nil {
@@ -1398,7 +1417,7 @@ func WatchInstanceGroupDestructionTaskResetContent(t goatest.TInterface, ctx con
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func WatchInstanceGroupDestructionTaskUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, name string, id string) (http.ResponseWriter, error) {
+func WatchInstanceGroupDestructionTaskUnauthorized(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.InstanceGroupDestructionTaskController, orgID string, name string, id string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -1419,13 +1438,14 @@ func WatchInstanceGroupDestructionTaskUnauthorized(t goatest.TInterface, ctx con
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/instance_groups/%v/destruction_tasks/%v", name, id),
+		Path: fmt.Sprintf("/orgs/%v/instance_groups/%v/destruction_tasks/%v", orgID, name, id),
 	}
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	prms["org_id"] = []string{fmt.Sprintf("%v", orgID)}
 	prms["name"] = []string{fmt.Sprintf("%v", name)}
 	prms["id"] = []string{fmt.Sprintf("%v", id)}
 	if ctx == nil {

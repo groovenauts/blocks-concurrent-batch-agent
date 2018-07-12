@@ -18,10 +18,11 @@ import (
 )
 
 // StartInstanceGroupDestructionTaskPath computes a request path to the start action of InstanceGroupDestructionTask.
-func StartInstanceGroupDestructionTaskPath(name string) string {
-	param0 := name
+func StartInstanceGroupDestructionTaskPath(orgID string, name string) string {
+	param0 := orgID
+	param1 := name
 
-	return fmt.Sprintf("/instance_groups/%s/destruction_tasks", param0)
+	return fmt.Sprintf("/orgs/%s/instance_groups/%s/destruction_tasks", param0, param1)
 }
 
 // Start operation
@@ -53,11 +54,12 @@ func (c *Client) NewStartInstanceGroupDestructionTaskRequest(ctx context.Context
 }
 
 // WatchInstanceGroupDestructionTaskPath computes a request path to the watch action of InstanceGroupDestructionTask.
-func WatchInstanceGroupDestructionTaskPath(name string, id string) string {
-	param0 := name
-	param1 := id
+func WatchInstanceGroupDestructionTaskPath(orgID string, name string, id string) string {
+	param0 := orgID
+	param1 := name
+	param2 := id
 
-	return fmt.Sprintf("/instance_groups/%s/destruction_tasks/%s", param0, param1)
+	return fmt.Sprintf("/orgs/%s/instance_groups/%s/destruction_tasks/%s", param0, param1, param2)
 }
 
 // Watch

@@ -41,19 +41,25 @@ type (
 	// DeleteInstanceGroupCommand is the command line data structure for the delete action of InstanceGroup
 	DeleteInstanceGroupCommand struct {
 		// Name
-		Name        string
+		Name string
+		// Organization ID
+		OrgID       string
 		PrettyPrint bool
 	}
 
 	// DestructInstanceGroupCommand is the command line data structure for the destruct action of InstanceGroup
 	DestructInstanceGroupCommand struct {
 		// Name
-		Name        string
+		Name string
+		// Organization ID
+		OrgID       string
 		PrettyPrint bool
 	}
 
 	// ListInstanceGroupCommand is the command line data structure for the list action of InstanceGroup
 	ListInstanceGroupCommand struct {
+		// Organization ID
+		OrgID       string
 		PrettyPrint bool
 	}
 
@@ -61,6 +67,8 @@ type (
 	ResizeInstanceGroupCommand struct {
 		// Name
 		Name string
+		// Organization ID
+		OrgID string
 		// New Instance Size
 		NewSize     int
 		PrettyPrint bool
@@ -69,21 +77,27 @@ type (
 	// ShowInstanceGroupCommand is the command line data structure for the show action of InstanceGroup
 	ShowInstanceGroupCommand struct {
 		// Name
-		Name        string
+		Name string
+		// Organization ID
+		OrgID       string
 		PrettyPrint bool
 	}
 
 	// StartHealthCheckInstanceGroupCommand is the command line data structure for the start_health_check action of InstanceGroup
 	StartHealthCheckInstanceGroupCommand struct {
 		// Name
-		Name        string
+		Name string
+		// Organization ID
+		OrgID       string
 		PrettyPrint bool
 	}
 
 	// StartInstanceGroupConstructionTaskCommand is the command line data structure for the start action of InstanceGroupConstructionTask
 	StartInstanceGroupConstructionTaskCommand struct {
 		// Resource Name
-		Name        string
+		Name string
+		// Organization ID
+		OrgID       string
 		PrettyPrint bool
 	}
 
@@ -92,14 +106,18 @@ type (
 		// ID
 		ID string
 		// Resource Name
-		Name        string
+		Name string
+		// Organization ID
+		OrgID       string
 		PrettyPrint bool
 	}
 
 	// StartInstanceGroupDestructionTaskCommand is the command line data structure for the start action of InstanceGroupDestructionTask
 	StartInstanceGroupDestructionTaskCommand struct {
 		// Resource Name
-		Name        string
+		Name string
+		// Organization ID
+		OrgID       string
 		PrettyPrint bool
 	}
 
@@ -108,22 +126,28 @@ type (
 		// ID
 		ID string
 		// Resource Name
-		Name        string
+		Name string
+		// Organization ID
+		OrgID       string
 		PrettyPrint bool
 	}
 
 	// ExecuteInstanceGroupHealthCheckCommand is the command line data structure for the execute action of InstanceGroupHealthCheck
 	ExecuteInstanceGroupHealthCheckCommand struct {
 		// ID
-		ID          string
-		Name        string
+		ID   string
+		Name string
+		// Organization ID
+		OrgID       string
 		PrettyPrint bool
 	}
 
 	// StartInstanceGroupResizingTaskCommand is the command line data structure for the start action of InstanceGroupResizingTask
 	StartInstanceGroupResizingTaskCommand struct {
 		// Resource Name
-		Name        string
+		Name string
+		// Organization ID
+		OrgID       string
 		PrettyPrint bool
 	}
 
@@ -132,62 +156,9 @@ type (
 		// ID
 		ID string
 		// Resource Name
-		Name        string
-		PrettyPrint bool
-	}
-
-	// ActivateJobCommand is the command line data structure for the activate action of Job
-	ActivateJobCommand struct {
-		// ID
-		ID          string
-		PrettyPrint bool
-	}
-
-	// CreateJobCommand is the command line data structure for the create action of Job
-	CreateJobCommand struct {
-		Payload     string
-		ContentType string
-		// Set true to activate soon
-		Active string
-		// Pipeline Base ID
-		PipelineBaseID string
-		// Pipeline ID
-		PipelineID  string
-		PrettyPrint bool
-	}
-
-	// DeleteJobCommand is the command line data structure for the delete action of Job
-	DeleteJobCommand struct {
-		// ID
-		ID          string
-		PrettyPrint bool
-	}
-
-	// InactivateJobCommand is the command line data structure for the inactivate action of Job
-	InactivateJobCommand struct {
-		// ID
-		ID          string
-		PrettyPrint bool
-	}
-
-	// OutputJobCommand is the command line data structure for the output action of Job
-	OutputJobCommand struct {
-		// ID
-		ID          string
-		PrettyPrint bool
-	}
-
-	// PublishingTaskJobCommand is the command line data structure for the publishing_task action of Job
-	PublishingTaskJobCommand struct {
-		// ID
-		ID          string
-		PrettyPrint bool
-	}
-
-	// ShowJobCommand is the command line data structure for the show action of Job
-	ShowJobCommand struct {
-		// ID
-		ID          string
+		Name string
+		// Organization ID
+		OrgID       string
 		PrettyPrint bool
 	}
 
@@ -203,15 +174,19 @@ type (
 	// CurrentPipelineCommand is the command line data structure for the current action of Pipeline
 	CurrentPipelineCommand struct {
 		// Name of pipeline_base
-		Name           string
-		PipelineBaseID string
-		PrettyPrint    bool
+		Name string
+		// Organization ID
+		OrgID            string
+		PipelineBaseName string
+		PrettyPrint      bool
 	}
 
 	// DeletePipelineCommand is the command line data structure for the delete action of Pipeline
 	DeletePipelineCommand struct {
 		// Name of pipeline_base
-		Name        string
+		Name string
+		// Organization ID
+		OrgID       string
 		PrettyPrint bool
 	}
 
@@ -225,7 +200,9 @@ type (
 	// PreparingFinalizeTaskPipelineCommand is the command line data structure for the preparing_finalize_task action of Pipeline
 	PreparingFinalizeTaskPipelineCommand struct {
 		// Name of pipeline_base
-		Name        string
+		Name string
+		// Organization ID
+		OrgID       string
 		Error       string
 		OperationID string
 		PrettyPrint bool
@@ -234,21 +211,27 @@ type (
 	// ShowPipelineCommand is the command line data structure for the show action of Pipeline
 	ShowPipelineCommand struct {
 		// Name of pipeline_base
-		Name        string
+		Name string
+		// Organization ID
+		OrgID       string
 		PrettyPrint bool
 	}
 
 	// StopPipelineCommand is the command line data structure for the stop action of Pipeline
 	StopPipelineCommand struct {
 		// Name of pipeline_base
-		Name        string
+		Name string
+		// Organization ID
+		OrgID       string
 		PrettyPrint bool
 	}
 
 	// ClosePipelineBaseCommand is the command line data structure for the close action of PipelineBase
 	ClosePipelineBaseCommand struct {
 		// Name of pipeline_base
-		Name        string
+		Name string
+		// Organization ID
+		OrgID       string
 		PrettyPrint bool
 	}
 
@@ -264,14 +247,18 @@ type (
 	// DeletePipelineBaseCommand is the command line data structure for the delete action of PipelineBase
 	DeletePipelineBaseCommand struct {
 		// Name of pipeline_base
-		Name        string
+		Name string
+		// Organization ID
+		OrgID       string
 		PrettyPrint bool
 	}
 
 	// HibernationCheckingTaskPipelineBaseCommand is the command line data structure for the hibernation_checking_task action of PipelineBase
 	HibernationCheckingTaskPipelineBaseCommand struct {
 		// Name of pipeline_base
-		Name        string
+		Name string
+		// Organization ID
+		OrgID       string
 		Since       string
 		PrettyPrint bool
 	}
@@ -279,7 +266,9 @@ type (
 	// HibernationDoneTaskPipelineBaseCommand is the command line data structure for the hibernation_done_task action of PipelineBase
 	HibernationDoneTaskPipelineBaseCommand struct {
 		// Name of pipeline_base
-		Name        string
+		Name string
+		// Organization ID
+		OrgID       string
 		Error       string
 		OperationID string
 		PrettyPrint bool
@@ -295,21 +284,27 @@ type (
 	// PullTaskPipelineBaseCommand is the command line data structure for the pull_task action of PipelineBase
 	PullTaskPipelineBaseCommand struct {
 		// Name of pipeline_base
-		Name        string
+		Name string
+		// Organization ID
+		OrgID       string
 		PrettyPrint bool
 	}
 
 	// ShowPipelineBaseCommand is the command line data structure for the show action of PipelineBase
 	ShowPipelineBaseCommand struct {
 		// Name of pipeline_base
-		Name        string
+		Name string
+		// Organization ID
+		OrgID       string
 		PrettyPrint bool
 	}
 
 	// WakeupDoneTaskPipelineBaseCommand is the command line data structure for the wakeup_done_task action of PipelineBase
 	WakeupDoneTaskPipelineBaseCommand struct {
 		// Name of pipeline_base
-		Name        string
+		Name string
+		// Organization ID
+		OrgID       string
 		Error       string
 		OperationID string
 		PrettyPrint bool
@@ -318,7 +313,9 @@ type (
 	// StartPipelineBaseClosingTaskCommand is the command line data structure for the start action of PipelineBaseClosingTask
 	StartPipelineBaseClosingTaskCommand struct {
 		// Resource Name
-		Name        string
+		Name string
+		// Organization ID
+		OrgID       string
 		PrettyPrint bool
 	}
 
@@ -327,14 +324,28 @@ type (
 		// ID
 		ID string
 		// Resource Name
-		Name        string
+		Name string
+		// Organization ID
+		OrgID       string
+		PrettyPrint bool
+	}
+
+	// PublishingTaskPipelineBaseJobCommand is the command line data structure for the publishing_task action of PipelineBaseJob
+	PublishingTaskPipelineBaseJobCommand struct {
+		// ID
+		ID   string
+		Name string
+		// Organization ID
+		OrgID       string
 		PrettyPrint bool
 	}
 
 	// StartPipelineBaseOpeningTaskCommand is the command line data structure for the start action of PipelineBaseOpeningTask
 	StartPipelineBaseOpeningTaskCommand struct {
 		// Resource Name
-		Name        string
+		Name string
+		// Organization ID
+		OrgID       string
 		PrettyPrint bool
 	}
 
@@ -343,7 +354,71 @@ type (
 		// ID
 		ID string
 		// Resource Name
+		Name string
+		// Organization ID
+		OrgID       string
+		PrettyPrint bool
+	}
+
+	// ActivatePipelineJobCommand is the command line data structure for the activate action of PipelineJob
+	ActivatePipelineJobCommand struct {
+		// ID
+		ID   string
+		Name string
+		// Organization ID
+		OrgID       string
+		PrettyPrint bool
+	}
+
+	// CreatePipelineJobCommand is the command line data structure for the create action of PipelineJob
+	CreatePipelineJobCommand struct {
+		Payload     string
+		ContentType string
 		Name        string
+		// Organization ID
+		OrgID string
+		// Set true to activate soon
+		Active      string
+		PrettyPrint bool
+	}
+
+	// DeletePipelineJobCommand is the command line data structure for the delete action of PipelineJob
+	DeletePipelineJobCommand struct {
+		// ID
+		ID   string
+		Name string
+		// Organization ID
+		OrgID       string
+		PrettyPrint bool
+	}
+
+	// InactivatePipelineJobCommand is the command line data structure for the inactivate action of PipelineJob
+	InactivatePipelineJobCommand struct {
+		// ID
+		ID   string
+		Name string
+		// Organization ID
+		OrgID       string
+		PrettyPrint bool
+	}
+
+	// OutputPipelineJobCommand is the command line data structure for the output action of PipelineJob
+	OutputPipelineJobCommand struct {
+		// ID
+		ID   string
+		Name string
+		// Organization ID
+		OrgID       string
+		PrettyPrint bool
+	}
+
+	// ShowPipelineJobCommand is the command line data structure for the show action of PipelineJob
+	ShowPipelineJobCommand struct {
+		// ID
+		ID   string
+		Name string
+		// Organization ID
+		OrgID       string
 		PrettyPrint bool
 	}
 
@@ -366,9 +441,9 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 		Use:   "activate",
 		Short: `Activate job`,
 	}
-	tmp1 := new(ActivateJobCommand)
+	tmp1 := new(ActivatePipelineJobCommand)
 	sub = &cobra.Command{
-		Use:   `job ["/jobs/ID/activate"]`,
+		Use:   `pipeline-job ["/orgs/ORG_ID/pipelines/NAME/jobs/ID/activate"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp1.Run(c, args) },
 	}
@@ -382,7 +457,7 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 	}
 	tmp2 := new(ClosePipelineBaseCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline-base ["/pipeline_bases/NAME"]`,
+		Use:   `pipeline-base ["/orgs/ORG_ID/pipeline_bases/NAME"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp2.Run(c, args) },
 	}
@@ -396,7 +471,7 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 	}
 	tmp3 := new(CreateInstanceGroupCommand)
 	sub = &cobra.Command{
-		Use:   `instance-group ["/instance_groups"]`,
+		Use:   `instance-group ["/orgs/ORG_ID/instance_groups"]`,
 		Short: ``,
 		Long: `
 
@@ -433,31 +508,9 @@ Payload example:
 	tmp3.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp3.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	tmp4 := new(CreateJobCommand)
+	tmp4 := new(CreatePipelineCommand)
 	sub = &cobra.Command{
-		Use:   `job ["/jobs"]`,
-		Short: ``,
-		Long: `
-
-Payload example:
-
-{
-   "id_by_client": "Est accusamus a perferendis.",
-   "message": {
-      "attributes": {
-         "Eum enim eum aliquam eaque.": "Consequuntur dignissimos."
-      },
-      "data": "Delectus cum veritatis."
-   }
-}`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
-	}
-	tmp4.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp4.PrettyPrint, "pp", false, "Pretty print response body")
-	command.AddCommand(sub)
-	tmp5 := new(CreatePipelineCommand)
-	sub = &cobra.Command{
-		Use:   `pipeline ["/pipelines"]`,
+		Use:   `pipeline ["/orgs/ORG_ID/pipelines"]`,
 		Short: ``,
 		Long: `
 
@@ -471,7 +524,7 @@ Payload example:
       "size": 2,
       "stackdriver_agent": true
    },
-   "hibernation_delay": 2361093690673464986,
+   "hibernation_delay": 3784209934487900665,
    "instance_group": {
       "boot_disk": {
          "disk_size_gb": 50,
@@ -499,14 +552,14 @@ Payload example:
    "project_id": "dummy-proj-999",
    "zone": "us-central1-f"
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp5.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
 	}
-	tmp5.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp5.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp4.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp4.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	tmp6 := new(CreatePipelineBaseCommand)
+	tmp5 := new(CreatePipelineBaseCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline-base ["/pipeline_bases"]`,
+		Use:   `pipeline-base ["/orgs/ORG_ID/pipeline_bases"]`,
 		Short: ``,
 		Long: `
 
@@ -520,7 +573,7 @@ Payload example:
       "size": 2,
       "stackdriver_agent": true
    },
-   "hibernation_delay": 6355281312410403137,
+   "hibernation_delay": 7797336613342039318,
    "instance_group": {
       "boot_disk": {
          "disk_size_gb": 50,
@@ -548,6 +601,28 @@ Payload example:
    "project_id": "dummy-proj-999",
    "zone": "us-central1-f"
 }`,
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp5.Run(c, args) },
+	}
+	tmp5.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp5.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	tmp6 := new(CreatePipelineJobCommand)
+	sub = &cobra.Command{
+		Use:   `pipeline-job ["/orgs/ORG_ID/pipelines/NAME/jobs"]`,
+		Short: ``,
+		Long: `
+
+Payload example:
+
+{
+   "id_by_client": "A perferendis itaque corporis voluptatem.",
+   "message": {
+      "attributes": {
+         "Eum enim eum aliquam eaque.": "Consequuntur dignissimos."
+      },
+      "data": "Delectus cum veritatis."
+   }
+}`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp6.Run(c, args) },
 	}
 	tmp6.RegisterFlags(sub, c)
@@ -569,7 +644,7 @@ Payload example:
 	}
 	tmp8 := new(CurrentPipelineCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline ["/pipelines/NAME/current"]`,
+		Use:   `pipeline ["/orgs/ORG_ID/pipelines/NAME/current"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp8.Run(c, args) },
 	}
@@ -583,34 +658,34 @@ Payload example:
 	}
 	tmp9 := new(DeleteInstanceGroupCommand)
 	sub = &cobra.Command{
-		Use:   `instance-group ["/instance_groups/NAME"]`,
+		Use:   `instance-group ["/orgs/ORG_ID/instance_groups/NAME"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp9.Run(c, args) },
 	}
 	tmp9.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp9.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	tmp10 := new(DeleteJobCommand)
+	tmp10 := new(DeletePipelineCommand)
 	sub = &cobra.Command{
-		Use:   `job ["/jobs/ID"]`,
+		Use:   `pipeline ["/orgs/ORG_ID/pipelines/NAME"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp10.Run(c, args) },
 	}
 	tmp10.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp10.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	tmp11 := new(DeletePipelineCommand)
+	tmp11 := new(DeletePipelineBaseCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline ["/pipelines/NAME"]`,
+		Use:   `pipeline-base ["/orgs/ORG_ID/pipeline_bases/NAME"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp11.Run(c, args) },
 	}
 	tmp11.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp11.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	tmp12 := new(DeletePipelineBaseCommand)
+	tmp12 := new(DeletePipelineJobCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline-base ["/pipeline_bases/NAME"]`,
+		Use:   `pipeline-job ["/orgs/ORG_ID/pipelines/NAME/jobs/ID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp12.Run(c, args) },
 	}
@@ -624,7 +699,7 @@ Payload example:
 	}
 	tmp13 := new(DestructInstanceGroupCommand)
 	sub = &cobra.Command{
-		Use:   `instance-group ["/instance_groups/NAME/destruct"]`,
+		Use:   `instance-group ["/orgs/ORG_ID/instance_groups/NAME/destruct"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp13.Run(c, args) },
 	}
@@ -638,7 +713,7 @@ Payload example:
 	}
 	tmp14 := new(ExecuteInstanceGroupHealthCheckCommand)
 	sub = &cobra.Command{
-		Use:   `instance-group-health-check ["/instance_groups/NAME/health_checks/ID"]`,
+		Use:   `instance-group-health-check ["/orgs/ORG_ID/instance_groups/NAME/health_checks/ID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp14.Run(c, args) },
 	}
@@ -652,7 +727,7 @@ Payload example:
 	}
 	tmp15 := new(HibernationCheckingTaskPipelineBaseCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline-base ["/pipeline_bases/NAME/hibernation_checking_task"]`,
+		Use:   `pipeline-base ["/orgs/ORG_ID/pipeline_bases/NAME/hibernation_checking_task"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp15.Run(c, args) },
 	}
@@ -666,7 +741,7 @@ Payload example:
 	}
 	tmp16 := new(HibernationDoneTaskPipelineBaseCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline-base ["/pipeline_bases/NAME/hibernation_done_task"]`,
+		Use:   `pipeline-base ["/orgs/ORG_ID/pipeline_bases/NAME/hibernation_done_task"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp16.Run(c, args) },
 	}
@@ -678,9 +753,9 @@ Payload example:
 		Use:   "inactivate",
 		Short: `Inactivate job`,
 	}
-	tmp17 := new(InactivateJobCommand)
+	tmp17 := new(InactivatePipelineJobCommand)
 	sub = &cobra.Command{
-		Use:   `job ["/jobs/ID/inactivate"]`,
+		Use:   `pipeline-job ["/orgs/ORG_ID/pipelines/NAME/jobs/ID/inactivate"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp17.Run(c, args) },
 	}
@@ -694,7 +769,7 @@ Payload example:
 	}
 	tmp18 := new(ListInstanceGroupCommand)
 	sub = &cobra.Command{
-		Use:   `instance-group ["/instance_groups"]`,
+		Use:   `instance-group ["/orgs/ORG_ID/instance_groups"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp18.Run(c, args) },
 	}
@@ -703,7 +778,7 @@ Payload example:
 	command.AddCommand(sub)
 	tmp19 := new(ListPipelineCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline ["/pipelines"]`,
+		Use:   `pipeline ["/orgs/ORG_ID/pipelines"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp19.Run(c, args) },
 	}
@@ -712,7 +787,7 @@ Payload example:
 	command.AddCommand(sub)
 	tmp20 := new(ListPipelineBaseCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline-base ["/pipeline_bases"]`,
+		Use:   `pipeline-base ["/orgs/ORG_ID/pipeline_bases"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp20.Run(c, args) },
 	}
@@ -724,9 +799,9 @@ Payload example:
 		Use:   "output",
 		Short: `output`,
 	}
-	tmp21 := new(OutputJobCommand)
+	tmp21 := new(OutputPipelineJobCommand)
 	sub = &cobra.Command{
-		Use:   `job ["/jobs/ID/output"]`,
+		Use:   `pipeline-job ["/orgs/ORG_ID/pipelines/NAME/jobs/ID/output"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp21.Run(c, args) },
 	}
@@ -740,7 +815,7 @@ Payload example:
 	}
 	tmp22 := new(PreparingFinalizeTaskPipelineCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline ["/pipelines/NAME/preparing_finalize_task"]`,
+		Use:   `pipeline ["/orgs/ORG_ID/pipelines/NAME/preparing_finalize_task"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp22.Run(c, args) },
 	}
@@ -752,9 +827,9 @@ Payload example:
 		Use:   "publishing-task",
 		Short: `Publishing job task`,
 	}
-	tmp23 := new(PublishingTaskJobCommand)
+	tmp23 := new(PublishingTaskPipelineBaseJobCommand)
 	sub = &cobra.Command{
-		Use:   `job ["/jobs/ID/publishing_task"]`,
+		Use:   `pipeline-base-job ["/orgs/ORG_ID/pipeline_bases/NAME/jobs/ID/publishing_task"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp23.Run(c, args) },
 	}
@@ -768,7 +843,7 @@ Payload example:
 	}
 	tmp24 := new(PullTaskPipelineBaseCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline-base ["/pipeline_bases/NAME/pull_task"]`,
+		Use:   `pipeline-base ["/orgs/ORG_ID/pipeline_bases/NAME/pull_task"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp24.Run(c, args) },
 	}
@@ -782,7 +857,7 @@ Payload example:
 	}
 	tmp25 := new(ResizeInstanceGroupCommand)
 	sub = &cobra.Command{
-		Use:   `instance-group ["/instance_groups/NAME/resize"]`,
+		Use:   `instance-group ["/orgs/ORG_ID/instance_groups/NAME/resize"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp25.Run(c, args) },
 	}
@@ -796,34 +871,34 @@ Payload example:
 	}
 	tmp26 := new(ShowInstanceGroupCommand)
 	sub = &cobra.Command{
-		Use:   `instance-group ["/instance_groups/NAME"]`,
+		Use:   `instance-group ["/orgs/ORG_ID/instance_groups/NAME"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp26.Run(c, args) },
 	}
 	tmp26.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp26.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	tmp27 := new(ShowJobCommand)
+	tmp27 := new(ShowPipelineCommand)
 	sub = &cobra.Command{
-		Use:   `job ["/jobs/ID"]`,
+		Use:   `pipeline ["/orgs/ORG_ID/pipelines/NAME"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp27.Run(c, args) },
 	}
 	tmp27.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp27.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	tmp28 := new(ShowPipelineCommand)
+	tmp28 := new(ShowPipelineBaseCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline ["/pipelines/NAME"]`,
+		Use:   `pipeline-base ["/orgs/ORG_ID/pipeline_bases/NAME"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp28.Run(c, args) },
 	}
 	tmp28.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp28.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	tmp29 := new(ShowPipelineBaseCommand)
+	tmp29 := new(ShowPipelineJobCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline-base ["/pipeline_bases/NAME"]`,
+		Use:   `pipeline-job ["/orgs/ORG_ID/pipelines/NAME/jobs/ID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp29.Run(c, args) },
 	}
@@ -837,7 +912,7 @@ Payload example:
 	}
 	tmp30 := new(StartInstanceGroupConstructionTaskCommand)
 	sub = &cobra.Command{
-		Use:   `instance-group-construction-task ["/instance_groups/NAME/construction_tasks"]`,
+		Use:   `instance-group-construction-task ["/orgs/ORG_ID/instance_groups/NAME/construction_tasks"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp30.Run(c, args) },
 	}
@@ -846,7 +921,7 @@ Payload example:
 	command.AddCommand(sub)
 	tmp31 := new(StartInstanceGroupDestructionTaskCommand)
 	sub = &cobra.Command{
-		Use:   `instance-group-destruction-task ["/instance_groups/NAME/destruction_tasks"]`,
+		Use:   `instance-group-destruction-task ["/orgs/ORG_ID/instance_groups/NAME/destruction_tasks"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp31.Run(c, args) },
 	}
@@ -855,7 +930,7 @@ Payload example:
 	command.AddCommand(sub)
 	tmp32 := new(StartInstanceGroupResizingTaskCommand)
 	sub = &cobra.Command{
-		Use:   `instance-group-resizing-task ["/instance_groups/NAME/resizing_tasks"]`,
+		Use:   `instance-group-resizing-task ["/orgs/ORG_ID/instance_groups/NAME/resizing_tasks"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp32.Run(c, args) },
 	}
@@ -864,7 +939,7 @@ Payload example:
 	command.AddCommand(sub)
 	tmp33 := new(StartPipelineBaseClosingTaskCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline-base-closing-task ["/pipeline_bases/NAME/closing_tasks"]`,
+		Use:   `pipeline-base-closing-task ["/orgs/ORG_ID/pipeline_bases/NAME/closing_tasks"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp33.Run(c, args) },
 	}
@@ -873,7 +948,7 @@ Payload example:
 	command.AddCommand(sub)
 	tmp34 := new(StartPipelineBaseOpeningTaskCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline-base-opening-task ["/pipeline_bases/NAME/opening_tasks"]`,
+		Use:   `pipeline-base-opening-task ["/orgs/ORG_ID/pipeline_bases/NAME/opening_tasks"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp34.Run(c, args) },
 	}
@@ -887,7 +962,7 @@ Payload example:
 	}
 	tmp35 := new(StartHealthCheckInstanceGroupCommand)
 	sub = &cobra.Command{
-		Use:   `instance-group ["/instance_groups/NAME/start_health_check"]`,
+		Use:   `instance-group ["/orgs/ORG_ID/instance_groups/NAME/start_health_check"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp35.Run(c, args) },
 	}
@@ -901,7 +976,7 @@ Payload example:
 	}
 	tmp36 := new(StopPipelineCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline ["/pipelines/NAME/stop"]`,
+		Use:   `pipeline ["/orgs/ORG_ID/pipelines/NAME/stop"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp36.Run(c, args) },
 	}
@@ -915,7 +990,7 @@ Payload example:
 	}
 	tmp37 := new(WakeupDoneTaskPipelineBaseCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline-base ["/pipeline_bases/NAME/wakeup_done_task"]`,
+		Use:   `pipeline-base ["/orgs/ORG_ID/pipeline_bases/NAME/wakeup_done_task"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp37.Run(c, args) },
 	}
@@ -929,7 +1004,7 @@ Payload example:
 	}
 	tmp38 := new(WatchInstanceGroupConstructionTaskCommand)
 	sub = &cobra.Command{
-		Use:   `instance-group-construction-task ["/instance_groups/NAME/construction_tasks/ID"]`,
+		Use:   `instance-group-construction-task ["/orgs/ORG_ID/instance_groups/NAME/construction_tasks/ID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp38.Run(c, args) },
 	}
@@ -938,7 +1013,7 @@ Payload example:
 	command.AddCommand(sub)
 	tmp39 := new(WatchInstanceGroupDestructionTaskCommand)
 	sub = &cobra.Command{
-		Use:   `instance-group-destruction-task ["/instance_groups/NAME/destruction_tasks/ID"]`,
+		Use:   `instance-group-destruction-task ["/orgs/ORG_ID/instance_groups/NAME/destruction_tasks/ID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp39.Run(c, args) },
 	}
@@ -947,7 +1022,7 @@ Payload example:
 	command.AddCommand(sub)
 	tmp40 := new(WatchInstanceGroupResizingTaskCommand)
 	sub = &cobra.Command{
-		Use:   `instance-group-resizing-task ["/instance_groups/NAME/resizing_tasks/ID"]`,
+		Use:   `instance-group-resizing-task ["/orgs/ORG_ID/instance_groups/NAME/resizing_tasks/ID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp40.Run(c, args) },
 	}
@@ -956,7 +1031,7 @@ Payload example:
 	command.AddCommand(sub)
 	tmp41 := new(WatchPipelineBaseClosingTaskCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline-base-closing-task ["/pipeline_bases/NAME/closing_tasks/ID"]`,
+		Use:   `pipeline-base-closing-task ["/orgs/ORG_ID/pipeline_bases/NAME/closing_tasks/ID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp41.Run(c, args) },
 	}
@@ -965,7 +1040,7 @@ Payload example:
 	command.AddCommand(sub)
 	tmp42 := new(WatchPipelineBaseOpeningTaskCommand)
 	sub = &cobra.Command{
-		Use:   `pipeline-base-opening-task ["/pipeline_bases/NAME/opening_tasks/ID"]`,
+		Use:   `pipeline-base-opening-task ["/orgs/ORG_ID/pipeline_bases/NAME/opening_tasks/ID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp42.Run(c, args) },
 	}
@@ -1192,7 +1267,7 @@ func (cmd *CreateInstanceGroupCommand) Run(c *client.Client, args []string) erro
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = "/instance_groups"
+		path = fmt.Sprintf("/orgs/%v/instance_groups", url.QueryEscape(cmd.OrgID))
 	}
 	var payload client.InstanceGroupPayload
 	if cmd.Payload != "" {
@@ -1203,7 +1278,7 @@ func (cmd *CreateInstanceGroupCommand) Run(c *client.Client, args []string) erro
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.CreateInstanceGroup(ctx, path, &payload, cmd.OrgID, cmd.ContentType)
+	resp, err := c.CreateInstanceGroup(ctx, path, &payload, cmd.ContentType)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -1227,7 +1302,7 @@ func (cmd *DeleteInstanceGroupCommand) Run(c *client.Client, args []string) erro
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/instance_groups/%v", url.QueryEscape(cmd.Name))
+		path = fmt.Sprintf("/orgs/%v/instance_groups/%v", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -1245,6 +1320,8 @@ func (cmd *DeleteInstanceGroupCommand) Run(c *client.Client, args []string) erro
 func (cmd *DeleteInstanceGroupCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, `Name`)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 }
 
 // Run makes the HTTP request corresponding to the DestructInstanceGroupCommand command.
@@ -1253,7 +1330,7 @@ func (cmd *DestructInstanceGroupCommand) Run(c *client.Client, args []string) er
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/instance_groups/%v/destruct", url.QueryEscape(cmd.Name))
+		path = fmt.Sprintf("/orgs/%v/instance_groups/%v/destruct", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -1271,6 +1348,8 @@ func (cmd *DestructInstanceGroupCommand) Run(c *client.Client, args []string) er
 func (cmd *DestructInstanceGroupCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, `Name`)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 }
 
 // Run makes the HTTP request corresponding to the ListInstanceGroupCommand command.
@@ -1279,7 +1358,7 @@ func (cmd *ListInstanceGroupCommand) Run(c *client.Client, args []string) error 
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = "/instance_groups"
+		path = fmt.Sprintf("/orgs/%v/instance_groups", url.QueryEscape(cmd.OrgID))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -1295,6 +1374,8 @@ func (cmd *ListInstanceGroupCommand) Run(c *client.Client, args []string) error 
 
 // RegisterFlags registers the command flags with the command line.
 func (cmd *ListInstanceGroupCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 }
 
 // Run makes the HTTP request corresponding to the ResizeInstanceGroupCommand command.
@@ -1303,7 +1384,7 @@ func (cmd *ResizeInstanceGroupCommand) Run(c *client.Client, args []string) erro
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/instance_groups/%v/resize", url.QueryEscape(cmd.Name))
+		path = fmt.Sprintf("/orgs/%v/instance_groups/%v/resize", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -1321,6 +1402,8 @@ func (cmd *ResizeInstanceGroupCommand) Run(c *client.Client, args []string) erro
 func (cmd *ResizeInstanceGroupCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, `Name`)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 	var newSize int
 	cc.Flags().IntVar(&cmd.NewSize, "new_size", newSize, `New Instance Size`)
 }
@@ -1331,7 +1414,7 @@ func (cmd *ShowInstanceGroupCommand) Run(c *client.Client, args []string) error 
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/instance_groups/%v", url.QueryEscape(cmd.Name))
+		path = fmt.Sprintf("/orgs/%v/instance_groups/%v", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -1349,6 +1432,8 @@ func (cmd *ShowInstanceGroupCommand) Run(c *client.Client, args []string) error 
 func (cmd *ShowInstanceGroupCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, `Name`)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 }
 
 // Run makes the HTTP request corresponding to the StartHealthCheckInstanceGroupCommand command.
@@ -1357,7 +1442,7 @@ func (cmd *StartHealthCheckInstanceGroupCommand) Run(c *client.Client, args []st
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/instance_groups/%v/start_health_check", url.QueryEscape(cmd.Name))
+		path = fmt.Sprintf("/orgs/%v/instance_groups/%v/start_health_check", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -1375,6 +1460,8 @@ func (cmd *StartHealthCheckInstanceGroupCommand) Run(c *client.Client, args []st
 func (cmd *StartHealthCheckInstanceGroupCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, `Name`)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 }
 
 // Run makes the HTTP request corresponding to the StartInstanceGroupConstructionTaskCommand command.
@@ -1383,7 +1470,7 @@ func (cmd *StartInstanceGroupConstructionTaskCommand) Run(c *client.Client, args
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/instance_groups/%v/construction_tasks", url.QueryEscape(cmd.Name))
+		path = fmt.Sprintf("/orgs/%v/instance_groups/%v/construction_tasks", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -1401,6 +1488,8 @@ func (cmd *StartInstanceGroupConstructionTaskCommand) Run(c *client.Client, args
 func (cmd *StartInstanceGroupConstructionTaskCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, `Resource Name`)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 }
 
 // Run makes the HTTP request corresponding to the WatchInstanceGroupConstructionTaskCommand command.
@@ -1409,7 +1498,7 @@ func (cmd *WatchInstanceGroupConstructionTaskCommand) Run(c *client.Client, args
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/instance_groups/%v/construction_tasks/%v", url.QueryEscape(cmd.Name), url.QueryEscape(cmd.ID))
+		path = fmt.Sprintf("/orgs/%v/instance_groups/%v/construction_tasks/%v", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name), url.QueryEscape(cmd.ID))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -1429,6 +1518,8 @@ func (cmd *WatchInstanceGroupConstructionTaskCommand) RegisterFlags(cc *cobra.Co
 	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, `Resource Name`)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 }
 
 // Run makes the HTTP request corresponding to the StartInstanceGroupDestructionTaskCommand command.
@@ -1437,7 +1528,7 @@ func (cmd *StartInstanceGroupDestructionTaskCommand) Run(c *client.Client, args 
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/instance_groups/%v/destruction_tasks", url.QueryEscape(cmd.Name))
+		path = fmt.Sprintf("/orgs/%v/instance_groups/%v/destruction_tasks", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -1455,6 +1546,8 @@ func (cmd *StartInstanceGroupDestructionTaskCommand) Run(c *client.Client, args 
 func (cmd *StartInstanceGroupDestructionTaskCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, `Resource Name`)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 }
 
 // Run makes the HTTP request corresponding to the WatchInstanceGroupDestructionTaskCommand command.
@@ -1463,7 +1556,7 @@ func (cmd *WatchInstanceGroupDestructionTaskCommand) Run(c *client.Client, args 
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/instance_groups/%v/destruction_tasks/%v", url.QueryEscape(cmd.Name), url.QueryEscape(cmd.ID))
+		path = fmt.Sprintf("/orgs/%v/instance_groups/%v/destruction_tasks/%v", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name), url.QueryEscape(cmd.ID))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -1483,6 +1576,8 @@ func (cmd *WatchInstanceGroupDestructionTaskCommand) RegisterFlags(cc *cobra.Com
 	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, `Resource Name`)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 }
 
 // Run makes the HTTP request corresponding to the ExecuteInstanceGroupHealthCheckCommand command.
@@ -1491,7 +1586,7 @@ func (cmd *ExecuteInstanceGroupHealthCheckCommand) Run(c *client.Client, args []
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/instance_groups/%v/health_checks/%v", url.QueryEscape(cmd.Name), url.QueryEscape(cmd.ID))
+		path = fmt.Sprintf("/orgs/%v/instance_groups/%v/health_checks/%v", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name), url.QueryEscape(cmd.ID))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -1511,6 +1606,8 @@ func (cmd *ExecuteInstanceGroupHealthCheckCommand) RegisterFlags(cc *cobra.Comma
 	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, ``)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 }
 
 // Run makes the HTTP request corresponding to the StartInstanceGroupResizingTaskCommand command.
@@ -1519,7 +1616,7 @@ func (cmd *StartInstanceGroupResizingTaskCommand) Run(c *client.Client, args []s
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/instance_groups/%v/resizing_tasks", url.QueryEscape(cmd.Name))
+		path = fmt.Sprintf("/orgs/%v/instance_groups/%v/resizing_tasks", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -1537,6 +1634,8 @@ func (cmd *StartInstanceGroupResizingTaskCommand) Run(c *client.Client, args []s
 func (cmd *StartInstanceGroupResizingTaskCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, `Resource Name`)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 }
 
 // Run makes the HTTP request corresponding to the WatchInstanceGroupResizingTaskCommand command.
@@ -1545,7 +1644,7 @@ func (cmd *WatchInstanceGroupResizingTaskCommand) Run(c *client.Client, args []s
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/instance_groups/%v/resizing_tasks/%v", url.QueryEscape(cmd.Name), url.QueryEscape(cmd.ID))
+		path = fmt.Sprintf("/orgs/%v/instance_groups/%v/resizing_tasks/%v", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name), url.QueryEscape(cmd.ID))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -1565,201 +1664,8 @@ func (cmd *WatchInstanceGroupResizingTaskCommand) RegisterFlags(cc *cobra.Comman
 	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, `Resource Name`)
-}
-
-// Run makes the HTTP request corresponding to the ActivateJobCommand command.
-func (cmd *ActivateJobCommand) Run(c *client.Client, args []string) error {
-	var path string
-	if len(args) > 0 {
-		path = args[0]
-	} else {
-		path = fmt.Sprintf("/jobs/%v/activate", url.QueryEscape(cmd.ID))
-	}
-	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
-	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.ActivateJob(ctx, path)
-	if err != nil {
-		goa.LogError(ctx, "failed", "err", err)
-		return err
-	}
-
-	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
-	return nil
-}
-
-// RegisterFlags registers the command flags with the command line.
-func (cmd *ActivateJobCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	var id string
-	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
-}
-
-// Run makes the HTTP request corresponding to the CreateJobCommand command.
-func (cmd *CreateJobCommand) Run(c *client.Client, args []string) error {
-	var path string
-	if len(args) > 0 {
-		path = args[0]
-	} else {
-		path = "/jobs"
-	}
-	var payload client.JobPayload
-	if cmd.Payload != "" {
-		err := json.Unmarshal([]byte(cmd.Payload), &payload)
-		if err != nil {
-			return fmt.Errorf("failed to deserialize payload: %s", err)
-		}
-	}
-	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
-	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.CreateJob(ctx, path, &payload, stringFlagVal("active", cmd.Active), stringFlagVal("pipeline_base_id", cmd.PipelineBaseID), stringFlagVal("pipeline_id", cmd.PipelineID), cmd.ContentType)
-	if err != nil {
-		goa.LogError(ctx, "failed", "err", err)
-		return err
-	}
-
-	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
-	return nil
-}
-
-// RegisterFlags registers the command flags with the command line.
-func (cmd *CreateJobCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
-	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
-	var active string
-	cc.Flags().StringVar(&cmd.Active, "active", active, `Set true to activate soon`)
-	var pipelineBaseID string
-	cc.Flags().StringVar(&cmd.PipelineBaseID, "pipeline_base_id", pipelineBaseID, `Pipeline Base ID`)
-	var pipelineID string
-	cc.Flags().StringVar(&cmd.PipelineID, "pipeline_id", pipelineID, `Pipeline ID`)
-}
-
-// Run makes the HTTP request corresponding to the DeleteJobCommand command.
-func (cmd *DeleteJobCommand) Run(c *client.Client, args []string) error {
-	var path string
-	if len(args) > 0 {
-		path = args[0]
-	} else {
-		path = fmt.Sprintf("/jobs/%v", url.QueryEscape(cmd.ID))
-	}
-	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
-	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.DeleteJob(ctx, path)
-	if err != nil {
-		goa.LogError(ctx, "failed", "err", err)
-		return err
-	}
-
-	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
-	return nil
-}
-
-// RegisterFlags registers the command flags with the command line.
-func (cmd *DeleteJobCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	var id string
-	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
-}
-
-// Run makes the HTTP request corresponding to the InactivateJobCommand command.
-func (cmd *InactivateJobCommand) Run(c *client.Client, args []string) error {
-	var path string
-	if len(args) > 0 {
-		path = args[0]
-	} else {
-		path = fmt.Sprintf("/jobs/%v/inactivate", url.QueryEscape(cmd.ID))
-	}
-	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
-	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.InactivateJob(ctx, path)
-	if err != nil {
-		goa.LogError(ctx, "failed", "err", err)
-		return err
-	}
-
-	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
-	return nil
-}
-
-// RegisterFlags registers the command flags with the command line.
-func (cmd *InactivateJobCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	var id string
-	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
-}
-
-// Run makes the HTTP request corresponding to the OutputJobCommand command.
-func (cmd *OutputJobCommand) Run(c *client.Client, args []string) error {
-	var path string
-	if len(args) > 0 {
-		path = args[0]
-	} else {
-		path = fmt.Sprintf("/jobs/%v/output", url.QueryEscape(cmd.ID))
-	}
-	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
-	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.OutputJob(ctx, path)
-	if err != nil {
-		goa.LogError(ctx, "failed", "err", err)
-		return err
-	}
-
-	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
-	return nil
-}
-
-// RegisterFlags registers the command flags with the command line.
-func (cmd *OutputJobCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	var id string
-	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
-}
-
-// Run makes the HTTP request corresponding to the PublishingTaskJobCommand command.
-func (cmd *PublishingTaskJobCommand) Run(c *client.Client, args []string) error {
-	var path string
-	if len(args) > 0 {
-		path = args[0]
-	} else {
-		path = fmt.Sprintf("/jobs/%v/publishing_task", url.QueryEscape(cmd.ID))
-	}
-	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
-	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.PublishingTaskJob(ctx, path)
-	if err != nil {
-		goa.LogError(ctx, "failed", "err", err)
-		return err
-	}
-
-	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
-	return nil
-}
-
-// RegisterFlags registers the command flags with the command line.
-func (cmd *PublishingTaskJobCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	var id string
-	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
-}
-
-// Run makes the HTTP request corresponding to the ShowJobCommand command.
-func (cmd *ShowJobCommand) Run(c *client.Client, args []string) error {
-	var path string
-	if len(args) > 0 {
-		path = args[0]
-	} else {
-		path = fmt.Sprintf("/jobs/%v", url.QueryEscape(cmd.ID))
-	}
-	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
-	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.ShowJob(ctx, path)
-	if err != nil {
-		goa.LogError(ctx, "failed", "err", err)
-		return err
-	}
-
-	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
-	return nil
-}
-
-// RegisterFlags registers the command flags with the command line.
-func (cmd *ShowJobCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	var id string
-	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 }
 
 // Run makes the HTTP request corresponding to the CreatePipelineCommand command.
@@ -1768,7 +1674,7 @@ func (cmd *CreatePipelineCommand) Run(c *client.Client, args []string) error {
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = "/pipelines"
+		path = fmt.Sprintf("/orgs/%v/pipelines", url.QueryEscape(cmd.OrgID))
 	}
 	var payload client.PipelinePayload
 	if cmd.Payload != "" {
@@ -1779,7 +1685,7 @@ func (cmd *CreatePipelineCommand) Run(c *client.Client, args []string) error {
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.CreatePipeline(ctx, path, &payload, cmd.OrgID, cmd.ContentType)
+	resp, err := c.CreatePipeline(ctx, path, &payload, cmd.ContentType)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -1803,11 +1709,11 @@ func (cmd *CurrentPipelineCommand) Run(c *client.Client, args []string) error {
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/pipelines/%v/current", url.QueryEscape(cmd.Name))
+		path = fmt.Sprintf("/orgs/%v/pipelines/%v/current", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.CurrentPipeline(ctx, path, cmd.PipelineBaseID)
+	resp, err := c.CurrentPipeline(ctx, path, cmd.PipelineBaseName)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -1821,8 +1727,10 @@ func (cmd *CurrentPipelineCommand) Run(c *client.Client, args []string) error {
 func (cmd *CurrentPipelineCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, `Name of pipeline_base`)
-	var pipelineBaseID string
-	cc.Flags().StringVar(&cmd.PipelineBaseID, "pipeline_base_id", pipelineBaseID, ``)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
+	var pipelineBaseName string
+	cc.Flags().StringVar(&cmd.PipelineBaseName, "pipeline_base_name", pipelineBaseName, ``)
 }
 
 // Run makes the HTTP request corresponding to the DeletePipelineCommand command.
@@ -1831,7 +1739,7 @@ func (cmd *DeletePipelineCommand) Run(c *client.Client, args []string) error {
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/pipelines/%v", url.QueryEscape(cmd.Name))
+		path = fmt.Sprintf("/orgs/%v/pipelines/%v", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -1849,6 +1757,8 @@ func (cmd *DeletePipelineCommand) Run(c *client.Client, args []string) error {
 func (cmd *DeletePipelineCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, `Name of pipeline_base`)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 }
 
 // Run makes the HTTP request corresponding to the ListPipelineCommand command.
@@ -1857,11 +1767,11 @@ func (cmd *ListPipelineCommand) Run(c *client.Client, args []string) error {
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = "/pipelines"
+		path = fmt.Sprintf("/orgs/%v/pipelines", url.QueryEscape(cmd.OrgID))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.ListPipeline(ctx, path, cmd.OrgID)
+	resp, err := c.ListPipeline(ctx, path)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -1883,7 +1793,7 @@ func (cmd *PreparingFinalizeTaskPipelineCommand) Run(c *client.Client, args []st
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/pipelines/%v/preparing_finalize_task", url.QueryEscape(cmd.Name))
+		path = fmt.Sprintf("/orgs/%v/pipelines/%v/preparing_finalize_task", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -1901,6 +1811,8 @@ func (cmd *PreparingFinalizeTaskPipelineCommand) Run(c *client.Client, args []st
 func (cmd *PreparingFinalizeTaskPipelineCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, `Name of pipeline_base`)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 	var error string
 	cc.Flags().StringVar(&cmd.Error, "error", error, ``)
 	var operationID string
@@ -1913,7 +1825,7 @@ func (cmd *ShowPipelineCommand) Run(c *client.Client, args []string) error {
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/pipelines/%v", url.QueryEscape(cmd.Name))
+		path = fmt.Sprintf("/orgs/%v/pipelines/%v", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -1931,6 +1843,8 @@ func (cmd *ShowPipelineCommand) Run(c *client.Client, args []string) error {
 func (cmd *ShowPipelineCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, `Name of pipeline_base`)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 }
 
 // Run makes the HTTP request corresponding to the StopPipelineCommand command.
@@ -1939,7 +1853,7 @@ func (cmd *StopPipelineCommand) Run(c *client.Client, args []string) error {
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/pipelines/%v/stop", url.QueryEscape(cmd.Name))
+		path = fmt.Sprintf("/orgs/%v/pipelines/%v/stop", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -1957,6 +1871,8 @@ func (cmd *StopPipelineCommand) Run(c *client.Client, args []string) error {
 func (cmd *StopPipelineCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, `Name of pipeline_base`)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 }
 
 // Run makes the HTTP request corresponding to the ClosePipelineBaseCommand command.
@@ -1965,7 +1881,7 @@ func (cmd *ClosePipelineBaseCommand) Run(c *client.Client, args []string) error 
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/pipeline_bases/%v", url.QueryEscape(cmd.Name))
+		path = fmt.Sprintf("/orgs/%v/pipeline_bases/%v", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -1983,6 +1899,8 @@ func (cmd *ClosePipelineBaseCommand) Run(c *client.Client, args []string) error 
 func (cmd *ClosePipelineBaseCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, `Name of pipeline_base`)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 }
 
 // Run makes the HTTP request corresponding to the CreatePipelineBaseCommand command.
@@ -1991,7 +1909,7 @@ func (cmd *CreatePipelineBaseCommand) Run(c *client.Client, args []string) error
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = "/pipeline_bases"
+		path = fmt.Sprintf("/orgs/%v/pipeline_bases", url.QueryEscape(cmd.OrgID))
 	}
 	var payload client.PipelineBasePayload
 	if cmd.Payload != "" {
@@ -2002,7 +1920,7 @@ func (cmd *CreatePipelineBaseCommand) Run(c *client.Client, args []string) error
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.CreatePipelineBase(ctx, path, &payload, cmd.OrgID, cmd.ContentType)
+	resp, err := c.CreatePipelineBase(ctx, path, &payload, cmd.ContentType)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -2026,7 +1944,7 @@ func (cmd *DeletePipelineBaseCommand) Run(c *client.Client, args []string) error
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/pipeline_bases/%v", url.QueryEscape(cmd.Name))
+		path = fmt.Sprintf("/orgs/%v/pipeline_bases/%v", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -2044,6 +1962,8 @@ func (cmd *DeletePipelineBaseCommand) Run(c *client.Client, args []string) error
 func (cmd *DeletePipelineBaseCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, `Name of pipeline_base`)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 }
 
 // Run makes the HTTP request corresponding to the HibernationCheckingTaskPipelineBaseCommand command.
@@ -2052,7 +1972,7 @@ func (cmd *HibernationCheckingTaskPipelineBaseCommand) Run(c *client.Client, arg
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/pipeline_bases/%v/hibernation_checking_task", url.QueryEscape(cmd.Name))
+		path = fmt.Sprintf("/orgs/%v/pipeline_bases/%v/hibernation_checking_task", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -2083,6 +2003,8 @@ func (cmd *HibernationCheckingTaskPipelineBaseCommand) Run(c *client.Client, arg
 func (cmd *HibernationCheckingTaskPipelineBaseCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, `Name of pipeline_base`)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 	var since string
 	cc.Flags().StringVar(&cmd.Since, "since", since, ``)
 }
@@ -2093,7 +2015,7 @@ func (cmd *HibernationDoneTaskPipelineBaseCommand) Run(c *client.Client, args []
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/pipeline_bases/%v/hibernation_done_task", url.QueryEscape(cmd.Name))
+		path = fmt.Sprintf("/orgs/%v/pipeline_bases/%v/hibernation_done_task", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -2111,6 +2033,8 @@ func (cmd *HibernationDoneTaskPipelineBaseCommand) Run(c *client.Client, args []
 func (cmd *HibernationDoneTaskPipelineBaseCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, `Name of pipeline_base`)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 	var error string
 	cc.Flags().StringVar(&cmd.Error, "error", error, ``)
 	var operationID string
@@ -2123,11 +2047,11 @@ func (cmd *ListPipelineBaseCommand) Run(c *client.Client, args []string) error {
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = "/pipeline_bases"
+		path = fmt.Sprintf("/orgs/%v/pipeline_bases", url.QueryEscape(cmd.OrgID))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.ListPipelineBase(ctx, path, cmd.OrgID)
+	resp, err := c.ListPipelineBase(ctx, path)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -2149,7 +2073,7 @@ func (cmd *PullTaskPipelineBaseCommand) Run(c *client.Client, args []string) err
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/pipeline_bases/%v/pull_task", url.QueryEscape(cmd.Name))
+		path = fmt.Sprintf("/orgs/%v/pipeline_bases/%v/pull_task", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -2167,6 +2091,8 @@ func (cmd *PullTaskPipelineBaseCommand) Run(c *client.Client, args []string) err
 func (cmd *PullTaskPipelineBaseCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, `Name of pipeline_base`)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 }
 
 // Run makes the HTTP request corresponding to the ShowPipelineBaseCommand command.
@@ -2175,7 +2101,7 @@ func (cmd *ShowPipelineBaseCommand) Run(c *client.Client, args []string) error {
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/pipeline_bases/%v", url.QueryEscape(cmd.Name))
+		path = fmt.Sprintf("/orgs/%v/pipeline_bases/%v", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -2193,6 +2119,8 @@ func (cmd *ShowPipelineBaseCommand) Run(c *client.Client, args []string) error {
 func (cmd *ShowPipelineBaseCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, `Name of pipeline_base`)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 }
 
 // Run makes the HTTP request corresponding to the WakeupDoneTaskPipelineBaseCommand command.
@@ -2201,7 +2129,7 @@ func (cmd *WakeupDoneTaskPipelineBaseCommand) Run(c *client.Client, args []strin
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/pipeline_bases/%v/wakeup_done_task", url.QueryEscape(cmd.Name))
+		path = fmt.Sprintf("/orgs/%v/pipeline_bases/%v/wakeup_done_task", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -2219,6 +2147,8 @@ func (cmd *WakeupDoneTaskPipelineBaseCommand) Run(c *client.Client, args []strin
 func (cmd *WakeupDoneTaskPipelineBaseCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, `Name of pipeline_base`)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 	var error string
 	cc.Flags().StringVar(&cmd.Error, "error", error, ``)
 	var operationID string
@@ -2231,7 +2161,7 @@ func (cmd *StartPipelineBaseClosingTaskCommand) Run(c *client.Client, args []str
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/pipeline_bases/%v/closing_tasks", url.QueryEscape(cmd.Name))
+		path = fmt.Sprintf("/orgs/%v/pipeline_bases/%v/closing_tasks", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -2249,6 +2179,8 @@ func (cmd *StartPipelineBaseClosingTaskCommand) Run(c *client.Client, args []str
 func (cmd *StartPipelineBaseClosingTaskCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, `Resource Name`)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 }
 
 // Run makes the HTTP request corresponding to the WatchPipelineBaseClosingTaskCommand command.
@@ -2257,7 +2189,7 @@ func (cmd *WatchPipelineBaseClosingTaskCommand) Run(c *client.Client, args []str
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/pipeline_bases/%v/closing_tasks/%v", url.QueryEscape(cmd.Name), url.QueryEscape(cmd.ID))
+		path = fmt.Sprintf("/orgs/%v/pipeline_bases/%v/closing_tasks/%v", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name), url.QueryEscape(cmd.ID))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -2277,6 +2209,38 @@ func (cmd *WatchPipelineBaseClosingTaskCommand) RegisterFlags(cc *cobra.Command,
 	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, `Resource Name`)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
+}
+
+// Run makes the HTTP request corresponding to the PublishingTaskPipelineBaseJobCommand command.
+func (cmd *PublishingTaskPipelineBaseJobCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = fmt.Sprintf("/orgs/%v/pipeline_bases/%v/jobs/%v/publishing_task", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name), url.QueryEscape(cmd.ID))
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.PublishingTaskPipelineBaseJob(ctx, path)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *PublishingTaskPipelineBaseJobCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	var id string
+	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
+	var name string
+	cc.Flags().StringVar(&cmd.Name, "name", name, ``)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 }
 
 // Run makes the HTTP request corresponding to the StartPipelineBaseOpeningTaskCommand command.
@@ -2285,7 +2249,7 @@ func (cmd *StartPipelineBaseOpeningTaskCommand) Run(c *client.Client, args []str
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/pipeline_bases/%v/opening_tasks", url.QueryEscape(cmd.Name))
+		path = fmt.Sprintf("/orgs/%v/pipeline_bases/%v/opening_tasks", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -2303,6 +2267,8 @@ func (cmd *StartPipelineBaseOpeningTaskCommand) Run(c *client.Client, args []str
 func (cmd *StartPipelineBaseOpeningTaskCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, `Resource Name`)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 }
 
 // Run makes the HTTP request corresponding to the WatchPipelineBaseOpeningTaskCommand command.
@@ -2311,7 +2277,7 @@ func (cmd *WatchPipelineBaseOpeningTaskCommand) Run(c *client.Client, args []str
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/pipeline_bases/%v/opening_tasks/%v", url.QueryEscape(cmd.Name), url.QueryEscape(cmd.ID))
+		path = fmt.Sprintf("/orgs/%v/pipeline_bases/%v/opening_tasks/%v", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name), url.QueryEscape(cmd.ID))
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -2331,6 +2297,197 @@ func (cmd *WatchPipelineBaseOpeningTaskCommand) RegisterFlags(cc *cobra.Command,
 	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
 	var name string
 	cc.Flags().StringVar(&cmd.Name, "name", name, `Resource Name`)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
+}
+
+// Run makes the HTTP request corresponding to the ActivatePipelineJobCommand command.
+func (cmd *ActivatePipelineJobCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = fmt.Sprintf("/orgs/%v/pipelines/%v/jobs/%v/activate", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name), url.QueryEscape(cmd.ID))
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.ActivatePipelineJob(ctx, path)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *ActivatePipelineJobCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	var id string
+	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
+	var name string
+	cc.Flags().StringVar(&cmd.Name, "name", name, ``)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
+}
+
+// Run makes the HTTP request corresponding to the CreatePipelineJobCommand command.
+func (cmd *CreatePipelineJobCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = fmt.Sprintf("/orgs/%v/pipelines/%v/jobs", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name))
+	}
+	var payload client.JobPayload
+	if cmd.Payload != "" {
+		err := json.Unmarshal([]byte(cmd.Payload), &payload)
+		if err != nil {
+			return fmt.Errorf("failed to deserialize payload: %s", err)
+		}
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.CreatePipelineJob(ctx, path, &payload, stringFlagVal("active", cmd.Active), cmd.ContentType)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *CreatePipelineJobCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
+	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
+	var name string
+	cc.Flags().StringVar(&cmd.Name, "name", name, ``)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
+	var active string
+	cc.Flags().StringVar(&cmd.Active, "active", active, `Set true to activate soon`)
+}
+
+// Run makes the HTTP request corresponding to the DeletePipelineJobCommand command.
+func (cmd *DeletePipelineJobCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = fmt.Sprintf("/orgs/%v/pipelines/%v/jobs/%v", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name), url.QueryEscape(cmd.ID))
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.DeletePipelineJob(ctx, path)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *DeletePipelineJobCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	var id string
+	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
+	var name string
+	cc.Flags().StringVar(&cmd.Name, "name", name, ``)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
+}
+
+// Run makes the HTTP request corresponding to the InactivatePipelineJobCommand command.
+func (cmd *InactivatePipelineJobCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = fmt.Sprintf("/orgs/%v/pipelines/%v/jobs/%v/inactivate", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name), url.QueryEscape(cmd.ID))
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.InactivatePipelineJob(ctx, path)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *InactivatePipelineJobCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	var id string
+	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
+	var name string
+	cc.Flags().StringVar(&cmd.Name, "name", name, ``)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
+}
+
+// Run makes the HTTP request corresponding to the OutputPipelineJobCommand command.
+func (cmd *OutputPipelineJobCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = fmt.Sprintf("/orgs/%v/pipelines/%v/jobs/%v/output", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name), url.QueryEscape(cmd.ID))
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.OutputPipelineJob(ctx, path)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *OutputPipelineJobCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	var id string
+	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
+	var name string
+	cc.Flags().StringVar(&cmd.Name, "name", name, ``)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
+}
+
+// Run makes the HTTP request corresponding to the ShowPipelineJobCommand command.
+func (cmd *ShowPipelineJobCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = fmt.Sprintf("/orgs/%v/pipelines/%v/jobs/%v", url.QueryEscape(cmd.OrgID), url.QueryEscape(cmd.Name), url.QueryEscape(cmd.ID))
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.ShowPipelineJob(ctx, path)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *ShowPipelineJobCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	var id string
+	cc.Flags().StringVar(&cmd.ID, "id", id, `ID`)
+	var name string
+	cc.Flags().StringVar(&cmd.Name, "name", name, ``)
+	var orgID string
+	cc.Flags().StringVar(&cmd.OrgID, "org_id", orgID, `Organization ID`)
 }
 
 // Run makes the HTTP request corresponding to the CreateDummyAuthsCommand command.

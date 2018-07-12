@@ -37,9 +37,7 @@ func NewCreateInstanceGroupContext(ctx context.Context, r *http.Request, service
 	req.Request = r
 	rctx := CreateInstanceGroupContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramOrgID := req.Params["org_id"]
-	if len(paramOrgID) == 0 {
-		err = goa.MergeErrors(err, goa.MissingParamError("org_id"))
-	} else {
+	if len(paramOrgID) > 0 {
 		rawOrgID := paramOrgID[0]
 		rctx.OrgID = rawOrgID
 	}
@@ -99,7 +97,8 @@ type DeleteInstanceGroupContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	Name string
+	Name  string
+	OrgID string
 }
 
 // NewDeleteInstanceGroupContext parses the incoming request URL and body, performs validations and creates the
@@ -115,6 +114,11 @@ func NewDeleteInstanceGroupContext(ctx context.Context, r *http.Request, service
 	if len(paramName) > 0 {
 		rawName := paramName[0]
 		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
 	}
 	return &rctx, err
 }
@@ -172,7 +176,8 @@ type DestructInstanceGroupContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	Name string
+	Name  string
+	OrgID string
 }
 
 // NewDestructInstanceGroupContext parses the incoming request URL and body, performs validations and creates the
@@ -188,6 +193,11 @@ func NewDestructInstanceGroupContext(ctx context.Context, r *http.Request, servi
 	if len(paramName) > 0 {
 		rawName := paramName[0]
 		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
 	}
 	return &rctx, err
 }
@@ -253,6 +263,7 @@ type ListInstanceGroupContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
+	OrgID string
 }
 
 // NewListInstanceGroupContext parses the incoming request URL and body, performs validations and creates the
@@ -264,6 +275,11 @@ func NewListInstanceGroupContext(ctx context.Context, r *http.Request, service *
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := ListInstanceGroupContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
+	}
 	return &rctx, err
 }
 
@@ -325,6 +341,7 @@ type ResizeInstanceGroupContext struct {
 	*goa.RequestData
 	Name    string
 	NewSize int
+	OrgID   string
 }
 
 // NewResizeInstanceGroupContext parses the incoming request URL and body, performs validations and creates the
@@ -351,6 +368,11 @@ func NewResizeInstanceGroupContext(ctx context.Context, r *http.Request, service
 		} else {
 			err = goa.MergeErrors(err, goa.InvalidParamTypeError("new_size", rawNewSize, "integer"))
 		}
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
 	}
 	return &rctx, err
 }
@@ -416,7 +438,8 @@ type ShowInstanceGroupContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	Name string
+	Name  string
+	OrgID string
 }
 
 // NewShowInstanceGroupContext parses the incoming request URL and body, performs validations and creates the
@@ -432,6 +455,11 @@ func NewShowInstanceGroupContext(ctx context.Context, r *http.Request, service *
 	if len(paramName) > 0 {
 		rawName := paramName[0]
 		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
 	}
 	return &rctx, err
 }
@@ -489,7 +517,8 @@ type StartHealthCheckInstanceGroupContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	Name string
+	Name  string
+	OrgID string
 }
 
 // NewStartHealthCheckInstanceGroupContext parses the incoming request URL and body, performs validations and creates the
@@ -505,6 +534,11 @@ func NewStartHealthCheckInstanceGroupContext(ctx context.Context, r *http.Reques
 	if len(paramName) > 0 {
 		rawName := paramName[0]
 		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
 	}
 	return &rctx, err
 }
@@ -570,7 +604,8 @@ type StartInstanceGroupConstructionTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	Name string
+	Name  string
+	OrgID string
 }
 
 // NewStartInstanceGroupConstructionTaskContext parses the incoming request URL and body, performs validations and creates the
@@ -586,6 +621,11 @@ func NewStartInstanceGroupConstructionTaskContext(ctx context.Context, r *http.R
 	if len(paramName) > 0 {
 		rawName := paramName[0]
 		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
 	}
 	return &rctx, err
 }
@@ -675,8 +715,9 @@ type WatchInstanceGroupConstructionTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID   string
-	Name string
+	ID    string
+	Name  string
+	OrgID string
 }
 
 // NewWatchInstanceGroupConstructionTaskContext parses the incoming request URL and body, performs validations and creates the
@@ -697,6 +738,11 @@ func NewWatchInstanceGroupConstructionTaskContext(ctx context.Context, r *http.R
 	if len(paramName) > 0 {
 		rawName := paramName[0]
 		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
 	}
 	return &rctx, err
 }
@@ -786,7 +832,8 @@ type StartInstanceGroupDestructionTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	Name string
+	Name  string
+	OrgID string
 }
 
 // NewStartInstanceGroupDestructionTaskContext parses the incoming request URL and body, performs validations and creates the
@@ -802,6 +849,11 @@ func NewStartInstanceGroupDestructionTaskContext(ctx context.Context, r *http.Re
 	if len(paramName) > 0 {
 		rawName := paramName[0]
 		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
 	}
 	return &rctx, err
 }
@@ -891,8 +943,9 @@ type WatchInstanceGroupDestructionTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID   string
-	Name string
+	ID    string
+	Name  string
+	OrgID string
 }
 
 // NewWatchInstanceGroupDestructionTaskContext parses the incoming request URL and body, performs validations and creates the
@@ -913,6 +966,11 @@ func NewWatchInstanceGroupDestructionTaskContext(ctx context.Context, r *http.Re
 	if len(paramName) > 0 {
 		rawName := paramName[0]
 		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
 	}
 	return &rctx, err
 }
@@ -1002,8 +1060,9 @@ type ExecuteInstanceGroupHealthCheckContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID   string
-	Name string
+	ID    string
+	Name  string
+	OrgID string
 }
 
 // NewExecuteInstanceGroupHealthCheckContext parses the incoming request URL and body, performs validations and creates the
@@ -1024,6 +1083,11 @@ func NewExecuteInstanceGroupHealthCheckContext(ctx context.Context, r *http.Requ
 	if len(paramName) > 0 {
 		rawName := paramName[0]
 		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
 	}
 	return &rctx, err
 }
@@ -1113,7 +1177,8 @@ type StartInstanceGroupResizingTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	Name string
+	Name  string
+	OrgID string
 }
 
 // NewStartInstanceGroupResizingTaskContext parses the incoming request URL and body, performs validations and creates the
@@ -1129,6 +1194,11 @@ func NewStartInstanceGroupResizingTaskContext(ctx context.Context, r *http.Reque
 	if len(paramName) > 0 {
 		rawName := paramName[0]
 		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
 	}
 	return &rctx, err
 }
@@ -1218,8 +1288,9 @@ type WatchInstanceGroupResizingTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID   string
-	Name string
+	ID    string
+	Name  string
+	OrgID string
 }
 
 // NewWatchInstanceGroupResizingTaskContext parses the incoming request URL and body, performs validations and creates the
@@ -1240,6 +1311,11 @@ func NewWatchInstanceGroupResizingTaskContext(ctx context.Context, r *http.Reque
 	if len(paramName) > 0 {
 		rawName := paramName[0]
 		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
 	}
 	return &rctx, err
 }
@@ -1324,538 +1400,6 @@ func (ctx *WatchInstanceGroupResizingTaskContext) InternalServerError(r error) e
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
-// ActivateJobContext provides the Job activate action context.
-type ActivateJobContext struct {
-	context.Context
-	*goa.ResponseData
-	*goa.RequestData
-	ID string
-}
-
-// NewActivateJobContext parses the incoming request URL and body, performs validations and creates the
-// context used by the Job controller activate action.
-func NewActivateJobContext(ctx context.Context, r *http.Request, service *goa.Service) (*ActivateJobContext, error) {
-	var err error
-	resp := goa.ContextResponse(ctx)
-	resp.Service = service
-	req := goa.ContextRequest(ctx)
-	req.Request = r
-	rctx := ActivateJobContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramID := req.Params["id"]
-	if len(paramID) > 0 {
-		rawID := paramID[0]
-		rctx.ID = rawID
-	}
-	return &rctx, err
-}
-
-// OK sends a HTTP response with status code 200.
-func (ctx *ActivateJobContext) OK(r *Job) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.job+json")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
-}
-
-// Created sends a HTTP response with status code 201.
-func (ctx *ActivateJobContext) Created(r *Job) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.job+json")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
-}
-
-// BadRequest sends a HTTP response with status code 400.
-func (ctx *ActivateJobContext) BadRequest(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
-}
-
-// Unauthorized sends a HTTP response with status code 401.
-func (ctx *ActivateJobContext) Unauthorized(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
-}
-
-// NotFound sends a HTTP response with status code 404.
-func (ctx *ActivateJobContext) NotFound(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
-}
-
-// Conflict sends a HTTP response with status code 409.
-func (ctx *ActivateJobContext) Conflict(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
-}
-
-// InternalServerError sends a HTTP response with status code 500.
-func (ctx *ActivateJobContext) InternalServerError(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
-}
-
-// CreateJobContext provides the Job create action context.
-type CreateJobContext struct {
-	context.Context
-	*goa.ResponseData
-	*goa.RequestData
-	Active         *string
-	PipelineBaseID *string
-	PipelineID     *string
-	Payload        *JobPayload
-}
-
-// NewCreateJobContext parses the incoming request URL and body, performs validations and creates the
-// context used by the Job controller create action.
-func NewCreateJobContext(ctx context.Context, r *http.Request, service *goa.Service) (*CreateJobContext, error) {
-	var err error
-	resp := goa.ContextResponse(ctx)
-	resp.Service = service
-	req := goa.ContextRequest(ctx)
-	req.Request = r
-	rctx := CreateJobContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramActive := req.Params["active"]
-	if len(paramActive) > 0 {
-		rawActive := paramActive[0]
-		rctx.Active = &rawActive
-	}
-	paramPipelineBaseID := req.Params["pipeline_base_id"]
-	if len(paramPipelineBaseID) > 0 {
-		rawPipelineBaseID := paramPipelineBaseID[0]
-		rctx.PipelineBaseID = &rawPipelineBaseID
-	}
-	paramPipelineID := req.Params["pipeline_id"]
-	if len(paramPipelineID) > 0 {
-		rawPipelineID := paramPipelineID[0]
-		rctx.PipelineID = &rawPipelineID
-	}
-	return &rctx, err
-}
-
-// Created sends a HTTP response with status code 201.
-func (ctx *CreateJobContext) Created(r *Job) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.job+json")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
-}
-
-// BadRequest sends a HTTP response with status code 400.
-func (ctx *CreateJobContext) BadRequest(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
-}
-
-// Unauthorized sends a HTTP response with status code 401.
-func (ctx *CreateJobContext) Unauthorized(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
-}
-
-// NotFound sends a HTTP response with status code 404.
-func (ctx *CreateJobContext) NotFound(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
-}
-
-// Conflict sends a HTTP response with status code 409.
-func (ctx *CreateJobContext) Conflict(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
-}
-
-// InternalServerError sends a HTTP response with status code 500.
-func (ctx *CreateJobContext) InternalServerError(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
-}
-
-// DeleteJobContext provides the Job delete action context.
-type DeleteJobContext struct {
-	context.Context
-	*goa.ResponseData
-	*goa.RequestData
-	ID string
-}
-
-// NewDeleteJobContext parses the incoming request URL and body, performs validations and creates the
-// context used by the Job controller delete action.
-func NewDeleteJobContext(ctx context.Context, r *http.Request, service *goa.Service) (*DeleteJobContext, error) {
-	var err error
-	resp := goa.ContextResponse(ctx)
-	resp.Service = service
-	req := goa.ContextRequest(ctx)
-	req.Request = r
-	rctx := DeleteJobContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramID := req.Params["id"]
-	if len(paramID) > 0 {
-		rawID := paramID[0]
-		rctx.ID = rawID
-	}
-	return &rctx, err
-}
-
-// OK sends a HTTP response with status code 200.
-func (ctx *DeleteJobContext) OK(r *Job) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.job+json")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
-}
-
-// BadRequest sends a HTTP response with status code 400.
-func (ctx *DeleteJobContext) BadRequest(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
-}
-
-// Unauthorized sends a HTTP response with status code 401.
-func (ctx *DeleteJobContext) Unauthorized(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
-}
-
-// NotFound sends a HTTP response with status code 404.
-func (ctx *DeleteJobContext) NotFound(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
-}
-
-// Conflict sends a HTTP response with status code 409.
-func (ctx *DeleteJobContext) Conflict(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
-}
-
-// InternalServerError sends a HTTP response with status code 500.
-func (ctx *DeleteJobContext) InternalServerError(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
-}
-
-// InactivateJobContext provides the Job inactivate action context.
-type InactivateJobContext struct {
-	context.Context
-	*goa.ResponseData
-	*goa.RequestData
-	ID string
-}
-
-// NewInactivateJobContext parses the incoming request URL and body, performs validations and creates the
-// context used by the Job controller inactivate action.
-func NewInactivateJobContext(ctx context.Context, r *http.Request, service *goa.Service) (*InactivateJobContext, error) {
-	var err error
-	resp := goa.ContextResponse(ctx)
-	resp.Service = service
-	req := goa.ContextRequest(ctx)
-	req.Request = r
-	rctx := InactivateJobContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramID := req.Params["id"]
-	if len(paramID) > 0 {
-		rawID := paramID[0]
-		rctx.ID = rawID
-	}
-	return &rctx, err
-}
-
-// OK sends a HTTP response with status code 200.
-func (ctx *InactivateJobContext) OK(r *Job) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.job+json")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
-}
-
-// BadRequest sends a HTTP response with status code 400.
-func (ctx *InactivateJobContext) BadRequest(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
-}
-
-// Unauthorized sends a HTTP response with status code 401.
-func (ctx *InactivateJobContext) Unauthorized(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
-}
-
-// NotFound sends a HTTP response with status code 404.
-func (ctx *InactivateJobContext) NotFound(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
-}
-
-// Conflict sends a HTTP response with status code 409.
-func (ctx *InactivateJobContext) Conflict(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
-}
-
-// InternalServerError sends a HTTP response with status code 500.
-func (ctx *InactivateJobContext) InternalServerError(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
-}
-
-// OutputJobContext provides the Job output action context.
-type OutputJobContext struct {
-	context.Context
-	*goa.ResponseData
-	*goa.RequestData
-	ID string
-}
-
-// NewOutputJobContext parses the incoming request URL and body, performs validations and creates the
-// context used by the Job controller output action.
-func NewOutputJobContext(ctx context.Context, r *http.Request, service *goa.Service) (*OutputJobContext, error) {
-	var err error
-	resp := goa.ContextResponse(ctx)
-	resp.Service = service
-	req := goa.ContextRequest(ctx)
-	req.Request = r
-	rctx := OutputJobContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramID := req.Params["id"]
-	if len(paramID) > 0 {
-		rawID := paramID[0]
-		rctx.ID = rawID
-	}
-	return &rctx, err
-}
-
-// OK sends a HTTP response with status code 200.
-func (ctx *OutputJobContext) OK(r *JobOutput) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.job-output+json")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
-}
-
-// BadRequest sends a HTTP response with status code 400.
-func (ctx *OutputJobContext) BadRequest(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
-}
-
-// Unauthorized sends a HTTP response with status code 401.
-func (ctx *OutputJobContext) Unauthorized(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
-}
-
-// NotFound sends a HTTP response with status code 404.
-func (ctx *OutputJobContext) NotFound(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
-}
-
-// Conflict sends a HTTP response with status code 409.
-func (ctx *OutputJobContext) Conflict(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
-}
-
-// InternalServerError sends a HTTP response with status code 500.
-func (ctx *OutputJobContext) InternalServerError(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
-}
-
-// PublishingTaskJobContext provides the Job publishing_task action context.
-type PublishingTaskJobContext struct {
-	context.Context
-	*goa.ResponseData
-	*goa.RequestData
-	ID string
-}
-
-// NewPublishingTaskJobContext parses the incoming request URL and body, performs validations and creates the
-// context used by the Job controller publishing_task action.
-func NewPublishingTaskJobContext(ctx context.Context, r *http.Request, service *goa.Service) (*PublishingTaskJobContext, error) {
-	var err error
-	resp := goa.ContextResponse(ctx)
-	resp.Service = service
-	req := goa.ContextRequest(ctx)
-	req.Request = r
-	rctx := PublishingTaskJobContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramID := req.Params["id"]
-	if len(paramID) > 0 {
-		rawID := paramID[0]
-		rctx.ID = rawID
-	}
-	return &rctx, err
-}
-
-// OK sends a HTTP response with status code 200.
-func (ctx *PublishingTaskJobContext) OK(r *Job) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.job+json")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
-}
-
-// BadRequest sends a HTTP response with status code 400.
-func (ctx *PublishingTaskJobContext) BadRequest(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
-}
-
-// Unauthorized sends a HTTP response with status code 401.
-func (ctx *PublishingTaskJobContext) Unauthorized(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
-}
-
-// NotFound sends a HTTP response with status code 404.
-func (ctx *PublishingTaskJobContext) NotFound(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
-}
-
-// Conflict sends a HTTP response with status code 409.
-func (ctx *PublishingTaskJobContext) Conflict(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
-}
-
-// InternalServerError sends a HTTP response with status code 500.
-func (ctx *PublishingTaskJobContext) InternalServerError(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
-}
-
-// ShowJobContext provides the Job show action context.
-type ShowJobContext struct {
-	context.Context
-	*goa.ResponseData
-	*goa.RequestData
-	ID string
-}
-
-// NewShowJobContext parses the incoming request URL and body, performs validations and creates the
-// context used by the Job controller show action.
-func NewShowJobContext(ctx context.Context, r *http.Request, service *goa.Service) (*ShowJobContext, error) {
-	var err error
-	resp := goa.ContextResponse(ctx)
-	resp.Service = service
-	req := goa.ContextRequest(ctx)
-	req.Request = r
-	rctx := ShowJobContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramID := req.Params["id"]
-	if len(paramID) > 0 {
-		rawID := paramID[0]
-		rctx.ID = rawID
-	}
-	return &rctx, err
-}
-
-// OK sends a HTTP response with status code 200.
-func (ctx *ShowJobContext) OK(r *Job) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.job+json")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
-}
-
-// BadRequest sends a HTTP response with status code 400.
-func (ctx *ShowJobContext) BadRequest(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
-}
-
-// Unauthorized sends a HTTP response with status code 401.
-func (ctx *ShowJobContext) Unauthorized(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
-}
-
-// NotFound sends a HTTP response with status code 404.
-func (ctx *ShowJobContext) NotFound(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
-}
-
-// Conflict sends a HTTP response with status code 409.
-func (ctx *ShowJobContext) Conflict(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
-}
-
-// InternalServerError sends a HTTP response with status code 500.
-func (ctx *ShowJobContext) InternalServerError(r error) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
-}
-
 // CreatePipelineContext provides the Pipeline create action context.
 type CreatePipelineContext struct {
 	context.Context
@@ -1875,9 +1419,7 @@ func NewCreatePipelineContext(ctx context.Context, r *http.Request, service *goa
 	req.Request = r
 	rctx := CreatePipelineContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramOrgID := req.Params["org_id"]
-	if len(paramOrgID) == 0 {
-		err = goa.MergeErrors(err, goa.MissingParamError("org_id"))
-	} else {
+	if len(paramOrgID) > 0 {
 		rawOrgID := paramOrgID[0]
 		rctx.OrgID = rawOrgID
 	}
@@ -1937,8 +1479,9 @@ type CurrentPipelineContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	Name           string
-	PipelineBaseID string
+	Name             string
+	OrgID            string
+	PipelineBaseName string
 }
 
 // NewCurrentPipelineContext parses the incoming request URL and body, performs validations and creates the
@@ -1955,12 +1498,17 @@ func NewCurrentPipelineContext(ctx context.Context, r *http.Request, service *go
 		rawName := paramName[0]
 		rctx.Name = rawName
 	}
-	paramPipelineBaseID := req.Params["pipeline_base_id"]
-	if len(paramPipelineBaseID) == 0 {
-		err = goa.MergeErrors(err, goa.MissingParamError("pipeline_base_id"))
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
+	}
+	paramPipelineBaseName := req.Params["pipeline_base_name"]
+	if len(paramPipelineBaseName) == 0 {
+		err = goa.MergeErrors(err, goa.MissingParamError("pipeline_base_name"))
 	} else {
-		rawPipelineBaseID := paramPipelineBaseID[0]
-		rctx.PipelineBaseID = rawPipelineBaseID
+		rawPipelineBaseName := paramPipelineBaseName[0]
+		rctx.PipelineBaseName = rawPipelineBaseName
 	}
 	return &rctx, err
 }
@@ -2018,7 +1566,8 @@ type DeletePipelineContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	Name string
+	Name  string
+	OrgID string
 }
 
 // NewDeletePipelineContext parses the incoming request URL and body, performs validations and creates the
@@ -2034,6 +1583,11 @@ func NewDeletePipelineContext(ctx context.Context, r *http.Request, service *goa
 	if len(paramName) > 0 {
 		rawName := paramName[0]
 		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
 	}
 	return &rctx, err
 }
@@ -2104,9 +1658,7 @@ func NewListPipelineContext(ctx context.Context, r *http.Request, service *goa.S
 	req.Request = r
 	rctx := ListPipelineContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramOrgID := req.Params["org_id"]
-	if len(paramOrgID) == 0 {
-		err = goa.MergeErrors(err, goa.MissingParamError("org_id"))
-	} else {
+	if len(paramOrgID) > 0 {
 		rawOrgID := paramOrgID[0]
 		rctx.OrgID = rawOrgID
 	}
@@ -2172,6 +1724,7 @@ type PreparingFinalizeTaskPipelineContext struct {
 	Error       *string
 	Name        string
 	OperationID *string
+	OrgID       string
 }
 
 // NewPreparingFinalizeTaskPipelineContext parses the incoming request URL and body, performs validations and creates the
@@ -2197,6 +1750,11 @@ func NewPreparingFinalizeTaskPipelineContext(ctx context.Context, r *http.Reques
 	if len(paramOperationID) > 0 {
 		rawOperationID := paramOperationID[0]
 		rctx.OperationID = &rawOperationID
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
 	}
 	return &rctx, err
 }
@@ -2254,7 +1812,8 @@ type ShowPipelineContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	Name string
+	Name  string
+	OrgID string
 }
 
 // NewShowPipelineContext parses the incoming request URL and body, performs validations and creates the
@@ -2270,6 +1829,11 @@ func NewShowPipelineContext(ctx context.Context, r *http.Request, service *goa.S
 	if len(paramName) > 0 {
 		rawName := paramName[0]
 		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
 	}
 	return &rctx, err
 }
@@ -2327,7 +1891,8 @@ type StopPipelineContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	Name string
+	Name  string
+	OrgID string
 }
 
 // NewStopPipelineContext parses the incoming request URL and body, performs validations and creates the
@@ -2343,6 +1908,11 @@ func NewStopPipelineContext(ctx context.Context, r *http.Request, service *goa.S
 	if len(paramName) > 0 {
 		rawName := paramName[0]
 		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
 	}
 	return &rctx, err
 }
@@ -2400,7 +1970,8 @@ type ClosePipelineBaseContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	Name string
+	Name  string
+	OrgID string
 }
 
 // NewClosePipelineBaseContext parses the incoming request URL and body, performs validations and creates the
@@ -2416,6 +1987,11 @@ func NewClosePipelineBaseContext(ctx context.Context, r *http.Request, service *
 	if len(paramName) > 0 {
 		rawName := paramName[0]
 		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
 	}
 	return &rctx, err
 }
@@ -2495,9 +2071,7 @@ func NewCreatePipelineBaseContext(ctx context.Context, r *http.Request, service 
 	req.Request = r
 	rctx := CreatePipelineBaseContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramOrgID := req.Params["org_id"]
-	if len(paramOrgID) == 0 {
-		err = goa.MergeErrors(err, goa.MissingParamError("org_id"))
-	} else {
+	if len(paramOrgID) > 0 {
 		rawOrgID := paramOrgID[0]
 		rctx.OrgID = rawOrgID
 	}
@@ -2557,7 +2131,8 @@ type DeletePipelineBaseContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	Name string
+	Name  string
+	OrgID string
 }
 
 // NewDeletePipelineBaseContext parses the incoming request URL and body, performs validations and creates the
@@ -2573,6 +2148,11 @@ func NewDeletePipelineBaseContext(ctx context.Context, r *http.Request, service 
 	if len(paramName) > 0 {
 		rawName := paramName[0]
 		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
 	}
 	return &rctx, err
 }
@@ -2631,6 +2211,7 @@ type HibernationCheckingTaskPipelineBaseContext struct {
 	*goa.ResponseData
 	*goa.RequestData
 	Name  string
+	OrgID string
 	Since time.Time
 }
 
@@ -2647,6 +2228,11 @@ func NewHibernationCheckingTaskPipelineBaseContext(ctx context.Context, r *http.
 	if len(paramName) > 0 {
 		rawName := paramName[0]
 		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
 	}
 	paramSince := req.Params["since"]
 	if len(paramSince) == 0 {
@@ -2734,6 +2320,7 @@ type HibernationDoneTaskPipelineBaseContext struct {
 	Error       *string
 	Name        string
 	OperationID *string
+	OrgID       string
 }
 
 // NewHibernationDoneTaskPipelineBaseContext parses the incoming request URL and body, performs validations and creates the
@@ -2759,6 +2346,11 @@ func NewHibernationDoneTaskPipelineBaseContext(ctx context.Context, r *http.Requ
 	if len(paramOperationID) > 0 {
 		rawOperationID := paramOperationID[0]
 		rctx.OperationID = &rawOperationID
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
 	}
 	return &rctx, err
 }
@@ -2853,9 +2445,7 @@ func NewListPipelineBaseContext(ctx context.Context, r *http.Request, service *g
 	req.Request = r
 	rctx := ListPipelineBaseContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramOrgID := req.Params["org_id"]
-	if len(paramOrgID) == 0 {
-		err = goa.MergeErrors(err, goa.MissingParamError("org_id"))
-	} else {
+	if len(paramOrgID) > 0 {
 		rawOrgID := paramOrgID[0]
 		rctx.OrgID = rawOrgID
 	}
@@ -2918,7 +2508,8 @@ type PullTaskPipelineBaseContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	Name string
+	Name  string
+	OrgID string
 }
 
 // NewPullTaskPipelineBaseContext parses the incoming request URL and body, performs validations and creates the
@@ -2934,6 +2525,11 @@ func NewPullTaskPipelineBaseContext(ctx context.Context, r *http.Request, servic
 	if len(paramName) > 0 {
 		rawName := paramName[0]
 		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
 	}
 	return &rctx, err
 }
@@ -2991,7 +2587,8 @@ type ShowPipelineBaseContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	Name string
+	Name  string
+	OrgID string
 }
 
 // NewShowPipelineBaseContext parses the incoming request URL and body, performs validations and creates the
@@ -3007,6 +2604,11 @@ func NewShowPipelineBaseContext(ctx context.Context, r *http.Request, service *g
 	if len(paramName) > 0 {
 		rawName := paramName[0]
 		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
 	}
 	return &rctx, err
 }
@@ -3067,6 +2669,7 @@ type WakeupDoneTaskPipelineBaseContext struct {
 	Error       *string
 	Name        string
 	OperationID *string
+	OrgID       string
 }
 
 // NewWakeupDoneTaskPipelineBaseContext parses the incoming request URL and body, performs validations and creates the
@@ -3092,6 +2695,11 @@ func NewWakeupDoneTaskPipelineBaseContext(ctx context.Context, r *http.Request, 
 	if len(paramOperationID) > 0 {
 		rawOperationID := paramOperationID[0]
 		rctx.OperationID = &rawOperationID
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
 	}
 	return &rctx, err
 }
@@ -3173,7 +2781,8 @@ type StartPipelineBaseClosingTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	Name string
+	Name  string
+	OrgID string
 }
 
 // NewStartPipelineBaseClosingTaskContext parses the incoming request URL and body, performs validations and creates the
@@ -3189,6 +2798,11 @@ func NewStartPipelineBaseClosingTaskContext(ctx context.Context, r *http.Request
 	if len(paramName) > 0 {
 		rawName := paramName[0]
 		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
 	}
 	return &rctx, err
 }
@@ -3278,8 +2892,9 @@ type WatchPipelineBaseClosingTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID   string
-	Name string
+	ID    string
+	Name  string
+	OrgID string
 }
 
 // NewWatchPipelineBaseClosingTaskContext parses the incoming request URL and body, performs validations and creates the
@@ -3300,6 +2915,11 @@ func NewWatchPipelineBaseClosingTaskContext(ctx context.Context, r *http.Request
 	if len(paramName) > 0 {
 		rawName := paramName[0]
 		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
 	}
 	return &rctx, err
 }
@@ -3384,12 +3004,98 @@ func (ctx *WatchPipelineBaseClosingTaskContext) InternalServerError(r error) err
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
+// PublishingTaskPipelineBaseJobContext provides the PipelineBaseJob publishing_task action context.
+type PublishingTaskPipelineBaseJobContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID    string
+	Name  string
+	OrgID string
+}
+
+// NewPublishingTaskPipelineBaseJobContext parses the incoming request URL and body, performs validations and creates the
+// context used by the PipelineBaseJob controller publishing_task action.
+func NewPublishingTaskPipelineBaseJobContext(ctx context.Context, r *http.Request, service *goa.Service) (*PublishingTaskPipelineBaseJobContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := PublishingTaskPipelineBaseJobContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *PublishingTaskPipelineBaseJobContext) OK(r *Job) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.job+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *PublishingTaskPipelineBaseJobContext) BadRequest(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
+// Unauthorized sends a HTTP response with status code 401.
+func (ctx *PublishingTaskPipelineBaseJobContext) Unauthorized(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *PublishingTaskPipelineBaseJobContext) NotFound(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *PublishingTaskPipelineBaseJobContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *PublishingTaskPipelineBaseJobContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
 // StartPipelineBaseOpeningTaskContext provides the PipelineBaseOpeningTask start action context.
 type StartPipelineBaseOpeningTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	Name string
+	Name  string
+	OrgID string
 }
 
 // NewStartPipelineBaseOpeningTaskContext parses the incoming request URL and body, performs validations and creates the
@@ -3405,6 +3111,11 @@ func NewStartPipelineBaseOpeningTaskContext(ctx context.Context, r *http.Request
 	if len(paramName) > 0 {
 		rawName := paramName[0]
 		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
 	}
 	return &rctx, err
 }
@@ -3494,8 +3205,9 @@ type WatchPipelineBaseOpeningTaskContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID   string
-	Name string
+	ID    string
+	Name  string
+	OrgID string
 }
 
 // NewWatchPipelineBaseOpeningTaskContext parses the incoming request URL and body, performs validations and creates the
@@ -3516,6 +3228,11 @@ func NewWatchPipelineBaseOpeningTaskContext(ctx context.Context, r *http.Request
 	if len(paramName) > 0 {
 		rawName := paramName[0]
 		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
 	}
 	return &rctx, err
 }
@@ -3594,6 +3311,525 @@ func (ctx *WatchPipelineBaseOpeningTaskContext) Conflict(r error) error {
 
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *WatchPipelineBaseOpeningTaskContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// ActivatePipelineJobContext provides the PipelineJob activate action context.
+type ActivatePipelineJobContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID    string
+	Name  string
+	OrgID string
+}
+
+// NewActivatePipelineJobContext parses the incoming request URL and body, performs validations and creates the
+// context used by the PipelineJob controller activate action.
+func NewActivatePipelineJobContext(ctx context.Context, r *http.Request, service *goa.Service) (*ActivatePipelineJobContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := ActivatePipelineJobContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *ActivatePipelineJobContext) OK(r *Job) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.job+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// Created sends a HTTP response with status code 201.
+func (ctx *ActivatePipelineJobContext) Created(r *Job) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.job+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *ActivatePipelineJobContext) BadRequest(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
+// Unauthorized sends a HTTP response with status code 401.
+func (ctx *ActivatePipelineJobContext) Unauthorized(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *ActivatePipelineJobContext) NotFound(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *ActivatePipelineJobContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *ActivatePipelineJobContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// CreatePipelineJobContext provides the PipelineJob create action context.
+type CreatePipelineJobContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Active  *string
+	Name    string
+	OrgID   string
+	Payload *JobPayload
+}
+
+// NewCreatePipelineJobContext parses the incoming request URL and body, performs validations and creates the
+// context used by the PipelineJob controller create action.
+func NewCreatePipelineJobContext(ctx context.Context, r *http.Request, service *goa.Service) (*CreatePipelineJobContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := CreatePipelineJobContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramActive := req.Params["active"]
+	if len(paramActive) > 0 {
+		rawActive := paramActive[0]
+		rctx.Active = &rawActive
+	}
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
+	}
+	return &rctx, err
+}
+
+// Created sends a HTTP response with status code 201.
+func (ctx *CreatePipelineJobContext) Created(r *Job) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.job+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *CreatePipelineJobContext) BadRequest(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
+// Unauthorized sends a HTTP response with status code 401.
+func (ctx *CreatePipelineJobContext) Unauthorized(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *CreatePipelineJobContext) NotFound(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *CreatePipelineJobContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *CreatePipelineJobContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// DeletePipelineJobContext provides the PipelineJob delete action context.
+type DeletePipelineJobContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID    string
+	Name  string
+	OrgID string
+}
+
+// NewDeletePipelineJobContext parses the incoming request URL and body, performs validations and creates the
+// context used by the PipelineJob controller delete action.
+func NewDeletePipelineJobContext(ctx context.Context, r *http.Request, service *goa.Service) (*DeletePipelineJobContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := DeletePipelineJobContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *DeletePipelineJobContext) OK(r *Job) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.job+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *DeletePipelineJobContext) BadRequest(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
+// Unauthorized sends a HTTP response with status code 401.
+func (ctx *DeletePipelineJobContext) Unauthorized(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *DeletePipelineJobContext) NotFound(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *DeletePipelineJobContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *DeletePipelineJobContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// InactivatePipelineJobContext provides the PipelineJob inactivate action context.
+type InactivatePipelineJobContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID    string
+	Name  string
+	OrgID string
+}
+
+// NewInactivatePipelineJobContext parses the incoming request URL and body, performs validations and creates the
+// context used by the PipelineJob controller inactivate action.
+func NewInactivatePipelineJobContext(ctx context.Context, r *http.Request, service *goa.Service) (*InactivatePipelineJobContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := InactivatePipelineJobContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *InactivatePipelineJobContext) OK(r *Job) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.job+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *InactivatePipelineJobContext) BadRequest(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
+// Unauthorized sends a HTTP response with status code 401.
+func (ctx *InactivatePipelineJobContext) Unauthorized(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *InactivatePipelineJobContext) NotFound(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *InactivatePipelineJobContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *InactivatePipelineJobContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// OutputPipelineJobContext provides the PipelineJob output action context.
+type OutputPipelineJobContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID    string
+	Name  string
+	OrgID string
+}
+
+// NewOutputPipelineJobContext parses the incoming request URL and body, performs validations and creates the
+// context used by the PipelineJob controller output action.
+func NewOutputPipelineJobContext(ctx context.Context, r *http.Request, service *goa.Service) (*OutputPipelineJobContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := OutputPipelineJobContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *OutputPipelineJobContext) OK(r *JobOutput) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.job-output+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *OutputPipelineJobContext) BadRequest(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
+// Unauthorized sends a HTTP response with status code 401.
+func (ctx *OutputPipelineJobContext) Unauthorized(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *OutputPipelineJobContext) NotFound(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *OutputPipelineJobContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *OutputPipelineJobContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// ShowPipelineJobContext provides the PipelineJob show action context.
+type ShowPipelineJobContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID    string
+	Name  string
+	OrgID string
+}
+
+// NewShowPipelineJobContext parses the incoming request URL and body, performs validations and creates the
+// context used by the PipelineJob controller show action.
+func NewShowPipelineJobContext(ctx context.Context, r *http.Request, service *goa.Service) (*ShowPipelineJobContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := ShowPipelineJobContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *ShowPipelineJobContext) OK(r *Job) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.job+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *ShowPipelineJobContext) BadRequest(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
+// Unauthorized sends a HTTP response with status code 401.
+func (ctx *ShowPipelineJobContext) Unauthorized(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *ShowPipelineJobContext) NotFound(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *ShowPipelineJobContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *ShowPipelineJobContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
