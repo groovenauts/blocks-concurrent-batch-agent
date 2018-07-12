@@ -29,7 +29,7 @@ func (c *PipelineBaseController) Close(ctx *app.ClosePipelineBaseContext) error 
 	// PipelineBaseController_Close: start_implement
 
 	// Put your logic here
-	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
+	return WithAuthOrgKey(ctx.Context, ctx.OrgID, func(orgKey *datastore.Key) error {
 		appCtx := appengine.NewContext(ctx.Request)
 		store := &model.PipelineBaseStore{ParentKey: orgKey}
 
@@ -61,7 +61,7 @@ func (c *PipelineBaseController) Create(ctx *app.CreatePipelineBaseContext) erro
 	// PipelineBaseController_Create: start_implement
 
 	// Put your logic here
-	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
+	return WithAuthOrgKey(ctx.Context, ctx.OrgID, func(orgKey *datastore.Key) error {
 		appCtx := appengine.NewContext(ctx.Request)
 		m := PipelineBasePayloadToModel(ctx.Payload)
 		m.ParentKey = orgKey
@@ -93,7 +93,7 @@ func (c *PipelineBaseController) Delete(ctx *app.DeletePipelineBaseContext) erro
 
 	// Put your logic here
 
-	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
+	return WithAuthOrgKey(ctx.Context, ctx.OrgID, func(orgKey *datastore.Key) error {
 		appCtx := appengine.NewContext(ctx.Request)
 		store := &model.PipelineBaseStore{ParentKey: orgKey}
 		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
@@ -121,7 +121,7 @@ func (c *PipelineBaseController) HibernationCheckingTask(ctx *app.HibernationChe
 	// PipelineBaseController_HibernationCheckingTask: start_implement
 
 	// Put your logic here
-	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
+	return WithAuthOrgKey(ctx.Context, ctx.OrgID, func(orgKey *datastore.Key) error {
 		appCtx := appengine.NewContext(ctx.Request)
 		store := &model.PipelineBaseStore{ParentKey: orgKey}
 		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
@@ -156,7 +156,7 @@ func (c *PipelineBaseController) HibernationDoneTask(ctx *app.HibernationDoneTas
 	// PipelineBaseController_HibernationDoneTask: start_implement
 
 	// Put your logic here
-	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
+	return WithAuthOrgKey(ctx.Context, ctx.OrgID, func(orgKey *datastore.Key) error {
 		appCtx := appengine.NewContext(ctx.Request)
 		store := &model.PipelineBaseStore{ParentKey: orgKey}
 		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
@@ -195,7 +195,7 @@ func (c *PipelineBaseController) List(ctx *app.ListPipelineBaseContext) error {
 	// PipelineBaseController_List: start_implement
 
 	// Put your logic here
-	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
+	return WithAuthOrgKey(ctx.Context, ctx.OrgID, func(orgKey *datastore.Key) error {
 		appCtx := appengine.NewContext(ctx.Request)
 		store := &model.PipelineBaseStore{ParentKey: orgKey}
 		models, err := store.All(appCtx)
@@ -229,7 +229,7 @@ func (c *PipelineBaseController) Show(ctx *app.ShowPipelineBaseContext) error {
 	// PipelineBaseController_Show: start_implement
 
 	// Put your logic here
-	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
+	return WithAuthOrgKey(ctx.Context, ctx.OrgID, func(orgKey *datastore.Key) error {
 		appCtx := appengine.NewContext(ctx.Request)
 		store := &model.PipelineBaseStore{ParentKey: orgKey}
 		return c.member(appCtx, store, ctx.Name, ctx.BadRequest, ctx.NotFound, func(m *model.PipelineBase) error {
@@ -245,7 +245,7 @@ func (c *PipelineBaseController) WakeupDoneTask(ctx *app.WakeupDoneTaskPipelineB
 	// PipelineBaseController_WakeupDoneTask: start_implement
 
 	// Put your logic here
-	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
+	return WithAuthOrgKey(ctx.Context, ctx.OrgID, func(orgKey *datastore.Key) error {
 		appCtx := appengine.NewContext(ctx.Request)
 		store := &model.PipelineBaseStore{ParentKey: orgKey}
 		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {

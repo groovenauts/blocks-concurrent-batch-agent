@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
+	"strconv"
 
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/datastore"
@@ -68,7 +69,7 @@ func NewAuthorizationMiddleware() goa.Middleware {
 	}
 }
 
-func WithAuthOrgKey(ctx context.Context, f func(*datastore.Key) error) error {
+func WithAuthOrgKey(ctx context.Context, orgId string, f func(*datastore.Key) error) error {
 	obj := ctx.Value(ContextOrgKey)
 	if obj == nil {
 		return ErrUnauthorized(fmt.Sprintf("%s not found in context", ContextOrgKey))
@@ -76,6 +77,13 @@ func WithAuthOrgKey(ctx context.Context, f func(*datastore.Key) error) error {
 	orgKey, ok := obj.(*datastore.Key)
 	if !ok {
 		return ErrUnauthorized(fmt.Sprintf("%s in context isn't a *datastore.Key", ContextOrgKey))
+	}
+	id, err := strconv.ParseInt(orgId, 10, 64)
+	if err != nil {
+		return ErrUnauthorized(fmt.Sprintf("Invalid Organization ID: %q", orgId))
+	}
+	if id != orgKey.IntID() {
+		return ErrUnauthorized(fmt.Sprintf("Unauthorized organization ID: %q", orgId))
 	}
 	return f(orgKey)
 }

@@ -31,7 +31,7 @@ func (c *PipelineJobController) Activate(ctx *app.ActivatePipelineJobContext) er
 	// Put your logic here
 
 	// Put your logic here
-	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
+	return WithAuthOrgKey(ctx.Context, ctx.OrgID, func(orgKey *datastore.Key) error {
 		appCtx := appengine.NewContext(ctx.Request)
 
 		// TODO Check if orgKey is included in the ancestors of the key from :id
@@ -65,7 +65,7 @@ func (c *PipelineJobController) Create(ctx *app.CreatePipelineJobContext) error 
 	// PipelineJobController_Create: start_implement
 
 	// Put your logic here
-	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
+	return WithAuthOrgKey(ctx.Context, ctx.OrgID, func(orgKey *datastore.Key) error {
 		appCtx := appengine.NewContext(ctx.Request)
 		if ctx.Name == "" {
 			return ctx.BadRequest(goa.ErrBadRequest(fmt.Sprintf("Now pipeline_base_id is required")))

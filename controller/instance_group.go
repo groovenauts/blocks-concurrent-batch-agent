@@ -31,7 +31,7 @@ func (c *InstanceGroupController) Create(ctx *app.CreateInstanceGroupContext) er
 	// InstanceGroupController_Create: start_implement
 
 	// Put your logic here
-	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
+	return WithAuthOrgKey(ctx.Context, ctx.OrgID, func(orgKey *datastore.Key) error {
 		appCtx := appengine.NewContext(ctx.Request)
 		m := InstanceGroupPayloadToModel(ctx.Payload)
 		m.ParentKey = orgKey
@@ -62,7 +62,7 @@ func (c *InstanceGroupController) Delete(ctx *app.DeleteInstanceGroupContext) er
 	// InstanceGroupController_Delete: start_implement
 
 	// Put your logic here
-	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
+	return WithAuthOrgKey(ctx.Context, ctx.OrgID, func(orgKey *datastore.Key) error {
 		appCtx := appengine.NewContext(ctx.Request)
 		store := &model.InstanceGroupStore{ParentKey: orgKey}
 		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
@@ -90,7 +90,7 @@ func (c *InstanceGroupController) Destruct(ctx *app.DestructInstanceGroupContext
 	// InstanceGroupController_Destruct: start_implement
 
 	// Put your logic here
-	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
+	return WithAuthOrgKey(ctx.Context, ctx.OrgID, func(orgKey *datastore.Key) error {
 		appCtx := appengine.NewContext(ctx.Request)
 		store := &model.InstanceGroupStore{ParentKey: orgKey}
 		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
@@ -122,7 +122,7 @@ func (c *InstanceGroupController) List(ctx *app.ListInstanceGroupContext) error 
 	// InstanceGroupController_List: start_implement
 
 	// Put your logic here
-	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
+	return WithAuthOrgKey(ctx.Context, ctx.OrgID, func(orgKey *datastore.Key) error {
 		appCtx := appengine.NewContext(ctx.Request)
 		store := &model.InstanceGroupStore{ParentKey: orgKey}
 		models, err := store.All(appCtx)
@@ -145,7 +145,7 @@ func (c *InstanceGroupController) Resize(ctx *app.ResizeInstanceGroupContext) er
 	// InstanceGroupController_Resize: start_implement
 
 	// Put your logic here
-	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
+	return WithAuthOrgKey(ctx.Context, ctx.OrgID, func(orgKey *datastore.Key) error {
 		appCtx := appengine.NewContext(ctx.Request)
 		store := &model.InstanceGroupStore{ParentKey: orgKey}
 
@@ -182,7 +182,7 @@ func (c *InstanceGroupController) Show(ctx *app.ShowInstanceGroupContext) error 
 	// InstanceGroupController_Show: start_implement
 
 	// Put your logic here
-	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
+	return WithAuthOrgKey(ctx.Context, ctx.OrgID, func(orgKey *datastore.Key) error {
 		appCtx := appengine.NewContext(ctx.Request)
 		store := &model.InstanceGroupStore{ParentKey: orgKey}
 		return c.member(appCtx, store, ctx.Name, ctx.BadRequest, ctx.NotFound, func(m *model.InstanceGroup) error {
@@ -198,7 +198,7 @@ func (c *InstanceGroupController) StartHealthCheck(ctx *app.StartHealthCheckInst
 	// InstanceGroupController_StartHealthCheck: start_implement
 
 	// Put your logic here
-	return WithAuthOrgKey(ctx.Context, func(orgKey *datastore.Key) error {
+	return WithAuthOrgKey(ctx.Context, ctx.OrgID, func(orgKey *datastore.Key) error {
 		appCtx := appengine.NewContext(ctx.Request)
 		store := &model.InstanceGroupStore{ParentKey: orgKey}
 
