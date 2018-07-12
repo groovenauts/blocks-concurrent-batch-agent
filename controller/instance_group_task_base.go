@@ -30,10 +30,35 @@ type InstanceGroupTaskBase struct {
 	RespondCreated func(*app.CloudAsyncOperation) error
 }
 
+func (t *InstanceGroupTaskBase) WithInstanceGroupStore(ctx context.Context, orgIdString, name string, f func(*model.InstanceGroupStore, *model.InstanceGroupOperationStore) error) error {
+	orgId, err := strconv.ParseInt(orgIdString, 10, 64)
+	if err != nil {
+		return fmt.Errorf("Invalid Organization ID: %v", orgIdString)
+	}
+
+	goon := model.GoonFromContext(ctx)
+
+	orgKey, err := goon.KeyError(&model.Organization{ID: orgId})
+	if err != nil {
+		return fmt.Errorf("Can't get Organization key from %v", orgId)
+	}
+
+	igStore := &model.InstanceGroupStore{ParentKey: orgKey}
+
+	igKey, err := goon.KeyError(&model.InstanceGroup{ParentKey: orgKey, Name: name})
+	if err != nil {
+		return fmt.Errorf("Can't get InstanceGroup key from %d / %v", orgId, name)
+	}
+
+	opeStore := &model.InstanceGroupOperationStore{ParentKey: igKey}
+
+	return f(igStore, opeStore)
+}
+
 // Start
-func (t *InstanceGroupTaskBase) Start(appCtx context.Context, name string) error {
-	store := &model.InstanceGroupStore{}
-	m, err := store.ByID(appCtx, name)
+func (t *InstanceGroupTaskBase) Start(appCtx context.Context, orgId, name string) error {
+	return t.WithInstanceGroupStore(appCtx, orgId, name, func(igStore *model.InstanceGroupStore, opeStore *model.InstanceGroupOperationStore) error {
+	m, err := igStore.ByID(appCtx, name)
 	if err != nil {
 		if err == datastore.ErrNoSuchEntity {
 			log.Errorf(appCtx, "InstanceGroup not found for %q\n", name)
@@ -58,15 +83,15 @@ func (t *InstanceGroupTaskBase) Start(appCtx context.Context, name string) error
 	if err != nil {
 		return err
 	}
-	opeStore := &model.InstanceGroupOperationStore{}
-	_, err = opeStore.Put(appCtx, ope)
+
+		_, err = opeStore.Put(appCtx, ope)
 	if err != nil {
 		return err
 	}
 
 	return datastore.RunInTransaction(appCtx, func(c context.Context) error {
 		m.Status = t.NextStatus
-		_, err = store.Put(c, m)
+		_, err = igStore.Put(c, m)
 		if err != nil {
 			return err
 		}
@@ -76,17 +101,18 @@ func (t *InstanceGroupTaskBase) Start(appCtx context.Context, name string) error
 		}
 		return t.RespondCreated(InstanceGroupOperationModelToMediaType(ope))
 	}, nil)
+	})
 }
 
 // Watch
-func (t *InstanceGroupTaskBase) Watch(appCtx context.Context, name, opeIdString string) error {
+func (t *InstanceGroupTaskBase) Watch(appCtx context.Context, orgId, name, opeIdString string) error {
+	return t.WithInstanceGroupStore(appCtx, orgId, name, func(igStore *model.InstanceGroupStore, opeStore *model.InstanceGroupOperationStore) error {
 	opeId, err := strconv.ParseInt(opeIdString, 10, 64)
 	if err != nil {
 		log.Errorf(appCtx, "Invalid operation ID: %q\n", opeIdString)
 		return t.RespondNoContent(nil)
 	}
 
-	opeStore := &model.InstanceGroupOperationStore{}
 	ope, err := opeStore.ByID(appCtx, opeId)
 	if err != nil {
 		if err == datastore.ErrNoSuchEntity {
@@ -96,8 +122,7 @@ func (t *InstanceGroupTaskBase) Watch(appCtx context.Context, name, opeIdString 
 			return err
 		}
 	}
-	store := &model.InstanceGroupStore{}
-	m, err := store.ByKey(appCtx, ope.ParentKey)
+	m, err := igStore.ByKey(appCtx, ope.ParentKey)
 	if err != nil {
 		if err == datastore.ErrNoSuchEntity {
 			log.Errorf(appCtx, "InstanceGroup not found for %q\n", ope.Id)
@@ -163,13 +188,14 @@ func (t *InstanceGroupTaskBase) Watch(appCtx context.Context, name, opeIdString 
 	}
 
 	return datastore.RunInTransaction(appCtx, func(c context.Context) error {
-		_, err = store.Update(c, m)
+		_, err = igStore.Update(c, m)
 		if err != nil {
 			return err
 		}
 		// TODO Add calling PipelineBase callback
 		return f(InstanceGroupOperationModelToMediaType(ope))
 	}, nil)
+	})
 }
 
 func (t *InstanceGroupTaskBase) IsSkipped(status model.InstanceGroupStatus) bool {

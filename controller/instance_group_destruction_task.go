@@ -46,7 +46,7 @@ func (c *InstanceGroupDestructionTaskController) Start(ctx *app.StartInstanceGro
 		RespondNoContent: ctx.NoContent,
 		RespondCreated: ctx.Created,
 	}
-	return base.Start(appengine.NewContext(ctx.Request), ctx.Name)
+	return base.Start(appengine.NewContext(ctx.Request), ctx.OrgID, ctx.Name)
 
 	// InstanceGroupDestructionTaskController_Start: end_implement
 }
@@ -86,7 +86,7 @@ func (c *InstanceGroupDestructionTaskController) Watch(ctx *app.WatchInstanceGro
 		RespondNoContent: ctx.NoContent,
 		RespondCreated: ctx.Created,
 	}
-	return base.Watch(appengine.NewContext(ctx.Request), ctx.Name, ctx.ID)
+	return base.Watch(appengine.NewContext(ctx.Request), ctx.OrgID, ctx.Name, ctx.ID)
 
 	// InstanceGroupDestructionTaskController_Watch: end_implement
 }

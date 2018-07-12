@@ -44,7 +44,7 @@ func (c *InstanceGroupResizingTaskController) Start(ctx *app.StartInstanceGroupR
 		RespondNoContent: ctx.NoContent,
 		RespondCreated: ctx.Created,
 	}
-	return base.Start(appengine.NewContext(ctx.Request), ctx.Name)
+	return base.Start(appengine.NewContext(ctx.Request), ctx.OrgID, ctx.Name)
 
 	// InstanceGroupResizingTaskController_Start: end_implement
 }
@@ -81,7 +81,7 @@ func (c *InstanceGroupResizingTaskController) Watch(ctx *app.WatchInstanceGroupR
 		RespondNoContent: ctx.NoContent,
 		RespondCreated: ctx.Created,
 	}
-	return base.Watch(appengine.NewContext(ctx.Request), ctx.Name, ctx.ID)
+	return base.Watch(appengine.NewContext(ctx.Request), ctx.OrgID, ctx.Name, ctx.ID)
 
 	// InstanceGroupResizingTaskController_Watch: end_implement
 }
