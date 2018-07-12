@@ -63,6 +63,7 @@ func CloudAsyncOperationResourceTraitFunc() {
 		Description("Start operation")
 		Routing(POST(""))
 		Params(func() {
+			Param("org_id", String, "Organization ID")
 			Param("name", String, "Resource Name")
 		})
 		UseTrait(TaskResponsesTrait)
@@ -72,6 +73,7 @@ func CloudAsyncOperationResourceTraitFunc() {
 		Description("Watch")
 		Routing(PUT("/:id"))
 		Params(func() {
+			Param("org_id", String, "Organization ID")
 			Param("name", String, "Resource Name")
 			Param("id", String)
 		})

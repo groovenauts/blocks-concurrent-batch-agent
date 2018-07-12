@@ -74,7 +74,7 @@ var Pipeline = MediaType("application/vnd.pipeline+json", func() {
 })
 
 var _ = Resource("Pipeline", func() {
-	BasePath("/pipelines")
+	BasePath("/orgs/:org_id/pipelines")
 	DefaultMedia(Pipeline)
 	UseTrait(DefineResourceTrait)
 
@@ -83,7 +83,6 @@ var _ = Resource("Pipeline", func() {
 		Routing(GET(""))
 		Params(func() {
 			Param("org_id", String, "Organization ID")
-			Required("org_id")
 		})
 		Response(OK, CollectionOf(Pipeline))
 		UseTrait(DefaultResponseTrait)
@@ -93,7 +92,6 @@ var _ = Resource("Pipeline", func() {
 		Routing(POST(""))
 		Params(func() {
 			Param("org_id", String, "Organization ID")
-			Required("org_id")
 		})
 		Payload(PipelinePayload)
 		Response(Created, Pipeline)
@@ -103,6 +101,7 @@ var _ = Resource("Pipeline", func() {
 		Description("show")
 		Routing(GET("/:name"))
 		Params(func() {
+			Param("org_id", String, "Organization ID")
 			Param("name")
 		})
 		Response(OK, Pipeline)
@@ -112,6 +111,7 @@ var _ = Resource("Pipeline", func() {
 		Description("Task to finalize current_preparing or next_preparing status")
 		Routing(PUT("/:name/preparing_finalize_task"))
 		Params(func() {
+			Param("org_id", String, "Organization ID")
 			Param("name")
 			Param("operation_id")
 			Param("error")
@@ -123,9 +123,10 @@ var _ = Resource("Pipeline", func() {
 		Description("Update current pipeline base")
 		Routing(PUT("/:name/current"))
 		Params(func() {
+			Param("org_id", String, "Organization ID")
 			Param("name")
-			Param("pipeline_base_id")
-			Required("pipeline_base_id")
+			Param("pipeline_base_name")
+			Required("pipeline_base_name")
 		})
 		Response(OK, Pipeline)
 		UseTrait(DefaultResponseTrait)
@@ -134,6 +135,7 @@ var _ = Resource("Pipeline", func() {
 		Description("Stop pipeline")
 		Routing(PUT("/:name/stop"))
 		Params(func() {
+			Param("org_id", String, "Organization ID")
 			Param("name")
 		})
 		Response(OK, Pipeline)
@@ -143,6 +145,7 @@ var _ = Resource("Pipeline", func() {
 		Description("delete")
 		Routing(DELETE("/:name"))
 		Params(func() {
+			Param("org_id", String, "Organization ID")
 			Param("name")
 		})
 		Response(OK, Pipeline)

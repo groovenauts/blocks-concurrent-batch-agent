@@ -77,17 +77,14 @@ var JobOutput = MediaType("application/vnd.job-output+json", func() {
 	})
 })
 
-var _ = Resource("Job", func() {
-	BasePath("/jobs")
-	DefaultMedia(Job)
-	UseTrait(DefineResourceTrait)
 
+var JobActions = func() {
 	Action("create", func() {
 		Description("create")
 		Routing(POST(""))
 		Params(func() {
-			Param("pipeline_id", String, "Pipeline ID")
-			Param("pipeline_base_id", String, "Pipeline Base ID")
+			Param("org_id", String, "Organization ID")
+			Param("name")
 			Param("active", String, "Set true to activate soon")
 		})
 		Payload(JobPayload)
@@ -98,6 +95,8 @@ var _ = Resource("Job", func() {
 		Description("show")
 		Routing(GET("/:id"))
 		Params(func() {
+			Param("org_id", String, "Organization ID")
+			Param("name")
 			Param("id")
 		})
 		Response(OK, Job)
@@ -107,6 +106,8 @@ var _ = Resource("Job", func() {
 		Description("output")
 		Routing(GET("/:id/output"))
 		Params(func() {
+			Param("org_id", String, "Organization ID")
+			Param("name")
 			Param("id")
 		})
 		Response(OK, JobOutput)
@@ -116,6 +117,8 @@ var _ = Resource("Job", func() {
 		Description("Activate job")
 		Routing(PUT("/:id/activate"))
 		Params(func() {
+			Param("org_id", String, "Organization ID")
+			Param("name")
 			Param("id")
 		})
 		Response(OK, Job)
@@ -126,15 +129,8 @@ var _ = Resource("Job", func() {
 		Description("Inactivate job")
 		Routing(PUT("/:id/inactivate"))
 		Params(func() {
-			Param("id")
-		})
-		Response(OK, Job)
-		UseTrait(DefaultResponseTrait)
-	})
-	Action("publishing_task", func() {
-		Description("Publishing job task")
-		Routing(PUT("/:id/publishing_task"))
-		Params(func() {
+			Param("org_id", String, "Organization ID")
+			Param("name")
 			Param("id")
 		})
 		Response(OK, Job)
@@ -144,8 +140,37 @@ var _ = Resource("Job", func() {
 		Description("delete")
 		Routing(DELETE("/:id"))
 		Params(func() {
+			Param("org_id", String, "Organization ID")
+			Param("name")
 			Param("id")
-			Required("id")
+		})
+		Response(OK, Job)
+		UseTrait(DefaultResponseTrait)
+	})
+}
+
+var _ = Resource("PipelineJob", func() {
+	BasePath("/orgs/:org_id/pipelines/:name/jobs")
+	DefaultMedia(Job)
+	UseTrait(DefineResourceTrait)
+
+	JobActions()
+})
+
+var _ = Resource("PipelineBaseJob", func() {
+	BasePath("/orgs/:org_id/pipeline_bases/:name/jobs")
+	DefaultMedia(Job)
+	UseTrait(DefineResourceTrait)
+
+	// JobActions() // same as PipelineJob
+
+	Action("publishing_task", func() {
+		Description("Publishing job task")
+		Routing(PUT("/:id/publishing_task"))
+		Params(func() {
+			Param("org_id", String, "Organization ID")
+			Param("name")
+			Param("id")
 		})
 		Response(OK, Job)
 		UseTrait(DefaultResponseTrait)

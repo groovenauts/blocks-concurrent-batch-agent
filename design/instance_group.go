@@ -161,13 +161,16 @@ var InstanceGroup = MediaType("application/vnd.instance-group+json", func() {
 })
 
 var _ = Resource("InstanceGroup", func() {
-	BasePath("/instance_groups")
+	BasePath("/orgs/:org_id/instance_groups")
 	DefaultMedia(InstanceGroup)
 	UseTrait(DefineResourceTrait)
 
 	Action("list", func() {
 		Description("list")
 		Routing(GET(""))
+		Params(func() {
+			Param("org_id", String, "Organization ID")
+		})
 		Response(OK, CollectionOf(InstanceGroup))
 		UseTrait(DefaultResponseTrait)
 	})
@@ -176,7 +179,6 @@ var _ = Resource("InstanceGroup", func() {
 		Routing(POST(""))
 		Params(func() {
 			Param("org_id", String, "Organization ID")
-			Required("org_id")
 		})
 		Payload(InstanceGroupPayload)
 		Response(Created, InstanceGroup)
@@ -186,6 +188,7 @@ var _ = Resource("InstanceGroup", func() {
 		Description("show")
 		Routing(GET("/:name"))
 		Params(func() {
+			Param("org_id", String, "Organization ID")
 			Param("name")
 		})
 		Response(OK, InstanceGroup)
@@ -195,6 +198,7 @@ var _ = Resource("InstanceGroup", func() {
 		Description("Resize")
 		Routing(PUT("/:name/resize"))
 		Params(func() {
+			Param("org_id", String, "Organization ID")
 			Param("name")
 			Param("new_size", Integer, "New Instance Size")
 			Required("new_size")
@@ -207,6 +211,7 @@ var _ = Resource("InstanceGroup", func() {
 		Description("Destruct")
 		Routing(PUT("/:name/destruct"))
 		Params(func() {
+			Param("org_id", String, "Organization ID")
 			Param("name")
 		})
 		Response(OK, InstanceGroup)
@@ -217,6 +222,7 @@ var _ = Resource("InstanceGroup", func() {
 		Description("delete")
 		Routing(DELETE("/:name"))
 		Params(func() {
+			Param("org_id", String, "Organization ID")
 			Param("name")
 		})
 		Response(OK, InstanceGroup)
@@ -226,6 +232,7 @@ var _ = Resource("InstanceGroup", func() {
 		Description("Start health check")
 		Routing(POST("/:name/start_health_check"))
 		Params(func() {
+			Param("org_id", String, "Organization ID")
 			Param("name")
 		})
 		Response(OK, InstanceGroup)
@@ -235,19 +242,19 @@ var _ = Resource("InstanceGroup", func() {
 })
 
 var _ = Resource("InstanceGroupConstructionTask", func() {
-	BasePath("/instance_groups/:name/construction_tasks")
+	BasePath("/orgs/:org_id/instance_groups/:name/construction_tasks")
 	UseTrait(DefineResourceTrait)
 	UseTrait(CloudAsyncOperationResourceTrait)
 })
 
 var _ = Resource("InstanceGroupDestructionTask", func() {
-	BasePath("/instance_groups/:name/destruction_tasks")
+	BasePath("/orgs/:org_id/instance_groups/:name/destruction_tasks")
 	UseTrait(DefineResourceTrait)
 	UseTrait(CloudAsyncOperationResourceTrait)
 })
 
 var _ = Resource("InstanceGroupResizingTask", func() {
-	BasePath("/instance_groups/:name/resizing_tasks")
+	BasePath("/orgs/:org_id/instance_groups/:name/resizing_tasks")
 	UseTrait(DefineResourceTrait)
 	UseTrait(CloudAsyncOperationResourceTrait)
 })
@@ -269,7 +276,7 @@ var InstanceGroupHealthCheck = MediaType("application/vnd.instance-group-health-
 })
 
 var _ = Resource("InstanceGroupHealthCheck", func() {
-	BasePath("/instance_groups/:name/health_checks")
+	BasePath("/orgs/:org_id/instance_groups/:name/health_checks")
 	DefaultMedia(InstanceGroupHealthCheck)
 	UseTrait(DefineResourceTrait)
 
@@ -277,6 +284,7 @@ var _ = Resource("InstanceGroupHealthCheck", func() {
 		Description("Execute health check")
 		Routing(PUT("/:id"))
 		Params(func() {
+			Param("org_id", String, "Organization ID")
 			Param("name")
 			Param("id")
 		})
