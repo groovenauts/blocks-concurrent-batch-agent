@@ -55,20 +55,20 @@ func (aa *AuthAccessor) FindWithToken(ctx context.Context, token string) (*Auth,
 		log.Errorf(ctx, "@FindAuthWithToken %v", err)
 		return nil, err
 	}
-	id := parts[0]
+	keyEnc := parts[0]
 	pw := parts[1]
-	auth, err := aa.Find(ctx, id)
+	auth, err := aa.Find(ctx, keyEnc)
 	if err != nil {
-		log.Errorf(ctx, "@FindAuthWithToken Auth not found %v id: %v\n", err, id)
+		log.Errorf(ctx, "@FindAuthWithToken Auth not found %v keyEnc: %v\n", err, keyEnc)
 		return nil, err
 	}
 	if auth.Disabled {
-		log.Errorf(ctx, "@FindAuthWithToken Auth is disabled. id: %v\n", id)
+		log.Errorf(ctx, "@FindAuthWithToken Auth is disabled. keyEnc: %v\n", keyEnc)
 		return nil, err
 	}
 	enc_pw := auth.EncryptedPassword // EncryptedPassword is binary string
 	if err = bcrypt.CompareHashAndPassword([]byte(enc_pw), []byte(pw)); err != nil {
-		log.Errorf(ctx, "@FindAuthWithToken Auth is disabled. id: %v\n", id)
+		log.Errorf(ctx, "@FindAuthWithToken Auth is disabled. keyEnc: %v\n", keyEnc)
 		return nil, err
 	}
 	return auth, nil

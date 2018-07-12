@@ -38,8 +38,8 @@ func (m *Auth) Create(ctx context.Context) error {
 		return err
 	}
 	// log.Debugf(ctx, "CreateAuth res: %v\n", res)
-	id := key.Encode()
-	m.Token = id + ":" + m.Password
+	keyEnc := key.Encode()
+	m.Token = keyEnc + ":" + m.Password
 	// log.Debugf(ctx, "CreateAuth result: %v\n", m)
 	return nil
 }
