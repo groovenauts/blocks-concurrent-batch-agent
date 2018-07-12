@@ -20,55 +20,34 @@ func (e *InvalidParent) Error() string {
 }
 
 
-type AuthAccessor struct {
-	Parent *Organization
-}
-
-var GlobalAuthAccessor = &AuthAccessor{}
-
-var ErrNoSuchAuth = errors.New("No such data in Auths")
-
-
-func (aa *AuthAccessor) Find(ctx context.Context, id string) (*Auth, error) {
-	// log.Debugf(ctx, "@FindAuth id: %q\n", id)
-	key, err := datastore.DecodeKey(id)
-	if err != nil {
-		log.Errorf(ctx, "@FindAuth %v id: %q\n", err, id)
-		return nil, err
-	}
-	store := &AuthStore{}
-	m, err := store.ByKey(ctx, key)
-	switch {
-	case err == datastore.ErrNoSuchEntity:
-		return nil, ErrNoSuchAuth
-	case err != nil:
-		log.Errorf(ctx, "@FindAuth %v id: %q\n", err, id)
-		return nil, err
-	}
-	return m, nil
-}
+type AuthAccessor struct {}
 
 func (aa *AuthAccessor) FindWithToken(ctx context.Context, token string) (*Auth, error) {
 	parts := strings.SplitN(token, ":", 2)
 	if len(parts) != 2 {
 		err := errors.New("Invalid token: " + token)
-		log.Errorf(ctx, "@FindAuthWithToken %v", err)
+		log.Errorf(ctx, "FindAuthWithToken %v", err)
 		return nil, err
 	}
 	keyEnc := parts[0]
 	pw := parts[1]
-	auth, err := aa.Find(ctx, keyEnc)
+	key, err := datastore.DecodeKey(keyEnc)
 	if err != nil {
-		log.Errorf(ctx, "@FindAuthWithToken Auth not found %v keyEnc: %v\n", err, keyEnc)
+		log.Errorf(ctx, "FindAuthWithToken Invalid keyEnc: %v because of \n", keyEnc, err)
+	}
+	store := &AuthStore{}
+	auth, err := store.ByKey(ctx, key)
+	if err != nil {
+		log.Errorf(ctx, "FindAuthWithToken Auth not found %v keyEnc: %v\n", err, keyEnc)
 		return nil, err
 	}
 	if auth.Disabled {
-		log.Errorf(ctx, "@FindAuthWithToken Auth is disabled. keyEnc: %v\n", keyEnc)
+		log.Errorf(ctx, "FindAuthWithToken Auth is disabled. keyEnc: %v\n", keyEnc)
 		return nil, err
 	}
 	enc_pw := auth.EncryptedPassword // EncryptedPassword is binary string
 	if err = bcrypt.CompareHashAndPassword([]byte(enc_pw), []byte(pw)); err != nil {
-		log.Errorf(ctx, "@FindAuthWithToken Auth is disabled. keyEnc: %v\n", keyEnc)
+		log.Errorf(ctx, "FindAuthWithToken Auth is disabled. keyEnc: %v\n", keyEnc)
 		return nil, err
 	}
 	return auth, nil
