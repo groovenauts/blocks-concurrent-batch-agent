@@ -34,10 +34,9 @@ func (c *InstanceGroupController) Create(ctx *app.CreateInstanceGroupContext) er
 	return WithAuthOrgKey(ctx.Context, ctx.OrgID, func(orgKey *datastore.Key) error {
 		appCtx := appengine.NewContext(ctx.Request)
 		m := InstanceGroupPayloadToModel(ctx.Payload)
-		m.ParentKey = orgKey
 		m.Status = model.ConstructionStarting
 		err := datastore.RunInTransaction(appCtx, func(c context.Context) error {
-			store := &model.InstanceGroupStore{}
+			store := &model.InstanceGroupStore{ParentKey: orgKey}
 			_, err := store.Put(c, &m)
 			if err != nil {
 				return ctx.BadRequest(goa.ErrBadRequest(err))
@@ -70,7 +69,7 @@ func (c *InstanceGroupController) Delete(ctx *app.DeleteInstanceGroupContext) er
 				switch m.Status {
 				case model.ConstructionError, model.DestructionError, model.Destructed: // Through
 				default:
-					return ctx.Conflict(fmt.Errorf("Can't resize because the InstanceGroup %q is %s", m.Name, m.Status))
+					return ctx.Conflict(fmt.Errorf("Can't delete because the InstanceGroup %q is %s", m.Name, m.Status))
 				}
 
 				if err := store.Delete(appCtx, m); err != nil {
@@ -98,7 +97,7 @@ func (c *InstanceGroupController) Destruct(ctx *app.DestructInstanceGroupContext
 				switch m.Status {
 				case model.Constructed: // Through
 				default:
-					return ctx.Conflict(fmt.Errorf("Can't resize because the InstanceGroup %q is %s", m.Name, m.Status))
+					return ctx.Conflict(fmt.Errorf("Can't destruct because the InstanceGroup %q is %s", m.Name, m.Status))
 				}
 
 				m.Status = model.DestructionStarting
