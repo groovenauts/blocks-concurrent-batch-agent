@@ -9,6 +9,7 @@ import (
 
 type InstanceGroupServicer interface {
 	GetIg(project, zone, instanceGroup string) (*compute.InstanceGroup, error)
+	ListManagedInstances(project, zone, instanceGroupManager string) (*compute.InstanceGroupManagersListManagedInstancesResponse, error)
 	Resize(project, zone, instanceGroupManager string, size int64) (*compute.Operation, error)
 	GetZoneOp(project, zone, operation string) (*compute.Operation, error)
 }
@@ -48,6 +49,10 @@ type InstanceGroupServiceWrapper struct {
 
 func (w *InstanceGroupServiceWrapper) GetIg(project, zone, instanceGroup string) (*compute.InstanceGroup, error) {
 	return w.igService.Get(project, zone, instanceGroup).Do()
+}
+
+func (w *InstanceGroupServiceWrapper) ListManagedInstances(project, zone, instanceGroupManager string) (*compute.InstanceGroupManagersListManagedInstancesResponse, error) {
+	return w.igmService.ListManagedInstances(project, zone, instanceGroupManager).Do()
 }
 
 func (w *InstanceGroupServiceWrapper) Resize(project, zone, instanceGroupManager string, size int64) (*compute.Operation, error) {
