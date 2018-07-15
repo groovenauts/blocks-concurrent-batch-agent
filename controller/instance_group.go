@@ -42,7 +42,7 @@ func (c *InstanceGroupController) Create(ctx *app.CreateInstanceGroupContext) er
 				return ctx.BadRequest(goa.ErrBadRequest(err))
 			}
 
-			if err := PostTask(appCtx, fmt.Sprintf("/construction_tasks?resource_id=%d", m.Name), 0); err != nil {
+			if err := PostTask(appCtx, fmt.Sprintf("/orgs/%s/instance_groups/%s/construction_tasks", ctx.OrgID, m.Name), 0); err != nil {
 				return err
 			}
 			return nil
@@ -105,7 +105,7 @@ func (c *InstanceGroupController) Destruct(ctx *app.DestructInstanceGroupContext
 					return err
 				}
 
-				if err := PostTask(appCtx, fmt.Sprintf("/destruction_tasks?resource_id=%d", m.Name), 0); err != nil {
+				if err := PostTask(appCtx, fmt.Sprintf("/orgs/%s/instance_groups/%s/destruction_tasks", ctx.OrgID, m.Name), 0); err != nil {
 					return err
 				}
 				return ctx.Created(InstanceGroupModelToMediaType(m))
@@ -165,7 +165,7 @@ func (c *InstanceGroupController) Resize(ctx *app.ResizeInstanceGroupContext) er
 					return err
 				}
 
-				if err := PostTask(appCtx, fmt.Sprintf("/resizing_tasks?resource_id=%d", m.Name), 0); err != nil {
+				if err := PostTask(appCtx, fmt.Sprintf("/orgs/%s/instance_groups/%s/resizing_tasks", ctx.OrgID, m.Name), 0); err != nil {
 					return err
 				}
 				return ctx.Created(InstanceGroupModelToMediaType(m))
