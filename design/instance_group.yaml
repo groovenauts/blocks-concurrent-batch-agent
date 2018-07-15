@@ -53,7 +53,7 @@ types:
       Zone: *string_required
       <<: *InstanceGroupBodyFields
       InstanceSize: int
-      HealthCheckId: string
+      HealthCheckId: int64
       Status:
         type: InstanceGroupStatus
         required: true
