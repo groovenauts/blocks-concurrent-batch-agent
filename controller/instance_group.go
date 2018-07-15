@@ -209,7 +209,7 @@ func (c *InstanceGroupController) StartHealthCheck(ctx *app.StartHealthCheckInst
 					return ctx.Conflict(fmt.Errorf("Can't start health check because the InstanceGroup %q is %s", m.Name, m.Status))
 				}
 
-				if m.HealthCheckId != "" {
+				if m.HealthCheckId != 0 {
 					log.Infof(appCtx, "No new health check started because Health check %q is already running", m.HealthCheckId)
 					return ctx.OK(InstanceGroupModelToMediaType(m))
 				}
@@ -222,7 +222,7 @@ func (c *InstanceGroupController) StartHealthCheck(ctx *app.StartHealthCheckInst
 					return err
 				}
 
-				m.HealthCheckId = fmt.Sprintf("%d", hc.Id)
+				m.HealthCheckId = hc.Id
 				if _, err := store.Update(appCtx, m); err != nil {
 					return err
 				}
