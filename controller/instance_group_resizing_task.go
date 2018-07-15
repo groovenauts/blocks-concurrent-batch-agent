@@ -40,9 +40,9 @@ func (c *InstanceGroupResizingTaskController) Start(ctx *app.StartInstanceGroupR
 		WatchTaskPathFunc: func(ope *model.InstanceGroupOperation) string {
 			return fmt.Sprintf("/resizing_tasks/%d", ope.Id)
 		},
-		RespondOK: ctx.OK,
+		RespondOK:        ctx.OK,
 		RespondNoContent: ctx.NoContent,
-		RespondCreated: ctx.Created,
+		RespondCreated:   ctx.Created,
 	}
 	return base.Start(appengine.NewContext(ctx.Request), ctx.OrgID, ctx.Name)
 
@@ -55,9 +55,9 @@ func (c *InstanceGroupResizingTaskController) Watch(ctx *app.WatchInstanceGroupR
 
 	// Put your logic here
 	base := InstanceGroupTaskBase{
-		MainStatus: model.ResizeRunning,
-		NextStatus: model.Constructed,
-		ErrorStatus: model.Constructed,
+		MainStatus:   model.ResizeRunning,
+		NextStatus:   model.Constructed,
+		ErrorStatus:  model.Constructed,
 		SkipStatuses: []model.InstanceGroupStatus{},
 		RemoteOpeFunc: func(ctx context.Context, ope *model.InstanceGroupOperation) (model.RemoteOperationWrapper, error) {
 			servicer, err := model.DefaultInstanceGroupServicer(ctx)
@@ -76,10 +76,10 @@ func (c *InstanceGroupResizingTaskController) Watch(ctx *app.WatchInstanceGroupR
 		WatchTaskPathFunc: func(ope *model.InstanceGroupOperation) string {
 			return fmt.Sprintf("/resizing_tasks/%d", ope.Id)
 		},
-		RespondOK: ctx.OK,
-		RespondAccepted: ctx.Accepted,
+		RespondOK:        ctx.OK,
+		RespondAccepted:  ctx.Accepted,
 		RespondNoContent: ctx.NoContent,
-		RespondCreated: ctx.Created,
+		RespondCreated:   ctx.Created,
 	}
 	return base.Watch(appengine.NewContext(ctx.Request), ctx.OrgID, ctx.Name, ctx.ID)
 

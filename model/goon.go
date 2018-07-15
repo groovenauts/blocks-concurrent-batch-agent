@@ -8,7 +8,7 @@ import (
 
 var ModelNameToKindMap = map[string]string{
 	"Organization": "Organizations",
-	"Auth": "Auths",
+	"Auth":         "Auths",
 }
 
 func GoonFromContext(c context.Context) *goon.Goon {

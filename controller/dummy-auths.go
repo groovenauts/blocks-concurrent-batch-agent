@@ -30,7 +30,7 @@ func (c *DummyAuthsController) Create(ctx *app.CreateDummyAuthsContext) error {
 
 	t := time.Now()
 	org := &model.Organization{
-		Name: "dummy-" + t.Format(time.RFC3339),
+		Name:        "dummy-" + t.Format(time.RFC3339),
 		TokenAmount: 100,
 	}
 	key, err := org.Create(appCtx)
@@ -46,7 +46,7 @@ func (c *DummyAuthsController) Create(ctx *app.CreateDummyAuthsContext) error {
 
 	res := &app.DummyAuth{
 		OrganizationID: fmt.Sprintf("%s", key.IntID()),
-		Token: auth.Token,
+		Token:          auth.Token,
 	}
 	return ctx.Created(res)
 

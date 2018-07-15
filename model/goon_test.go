@@ -33,24 +33,24 @@ func TestGoonUsage(t *testing.T) {
 
 	pbStore := &PipelineBaseStore{ParentKey: orgKey}
 	pb := &PipelineBase{
-		Parent: orgKey,
-		Name: "pipeline-base1",
+		Parent:    orgKey,
+		Name:      "pipeline-base1",
 		ProjectID: "dummy-proj-999",
-		Zone: "asia-northeast1-a",
+		Zone:      "asia-northeast1-a",
 		InstanceGroup: InstanceGroupBody{
 			BootDisk: InstanceGroupVMDisk{
 				SourceImage: "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable",
 			},
-			MachineType: "f1-micro",
+			MachineType:           "f1-micro",
 			InstanceSizeRequested: 1,
-			StartupScript: "",
+			StartupScript:         "",
 		},
 		Container: PipelineContainer{
 			Name: "groovenauts/batch_type_iot_example:0.3.1",
 			Size: 1,
 		},
 		HibernationDelay: 180,
-		Status: OpeningStarting,
+		Status:           OpeningStarting,
 	}
 
 	pbKey, err := pbStore.Create(ctx, pb)
@@ -59,9 +59,9 @@ func TestGoonUsage(t *testing.T) {
 
 	jobStore := JobStore{ParentKey: pbKey}
 	job := &Job{
-		Parent: pbKey,
-		IDByClient: "testJob1",
-		Status: Inactive,
+		Parent:         pbKey,
+		IDByClient:     "testJob1",
+		Status:         Inactive,
 		PipelineBaseId: pb.Id,
 	}
 

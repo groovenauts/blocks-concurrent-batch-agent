@@ -19,8 +19,8 @@ func PutTask(c context.Context, path string, delay time.Duration) error {
 func RequestTask(c context.Context, method string, path string, delay time.Duration) error {
 	task := &taskqueue.Task{
 		Method: method,
-		Path: path,
-		ETA: time.Now().Add(delay),
+		Path:   path,
+		ETA:    time.Now().Add(delay),
 	}
 	if _, err := taskqueue.Add(c, task, ""); err != nil {
 		return err

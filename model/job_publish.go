@@ -55,8 +55,6 @@ func (m *Job) BuildMessage() *pubsub.PubsubMessage {
 	}
 }
 
-
-
 func (pairs JobKeyValuePairs) Map() map[string]string {
 	r := map[string]string{}
 	for _, entry := range pairs {

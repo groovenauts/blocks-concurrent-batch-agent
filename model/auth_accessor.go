@@ -1,8 +1,8 @@
 package model
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 	"strings"
 
 	"golang.org/x/crypto/bcrypt"
@@ -19,8 +19,7 @@ func (e *InvalidParent) Error() string {
 	return fmt.Sprintf("Invalid parent from ID: %q", e.ID)
 }
 
-
-type AuthAccessor struct {}
+type AuthAccessor struct{}
 
 func (aa *AuthAccessor) FindWithToken(ctx context.Context, token string) (*Auth, error) {
 	parts := strings.SplitN(token, ":", 2)

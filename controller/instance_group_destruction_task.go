@@ -42,9 +42,9 @@ func (c *InstanceGroupDestructionTaskController) Start(ctx *app.StartInstanceGro
 		WatchTaskPathFunc: func(ope *model.InstanceGroupOperation) string {
 			return fmt.Sprintf("/destruction_tasks/%d", ope.Id)
 		},
-		RespondOK: ctx.OK,
+		RespondOK:        ctx.OK,
 		RespondNoContent: ctx.NoContent,
-		RespondCreated: ctx.Created,
+		RespondCreated:   ctx.Created,
 	}
 	return base.Start(appengine.NewContext(ctx.Request), ctx.OrgID, ctx.Name)
 
@@ -57,8 +57,8 @@ func (c *InstanceGroupDestructionTaskController) Watch(ctx *app.WatchInstanceGro
 
 	// Put your logic here
 	base := InstanceGroupTaskBase{
-		MainStatus: model.DestructionRunning,
-		NextStatus: model.Destructed,
+		MainStatus:  model.DestructionRunning,
+		NextStatus:  model.Destructed,
 		ErrorStatus: model.DestructionError,
 		SkipStatuses: []model.InstanceGroupStatus{
 			model.DestructionError,
@@ -81,10 +81,10 @@ func (c *InstanceGroupDestructionTaskController) Watch(ctx *app.WatchInstanceGro
 		WatchTaskPathFunc: func(ope *model.InstanceGroupOperation) string {
 			return fmt.Sprintf("/destruction_tasks/%d", ope.Id)
 		},
-		RespondOK: ctx.OK,
-		RespondAccepted: ctx.Accepted,
+		RespondOK:        ctx.OK,
+		RespondAccepted:  ctx.Accepted,
 		RespondNoContent: ctx.NoContent,
-		RespondCreated: ctx.Created,
+		RespondCreated:   ctx.Created,
 	}
 	return base.Watch(appengine.NewContext(ctx.Request), ctx.OrgID, ctx.Name, ctx.ID)
 

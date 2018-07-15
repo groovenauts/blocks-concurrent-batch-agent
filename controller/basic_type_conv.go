@@ -51,7 +51,7 @@ func StringToInt64(v string) (int64, error) {
 }
 
 func Int64ToString(v int64) string {
-	return  strconv.FormatInt(v, 10)
+	return strconv.FormatInt(v, 10)
 }
 
 func Int64ToStringPointer(v int64) *string {

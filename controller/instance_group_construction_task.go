@@ -42,9 +42,9 @@ func (c *InstanceGroupConstructionTaskController) Start(ctx *app.StartInstanceGr
 		WatchTaskPathFunc: func(ope *model.InstanceGroupOperation) string {
 			return fmt.Sprintf("/construction_tasks/%d", ope.Id)
 		},
-		RespondOK: ctx.OK,
+		RespondOK:        ctx.OK,
 		RespondNoContent: ctx.NoContent,
-		RespondCreated: ctx.Created,
+		RespondCreated:   ctx.Created,
 	}
 	return base.Start(appengine.NewContext(ctx.Request), ctx.OrgID, ctx.Name)
 
@@ -57,8 +57,8 @@ func (c *InstanceGroupConstructionTaskController) Watch(ctx *app.WatchInstanceGr
 
 	// Put your logic here
 	base := InstanceGroupTaskBase{
-		MainStatus: model.ConstructionRunning,
-		NextStatus: model.Constructed,
+		MainStatus:  model.ConstructionRunning,
+		NextStatus:  model.Constructed,
 		ErrorStatus: model.ConstructionError,
 		SkipStatuses: []model.InstanceGroupStatus{
 			model.ConstructionError,
@@ -81,10 +81,10 @@ func (c *InstanceGroupConstructionTaskController) Watch(ctx *app.WatchInstanceGr
 		WatchTaskPathFunc: func(ope *model.InstanceGroupOperation) string {
 			return fmt.Sprintf("/construction_tasks/%d", ope.Id)
 		},
-		RespondOK: ctx.OK,
-		RespondAccepted: ctx.Accepted,
+		RespondOK:        ctx.OK,
+		RespondAccepted:  ctx.Accepted,
 		RespondNoContent: ctx.NoContent,
-		RespondCreated: ctx.Created,
+		RespondCreated:   ctx.Created,
 	}
 	return base.Watch(appengine.NewContext(ctx.Request), ctx.OrgID, ctx.Name, ctx.ID)
 
