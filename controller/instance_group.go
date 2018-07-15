@@ -7,7 +7,7 @@ import (
 
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/datastore"
-	//"google.golang.org/appengine/log"
+	"google.golang.org/appengine/log"
 
 	"github.com/mjibson/goon"
 
@@ -206,7 +206,12 @@ func (c *InstanceGroupController) StartHealthCheck(ctx *app.StartHealthCheckInst
 				switch m.Status {
 				case model.Constructed, model.HealthCheckError, model.ResizeStarting, model.ResizeRunning: // Through
 				default:
-					return ctx.Conflict(fmt.Errorf("Can't resize because the InstanceGroup %q is %s", m.Name, m.Status))
+					return ctx.Conflict(fmt.Errorf("Can't start health check because the InstanceGroup %q is %s", m.Name, m.Status))
+				}
+
+				if m.HealthCheckId != "" {
+					log.Infof(appCtx, "No new health check started because Health check %q is already running", m.HealthCheckId)
+					return ctx.OK(InstanceGroupModelToMediaType(m))
 				}
 
 				hc := &model.InstanceGroupHealthCheck{}
