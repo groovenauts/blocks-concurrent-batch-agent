@@ -70,7 +70,7 @@ type InstanceGroup struct {
 	DeploymentName        string                         `json:"deployment_name,omitempty"`
 	TokenConsumption      int                            `json:"token_consumption,omitempty"`
 	InstanceSize          int                            `json:"instance_size,omitempty"`
-	HealthCheckId         string                         `json:"health_check_id,omitempty"`
+	HealthCheckId         int64                          `json:"health_check_id,omitempty"`
 	Status                InstanceGroupStatus            `json:"status" validate:"required"`
 	CreatedAt             time.Time                      `json:"created_at" validate:"required"`
 	UpdatedAt             time.Time                      `json:"updated_at" validate:"required"`
