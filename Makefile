@@ -84,6 +84,9 @@ import:
           -from="../tool/cli" \
           -to="$(REPO)/tool/cli"
 
+fmt:
+	@gofmt -w controller/*.go model/*.go
+
 test:
 	goapp test github.com/groovenauts/blocks-concurrent-batch-server/model
 
