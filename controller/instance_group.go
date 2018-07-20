@@ -165,16 +165,25 @@ func (c *InstanceGroupController) Resize(ctx *app.ResizeInstanceGroupContext) er
 				if m.InstanceSizeRequested >= ctx.NewSize {
 					return ctx.OK(InstanceGroupModelToMediaType(m))
 				}
-
 				m.InstanceSizeRequested = ctx.NewSize
+
+				var response func(r *app.InstanceGroup) error
+				startResizing := (m.Status == model.Constructed)
+				if startResizing {
+					m.Status = model.ResizeStarting
+					response = ctx.Created
+				} else {
+					response = ctx.OK
+				}
 				if _, err := store.Update(appCtx, m); err != nil {
 					return err
 				}
-
-				if err := PostTask(appCtx, c.pathToAction(ctx.OrgID, m.Name, "resizing_tasks"), 0); err != nil {
-					return err
+				if startResizing {
+					if err := PostTask(appCtx, c.pathToAction(ctx.OrgID, m.Name, "resizing_tasks"), 0); err != nil {
+						return err
+					}
 				}
-				return ctx.Created(InstanceGroupModelToMediaType(m))
+				return response(InstanceGroupModelToMediaType(m))
 			})
 		}, nil)
 	})
