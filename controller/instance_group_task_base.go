@@ -159,59 +159,63 @@ func (t *InstanceGroupTaskBase) Watch(appCtx context.Context, orgId, name, opeId
 				}
 			}
 
-			remoteOpe, err := t.RemoteOpeFunc(appCtx, ope)
-			if err != nil {
-				return err
-			}
-
-			if ope.Status != remoteOpe.Status() {
-				ope.AppendLog(fmt.Sprintf("InstanceGroup %q Status changed from %q to %q", m.Name, ope.Status, remoteOpe.Status()))
-			}
-
-			// PENDING, RUNNING, or DONE
-			switch remoteOpe.Status() {
-			case "DONE": // through
-			default:
-				if ope.Status != remoteOpe.Status() {
-					ope.Status = remoteOpe.Status()
-					_, err := opeStore.Update(appCtx, ope)
-					if err != nil {
-						return err
-					}
-				}
-				path := t.WatchTaskPathFunc(ope)
-				if err := PutTask(appCtx, path, 1*time.Minute); err != nil {
-					return err
-				}
-				return t.RespondCreated(InstanceGroupOperationModelToMediaType(ope))
-			}
-
-			errors := remoteOpe.Errors()
-			var respond func(r *app.CloudAsyncOperation) error
-			if errors != nil {
-				ope.Errors = *errors
-				ope.AppendLog(fmt.Sprintf("Error by %v", remoteOpe.GetOriginal()))
-				m.Status = t.ErrorStatus
-				respond = t.RespondNoContent
-			} else {
-				ope.AppendLog("Success")
-				m.Status = t.NextStatus
-				respond = t.RespondAccepted
-			}
-
-			_, err = opeStore.Update(appCtx, ope)
-			if err != nil {
-				return err
-			}
-
-			_, err = igStore.Update(c, m)
-			if err != nil {
-				return err
-			}
-			// TODO Add calling PipelineBase callback
-			return respond(InstanceGroupOperationModelToMediaType(ope))
+			return t.SyncWithRemoteOpe(appCtx, igStore, opeStore, m, ope)
 		}, nil)
 	})
+}
+
+func (t *InstanceGroupTaskBase) SyncWithRemoteOpe(appCtx context.Context, igStore *model.InstanceGroupStore, opeStore *model.InstanceGroupOperationStore, m *model.InstanceGroup, ope *model.InstanceGroupOperation) error {
+	remoteOpe, err := t.RemoteOpeFunc(appCtx, ope)
+	if err != nil {
+		return err
+	}
+
+	if ope.Status != remoteOpe.Status() {
+		ope.AppendLog(fmt.Sprintf("InstanceGroup %q Status changed from %q to %q", m.Name, ope.Status, remoteOpe.Status()))
+	}
+
+	// PENDING, RUNNING, or DONE
+	switch remoteOpe.Status() {
+	case "DONE": // through
+	default:
+		if ope.Status != remoteOpe.Status() {
+			ope.Status = remoteOpe.Status()
+			_, err := opeStore.Update(appCtx, ope)
+			if err != nil {
+				return err
+			}
+		}
+		path := t.WatchTaskPathFunc(ope)
+		if err := PutTask(appCtx, path, 1*time.Minute); err != nil {
+			return err
+		}
+		return t.RespondCreated(InstanceGroupOperationModelToMediaType(ope))
+	}
+
+	errors := remoteOpe.Errors()
+	var respond func(r *app.CloudAsyncOperation) error
+	if errors != nil {
+		ope.Errors = *errors
+		ope.AppendLog(fmt.Sprintf("Error by %v", remoteOpe.GetOriginal()))
+		m.Status = t.ErrorStatus
+		respond = t.RespondNoContent
+	} else {
+		ope.AppendLog("Success")
+		m.Status = t.NextStatus
+		respond = t.RespondAccepted
+	}
+
+	_, err = opeStore.Update(appCtx, ope)
+	if err != nil {
+		return err
+	}
+
+	_, err = igStore.Update(appCtx, m)
+	if err != nil {
+		return err
+	}
+	// TODO Add calling PipelineBase callback
+	return respond(InstanceGroupOperationModelToMediaType(ope))
 }
 
 func (t *InstanceGroupTaskBase) IsSkipped(status model.InstanceGroupStatus) bool {
