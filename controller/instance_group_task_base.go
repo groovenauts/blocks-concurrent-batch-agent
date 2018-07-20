@@ -153,11 +153,9 @@ func (t *InstanceGroupTaskBase) Watch(appCtx context.Context, orgId, name, opeId
 
 			if m.Status != t.MainStatus {
 				if t.IsSkipped(m.Status) {
-					log.Infof(appCtx, "SKIPPING because InstanceGroup %s is already %v\n", m.Name, m.Status)
-					return t.RespondOK(nil)
+					return t.Skip(appCtx, igStore, opeStore, m, nil)
 				} else {
-					log.Warningf(appCtx, "Invalid request because InstanceGroup %s is already %v\n", m.Name, m.Status)
-					return t.RespondNoContent(nil)
+					return t.InvalidStatus(appCtx, igStore, opeStore, m, nil)
 				}
 			}
 
