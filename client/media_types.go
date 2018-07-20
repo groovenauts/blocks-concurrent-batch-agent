@@ -140,6 +140,8 @@ type InstanceGroup struct {
 	MachineType string `form:"machine_type" json:"machine_type" yaml:"machine_type" xml:"machine_type"`
 	// Name
 	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
+	// Owner pipeline_base name
+	PipelineBaseName string `form:"pipeline_base_name" json:"pipeline_base_name" yaml:"pipeline_base_name" xml:"pipeline_base_name"`
 	// Use preemptible VMs
 	Preemptible bool `form:"preemptible" json:"preemptible" yaml:"preemptible" xml:"preemptible"`
 	// GCP Project ID
@@ -163,6 +165,9 @@ func (mt *InstanceGroup) Validate() (err error) {
 	}
 	if mt.Status == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "status"))
+	}
+	if mt.PipelineBaseName == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "pipeline_base_name"))
 	}
 	if mt.Name == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "name"))

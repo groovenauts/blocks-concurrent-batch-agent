@@ -496,7 +496,7 @@ Payload example:
    "instance_size_requested": 3,
    "machine_type": "f1-micro",
    "name": "pipeline1-123-ig-456",
-   "pipeline_base_id": "bd2d5ee3-d8be-4024-85a7-334dee9c1c88",
+   "pipeline_base_name": "pipeline1-123",
    "preemptible": true,
    "project_id": "dummy-proj-999",
    "startup_script": "Voluptatum omnis magnam eos id culpa.",

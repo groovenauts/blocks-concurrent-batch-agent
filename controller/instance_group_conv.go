@@ -111,6 +111,7 @@ func InstanceGroupPayloadToModel(src *app.InstanceGroupPayload) model.InstanceGr
 	}
 	return model.InstanceGroup{
 		Name:                  src.Name,
+		PipelineBaseName:      StringPointerToString(src.PipelineBaseName),
 		ProjectID:             src.ProjectID,
 		Zone:                  src.Zone,
 		BootDisk:              InstanceGroupVMDiskPayloadToModel(src.BootDisk),
@@ -128,7 +129,6 @@ func InstanceGroupPayloadToModel(src *app.InstanceGroupPayload) model.InstanceGr
 		// CreatedAt no payload field
 		// UpdatedAt no payload field
 		// No model field for payload field "name"
-		// No model field for payload field "pipeline_base_id"
 	}
 }
 
@@ -138,6 +138,7 @@ func InstanceGroupModelToMediaType(src *model.InstanceGroup) *app.InstanceGroup 
 	}
 	return &app.InstanceGroup{
 		Name:                  src.Name,
+		PipelineBaseName:      src.PipelineBaseName,
 		Zone:                  src.Zone,
 		BootDisk:              InstanceGroupVMDiskModelToMediaType(&src.BootDisk),
 		MachineType:           src.MachineType,

@@ -58,6 +58,7 @@ type InstanceGroupBody struct {
 type InstanceGroup struct {
 	Name                  string                         `datastore:"-" goon:"id" json:"name"`
 	ParentKey             *datastore.Key                 `datastore:"-" goon:"parent" json:"-"`
+	PipelineBaseName      string                         `json:"pipeline_base_name,omitempty"`
 	ProjectID             string                         `json:"project_id" validate:"required"`
 	Zone                  string                         `json:"zone" validate:"required"`
 	BootDisk              InstanceGroupVMDisk            `json:"boot_disk" validate:"required"`

@@ -273,8 +273,8 @@ type instanceGroupPayload struct {
 	MachineType *string `form:"machine_type,omitempty" json:"machine_type,omitempty" yaml:"machine_type,omitempty" xml:"machine_type,omitempty"`
 	// Name
 	Name *string `form:"name,omitempty" json:"name,omitempty" yaml:"name,omitempty" xml:"name,omitempty"`
-	// Owner pipeline_base id (UUID)
-	PipelineBaseID *string `form:"pipeline_base_id,omitempty" json:"pipeline_base_id,omitempty" yaml:"pipeline_base_id,omitempty" xml:"pipeline_base_id,omitempty"`
+	// Owner pipeline_base name
+	PipelineBaseName *string `form:"pipeline_base_name,omitempty" json:"pipeline_base_name,omitempty" yaml:"pipeline_base_name,omitempty" xml:"pipeline_base_name,omitempty"`
 	// Use preemptible VMs
 	Preemptible *bool `form:"preemptible,omitempty" json:"preemptible,omitempty" yaml:"preemptible,omitempty" xml:"preemptible,omitempty"`
 	// GCP Project ID
@@ -359,8 +359,8 @@ func (ut *instanceGroupPayload) Publicize() *InstanceGroupPayload {
 	if ut.Name != nil {
 		pub.Name = *ut.Name
 	}
-	if ut.PipelineBaseID != nil {
-		pub.PipelineBaseID = ut.PipelineBaseID
+	if ut.PipelineBaseName != nil {
+		pub.PipelineBaseName = ut.PipelineBaseName
 	}
 	if ut.Preemptible != nil {
 		pub.Preemptible = ut.Preemptible
@@ -396,8 +396,8 @@ type InstanceGroupPayload struct {
 	MachineType string `form:"machine_type" json:"machine_type" yaml:"machine_type" xml:"machine_type"`
 	// Name
 	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
-	// Owner pipeline_base id (UUID)
-	PipelineBaseID *string `form:"pipeline_base_id,omitempty" json:"pipeline_base_id,omitempty" yaml:"pipeline_base_id,omitempty" xml:"pipeline_base_id,omitempty"`
+	// Owner pipeline_base name
+	PipelineBaseName *string `form:"pipeline_base_name,omitempty" json:"pipeline_base_name,omitempty" yaml:"pipeline_base_name,omitempty" xml:"pipeline_base_name,omitempty"`
 	// Use preemptible VMs
 	Preemptible *bool `form:"preemptible,omitempty" json:"preemptible,omitempty" yaml:"preemptible,omitempty" xml:"preemptible,omitempty"`
 	// GCP Project ID

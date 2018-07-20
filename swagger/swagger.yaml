@@ -115,6 +115,7 @@ definitions:
       instance_size_requested: 3
       machine_type: f1-micro
       name: pipeline1-123-ig-456
+      pipeline_base_name: pipeline1-123
       preemptible: false
       project_id: dummy-proj-999
       startup_script: Facilis suscipit amet cum.
@@ -159,6 +160,10 @@ definitions:
       name:
         description: Name
         example: pipeline1-123-ig-456
+        type: string
+      pipeline_base_name:
+        description: Owner pipeline_base name
+        example: pipeline1-123
         type: string
       preemptible:
         description: Use preemptible VMs
@@ -206,6 +211,7 @@ definitions:
     required:
     - id
     - status
+    - pipeline_base_name
     - name
     - project_id
     - zone
@@ -276,6 +282,7 @@ definitions:
       instance_size_requested: 3
       machine_type: f1-micro
       name: pipeline1-123-ig-456
+      pipeline_base_name: pipeline1-123
       preemptible: false
       project_id: dummy-proj-999
       startup_script: Facilis suscipit amet cum.
@@ -301,6 +308,7 @@ definitions:
       instance_size_requested: 3
       machine_type: f1-micro
       name: pipeline1-123-ig-456
+      pipeline_base_name: pipeline1-123
       preemptible: false
       project_id: dummy-proj-999
       startup_script: Facilis suscipit amet cum.
@@ -326,6 +334,7 @@ definitions:
       instance_size_requested: 3
       machine_type: f1-micro
       name: pipeline1-123-ig-456
+      pipeline_base_name: pipeline1-123
       preemptible: false
       project_id: dummy-proj-999
       startup_script: Facilis suscipit amet cum.
@@ -464,7 +473,7 @@ definitions:
       instance_size_requested: 3
       machine_type: f1-micro
       name: pipeline1-123-ig-456
-      pipeline_base_id: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+      pipeline_base_name: pipeline1-123
       preemptible: true
       project_id: dummy-proj-999
       startup_script: Voluptatum omnis magnam eos id culpa.
@@ -494,9 +503,9 @@ definitions:
         description: Name
         example: pipeline1-123-ig-456
         type: string
-      pipeline_base_id:
-        description: Owner pipeline_base id (UUID)
-        example: bd2d5ee3-d8be-4024-85a7-334dee9c1c88
+      pipeline_base_name:
+        description: Owner pipeline_base name
+        example: pipeline1-123
         type: string
       preemptible:
         description: Use preemptible VMs
