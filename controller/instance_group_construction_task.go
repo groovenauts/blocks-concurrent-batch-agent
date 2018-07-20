@@ -38,7 +38,7 @@ func (c *InstanceGroupConstructionTaskController) Start(ctx *app.StartInstanceGr
 			return model.NewInstanceGroupConstructor(ctx)
 		},
 		WatchTaskPathFunc: func(ope *model.InstanceGroupOperation) string {
-			return pathToInstanceGroupTask(ctx.OrgID, ctx.Name, "construction_tasks", ope.Id)
+			return pathToInstanceGroupConstructionTask(ctx.OrgID, ctx.Name, ope.Id)
 		},
 		RespondOK:        ctx.OK,
 		RespondNoContent: ctx.NoContent,
@@ -77,7 +77,7 @@ func (c *InstanceGroupConstructionTaskController) Watch(ctx *app.WatchInstanceGr
 			}, nil
 		},
 		WatchTaskPathFunc: func(ope *model.InstanceGroupOperation) string {
-			return pathToInstanceGroupTask(ctx.OrgID, ctx.Name, "construction_tasks", ope.Id)
+			return pathToInstanceGroupConstructionTask(ctx.OrgID, ctx.Name, ope.Id)
 		},
 		RespondOK:        ctx.OK,
 		RespondAccepted:  ctx.Accepted,

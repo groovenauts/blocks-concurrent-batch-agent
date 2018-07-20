@@ -36,7 +36,7 @@ func (c *InstanceGroupResizingTaskController) Start(ctx *app.StartInstanceGroupR
 			return model.NewInstanceGroupScaler(ctx)
 		},
 		WatchTaskPathFunc: func(ope *model.InstanceGroupOperation) string {
-			return pathToInstanceGroupTask(ctx.OrgID, ctx.Name, "resizing_tasks", ope.Id)
+			return pathToInstanceGroupResizingTask(ctx.OrgID, ctx.Name, ope.Id)
 		},
 		RespondOK:        ctx.OK,
 		RespondNoContent: ctx.NoContent,
@@ -72,7 +72,7 @@ func (c *InstanceGroupResizingTaskController) Watch(ctx *app.WatchInstanceGroupR
 			}, nil
 		},
 		WatchTaskPathFunc: func(ope *model.InstanceGroupOperation) string {
-			return pathToInstanceGroupTask(ctx.OrgID, ctx.Name, "resizing_tasks", ope.Id)
+			return pathToInstanceGroupResizingTask(ctx.OrgID, ctx.Name, ope.Id)
 		},
 		RespondOK:        ctx.OK,
 		RespondAccepted:  ctx.Accepted,

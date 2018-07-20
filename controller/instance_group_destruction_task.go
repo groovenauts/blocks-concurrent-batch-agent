@@ -38,7 +38,7 @@ func (c *InstanceGroupDestructionTaskController) Start(ctx *app.StartInstanceGro
 			return model.NewInstanceGroupDestructor(ctx)
 		},
 		WatchTaskPathFunc: func(ope *model.InstanceGroupOperation) string {
-			return pathToInstanceGroupTask(ctx.OrgID, ctx.Name, "destruction_tasks", ope.Id)
+			return pathToInstanceGroupDestructionTask(ctx.OrgID, ctx.Name, ope.Id)
 		},
 		RespondOK:        ctx.OK,
 		RespondNoContent: ctx.NoContent,
@@ -77,7 +77,7 @@ func (c *InstanceGroupDestructionTaskController) Watch(ctx *app.WatchInstanceGro
 			}, nil
 		},
 		WatchTaskPathFunc: func(ope *model.InstanceGroupOperation) string {
-			return pathToInstanceGroupTask(ctx.OrgID, ctx.Name, "destruction_tasks", ope.Id)
+			return pathToInstanceGroupDestructionTask(ctx.OrgID, ctx.Name, ope.Id)
 		},
 		RespondOK:        ctx.OK,
 		RespondAccepted:  ctx.Accepted,

@@ -175,7 +175,7 @@ func (c *InstanceGroupHealthCheckController) Execute(ctx *app.ExecuteInstanceGro
 			return err // Retry
 		}
 
-		if err := PutTask(appCtx, pathToInstanceGroupTask(ctx.OrgID, ctx.Name, "health_check_tasks", hc.Id), 0); err != nil {
+		if err := PutTask(appCtx, pathToInstanceGroupHealthCheckTask(ctx.OrgID, ctx.Name, hc.Id), 0); err != nil {
 			return err //Retry
 		}
 
