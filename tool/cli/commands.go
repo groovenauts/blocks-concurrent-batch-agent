@@ -483,7 +483,7 @@ Payload example:
       "disk_type": "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
       "source_image": "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable"
    },
-   "deployment_name": "Quae commodi beatae.",
+   "deployment_name": "Quaerat unde ratione corrupti.",
    "gpu_accelerators": {
       "count": 2,
       "type": "nvidia-tesla-p100"
@@ -499,7 +499,7 @@ Payload example:
    "pipeline_base_id": "bd2d5ee3-d8be-4024-85a7-334dee9c1c88",
    "preemptible": true,
    "project_id": "dummy-proj-999",
-   "startup_script": "Ea ducimus aspernatur perspiciatis.",
+   "startup_script": "Voluptatum omnis magnam eos id culpa.",
    "token_consumption": 2,
    "zone": "us-central1-f"
 }`,
@@ -519,19 +519,19 @@ Payload example:
 {
    "container": {
       "command": "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
-      "name": "Quis sit a magnam mollitia laboriosam.",
+      "name": "Aliquam eveniet.",
       "options": "--restart=on-failure:3",
       "size": 2,
-      "stackdriver_agent": true
+      "stackdriver_agent": false
    },
-   "hibernation_delay": 3784209934487900665,
+   "hibernation_delay": 4705906080808459488,
    "instance_group": {
       "boot_disk": {
          "disk_size_gb": 50,
          "disk_type": "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
          "source_image": "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable"
       },
-      "deployment_name": "Autem dolor rem repellendus.",
+      "deployment_name": "Magnam mollitia laboriosam.",
       "gpu_accelerators": {
          "count": 2,
          "type": "nvidia-tesla-p100"
@@ -544,8 +544,8 @@ Payload example:
       "instance_size": 3,
       "instance_size_requested": 3,
       "machine_type": "f1-micro",
-      "preemptible": false,
-      "startup_script": "Velit voluptatem quidem laudantium voluptatem.",
+      "preemptible": true,
+      "startup_script": "Et aut possimus optio.",
       "token_consumption": 2
    },
    "name": "pipeline1",
@@ -568,19 +568,19 @@ Payload example:
 {
    "container": {
       "command": "bundle exec magellan-gcs-proxy echo %{download_files.0} %{downloads_dir} %{uploads_dir}",
-      "name": "Quis sit a magnam mollitia laboriosam.",
+      "name": "Aliquam eveniet.",
       "options": "--restart=on-failure:3",
       "size": 2,
-      "stackdriver_agent": true
+      "stackdriver_agent": false
    },
-   "hibernation_delay": 7797336613342039318,
+   "hibernation_delay": 4916337081504732898,
    "instance_group": {
       "boot_disk": {
          "disk_size_gb": 50,
          "disk_type": "projects/dummy-proj-999/zones/asia-east1-a/diskTypes/pd-standard",
          "source_image": "https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable"
       },
-      "deployment_name": "Autem dolor rem repellendus.",
+      "deployment_name": "Magnam mollitia laboriosam.",
       "gpu_accelerators": {
          "count": 2,
          "type": "nvidia-tesla-p100"
@@ -593,8 +593,8 @@ Payload example:
       "instance_size": 3,
       "instance_size_requested": 3,
       "machine_type": "f1-micro",
-      "preemptible": false,
-      "startup_script": "Velit voluptatem quidem laudantium voluptatem.",
+      "preemptible": true,
+      "startup_script": "Et aut possimus optio.",
       "token_consumption": 2
    },
    "name": "pipeline1-123",
@@ -615,7 +615,7 @@ Payload example:
 Payload example:
 
 {
-   "id_by_client": "A perferendis itaque corporis voluptatem.",
+   "id_by_client": "Beatae quod.",
    "message": {
       "attributes": {
          "Eum enim eum aliquam eaque.": "Consequuntur dignissimos."

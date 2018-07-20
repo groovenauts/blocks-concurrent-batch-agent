@@ -45,7 +45,7 @@ type PipelineBase struct {
 	Container        PipelineContainer  `json:"container" validate:"required"`
 	HibernationDelay int                `json:"hibernation_delay" validate:"required"`
 	Status           PipelineBaseStatus `json:"status" validate:"required"`
-	IntanceGroupID   string             `json:"intance_group_id,omitempty"`
+	IntanceGroupName string             `json:"intance_group_name,omitempty"`
 	CreatedAt        time.Time          `json:"created_at" validate:"required"`
 	UpdatedAt        time.Time          `json:"updated_at" validate:"required"`
 }

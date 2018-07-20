@@ -17,8 +17,7 @@ func JobPayloadToModel(src *app.JobPayload) model.Job {
 		// Hostname no payload field
 		// MessageID no payload field
 		// Output no payload field
-		// PipelineId no payload field
-		// PipelineBaseId no payload field
+		// PipelineName no payload field
 		// PublishedAt no payload field
 		// StartedAt no payload field
 		// FinishedAt no payload field
@@ -32,16 +31,15 @@ func JobModelToMediaType(src *model.Job) *app.Job {
 		return nil
 	}
 	return &app.Job{
-		Status:         string(src.Status),
-		Hostname:       &src.Hostname,
-		Message:        JobMessageModelToMediaType(&src.Message),
-		PipelineID:     Int64ToStringPointer(src.PipelineId),
-		PipelineBaseID: Int64ToString(src.PipelineBaseId),
-		PublishedAt:    &src.PublishedAt,
-		StartedAt:      &src.StartedAt,
-		FinishedAt:     &src.FinishedAt,
-		CreatedAt:      &src.CreatedAt,
-		UpdatedAt:      &src.UpdatedAt,
+		Status:       string(src.Status),
+		Hostname:     &src.Hostname,
+		Message:      JobMessageModelToMediaType(&src.Message),
+		PipelineName: &src.PipelineName,
+		PublishedAt:  &src.PublishedAt,
+		StartedAt:    &src.StartedAt,
+		FinishedAt:   &src.FinishedAt,
+		CreatedAt:    &src.CreatedAt,
+		UpdatedAt:    &src.UpdatedAt,
 		// IDByClient no media type field
 		// Zone no media type field
 		// MessageID no media type field

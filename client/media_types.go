@@ -288,10 +288,8 @@ type Job struct {
 	Message *JobMessage `form:"message" json:"message" yaml:"message" xml:"message"`
 	// Pubsub Message ID
 	MessageID *string `form:"message_id,omitempty" json:"message_id,omitempty" yaml:"message_id,omitempty" xml:"message_id,omitempty"`
-	// PipelineBase ID (UUID)
-	PipelineBaseID string `form:"pipeline_base_id" json:"pipeline_base_id" yaml:"pipeline_base_id" xml:"pipeline_base_id"`
-	// Pipeline ID (UUID)
-	PipelineID *string `form:"pipeline_id,omitempty" json:"pipeline_id,omitempty" yaml:"pipeline_id,omitempty" xml:"pipeline_id,omitempty"`
+	// Pipeline name
+	PipelineName *string `form:"pipeline_name,omitempty" json:"pipeline_name,omitempty" yaml:"pipeline_name,omitempty" xml:"pipeline_name,omitempty"`
 	// Time when job is published
 	PublishedAt *time.Time `form:"published_at,omitempty" json:"published_at,omitempty" yaml:"published_at,omitempty" xml:"published_at,omitempty"`
 	// Time when job starts
@@ -309,9 +307,6 @@ func (mt *Job) Validate() (err error) {
 	}
 	if mt.Status == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "status"))
-	}
-	if mt.PipelineBaseID == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "pipeline_base_id"))
 	}
 	if mt.Message == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "message"))
@@ -454,8 +449,8 @@ type PipelineBase struct {
 	ID string `form:"id" json:"id" yaml:"id" xml:"id"`
 	// Instance Group configuration
 	InstanceGroup *InstanceGroupBody `form:"instance_group" json:"instance_group" yaml:"instance_group" xml:"instance_group"`
-	// ID of instance group
-	InstanceGroupID string `form:"instance_group_id" json:"instance_group_id" yaml:"instance_group_id" xml:"instance_group_id"`
+	// Name of instance group
+	InstanceGroupName string `form:"instance_group_name" json:"instance_group_name" yaml:"instance_group_name" xml:"instance_group_name"`
 	// Name of pipeline_base
 	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
 	// GCP Project ID
@@ -476,8 +471,8 @@ func (mt *PipelineBase) Validate() (err error) {
 	if mt.Status == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "status"))
 	}
-	if mt.InstanceGroupID == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "instance_group_id"))
+	if mt.InstanceGroupName == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "instance_group_name"))
 	}
 
 	if mt.Name == "" {

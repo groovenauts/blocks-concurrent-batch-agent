@@ -42,7 +42,7 @@ func PipelineBasePayloadToModel(src *app.PipelineBasePayload) model.PipelineBase
 		Container:        PipelineContainerPayloadToModel(src.Container),
 		HibernationDelay: IntPointerToInt(src.HibernationDelay),
 		// Status no payload field
-		// IntanceGroupID no payload field
+		// IntanceGroupName no payload field
 		// CreatedAt no payload field
 		// UpdatedAt no payload field
 		// No model field for payload field "name"
@@ -62,9 +62,9 @@ func PipelineBaseModelToMediaType(src *model.PipelineBase) *app.PipelineBase {
 		CreatedAt:        src.CreatedAt,
 		UpdatedAt:        src.UpdatedAt,
 		// ProjectID no media type field
-		// IntanceGroupID no media type field
+		// IntanceGroupName no media type field
 		// No field for media type field "id"
-		// No field for media type field "instance_group_id"
+		// No field for media type field "instance_group_name"
 		// No field for media type field "name"
 	}
 }

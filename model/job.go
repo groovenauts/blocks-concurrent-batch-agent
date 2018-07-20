@@ -35,22 +35,21 @@ type JobMessage struct {
 }
 
 type Job struct {
-	Id             int64          `datastore:"-" goon:"id" json:"id"`
-	ParentKey      *datastore.Key `datastore:"-" goon:"parent" json:"-"`
-	IDByClient     string         `json:"id_by_client" validate:"required"`
-	Status         JobStatus      `json:"status" validate:"required"`
-	Zone           string         `json:"zone,omitempty"`
-	Hostname       string         `json:"hostname,omitempty"`
-	Message        JobMessage     `json:"message,omitempty"`
-	MessageID      string         `json:"message_id,omitempty"`
-	Output         string         `json:"output,omitempty"`
-	PipelineId     int64          `json:"pipeline_id,omitempty"`
-	PipelineBaseId int64          `json:"pipeline_base_id" validate:"required"`
-	PublishedAt    time.Time      `json:"published_at,omitempty"`
-	StartedAt      time.Time      `json:"started_at,omitempty"`
-	FinishedAt     time.Time      `json:"finished_at,omitempty"`
-	CreatedAt      time.Time      `json:"created_at" validate:"required"`
-	UpdatedAt      time.Time      `json:"updated_at" validate:"required"`
+	Id           int64          `datastore:"-" goon:"id" json:"id"`
+	ParentKey    *datastore.Key `datastore:"-" goon:"parent" json:"-"`
+	IDByClient   string         `json:"id_by_client" validate:"required"`
+	Status       JobStatus      `json:"status" validate:"required"`
+	Zone         string         `json:"zone,omitempty"`
+	Hostname     string         `json:"hostname,omitempty"`
+	Message      JobMessage     `json:"message,omitempty"`
+	MessageID    string         `json:"message_id,omitempty"`
+	Output       string         `json:"output,omitempty"`
+	PipelineName string         `json:"pipeline_name,omitempty"`
+	PublishedAt  time.Time      `json:"published_at,omitempty"`
+	StartedAt    time.Time      `json:"started_at,omitempty"`
+	FinishedAt   time.Time      `json:"finished_at,omitempty"`
+	CreatedAt    time.Time      `json:"created_at" validate:"required"`
+	UpdatedAt    time.Time      `json:"updated_at" validate:"required"`
 }
 
 func (m *Job) PrepareToCreate() error {
