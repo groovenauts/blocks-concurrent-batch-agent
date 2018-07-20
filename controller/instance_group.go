@@ -242,7 +242,7 @@ func (c *InstanceGroupController) StartHealthCheck(ctx *app.StartHealthCheckInst
 					return err
 				}
 
-				if err := PostTask(appCtx, pathToInstanceGroupAction(ctx.OrgID, m.Name, fmt.Sprintf("health_check_tasks/%d", hc.Id)), 0); err != nil {
+				if err := PostTask(appCtx, pathToInstanceGroupTask(ctx.OrgID, m.Name, "health_check_tasks", hc.Id), 0); err != nil {
 					return err
 				}
 				return ctx.Created(InstanceGroupModelToMediaType(m))
