@@ -37,7 +37,7 @@ func (c *InstanceGroupController) Create(ctx *app.CreateInstanceGroupContext) er
 		m.Status = model.ConstructionStarting
 		err := datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
 			store := &model.InstanceGroupStore{ParentKey: orgKey}
-			_, err := store.Put(appCtx, &m)
+			_, err := store.Create(appCtx, &m)
 			if err != nil {
 				return ctx.BadRequest(goa.ErrBadRequest(err))
 			}
