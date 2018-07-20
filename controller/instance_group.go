@@ -35,14 +35,14 @@ func (c *InstanceGroupController) Create(ctx *app.CreateInstanceGroupContext) er
 		appCtx := appengine.NewContext(ctx.Request)
 		m := InstanceGroupPayloadToModel(ctx.Payload)
 		m.Status = model.ConstructionStarting
-		err := datastore.RunInTransaction(appCtx, func(c context.Context) error {
+		err := datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
 			store := &model.InstanceGroupStore{ParentKey: orgKey}
-			_, err := store.Put(c, &m)
+			_, err := store.Put(appCtx, &m)
 			if err != nil {
 				return ctx.BadRequest(goa.ErrBadRequest(err))
 			}
 
-			if err := PostTask(appCtx, fmt.Sprintf("/orgs/%s/instance_groups/%s/construction_tasks", ctx.OrgID, m.Name), 0); err != nil {
+			if err := PostTask(appCtx, c.pathToAction(ctx.OrgID, m.Name, "construction_tasks"), 0); err != nil {
 				return err
 			}
 			return nil
@@ -95,7 +95,7 @@ func (c *InstanceGroupController) Destruct(ctx *app.DestructInstanceGroupContext
 		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
 			return c.member(appCtx, store, ctx.Name, ctx.BadRequest, ctx.NotFound, func(m *model.InstanceGroup) error {
 				switch m.Status {
-				case model.Constructed: // Through
+				case model.Constructed, model.HealthCheckError: // Through
 				default:
 					return ctx.Conflict(fmt.Errorf("Can't destruct because the InstanceGroup %q is %s", m.Name, m.Status))
 				}
@@ -105,7 +105,7 @@ func (c *InstanceGroupController) Destruct(ctx *app.DestructInstanceGroupContext
 					return err
 				}
 
-				if err := PostTask(appCtx, fmt.Sprintf("/orgs/%s/instance_groups/%s/destruction_tasks", ctx.OrgID, m.Name), 0); err != nil {
+				if err := PostTask(appCtx, c.pathToAction(ctx.OrgID, m.Name, "destruction_tasks"), 0); err != nil {
 					return err
 				}
 				return ctx.Created(InstanceGroupModelToMediaType(m))
@@ -165,7 +165,7 @@ func (c *InstanceGroupController) Resize(ctx *app.ResizeInstanceGroupContext) er
 					return err
 				}
 
-				if err := PostTask(appCtx, fmt.Sprintf("/orgs/%s/instance_groups/%s/resizing_tasks", ctx.OrgID, m.Name), 0); err != nil {
+				if err := PostTask(appCtx, c.pathToAction(ctx.OrgID, m.Name, "resizing_tasks"), 0); err != nil {
 					return err
 				}
 				return ctx.Created(InstanceGroupModelToMediaType(m))
@@ -227,7 +227,7 @@ func (c *InstanceGroupController) StartHealthCheck(ctx *app.StartHealthCheckInst
 					return err
 				}
 
-				if err := PutTask(appCtx, fmt.Sprintf("/instance_group_health_checks/%d", hc.Id), 0); err != nil {
+				if err := PostTask(appCtx, c.pathToAction(ctx.OrgID, m.Name, fmt.Sprintf("health_checks/%d", hc.Id)), 0); err != nil {
 					return err
 				}
 				return ctx.Created(InstanceGroupModelToMediaType(m))
