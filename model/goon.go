@@ -12,7 +12,7 @@ var ModelNameToKindMap = map[string]string{
 }
 
 func GoonFromContext(c context.Context) *goon.Goon {
-	r := GoonFromContext(c)
+	r := goon.FromContext(c)
 	baseResolver := r.KindNameResolver
 	r.KindNameResolver = func(src interface{}) string {
 		base := baseResolver(src)
