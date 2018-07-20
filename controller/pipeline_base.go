@@ -139,7 +139,7 @@ func (c *PipelineBaseController) HibernationCheckingTask(ctx *app.HibernationChe
 					return err
 				}
 
-				if err := PostTask(appCtx, fmt.Sprintf("/destruction_tasks?resource_id=%d", m.IntanceGroupID), 0); err != nil {
+				if err := PostTask(appCtx, fmt.Sprintf("/destruction_tasks?resource_id=%d", m.IntanceGroupName), 0); err != nil {
 					return err
 				}
 
