@@ -199,7 +199,11 @@ func (t *InstanceGroupTaskBase) Watch(appCtx context.Context, orgId, name, opeId
 }
 
 func (t *InstanceGroupTaskBase) IsSkipped(status model.InstanceGroupStatus) bool {
-	for _, st := range t.SkipStatuses {
+	return t.IncludedStatus(status, t.SkipStatuses)
+}
+
+func (t *InstanceGroupTaskBase) IncludedStatus(status model.InstanceGroupStatus, statuses []model.InstanceGroupStatus) bool {
+	for _, st := range statuses {
 		if status == st {
 			return true
 		}
