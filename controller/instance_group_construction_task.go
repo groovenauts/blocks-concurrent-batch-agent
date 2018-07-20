@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"fmt"
-
 	"golang.org/x/net/context"
 
 	"google.golang.org/appengine"
@@ -40,7 +38,7 @@ func (c *InstanceGroupConstructionTaskController) Start(ctx *app.StartInstanceGr
 			return model.NewInstanceGroupConstructor(ctx)
 		},
 		WatchTaskPathFunc: func(ope *model.InstanceGroupOperation) string {
-			return fmt.Sprintf("/construction_tasks/%d", ope.Id)
+			return pathToInstanceGroupTask(ctx.OrgID, ctx.Name, "construction_tasks", ope.Id)
 		},
 		RespondOK:        ctx.OK,
 		RespondNoContent: ctx.NoContent,
@@ -79,7 +77,7 @@ func (c *InstanceGroupConstructionTaskController) Watch(ctx *app.WatchInstanceGr
 			}, nil
 		},
 		WatchTaskPathFunc: func(ope *model.InstanceGroupOperation) string {
-			return fmt.Sprintf("/construction_tasks/%d", ope.Id)
+			return pathToInstanceGroupTask(ctx.OrgID, ctx.Name, "construction_tasks", ope.Id)
 		},
 		RespondOK:        ctx.OK,
 		RespondAccepted:  ctx.Accepted,

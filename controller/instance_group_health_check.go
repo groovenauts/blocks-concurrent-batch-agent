@@ -2,7 +2,6 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"math"
 	"strconv"
 
@@ -176,7 +175,7 @@ func (c *InstanceGroupHealthCheckController) Execute(ctx *app.ExecuteInstanceGro
 			return err // Retry
 		}
 
-		if err := PutTask(appCtx, fmt.Sprintf("/orgs/%s/instance_groups/%s/health_checks/%d", ctx.OrgID, ctx.Name, ctx.ID), 0); err != nil {
+		if err := PutTask(appCtx, pathToInstanceGroupTask(ctx.OrgID, ctx.Name, "health_check_tasks", hc.Id), 0); err != nil {
 			return err //Retry
 		}
 

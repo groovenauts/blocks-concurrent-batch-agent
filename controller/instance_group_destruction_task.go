@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"fmt"
-
 	"golang.org/x/net/context"
 
 	"google.golang.org/appengine"
@@ -40,7 +38,7 @@ func (c *InstanceGroupDestructionTaskController) Start(ctx *app.StartInstanceGro
 			return model.NewInstanceGroupDestructor(ctx)
 		},
 		WatchTaskPathFunc: func(ope *model.InstanceGroupOperation) string {
-			return fmt.Sprintf("/destruction_tasks/%d", ope.Id)
+			return pathToInstanceGroupTask(ctx.OrgID, ctx.Name, "destruction_tasks", ope.Id)
 		},
 		RespondOK:        ctx.OK,
 		RespondNoContent: ctx.NoContent,
@@ -79,7 +77,7 @@ func (c *InstanceGroupDestructionTaskController) Watch(ctx *app.WatchInstanceGro
 			}, nil
 		},
 		WatchTaskPathFunc: func(ope *model.InstanceGroupOperation) string {
-			return fmt.Sprintf("/destruction_tasks/%d", ope.Id)
+			return pathToInstanceGroupTask(ctx.OrgID, ctx.Name, "destruction_tasks", ope.Id)
 		},
 		RespondOK:        ctx.OK,
 		RespondAccepted:  ctx.Accepted,
