@@ -110,6 +110,7 @@ func InstanceGroupPayloadToModel(src *app.InstanceGroupPayload) model.InstanceGr
 		return model.InstanceGroup{}
 	}
 	return model.InstanceGroup{
+		Name:                  src.Name,
 		ProjectID:             src.ProjectID,
 		Zone:                  src.Zone,
 		BootDisk:              InstanceGroupVMDiskPayloadToModel(src.BootDisk),
@@ -136,6 +137,7 @@ func InstanceGroupModelToMediaType(src *model.InstanceGroup) *app.InstanceGroup 
 		return nil
 	}
 	return &app.InstanceGroup{
+		Name:                  src.Name,
 		Zone:                  src.Zone,
 		BootDisk:              InstanceGroupVMDiskModelToMediaType(&src.BootDisk),
 		MachineType:           src.MachineType,

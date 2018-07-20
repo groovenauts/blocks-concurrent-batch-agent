@@ -36,6 +36,7 @@ func PipelineBasePayloadToModel(src *app.PipelineBasePayload) model.PipelineBase
 		return model.PipelineBase{}
 	}
 	return model.PipelineBase{
+		Name:             src.Name,
 		ProjectID:        src.ProjectID,
 		Zone:             src.Zone,
 		InstanceGroup:    InstanceGroupBodyPayloadToModel(src.InstanceGroup),
@@ -54,6 +55,7 @@ func PipelineBaseModelToMediaType(src *model.PipelineBase) *app.PipelineBase {
 		return nil
 	}
 	return &app.PipelineBase{
+		Name:             src.Name,
 		Zone:             src.Zone,
 		InstanceGroup:    InstanceGroupBodyModelToMediaType(&src.InstanceGroup),
 		Container:        PipelineContainerModelToMediaType(&src.Container),
