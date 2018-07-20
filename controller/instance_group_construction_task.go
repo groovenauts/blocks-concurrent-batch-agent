@@ -27,14 +27,6 @@ func (c *InstanceGroupConstructionTaskController) Start(ctx *app.StartInstanceGr
 
 	// Put your logic here
 	base := InstanceGroupTaskBase{
-		MainStatus: model.ConstructionStarting,
-		NextStatus: model.ConstructionRunning,
-		SkipStatuses: []model.InstanceGroupStatus{
-			model.ConstructionRunning,
-			model.ConstructionError,
-			model.Constructed,
-			model.HealthCheckError,
-		},
 		ProcessorFactory: func(ctx context.Context) (model.InstanceGroupProcessor, error) {
 			return model.NewInstanceGroupConstructor(ctx)
 		},
@@ -45,6 +37,16 @@ func (c *InstanceGroupConstructionTaskController) Start(ctx *app.StartInstanceGr
 		RespondNoContent: ctx.NoContent,
 		RespondCreated:   ctx.Created,
 	}
+
+	base.Routes(
+		map[model.InstanceGroupStatus]InstanceGroupTaskBaseAction{
+			model.ConstructionStarting: base.RunProcessorFunc(model.ConstructionRunning),
+			model.ConstructionRunning:  base.Skip,
+			model.ConstructionError:    base.Skip,
+			model.Constructed:          base.Skip,
+			model.HealthCheckError:     base.Skip,
+		})
+
 	return base.Start(appengine.NewContext(ctx.Request), ctx.OrgID, ctx.Name)
 
 	// InstanceGroupConstructionTaskController_Start: end_implement
@@ -56,14 +58,6 @@ func (c *InstanceGroupConstructionTaskController) Watch(ctx *app.WatchInstanceGr
 
 	// Put your logic here
 	base := InstanceGroupTaskBase{
-		MainStatus:  model.ConstructionRunning,
-		NextStatus:  model.Constructed,
-		ErrorStatus: model.ConstructionError,
-		SkipStatuses: []model.InstanceGroupStatus{
-			model.ConstructionError,
-			model.Constructed,
-			model.HealthCheckError,
-		},
 		RemoteOpeFunc: func(ctx context.Context, ope *model.InstanceGroupOperation) (model.RemoteOperationWrapper, error) {
 			servicer, err := model.DefaultDeploymentServicer(ctx)
 			if err != nil {
@@ -86,6 +80,15 @@ func (c *InstanceGroupConstructionTaskController) Watch(ctx *app.WatchInstanceGr
 		RespondNoContent: ctx.NoContent,
 		RespondCreated:   ctx.Created,
 	}
+
+	base.Routes(
+		map[model.InstanceGroupStatus]InstanceGroupTaskBaseAction{
+			model.ConstructionRunning: base.SyncWithRemoteOpeFunc(model.Constructed, model.ConstructionError),
+			model.ConstructionError:   base.Skip,
+			model.Constructed:         base.Skip,
+			model.HealthCheckError:    base.Skip,
+		})
+
 	return base.Watch(appengine.NewContext(ctx.Request), ctx.OrgID, ctx.Name, ctx.ID)
 
 	// InstanceGroupConstructionTaskController_Watch: end_implement

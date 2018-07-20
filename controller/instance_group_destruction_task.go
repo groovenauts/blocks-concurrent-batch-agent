@@ -27,13 +27,6 @@ func (c *InstanceGroupDestructionTaskController) Start(ctx *app.StartInstanceGro
 
 	// Put your logic here
 	base := InstanceGroupTaskBase{
-		MainStatus: model.DestructionStarting,
-		NextStatus: model.DestructionRunning,
-		SkipStatuses: []model.InstanceGroupStatus{
-			model.DestructionRunning,
-			model.DestructionError,
-			model.Destructed,
-		},
 		ProcessorFactory: func(ctx context.Context) (model.InstanceGroupProcessor, error) {
 			return model.NewInstanceGroupDestructor(ctx)
 		},
@@ -44,6 +37,15 @@ func (c *InstanceGroupDestructionTaskController) Start(ctx *app.StartInstanceGro
 		RespondNoContent: ctx.NoContent,
 		RespondCreated:   ctx.Created,
 	}
+
+	base.Routes(
+		map[model.InstanceGroupStatus]InstanceGroupTaskBaseAction{
+			model.ConstructionStarting: base.RunProcessorFunc(model.DestructionStarting),
+			model.DestructionRunning:   base.Skip,
+			model.DestructionError:     base.Skip,
+			model.Destructed:           base.Skip,
+		})
+
 	return base.Start(appengine.NewContext(ctx.Request), ctx.OrgID, ctx.Name)
 
 	// InstanceGroupDestructionTaskController_Start: end_implement
@@ -55,13 +57,6 @@ func (c *InstanceGroupDestructionTaskController) Watch(ctx *app.WatchInstanceGro
 
 	// Put your logic here
 	base := InstanceGroupTaskBase{
-		MainStatus:  model.DestructionRunning,
-		NextStatus:  model.Destructed,
-		ErrorStatus: model.DestructionError,
-		SkipStatuses: []model.InstanceGroupStatus{
-			model.DestructionError,
-			model.Destructed,
-		},
 		RemoteOpeFunc: func(ctx context.Context, ope *model.InstanceGroupOperation) (model.RemoteOperationWrapper, error) {
 			servicer, err := model.DefaultDeploymentServicer(ctx)
 			if err != nil {
@@ -84,6 +79,14 @@ func (c *InstanceGroupDestructionTaskController) Watch(ctx *app.WatchInstanceGro
 		RespondNoContent: ctx.NoContent,
 		RespondCreated:   ctx.Created,
 	}
+
+	base.Routes(
+		map[model.InstanceGroupStatus]InstanceGroupTaskBaseAction{
+			model.DestructionRunning: base.SyncWithRemoteOpeFunc(model.Destructed, model.DestructionError),
+			model.DestructionError:   base.Skip,
+			model.Destructed:         base.Skip,
+		})
+
 	return base.Watch(appengine.NewContext(ctx.Request), ctx.OrgID, ctx.Name, ctx.ID)
 
 	// InstanceGroupDestructionTaskController_Watch: end_implement

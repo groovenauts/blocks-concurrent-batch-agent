@@ -17,10 +17,6 @@ import (
 )
 
 type InstanceGroupTaskBase struct {
-	MainStatus        model.InstanceGroupStatus
-	NextStatus        model.InstanceGroupStatus
-	ErrorStatus       model.InstanceGroupStatus
-	SkipStatuses      []model.InstanceGroupStatus
 	ProcessorFactory  func(ctx context.Context) (model.InstanceGroupProcessor, error)
 	RemoteOpeFunc     func(context.Context, *model.InstanceGroupOperation) (model.RemoteOperationWrapper, error)
 	WatchTaskPathFunc func(*model.InstanceGroupOperation) string
@@ -28,6 +24,7 @@ type InstanceGroupTaskBase struct {
 	RespondAccepted   func(*app.CloudAsyncOperation) error
 	RespondNoContent  func(*app.CloudAsyncOperation) error
 	RespondCreated    func(*app.CloudAsyncOperation) error
+	actions           map[model.InstanceGroupStatus]InstanceGroupTaskBaseAction
 }
 
 func (t *InstanceGroupTaskBase) WithInstanceGroupStore(ctx context.Context, orgIdString, name string, f func(*model.InstanceGroupStore, *model.InstanceGroupOperationStore) error) error {
@@ -57,6 +54,10 @@ func (t *InstanceGroupTaskBase) WithInstanceGroupStore(ctx context.Context, orgI
 
 type InstanceGroupTaskBaseAction func(appCtx context.Context, igStore *model.InstanceGroupStore, opeStore *model.InstanceGroupOperationStore, m *model.InstanceGroup, ope *model.InstanceGroupOperation) error
 
+func (t *InstanceGroupTaskBase) Routes(actions map[model.InstanceGroupStatus]InstanceGroupTaskBaseAction) {
+	t.actions = actions
+}
+
 func (t *InstanceGroupTaskBase) Skip(appCtx context.Context, igStore *model.InstanceGroupStore, opeStore *model.InstanceGroupOperationStore, m *model.InstanceGroup, ope *model.InstanceGroupOperation) error {
 	log.Infof(appCtx, "SKIPPING because InstanceGroup %s is already %v\n", m.Name, m.Status)
 	return t.RespondOK(nil)
@@ -81,15 +82,10 @@ func (t *InstanceGroupTaskBase) Start(appCtx context.Context, orgId, name string
 				}
 			}
 
-			if m.Status != t.MainStatus {
-				if t.IsSkipped(m.Status) {
-					return t.Skip(appCtx, igStore, opeStore, m, nil)
-				} else {
-					return t.InvalidStatus(appCtx, igStore, opeStore, m, nil)
-				}
+			f := t.actions[m.Status]
+			if f == nil {
+				f = t.InvalidStatus
 			}
-
-			f := t.RunProcessorFunc(t.NextStatus)
 			return f(appCtx, igStore, opeStore, m, nil)
 		}, nil)
 	})
@@ -153,15 +149,11 @@ func (t *InstanceGroupTaskBase) Watch(appCtx context.Context, orgId, name, opeId
 				}
 			}
 
-			if m.Status != t.MainStatus {
-				if t.IsSkipped(m.Status) {
-					return t.Skip(appCtx, igStore, opeStore, m, nil)
-				} else {
-					return t.InvalidStatus(appCtx, igStore, opeStore, m, nil)
-				}
+			f := t.actions[m.Status]
+			if f == nil {
+				f = t.InvalidStatus
 			}
-
-			return t.SyncWithRemoteOpeFunc(t.NextStatus, t.ErrorStatus)(appCtx, igStore, opeStore, m, ope)
+			return f(appCtx, igStore, opeStore, m, ope)
 		}, nil)
 	})
 }
@@ -220,10 +212,6 @@ func (t *InstanceGroupTaskBase) SyncWithRemoteOpeFunc(nextStatus, errorStatus mo
 		// TODO Add calling PipelineBase callback
 		return respond(InstanceGroupOperationModelToMediaType(ope))
 	}
-}
-
-func (t *InstanceGroupTaskBase) IsSkipped(status model.InstanceGroupStatus) bool {
-	return t.IncludedStatus(status, t.SkipStatuses)
 }
 
 func (t *InstanceGroupTaskBase) IncludedStatus(status model.InstanceGroupStatus, statuses []model.InstanceGroupStatus) bool {
