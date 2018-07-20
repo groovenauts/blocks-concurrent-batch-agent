@@ -55,6 +55,45 @@ func (t *InstanceGroupTaskBase) WithInstanceGroupStore(ctx context.Context, orgI
 	return f(igStore, opeStore)
 }
 
+func (t *InstanceGroupTaskBase) Skip(appCtx context.Context, igStore *model.InstanceGroupStore, opeStore *model.InstanceGroupOperationStore, m *model.InstanceGroup, ope *model.InstanceGroupOperation) error {
+	log.Infof(appCtx, "SKIPPING because InstanceGroup %s is already %v\n", m.Name, m.Status)
+	return t.RespondOK(nil)
+}
+
+func (t *InstanceGroupTaskBase) InvalidStatus(appCtx context.Context, igStore *model.InstanceGroupStore, opeStore *model.InstanceGroupOperationStore, m *model.InstanceGroup, ope *model.InstanceGroupOperation) error {
+	log.Warningf(appCtx, "Invalid request because InstanceGroup %s is already %v\n", m.Name, m.Status)
+	return t.RespondNoContent(nil)
+}
+
+func (t *InstanceGroupTaskBase) RunProcessorFunc(nextStatus model.InstanceGroupStatus) func(context.Context, *model.InstanceGroupStore, *model.InstanceGroupOperationStore, *model.InstanceGroup, *model.InstanceGroupOperation) error {
+	return func(appCtx context.Context, igStore *model.InstanceGroupStore, opeStore *model.InstanceGroupOperationStore, m *model.InstanceGroup, ope *model.InstanceGroupOperation) error {
+		processor, err := t.ProcessorFactory(appCtx)
+		if err != nil {
+			return err
+		}
+		ope, err = processor.Process(appCtx, m)
+		if err != nil {
+			return err
+		}
+
+		_, err = opeStore.Create(appCtx, ope)
+		if err != nil {
+			return err
+		}
+
+		m.Status = nextStatus
+		_, err = igStore.Update(appCtx, m)
+		if err != nil {
+			return err
+		}
+		path := t.WatchTaskPathFunc(ope)
+		if err := PutTask(appCtx, path, 0); err != nil {
+			return err
+		}
+		return t.RespondCreated(InstanceGroupOperationModelToMediaType(ope))
+	}
+}
+
 // Start
 func (t *InstanceGroupTaskBase) Start(appCtx context.Context, orgId, name string) error {
 	return t.WithInstanceGroupStore(appCtx, orgId, name, func(igStore *model.InstanceGroupStore, opeStore *model.InstanceGroupOperationStore) error {
@@ -71,35 +110,14 @@ func (t *InstanceGroupTaskBase) Start(appCtx context.Context, orgId, name string
 
 			if m.Status != t.MainStatus {
 				if t.IsSkipped(m.Status) {
-					log.Infof(appCtx, "SKIPPING because InstanceGroup %s is already %v\n", m.Name, m.Status)
-					return t.RespondOK(nil)
+					return t.Skip(appCtx, igStore, opeStore, m, nil)
 				} else {
-					log.Warningf(appCtx, "Invalid request because InstanceGroup %s is already %v\n", m.Name, m.Status)
-					return t.RespondNoContent(nil)
+					return t.InvalidStatus(appCtx, igStore, opeStore, m, nil)
 				}
 			}
 
-			processor, err := t.ProcessorFactory(appCtx)
-			ope, err := processor.Process(appCtx, m)
-			if err != nil {
-				return err
-			}
-
-			_, err = opeStore.Put(appCtx, ope)
-			if err != nil {
-				return err
-			}
-
-			m.Status = t.NextStatus
-			_, err = igStore.Put(c, m)
-			if err != nil {
-				return err
-			}
-			path := t.WatchTaskPathFunc(ope)
-			if err := PutTask(appCtx, path, 0); err != nil {
-				return err
-			}
-			return t.RespondCreated(InstanceGroupOperationModelToMediaType(ope))
+			f := t.RunProcessorFunc(t.NextStatus)
+			return f(appCtx, igStore, opeStore, m, nil)
 		}, nil)
 	})
 }
