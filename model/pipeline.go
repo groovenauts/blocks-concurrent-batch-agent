@@ -128,12 +128,43 @@ func (s *PipelineStore) IsValidKey(ctx context.Context, key *datastore.Key) erro
 	return nil
 }
 
+func (s *PipelineStore) Exist(ctx context.Context, m *Pipeline) (bool, error) {
+	g := GoonFromContext(ctx)
+	key, err := g.KeyError(m)
+	if err != nil {
+		log.Errorf(ctx, "Failed to Get Key of %v because of %v\n", m, err)
+		return false, err
+	}
+	_, err = s.ByKey(ctx, key)
+	if err == datastore.ErrNoSuchEntity {
+		return false, nil
+	} else if err != nil {
+		log.Errorf(ctx, "Failed to get existance of %v because of %v\n", m, err)
+		return false, err
+	} else {
+		return true, nil
+	}
+}
+
 func (s *PipelineStore) Create(ctx context.Context, m *Pipeline) (*datastore.Key, error) {
 	err := m.PrepareToCreate()
 	if err != nil {
 		return nil, err
 	}
-	return s.ValidateAndPut(ctx, m)
+	if err := m.Validate(); err != nil {
+		return nil, err
+	}
+
+	exist, err := s.Exist(ctx, m)
+	if err != nil {
+		return nil, err
+	}
+	if exist {
+		log.Errorf(ctx, "Failed to create %v because of another entity has same key\n", m)
+		return nil, fmt.Errorf("Duplicate Name error: %q of %v\n", m.Name, m)
+	}
+
+	return s.Put(ctx, m)
 }
 
 func (s *PipelineStore) Update(ctx context.Context, m *Pipeline) (*datastore.Key, error) {
@@ -141,23 +172,28 @@ func (s *PipelineStore) Update(ctx context.Context, m *Pipeline) (*datastore.Key
 	if err != nil {
 		return nil, err
 	}
-	return s.ValidateAndPut(ctx, m)
-}
+	if err := m.Validate(); err != nil {
+		return nil, err
+	}
 
-func (s *PipelineStore) ValidateAndPut(ctx context.Context, m *Pipeline) (*datastore.Key, error) {
-	err := m.Validate()
+	exist, err := s.Exist(ctx, m)
 	if err != nil {
 		return nil, err
 	}
+	if !exist {
+		log.Errorf(ctx, "Failed to update %v because it doesn't exist\n", m)
+		return nil, fmt.Errorf("No data to update %q of %v\n", m.Name, m)
+	}
+
 	return s.Put(ctx, m)
 }
 
 func (s *PipelineStore) Put(ctx context.Context, m *Pipeline) (*datastore.Key, error) {
-	g := GoonFromContext(ctx)
 	if err := s.ValidateParent(m); err != nil {
 		log.Errorf(ctx, "Invalid parent key for Pipeline because of %v\n", err)
 		return nil, err
 	}
+	g := GoonFromContext(ctx)
 	key, err := g.Put(m)
 	if err != nil {
 		log.Errorf(ctx, "Failed to Put %v because of %v\n", m, err)

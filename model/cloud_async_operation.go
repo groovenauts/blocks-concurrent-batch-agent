@@ -163,12 +163,34 @@ func (s *InstanceGroupOperationStore) IsValidKey(ctx context.Context, key *datas
 	return nil
 }
 
+func (s *InstanceGroupOperationStore) Exist(ctx context.Context, m *InstanceGroupOperation) (bool, error) {
+	g := GoonFromContext(ctx)
+	key, err := g.KeyError(m)
+	if err != nil {
+		log.Errorf(ctx, "Failed to Get Key of %v because of %v\n", m, err)
+		return false, err
+	}
+	_, err = s.ByKey(ctx, key)
+	if err == datastore.ErrNoSuchEntity {
+		return false, nil
+	} else if err != nil {
+		log.Errorf(ctx, "Failed to get existance of %v because of %v\n", m, err)
+		return false, err
+	} else {
+		return true, nil
+	}
+}
+
 func (s *InstanceGroupOperationStore) Create(ctx context.Context, m *InstanceGroupOperation) (*datastore.Key, error) {
 	err := m.PrepareToCreate()
 	if err != nil {
 		return nil, err
 	}
-	return s.ValidateAndPut(ctx, m)
+	if err := m.Validate(); err != nil {
+		return nil, err
+	}
+
+	return s.Put(ctx, m)
 }
 
 func (s *InstanceGroupOperationStore) Update(ctx context.Context, m *InstanceGroupOperation) (*datastore.Key, error) {
@@ -176,23 +198,19 @@ func (s *InstanceGroupOperationStore) Update(ctx context.Context, m *InstanceGro
 	if err != nil {
 		return nil, err
 	}
-	return s.ValidateAndPut(ctx, m)
-}
-
-func (s *InstanceGroupOperationStore) ValidateAndPut(ctx context.Context, m *InstanceGroupOperation) (*datastore.Key, error) {
-	err := m.Validate()
-	if err != nil {
+	if err := m.Validate(); err != nil {
 		return nil, err
 	}
+
 	return s.Put(ctx, m)
 }
 
 func (s *InstanceGroupOperationStore) Put(ctx context.Context, m *InstanceGroupOperation) (*datastore.Key, error) {
-	g := GoonFromContext(ctx)
 	if err := s.ValidateParent(m); err != nil {
 		log.Errorf(ctx, "Invalid parent key for InstanceGroupOperation because of %v\n", err)
 		return nil, err
 	}
+	g := GoonFromContext(ctx)
 	key, err := g.Put(m)
 	if err != nil {
 		log.Errorf(ctx, "Failed to Put %v because of %v\n", m, err)
@@ -302,12 +320,34 @@ func (s *PipelineBaseOperationStore) IsValidKey(ctx context.Context, key *datast
 	return nil
 }
 
+func (s *PipelineBaseOperationStore) Exist(ctx context.Context, m *PipelineBaseOperation) (bool, error) {
+	g := GoonFromContext(ctx)
+	key, err := g.KeyError(m)
+	if err != nil {
+		log.Errorf(ctx, "Failed to Get Key of %v because of %v\n", m, err)
+		return false, err
+	}
+	_, err = s.ByKey(ctx, key)
+	if err == datastore.ErrNoSuchEntity {
+		return false, nil
+	} else if err != nil {
+		log.Errorf(ctx, "Failed to get existance of %v because of %v\n", m, err)
+		return false, err
+	} else {
+		return true, nil
+	}
+}
+
 func (s *PipelineBaseOperationStore) Create(ctx context.Context, m *PipelineBaseOperation) (*datastore.Key, error) {
 	err := m.PrepareToCreate()
 	if err != nil {
 		return nil, err
 	}
-	return s.ValidateAndPut(ctx, m)
+	if err := m.Validate(); err != nil {
+		return nil, err
+	}
+
+	return s.Put(ctx, m)
 }
 
 func (s *PipelineBaseOperationStore) Update(ctx context.Context, m *PipelineBaseOperation) (*datastore.Key, error) {
@@ -315,23 +355,19 @@ func (s *PipelineBaseOperationStore) Update(ctx context.Context, m *PipelineBase
 	if err != nil {
 		return nil, err
 	}
-	return s.ValidateAndPut(ctx, m)
-}
-
-func (s *PipelineBaseOperationStore) ValidateAndPut(ctx context.Context, m *PipelineBaseOperation) (*datastore.Key, error) {
-	err := m.Validate()
-	if err != nil {
+	if err := m.Validate(); err != nil {
 		return nil, err
 	}
+
 	return s.Put(ctx, m)
 }
 
 func (s *PipelineBaseOperationStore) Put(ctx context.Context, m *PipelineBaseOperation) (*datastore.Key, error) {
-	g := GoonFromContext(ctx)
 	if err := s.ValidateParent(m); err != nil {
 		log.Errorf(ctx, "Invalid parent key for PipelineBaseOperation because of %v\n", err)
 		return nil, err
 	}
+	g := GoonFromContext(ctx)
 	key, err := g.Put(m)
 	if err != nil {
 		log.Errorf(ctx, "Failed to Put %v because of %v\n", m, err)

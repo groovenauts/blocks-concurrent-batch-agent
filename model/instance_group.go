@@ -197,12 +197,43 @@ func (s *InstanceGroupStore) IsValidKey(ctx context.Context, key *datastore.Key)
 	return nil
 }
 
+func (s *InstanceGroupStore) Exist(ctx context.Context, m *InstanceGroup) (bool, error) {
+	g := GoonFromContext(ctx)
+	key, err := g.KeyError(m)
+	if err != nil {
+		log.Errorf(ctx, "Failed to Get Key of %v because of %v\n", m, err)
+		return false, err
+	}
+	_, err = s.ByKey(ctx, key)
+	if err == datastore.ErrNoSuchEntity {
+		return false, nil
+	} else if err != nil {
+		log.Errorf(ctx, "Failed to get existance of %v because of %v\n", m, err)
+		return false, err
+	} else {
+		return true, nil
+	}
+}
+
 func (s *InstanceGroupStore) Create(ctx context.Context, m *InstanceGroup) (*datastore.Key, error) {
 	err := m.PrepareToCreate()
 	if err != nil {
 		return nil, err
 	}
-	return s.ValidateAndPut(ctx, m)
+	if err := m.Validate(); err != nil {
+		return nil, err
+	}
+
+	exist, err := s.Exist(ctx, m)
+	if err != nil {
+		return nil, err
+	}
+	if exist {
+		log.Errorf(ctx, "Failed to create %v because of another entity has same key\n", m)
+		return nil, fmt.Errorf("Duplicate Name error: %q of %v\n", m.Name, m)
+	}
+
+	return s.Put(ctx, m)
 }
 
 func (s *InstanceGroupStore) Update(ctx context.Context, m *InstanceGroup) (*datastore.Key, error) {
@@ -210,23 +241,28 @@ func (s *InstanceGroupStore) Update(ctx context.Context, m *InstanceGroup) (*dat
 	if err != nil {
 		return nil, err
 	}
-	return s.ValidateAndPut(ctx, m)
-}
+	if err := m.Validate(); err != nil {
+		return nil, err
+	}
 
-func (s *InstanceGroupStore) ValidateAndPut(ctx context.Context, m *InstanceGroup) (*datastore.Key, error) {
-	err := m.Validate()
+	exist, err := s.Exist(ctx, m)
 	if err != nil {
 		return nil, err
 	}
+	if !exist {
+		log.Errorf(ctx, "Failed to update %v because it doesn't exist\n", m)
+		return nil, fmt.Errorf("No data to update %q of %v\n", m.Name, m)
+	}
+
 	return s.Put(ctx, m)
 }
 
 func (s *InstanceGroupStore) Put(ctx context.Context, m *InstanceGroup) (*datastore.Key, error) {
-	g := GoonFromContext(ctx)
 	if err := s.ValidateParent(m); err != nil {
 		log.Errorf(ctx, "Invalid parent key for InstanceGroup because of %v\n", err)
 		return nil, err
 	}
+	g := GoonFromContext(ctx)
 	key, err := g.Put(m)
 	if err != nil {
 		log.Errorf(ctx, "Failed to Put %v because of %v\n", m, err)
@@ -336,12 +372,34 @@ func (s *InstanceGroupHealthCheckStore) IsValidKey(ctx context.Context, key *dat
 	return nil
 }
 
+func (s *InstanceGroupHealthCheckStore) Exist(ctx context.Context, m *InstanceGroupHealthCheck) (bool, error) {
+	g := GoonFromContext(ctx)
+	key, err := g.KeyError(m)
+	if err != nil {
+		log.Errorf(ctx, "Failed to Get Key of %v because of %v\n", m, err)
+		return false, err
+	}
+	_, err = s.ByKey(ctx, key)
+	if err == datastore.ErrNoSuchEntity {
+		return false, nil
+	} else if err != nil {
+		log.Errorf(ctx, "Failed to get existance of %v because of %v\n", m, err)
+		return false, err
+	} else {
+		return true, nil
+	}
+}
+
 func (s *InstanceGroupHealthCheckStore) Create(ctx context.Context, m *InstanceGroupHealthCheck) (*datastore.Key, error) {
 	err := m.PrepareToCreate()
 	if err != nil {
 		return nil, err
 	}
-	return s.ValidateAndPut(ctx, m)
+	if err := m.Validate(); err != nil {
+		return nil, err
+	}
+
+	return s.Put(ctx, m)
 }
 
 func (s *InstanceGroupHealthCheckStore) Update(ctx context.Context, m *InstanceGroupHealthCheck) (*datastore.Key, error) {
@@ -349,23 +407,19 @@ func (s *InstanceGroupHealthCheckStore) Update(ctx context.Context, m *InstanceG
 	if err != nil {
 		return nil, err
 	}
-	return s.ValidateAndPut(ctx, m)
-}
-
-func (s *InstanceGroupHealthCheckStore) ValidateAndPut(ctx context.Context, m *InstanceGroupHealthCheck) (*datastore.Key, error) {
-	err := m.Validate()
-	if err != nil {
+	if err := m.Validate(); err != nil {
 		return nil, err
 	}
+
 	return s.Put(ctx, m)
 }
 
 func (s *InstanceGroupHealthCheckStore) Put(ctx context.Context, m *InstanceGroupHealthCheck) (*datastore.Key, error) {
-	g := GoonFromContext(ctx)
 	if err := s.ValidateParent(m); err != nil {
 		log.Errorf(ctx, "Invalid parent key for InstanceGroupHealthCheck because of %v\n", err)
 		return nil, err
 	}
+	g := GoonFromContext(ctx)
 	key, err := g.Put(m)
 	if err != nil {
 		log.Errorf(ctx, "Failed to Put %v because of %v\n", m, err)

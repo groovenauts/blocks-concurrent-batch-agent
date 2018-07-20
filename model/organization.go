@@ -97,12 +97,34 @@ func (s *OrganizationStore) IsValidKey(ctx context.Context, key *datastore.Key) 
 	return nil
 }
 
+func (s *OrganizationStore) Exist(ctx context.Context, m *Organization) (bool, error) {
+	g := GoonFromContext(ctx)
+	key, err := g.KeyError(m)
+	if err != nil {
+		log.Errorf(ctx, "Failed to Get Key of %v because of %v\n", m, err)
+		return false, err
+	}
+	_, err = s.ByKey(ctx, key)
+	if err == datastore.ErrNoSuchEntity {
+		return false, nil
+	} else if err != nil {
+		log.Errorf(ctx, "Failed to get existance of %v because of %v\n", m, err)
+		return false, err
+	} else {
+		return true, nil
+	}
+}
+
 func (s *OrganizationStore) Create(ctx context.Context, m *Organization) (*datastore.Key, error) {
 	err := m.PrepareToCreate()
 	if err != nil {
 		return nil, err
 	}
-	return s.ValidateAndPut(ctx, m)
+	if err := m.Validate(); err != nil {
+		return nil, err
+	}
+
+	return s.Put(ctx, m)
 }
 
 func (s *OrganizationStore) Update(ctx context.Context, m *Organization) (*datastore.Key, error) {
@@ -110,14 +132,10 @@ func (s *OrganizationStore) Update(ctx context.Context, m *Organization) (*datas
 	if err != nil {
 		return nil, err
 	}
-	return s.ValidateAndPut(ctx, m)
-}
-
-func (s *OrganizationStore) ValidateAndPut(ctx context.Context, m *Organization) (*datastore.Key, error) {
-	err := m.Validate()
-	if err != nil {
+	if err := m.Validate(); err != nil {
 		return nil, err
 	}
+
 	return s.Put(ctx, m)
 }
 

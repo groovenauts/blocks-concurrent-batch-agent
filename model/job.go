@@ -145,12 +145,34 @@ func (s *JobStore) IsValidKey(ctx context.Context, key *datastore.Key) error {
 	return nil
 }
 
+func (s *JobStore) Exist(ctx context.Context, m *Job) (bool, error) {
+	g := GoonFromContext(ctx)
+	key, err := g.KeyError(m)
+	if err != nil {
+		log.Errorf(ctx, "Failed to Get Key of %v because of %v\n", m, err)
+		return false, err
+	}
+	_, err = s.ByKey(ctx, key)
+	if err == datastore.ErrNoSuchEntity {
+		return false, nil
+	} else if err != nil {
+		log.Errorf(ctx, "Failed to get existance of %v because of %v\n", m, err)
+		return false, err
+	} else {
+		return true, nil
+	}
+}
+
 func (s *JobStore) Create(ctx context.Context, m *Job) (*datastore.Key, error) {
 	err := m.PrepareToCreate()
 	if err != nil {
 		return nil, err
 	}
-	return s.ValidateAndPut(ctx, m)
+	if err := m.Validate(); err != nil {
+		return nil, err
+	}
+
+	return s.Put(ctx, m)
 }
 
 func (s *JobStore) Update(ctx context.Context, m *Job) (*datastore.Key, error) {
@@ -158,23 +180,19 @@ func (s *JobStore) Update(ctx context.Context, m *Job) (*datastore.Key, error) {
 	if err != nil {
 		return nil, err
 	}
-	return s.ValidateAndPut(ctx, m)
-}
-
-func (s *JobStore) ValidateAndPut(ctx context.Context, m *Job) (*datastore.Key, error) {
-	err := m.Validate()
-	if err != nil {
+	if err := m.Validate(); err != nil {
 		return nil, err
 	}
+
 	return s.Put(ctx, m)
 }
 
 func (s *JobStore) Put(ctx context.Context, m *Job) (*datastore.Key, error) {
-	g := GoonFromContext(ctx)
 	if err := s.ValidateParent(m); err != nil {
 		log.Errorf(ctx, "Invalid parent key for Job because of %v\n", err)
 		return nil, err
 	}
+	g := GoonFromContext(ctx)
 	key, err := g.Put(m)
 	if err != nil {
 		log.Errorf(ctx, "Failed to Put %v because of %v\n", m, err)
