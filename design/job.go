@@ -34,8 +34,7 @@ var Job = MediaType("application/vnd.job+json", func() {
 			Enum("inactive", "blocked", "publishing", "publishing_error",
 				"published", "started", "success", "failure")
 		})
-		Attribute("pipeline_id", String, "Pipeline ID (UUID)")
-		Attribute("pipeline_base_id", String, "PipelineBase ID (UUID)")
+		Attribute("pipeline_name", String, "Pipeline name")
 		Attribute("message_id", String, "Pubsub Message ID")
 		Attribute("hostname", String, "Hostname where job is running")
 		Attribute("published_at", DateTime, "Time when job is published")
@@ -43,7 +42,7 @@ var Job = MediaType("application/vnd.job+json", func() {
 		Attribute("finished_at", DateTime, "Time when job finishes")
 		UseTrait(TimestampsAttrTrait)
 
-		requiredAttrs := append([]string{"id", "status", "pipeline_base_id"}, attrNames...)
+		requiredAttrs := append([]string{"id", "status"}, attrNames...)
 		Required(requiredAttrs...)
 	})
 	View("default", func() {
@@ -52,7 +51,7 @@ var Job = MediaType("application/vnd.job+json", func() {
 			Attribute(attrName)
 		}
 		outputAttrs := []string{
-			"status", "pipeline_id", "pipeline_base_id", "message_id",
+			"status", "pipeline_name", "message_id",
 			"hostname", // "output",
 			"published_at", "started_at", "finished_at",
 		}
@@ -76,7 +75,6 @@ var JobOutput = MediaType("application/vnd.job-output+json", func() {
 		Attribute("output")
 	})
 })
-
 
 var JobActions = func() {
 	Action("create", func() {

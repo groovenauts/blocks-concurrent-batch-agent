@@ -80,10 +80,10 @@ var PipelineBase = MediaType("application/vnd.pipeline-base+json", func() {
 				"closing_starting", "closing_running", "closing_error",
 				"closed")
 		})
-		Attribute("instance_group_id", String, "ID of instance group")
+		Attribute("instance_group_name", String, "Name of instance group")
 		UseTrait(TimestampsAttrTrait)
 
-		requiredAttrs := append([]string{"id", "status", "instance_group_id", TimestampCreatedAt, TimestampUpdatedAt}, attrNames...)
+		requiredAttrs := append([]string{"id", "status", "instance_group_name", TimestampCreatedAt, TimestampUpdatedAt}, attrNames...)
 		Required(requiredAttrs...)
 	})
 	View("default", func() {
@@ -92,7 +92,7 @@ var PipelineBase = MediaType("application/vnd.pipeline-base+json", func() {
 			Attribute(attrName)
 		}
 		Attribute("status")
-		Attribute("instance_group_id")
+		Attribute("instance_group_name")
 		UseTrait(TimestampsViewTrait)
 	})
 })

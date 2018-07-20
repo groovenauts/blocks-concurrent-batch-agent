@@ -44,6 +44,6 @@ types:
       Status:
         type: PipelineBaseStatus
         required: true
-      IntanceGroupID: string
+      IntanceGroupName: string
       CreatedAt: *time_required
       UpdatedAt: *time_required
