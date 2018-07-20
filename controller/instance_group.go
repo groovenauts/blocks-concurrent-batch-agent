@@ -95,20 +95,26 @@ func (c *InstanceGroupController) Destruct(ctx *app.DestructInstanceGroupContext
 		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
 			return c.member(appCtx, store, ctx.Name, ctx.BadRequest, ctx.NotFound, func(m *model.InstanceGroup) error {
 				switch m.Status {
-				case model.Constructed, model.HealthCheckError: // Through
+				case model.Constructed, model.HealthCheckError:
+					m.Status = model.DestructionStarting
+					if _, err := store.Update(appCtx, m); err != nil {
+						return err
+					}
+					if err := PostTask(appCtx, c.pathToAction(ctx.OrgID, m.Name, "destruction_tasks"), 0); err != nil {
+						return err
+					}
+					return ctx.Created(InstanceGroupModelToMediaType(m))
+				case model.ResizeStarting, model.ResizeRunning:
+					m.Status = model.ResizeWaiting
+					if _, err := store.Update(appCtx, m); err != nil {
+						return err
+					}
+					return ctx.OK(InstanceGroupModelToMediaType(m))
+				case model.ResizeWaiting:
+					return ctx.OK(InstanceGroupModelToMediaType(m))
 				default:
 					return ctx.Conflict(fmt.Errorf("Can't destruct because the InstanceGroup %q is %s", m.Name, m.Status))
 				}
-
-				m.Status = model.DestructionStarting
-				if _, err := store.Update(appCtx, m); err != nil {
-					return err
-				}
-
-				if err := PostTask(appCtx, c.pathToAction(ctx.OrgID, m.Name, "destruction_tasks"), 0); err != nil {
-					return err
-				}
-				return ctx.Created(InstanceGroupModelToMediaType(m))
 			})
 		}, nil)
 	})
