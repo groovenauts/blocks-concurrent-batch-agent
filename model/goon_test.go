@@ -6,7 +6,7 @@ import (
 
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/aetest"
-	"google.golang.org/appengine/datastore"
+	// "google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 
 	"github.com/stretchr/testify/assert"
@@ -27,13 +27,13 @@ func TestGoonUsage(t *testing.T) {
 	ctx := appengine.NewContext(req)
 
 	org := &Organization{Name: "org1"}
-	assert.NoError(t, org.Create(ctx))
-	orgKey, err := datastore.DecodeKey(org.ID)
+	orgKey, err := org.Create(ctx)
 	assert.NoError(t, err)
+	assert.Equal(t, orgKey.IntID(), org.ID)
 
 	pbStore := &PipelineBaseStore{ParentKey: orgKey}
 	pb := &PipelineBase{
-		Parent:    orgKey,
+		ParentKey: orgKey,
 		Name:      "pipeline-base1",
 		ProjectID: "dummy-proj-999",
 		Zone:      "asia-northeast1-a",
@@ -59,10 +59,9 @@ func TestGoonUsage(t *testing.T) {
 
 	jobStore := JobStore{ParentKey: pbKey}
 	job := &Job{
-		Parent:         pbKey,
-		IDByClient:     "testJob1",
-		Status:         Inactive,
-		PipelineBaseId: pb.Id,
+		ParentKey:  pbKey,
+		IDByClient: "testJob1",
+		Status:     Inactive,
 	}
 
 	jobKey, err := jobStore.Create(ctx, job)
@@ -73,8 +72,9 @@ func TestGoonUsage(t *testing.T) {
 	log.Debugf(ctx, "pbKey: %v pbKey.IntID() => %v", pbKey, pbKey.IntID())
 	log.Debugf(ctx, "jobKey: %v jobKey.IntID() => %v", jobKey, jobKey.IntID())
 
-	pb2, err := pbStore.Get(ctx, job.Parent.IntID())
+	pb2, err := pbStore.ByID(ctx, job.ParentKey.StringID())
 	assert.NoError(t, err)
 	assert.NotNil(t, pb2)
-	assert.Equal(t, pb.Id, pb2.Id)
+	assert.Equal(t, pb.Name, pb2.Name)
+	assert.Equal(t, pb.ParentKey, pb2.ParentKey)
 }
