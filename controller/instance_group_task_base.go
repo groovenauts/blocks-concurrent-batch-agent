@@ -187,16 +187,16 @@ func (t *InstanceGroupTaskBase) Watch(appCtx context.Context, orgId, name, opeId
 			}
 
 			errors := remoteOpe.Errors()
-			var f func(r *app.CloudAsyncOperation) error
+			var respond func(r *app.CloudAsyncOperation) error
 			if errors != nil {
 				ope.Errors = *errors
 				ope.AppendLog(fmt.Sprintf("Error by %v", remoteOpe.GetOriginal()))
 				m.Status = t.ErrorStatus
-				f = t.RespondNoContent
+				respond = t.RespondNoContent
 			} else {
 				ope.AppendLog("Success")
 				m.Status = t.NextStatus
-				f = t.RespondAccepted
+				respond = t.RespondAccepted
 			}
 
 			_, err = opeStore.Update(appCtx, ope)
@@ -209,7 +209,7 @@ func (t *InstanceGroupTaskBase) Watch(appCtx context.Context, orgId, name, opeId
 				return err
 			}
 			// TODO Add calling PipelineBase callback
-			return f(InstanceGroupOperationModelToMediaType(ope))
+			return respond(InstanceGroupOperationModelToMediaType(ope))
 		}, nil)
 	})
 }
