@@ -33,6 +33,7 @@ func (c *InstanceGroupConstructionTaskController) Start(ctx *app.StartInstanceGr
 			model.ConstructionRunning,
 			model.ConstructionError,
 			model.Constructed,
+			model.HealthCheckError,
 		},
 		ProcessorFactory: func(ctx context.Context) (model.InstanceGroupProcessor, error) {
 			return model.NewInstanceGroupConstructor(ctx)
@@ -61,6 +62,7 @@ func (c *InstanceGroupConstructionTaskController) Watch(ctx *app.WatchInstanceGr
 		SkipStatuses: []model.InstanceGroupStatus{
 			model.ConstructionError,
 			model.Constructed,
+			model.HealthCheckError,
 		},
 		RemoteOpeFunc: func(ctx context.Context, ope *model.InstanceGroupOperation) (model.RemoteOperationWrapper, error) {
 			servicer, err := model.DefaultDeploymentServicer(ctx)

@@ -53,10 +53,13 @@ func (c *InstanceGroupResizingTaskController) Watch(ctx *app.WatchInstanceGroupR
 
 	// Put your logic here
 	base := InstanceGroupTaskBase{
-		MainStatus:   model.ResizeRunning,
-		NextStatus:   model.Constructed,
-		ErrorStatus:  model.Constructed,
-		SkipStatuses: []model.InstanceGroupStatus{},
+		MainStatus:  model.ResizeRunning,
+		NextStatus:  model.Constructed,
+		ErrorStatus: model.ConstructionError,
+		SkipStatuses: []model.InstanceGroupStatus{
+			model.Constructed,
+			model.HealthCheckError,
+		},
 		RemoteOpeFunc: func(ctx context.Context, ope *model.InstanceGroupOperation) (model.RemoteOperationWrapper, error) {
 			servicer, err := model.DefaultInstanceGroupServicer(ctx)
 			if err != nil {
