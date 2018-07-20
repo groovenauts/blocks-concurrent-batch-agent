@@ -82,7 +82,7 @@ func (c *InstanceGroupDestructionTaskController) Watch(ctx *app.WatchInstanceGro
 
 	base.Routes(
 		map[model.InstanceGroupStatus]InstanceGroupTaskBaseAction{
-			model.DestructionRunning: base.SyncWithRemoteOpeFunc(model.Destructed, model.DestructionError),
+			model.DestructionRunning: base.SyncWithRemoteOpeFunc(model.Destructed, model.DestructionError, nil),
 			model.DestructionError:   base.Skip,
 			model.Destructed:         base.Skip,
 		})

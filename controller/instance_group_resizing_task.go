@@ -80,7 +80,7 @@ func (c *InstanceGroupResizingTaskController) Watch(ctx *app.WatchInstanceGroupR
 
 	base.Routes(
 		map[model.InstanceGroupStatus]InstanceGroupTaskBaseAction{
-			model.ResizeRunning: base.SyncWithRemoteOpeFunc(model.Constructed, model.Constructed),
+			model.ResizeRunning: base.SyncWithRemoteOpeFunc(model.Constructed, model.Constructed, nil),
 			model.Constructed:   base.Skip,
 		})
 

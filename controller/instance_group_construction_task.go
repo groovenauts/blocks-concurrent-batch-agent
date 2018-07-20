@@ -83,7 +83,7 @@ func (c *InstanceGroupConstructionTaskController) Watch(ctx *app.WatchInstanceGr
 
 	base.Routes(
 		map[model.InstanceGroupStatus]InstanceGroupTaskBaseAction{
-			model.ConstructionRunning: base.SyncWithRemoteOpeFunc(model.Constructed, model.ConstructionError),
+			model.ConstructionRunning: base.SyncWithRemoteOpeFunc(model.Constructed, model.ConstructionError, nil),
 			model.ConstructionError:   base.Skip,
 			model.Constructed:         base.Skip,
 			model.HealthCheckError:    base.Skip,
