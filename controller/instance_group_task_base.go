@@ -67,6 +67,34 @@ func (t *InstanceGroupTaskBase) InvalidStatus(appCtx context.Context, igStore *m
 	return t.RespondNoContent(nil)
 }
 
+// Start
+func (t *InstanceGroupTaskBase) Start(appCtx context.Context, orgId, name string) error {
+	return t.WithInstanceGroupStore(appCtx, orgId, name, func(igStore *model.InstanceGroupStore, opeStore *model.InstanceGroupOperationStore) error {
+		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
+			m, err := igStore.ByID(appCtx, name)
+			if err != nil {
+				if err == datastore.ErrNoSuchEntity {
+					log.Errorf(appCtx, "InstanceGroup not found for %q\n", name)
+					return t.RespondNoContent(nil)
+				} else {
+					return err
+				}
+			}
+
+			if m.Status != t.MainStatus {
+				if t.IsSkipped(m.Status) {
+					return t.Skip(appCtx, igStore, opeStore, m, nil)
+				} else {
+					return t.InvalidStatus(appCtx, igStore, opeStore, m, nil)
+				}
+			}
+
+			f := t.RunProcessorFunc(t.NextStatus)
+			return f(appCtx, igStore, opeStore, m, nil)
+		}, nil)
+	})
+}
+
 func (t *InstanceGroupTaskBase) RunProcessorFunc(nextStatus model.InstanceGroupStatus) InstanceGroupTaskBaseAction {
 	return func(appCtx context.Context, igStore *model.InstanceGroupStore, opeStore *model.InstanceGroupOperationStore, m *model.InstanceGroup, ope *model.InstanceGroupOperation) error {
 		processor, err := t.ProcessorFactory(appCtx)
@@ -94,34 +122,6 @@ func (t *InstanceGroupTaskBase) RunProcessorFunc(nextStatus model.InstanceGroupS
 		}
 		return t.RespondCreated(InstanceGroupOperationModelToMediaType(ope))
 	}
-}
-
-// Start
-func (t *InstanceGroupTaskBase) Start(appCtx context.Context, orgId, name string) error {
-	return t.WithInstanceGroupStore(appCtx, orgId, name, func(igStore *model.InstanceGroupStore, opeStore *model.InstanceGroupOperationStore) error {
-		return datastore.RunInTransaction(appCtx, func(appCtx context.Context) error {
-			m, err := igStore.ByID(appCtx, name)
-			if err != nil {
-				if err == datastore.ErrNoSuchEntity {
-					log.Errorf(appCtx, "InstanceGroup not found for %q\n", name)
-					return t.RespondNoContent(nil)
-				} else {
-					return err
-				}
-			}
-
-			if m.Status != t.MainStatus {
-				if t.IsSkipped(m.Status) {
-					return t.Skip(appCtx, igStore, opeStore, m, nil)
-				} else {
-					return t.InvalidStatus(appCtx, igStore, opeStore, m, nil)
-				}
-			}
-
-			f := t.RunProcessorFunc(t.NextStatus)
-			return f(appCtx, igStore, opeStore, m, nil)
-		}, nil)
-	})
 }
 
 // Watch
