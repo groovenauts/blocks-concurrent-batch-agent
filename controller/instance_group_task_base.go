@@ -55,6 +55,8 @@ func (t *InstanceGroupTaskBase) WithInstanceGroupStore(ctx context.Context, orgI
 	return f(igStore, opeStore)
 }
 
+type InstanceGroupTaskBaseAction func(appCtx context.Context, igStore *model.InstanceGroupStore, opeStore *model.InstanceGroupOperationStore, m *model.InstanceGroup, ope *model.InstanceGroupOperation) error
+
 func (t *InstanceGroupTaskBase) Skip(appCtx context.Context, igStore *model.InstanceGroupStore, opeStore *model.InstanceGroupOperationStore, m *model.InstanceGroup, ope *model.InstanceGroupOperation) error {
 	log.Infof(appCtx, "SKIPPING because InstanceGroup %s is already %v\n", m.Name, m.Status)
 	return t.RespondOK(nil)
@@ -65,7 +67,7 @@ func (t *InstanceGroupTaskBase) InvalidStatus(appCtx context.Context, igStore *m
 	return t.RespondNoContent(nil)
 }
 
-func (t *InstanceGroupTaskBase) RunProcessorFunc(nextStatus model.InstanceGroupStatus) func(context.Context, *model.InstanceGroupStore, *model.InstanceGroupOperationStore, *model.InstanceGroup, *model.InstanceGroupOperation) error {
+func (t *InstanceGroupTaskBase) RunProcessorFunc(nextStatus model.InstanceGroupStatus) InstanceGroupTaskBaseAction {
 	return func(appCtx context.Context, igStore *model.InstanceGroupStore, opeStore *model.InstanceGroupOperationStore, m *model.InstanceGroup, ope *model.InstanceGroupOperation) error {
 		processor, err := t.ProcessorFactory(appCtx)
 		if err != nil {
@@ -164,7 +166,7 @@ func (t *InstanceGroupTaskBase) Watch(appCtx context.Context, orgId, name, opeId
 	})
 }
 
-func (t *InstanceGroupTaskBase) SyncWithRemoteOpeFunc(nextStatus, errorStatus model.InstanceGroupStatus) func(context.Context, *model.InstanceGroupStore, *model.InstanceGroupOperationStore, *model.InstanceGroup, *model.InstanceGroupOperation) error {
+func (t *InstanceGroupTaskBase) SyncWithRemoteOpeFunc(nextStatus, errorStatus model.InstanceGroupStatus) InstanceGroupTaskBaseAction {
 	return func(appCtx context.Context, igStore *model.InstanceGroupStore, opeStore *model.InstanceGroupOperationStore, m *model.InstanceGroup, ope *model.InstanceGroupOperation) error {
 		remoteOpe, err := t.RemoteOpeFunc(appCtx, ope)
 		if err != nil {
