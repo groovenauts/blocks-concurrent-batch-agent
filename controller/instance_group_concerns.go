@@ -23,5 +23,5 @@ func (c *InstanceGroupController) member(ctx context.Context, store *model.Insta
 }
 
 func (c *InstanceGroupController) pathToAction(orgID, name, action string) string {
-	return fmt.Sprintf("/orgs/%s/instance_groups/%s/action", orgID, name, action)
+	return fmt.Sprintf("/orgs/%s/instance_groups/%s/%s", orgID, name, action)
 }
