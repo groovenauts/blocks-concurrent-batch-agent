@@ -49,6 +49,7 @@ types:
     # payload: InstanceGroupPayload
     media_type: Instance-Group
     fields:
+      PipelineBaseName: string
       ProjectID: *string_required
       Zone: *string_required
       <<: *InstanceGroupBodyFields

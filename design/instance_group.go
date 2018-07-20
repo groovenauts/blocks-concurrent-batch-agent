@@ -76,9 +76,9 @@ var InstanceGroupBody = Type("InstanceGroupBody", func() {
 })
 
 var InstanceGroupPayload = Type("InstanceGroupPayload", func() {
-	Member("pipeline_base_id", String, "Owner pipeline_base id (UUID)", func() {
+	Member("pipeline_base_name", String, "Owner pipeline_base name", func() {
 		// Optional
-		Example("bd2d5ee3-d8be-4024-85a7-334dee9c1c88")
+		Example("pipeline1-123")
 	})
 	Member("name", String, "Name", func() {
 		Example("pipeline1-123-ig-456")
@@ -113,6 +113,7 @@ var InstanceGroup = MediaType("application/vnd.instance-group+json", func() {
 	Description("instance-group")
 	Reference(InstanceGroupPayload)
 	attrNames := []string{
+		"pipeline_base_name",
 		"name",
 		"project_id",
 		"zone",
