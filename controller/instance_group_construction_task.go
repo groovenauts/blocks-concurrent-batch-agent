@@ -83,10 +83,14 @@ func (c *InstanceGroupConstructionTaskController) Watch(ctx *app.WatchInstanceGr
 
 	base.Routes(
 		map[model.InstanceGroupStatus]InstanceGroupTaskBaseAction{
-			model.ConstructionRunning: base.SyncWithRemoteOpeFunc(model.Constructed, model.ConstructionError, nil),
-			model.ConstructionError:   base.Skip,
-			model.Constructed:         base.Skip,
-			model.HealthCheckError:    base.Skip,
+			model.ConstructionRunning: base.SyncWithRemoteOpeFunc(model.Constructed, model.ConstructionError,
+				func(appCtx context.Context, m *model.InstanceGroup, ope *model.InstanceGroupOperation) error {
+					path := pathToPipelineBaseWakeupDoneTask(ctx.OrgID, "", ctx.Name)
+					return PutTask(appCtx, path, 0)
+				}),
+			model.ConstructionError: base.Skip,
+			model.Constructed:       base.Skip,
+			model.HealthCheckError:  base.Skip,
 		})
 
 	return base.Watch(appengine.NewContext(ctx.Request), ctx.OrgID, ctx.Name, ctx.ID)

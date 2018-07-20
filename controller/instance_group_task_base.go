@@ -158,7 +158,7 @@ func (t *InstanceGroupTaskBase) Watch(appCtx context.Context, orgId, name, opeId
 	})
 }
 
-func (t *InstanceGroupTaskBase) SyncWithRemoteOpeFunc(nextStatus, errorStatus model.InstanceGroupStatus, callback func() error) InstanceGroupTaskBaseAction {
+func (t *InstanceGroupTaskBase) SyncWithRemoteOpeFunc(nextStatus, errorStatus model.InstanceGroupStatus, callback func(appCtx context.Context, m *model.InstanceGroup, ope *model.InstanceGroupOperation) error) InstanceGroupTaskBaseAction {
 	return func(appCtx context.Context, igStore *model.InstanceGroupStore, opeStore *model.InstanceGroupOperationStore, m *model.InstanceGroup, ope *model.InstanceGroupOperation) error {
 		remoteOpe, err := t.RemoteOpeFunc(appCtx, ope)
 		if err != nil {
@@ -211,7 +211,7 @@ func (t *InstanceGroupTaskBase) SyncWithRemoteOpeFunc(nextStatus, errorStatus mo
 		}
 
 		if callback != nil {
-			callback()
+			callback(appCtx, m, ope)
 		}
 
 		return respond(InstanceGroupOperationModelToMediaType(ope))
