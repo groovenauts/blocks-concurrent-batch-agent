@@ -281,6 +281,19 @@ var _ = Resource("InstanceGroupHealthCheck", func() {
 	DefaultMedia(InstanceGroupHealthCheck)
 	UseTrait(DefineResourceTrait)
 
+	Action("start", func() {
+		Description("Start health check")
+		Routing(POST(""))
+		Params(func() {
+			Param("org_id", String, "Organization ID")
+			Param("name")
+		})
+		Response(OK, InstanceGroupHealthCheck)        // 200 終了
+		Response(Created, InstanceGroupHealthCheck)   // 201 エラーなし
+		Response(NoContent, InstanceGroupHealthCheck) // 204 タスクエラー
+		UseTrait(DefaultResponseTrait)
+	})
+
 	Action("execute", func() {
 		Description("Execute health check")
 		Routing(PUT("/:id"))
