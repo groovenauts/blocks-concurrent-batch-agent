@@ -1172,6 +1172,101 @@ func (ctx *ExecuteInstanceGroupHealthCheckContext) InternalServerError(r error) 
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
+// StartInstanceGroupHealthCheckContext provides the InstanceGroupHealthCheck start action context.
+type StartInstanceGroupHealthCheckContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Name  string
+	OrgID string
+}
+
+// NewStartInstanceGroupHealthCheckContext parses the incoming request URL and body, performs validations and creates the
+// context used by the InstanceGroupHealthCheck controller start action.
+func NewStartInstanceGroupHealthCheckContext(ctx context.Context, r *http.Request, service *goa.Service) (*StartInstanceGroupHealthCheckContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := StartInstanceGroupHealthCheckContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramName := req.Params["name"]
+	if len(paramName) > 0 {
+		rawName := paramName[0]
+		rctx.Name = rawName
+	}
+	paramOrgID := req.Params["org_id"]
+	if len(paramOrgID) > 0 {
+		rawOrgID := paramOrgID[0]
+		rctx.OrgID = rawOrgID
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *StartInstanceGroupHealthCheckContext) OK(r *InstanceGroupHealthCheck) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-health-check+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// Created sends a HTTP response with status code 201.
+func (ctx *StartInstanceGroupHealthCheckContext) Created(r *InstanceGroupHealthCheck) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-health-check+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
+}
+
+// NoContent sends a HTTP response with status code 204.
+func (ctx *StartInstanceGroupHealthCheckContext) NoContent(r *InstanceGroupHealthCheck) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.instance-group-health-check+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 204, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *StartInstanceGroupHealthCheckContext) BadRequest(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
+// Unauthorized sends a HTTP response with status code 401.
+func (ctx *StartInstanceGroupHealthCheckContext) Unauthorized(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 401, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *StartInstanceGroupHealthCheckContext) NotFound(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *StartInstanceGroupHealthCheckContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *StartInstanceGroupHealthCheckContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
 // StartInstanceGroupResizingTaskContext provides the InstanceGroupResizingTask start action context.
 type StartInstanceGroupResizingTaskContext struct {
 	context.Context

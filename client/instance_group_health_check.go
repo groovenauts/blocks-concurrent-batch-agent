@@ -53,3 +53,39 @@ func (c *Client) NewExecuteInstanceGroupHealthCheckRequest(ctx context.Context, 
 	}
 	return req, nil
 }
+
+// StartInstanceGroupHealthCheckPath computes a request path to the start action of InstanceGroupHealthCheck.
+func StartInstanceGroupHealthCheckPath(orgID string, name string) string {
+	param0 := orgID
+	param1 := name
+
+	return fmt.Sprintf("/orgs/%s/instance_groups/%s/health_checks", param0, param1)
+}
+
+// Start health check
+func (c *Client) StartInstanceGroupHealthCheck(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.NewStartInstanceGroupHealthCheckRequest(ctx, path)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewStartInstanceGroupHealthCheckRequest create the request corresponding to the start action endpoint of the InstanceGroupHealthCheck resource.
+func (c *Client) NewStartInstanceGroupHealthCheckRequest(ctx context.Context, path string) (*http.Request, error) {
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "http"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	if c.APIKeySigner != nil {
+		if err := c.APIKeySigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
+	return req, nil
+}

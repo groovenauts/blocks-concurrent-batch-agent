@@ -200,8 +200,8 @@ func (c *Client) NewResizeInstanceGroupRequest(ctx context.Context, path string,
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
 	values := u.Query()
-	tmp44 := strconv.Itoa(newSize)
-	values.Set("new_size", tmp44)
+	tmp45 := strconv.Itoa(newSize)
+	values.Set("new_size", tmp45)
 	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {

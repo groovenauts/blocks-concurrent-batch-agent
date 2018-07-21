@@ -373,6 +373,7 @@ func handleInstanceGroupDestructionTaskOrigin(h goa.Handler) goa.Handler {
 type InstanceGroupHealthCheckController interface {
 	goa.Muxer
 	Execute(*ExecuteInstanceGroupHealthCheckContext) error
+	Start(*StartInstanceGroupHealthCheckContext) error
 }
 
 // MountInstanceGroupHealthCheckController "mounts" a InstanceGroupHealthCheck resource controller on the given service.
@@ -380,6 +381,7 @@ func MountInstanceGroupHealthCheckController(service *goa.Service, ctrl Instance
 	initService(service)
 	var h goa.Handler
 	service.Mux.Handle("OPTIONS", "/orgs/:org_id/instance_groups/:name/health_checks/:id", ctrl.MuxHandler("preflight", handleInstanceGroupHealthCheckOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/orgs/:org_id/instance_groups/:name/health_checks", ctrl.MuxHandler("preflight", handleInstanceGroupHealthCheckOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -397,6 +399,23 @@ func MountInstanceGroupHealthCheckController(service *goa.Service, ctrl Instance
 	h = handleInstanceGroupHealthCheckOrigin(h)
 	service.Mux.Handle("PUT", "/orgs/:org_id/instance_groups/:name/health_checks/:id", ctrl.MuxHandler("execute", h, nil))
 	service.LogInfo("mount", "ctrl", "InstanceGroupHealthCheck", "action", "Execute", "route", "PUT /orgs/:org_id/instance_groups/:name/health_checks/:id", "security", "api_key")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewStartInstanceGroupHealthCheckContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Start(rctx)
+	}
+	h = handleSecurity("api_key", h)
+	h = handleInstanceGroupHealthCheckOrigin(h)
+	service.Mux.Handle("POST", "/orgs/:org_id/instance_groups/:name/health_checks", ctrl.MuxHandler("start", h, nil))
+	service.LogInfo("mount", "ctrl", "InstanceGroupHealthCheck", "action", "Start", "route", "POST /orgs/:org_id/instance_groups/:name/health_checks", "security", "api_key")
 }
 
 // handleInstanceGroupHealthCheckOrigin applies the CORS response headers corresponding to the origin.

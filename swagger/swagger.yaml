@@ -1812,6 +1812,63 @@ paths:
       summary: watch InstanceGroupDestructionTask
       tags:
       - InstanceGroupDestructionTask
+  /orgs/{org_id}/instance_groups/{name}/health_checks:
+    post:
+      description: Start health check
+      operationId: InstanceGroupHealthCheck#start
+      parameters:
+      - in: path
+        name: name
+        required: true
+        type: string
+      - description: Organization ID
+        in: path
+        name: org_id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - application/vnd.instance-group-health-check+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Instance-Group-Health-Check'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Instance-Group-Health-Check'
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/Instance-Group-Health-Check'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      security:
+      - api_key: []
+      summary: start InstanceGroupHealthCheck
+      tags:
+      - InstanceGroupHealthCheck
   /orgs/{org_id}/instance_groups/{name}/health_checks/{id}:
     put:
       description: Execute health check
