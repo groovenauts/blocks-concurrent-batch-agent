@@ -26,6 +26,17 @@ func NewInstanceGroupHealthCheckController(service *goa.Service) *InstanceGroupH
 	return &InstanceGroupHealthCheckController{Controller: service.NewController("InstanceGroupHealthCheckController")}
 }
 
+// Start runs the start action.
+func (c *InstanceGroupHealthCheckController) Start(ctx *app.StartInstanceGroupHealthCheckContext) error {
+	// InstanceGroupHealthCheckController_Start: start_implement
+
+	// Put your logic here
+
+	res := &app.InstanceGroupHealthCheck{}
+	return ctx.OK(res)
+	// InstanceGroupHealthCheckController_Start: end_implement
+}
+
 // Execute runs the execute action.
 func (c *InstanceGroupHealthCheckController) Execute(ctx *app.ExecuteInstanceGroupHealthCheckContext) error {
 	// InstanceGroupHealthCheckController_Execute: start_implement
