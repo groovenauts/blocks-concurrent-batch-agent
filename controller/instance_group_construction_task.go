@@ -57,20 +57,6 @@ func (c *InstanceGroupConstructionTaskController) Watch(ctx *app.WatchInstanceGr
 
 	// Put your logic here
 	base := InstanceGroupTaskBase{
-		RemoteOpeFunc: func(ctx context.Context, ope *model.InstanceGroupOperation) (model.RemoteOperationWrapper, error) {
-			servicer, err := model.DefaultDeploymentServicer(ctx)
-			if err != nil {
-				return nil, err
-			}
-			remoteOpeOriginal, err := servicer.GetOperation(ctx, ope.ProjectId, ope.Name)
-			if err != nil {
-				log.Errorf(ctx, "Failed to get deployment operation: %v because of %v\n", ope, err)
-				return nil, err
-			}
-			return &model.RemoteOperationWrapperOfDeploymentmanager{
-				Original: remoteOpeOriginal,
-			}, nil
-		},
 		WatchTaskPathFunc: func(ope *model.InstanceGroupOperation) string {
 			return pathToInstanceGroupConstructionTask(ctx.OrgID, ctx.Name, ope.Id)
 		},
@@ -83,6 +69,20 @@ func (c *InstanceGroupConstructionTaskController) Watch(ctx *app.WatchInstanceGr
 	base.Routes(
 		map[model.InstanceGroupStatus]InstanceGroupTaskBaseAction{
 			model.ConstructionRunning: base.SyncWithRemoteOpeFunc(model.Constructed, model.ConstructionError,
+				func(ctx context.Context, ope *model.InstanceGroupOperation) (model.RemoteOperationWrapper, error) {
+					servicer, err := model.DefaultDeploymentServicer(ctx)
+					if err != nil {
+						return nil, err
+					}
+					remoteOpeOriginal, err := servicer.GetOperation(ctx, ope.ProjectId, ope.Name)
+					if err != nil {
+						log.Errorf(ctx, "Failed to get deployment operation: %v because of %v\n", ope, err)
+						return nil, err
+					}
+					return &model.RemoteOperationWrapperOfDeploymentmanager{
+						Original: remoteOpeOriginal,
+					}, nil
+				},
 				func(appCtx context.Context, m *model.InstanceGroup, ope *model.InstanceGroupOperation) error {
 					path := pathToPipelineBaseWakeupDoneTask(ctx.OrgID, "", ctx.Name)
 					return PutTask(appCtx, path, 0)

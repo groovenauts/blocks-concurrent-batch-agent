@@ -56,20 +56,6 @@ func (c *InstanceGroupDestructionTaskController) Watch(ctx *app.WatchInstanceGro
 
 	// Put your logic here
 	base := InstanceGroupTaskBase{
-		RemoteOpeFunc: func(ctx context.Context, ope *model.InstanceGroupOperation) (model.RemoteOperationWrapper, error) {
-			servicer, err := model.DefaultDeploymentServicer(ctx)
-			if err != nil {
-				return nil, err
-			}
-			remoteOpeOriginal, err := servicer.GetOperation(ctx, ope.ProjectId, ope.Name)
-			if err != nil {
-				log.Errorf(ctx, "Failed to get deployment operation: %v because of %v\n", ope, err)
-				return nil, err
-			}
-			return &model.RemoteOperationWrapperOfDeploymentmanager{
-				Original: remoteOpeOriginal,
-			}, nil
-		},
 		WatchTaskPathFunc: func(ope *model.InstanceGroupOperation) string {
 			return pathToInstanceGroupDestructionTask(ctx.OrgID, ctx.Name, ope.Id)
 		},
@@ -81,9 +67,24 @@ func (c *InstanceGroupDestructionTaskController) Watch(ctx *app.WatchInstanceGro
 
 	base.Routes(
 		map[model.InstanceGroupStatus]InstanceGroupTaskBaseAction{
-			model.DestructionRunning: base.SyncWithRemoteOpeFunc(model.Destructed, model.DestructionError, nil),
-			model.DestructionError:   base.Skip,
-			model.Destructed:         base.Skip,
+			model.DestructionRunning: base.SyncWithRemoteOpeFunc(model.Destructed, model.DestructionError,
+				func(ctx context.Context, ope *model.InstanceGroupOperation) (model.RemoteOperationWrapper, error) {
+					servicer, err := model.DefaultDeploymentServicer(ctx)
+					if err != nil {
+						return nil, err
+					}
+					remoteOpeOriginal, err := servicer.GetOperation(ctx, ope.ProjectId, ope.Name)
+					if err != nil {
+						log.Errorf(ctx, "Failed to get deployment operation: %v because of %v\n", ope, err)
+						return nil, err
+					}
+					return &model.RemoteOperationWrapperOfDeploymentmanager{
+						Original: remoteOpeOriginal,
+					}, nil
+				},
+				nil),
+			model.DestructionError: base.Skip,
+			model.Destructed:       base.Skip,
 		})
 
 	return base.Watch(appengine.NewContext(ctx.Request), ctx.OrgID, ctx.Name, ctx.ID)

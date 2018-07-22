@@ -17,7 +17,6 @@ import (
 )
 
 type InstanceGroupTaskBase struct {
-	RemoteOpeFunc     func(context.Context, *model.InstanceGroupOperation) (model.RemoteOperationWrapper, error)
 	WatchTaskPathFunc func(*model.InstanceGroupOperation) string
 	RespondOK         func(*app.CloudAsyncOperation) error
 	RespondAccepted   func(*app.CloudAsyncOperation) error
@@ -159,9 +158,14 @@ func (t *InstanceGroupTaskBase) Watch(appCtx context.Context, orgId, name, opeId
 	})
 }
 
-func (t *InstanceGroupTaskBase) SyncWithRemoteOpeFunc(nextStatus, errorStatus model.InstanceGroupStatus, callback func(appCtx context.Context, m *model.InstanceGroup, ope *model.InstanceGroupOperation) error) InstanceGroupTaskBaseAction {
+func (t *InstanceGroupTaskBase) SyncWithRemoteOpeFunc(
+	nextStatus,
+	errorStatus model.InstanceGroupStatus,
+	remoteOpeFunc func(ctx context.Context, ope *model.InstanceGroupOperation) (model.RemoteOperationWrapper, error),
+	callback func(appCtx context.Context, m *model.InstanceGroup, ope *model.InstanceGroupOperation) error,
+) InstanceGroupTaskBaseAction {
 	return func(appCtx context.Context, igStore *model.InstanceGroupStore, opeStore *model.InstanceGroupOperationStore, m *model.InstanceGroup, ope *model.InstanceGroupOperation) error {
-		remoteOpe, err := t.RemoteOpeFunc(appCtx, ope)
+		remoteOpe, err := remoteOpeFunc(appCtx, ope)
 		if err != nil {
 			return err
 		}

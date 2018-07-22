@@ -54,20 +54,6 @@ func (c *InstanceGroupResizingTaskController) Watch(ctx *app.WatchInstanceGroupR
 
 	// Put your logic here
 	base := InstanceGroupTaskBase{
-		RemoteOpeFunc: func(ctx context.Context, ope *model.InstanceGroupOperation) (model.RemoteOperationWrapper, error) {
-			servicer, err := model.DefaultInstanceGroupServicer(ctx)
-			if err != nil {
-				return nil, err
-			}
-			remoteOpeOriginal, err := servicer.GetZoneOp(ope.ProjectId, ope.Zone, ope.Name)
-			if err != nil {
-				log.Errorf(ctx, "Failed to get deployment operation: %v because of %v\n", ope, err)
-				return nil, err
-			}
-			return &model.RemoteOperationWrapperOfCompute{
-				Original: remoteOpeOriginal,
-			}, nil
-		},
 		WatchTaskPathFunc: func(ope *model.InstanceGroupOperation) string {
 			return pathToInstanceGroupResizingTask(ctx.OrgID, ctx.Name, ope.Id)
 		},
@@ -79,8 +65,23 @@ func (c *InstanceGroupResizingTaskController) Watch(ctx *app.WatchInstanceGroupR
 
 	base.Routes(
 		map[model.InstanceGroupStatus]InstanceGroupTaskBaseAction{
-			model.ResizeRunning: base.SyncWithRemoteOpeFunc(model.Constructed, model.Constructed, nil),
-			model.Constructed:   base.Skip,
+			model.ResizeRunning: base.SyncWithRemoteOpeFunc(model.Constructed, model.Constructed,
+				func(ctx context.Context, ope *model.InstanceGroupOperation) (model.RemoteOperationWrapper, error) {
+					servicer, err := model.DefaultInstanceGroupServicer(ctx)
+					if err != nil {
+						return nil, err
+					}
+					remoteOpeOriginal, err := servicer.GetZoneOp(ope.ProjectId, ope.Zone, ope.Name)
+					if err != nil {
+						log.Errorf(ctx, "Failed to get deployment operation: %v because of %v\n", ope, err)
+						return nil, err
+					}
+					return &model.RemoteOperationWrapperOfCompute{
+						Original: remoteOpeOriginal,
+					}, nil
+				},
+				nil),
+			model.Constructed: base.Skip,
 		})
 
 	return base.Watch(appengine.NewContext(ctx.Request), ctx.OrgID, ctx.Name, ctx.ID)
