@@ -16,6 +16,8 @@ import (
 	"github.com/groovenauts/blocks-concurrent-batch-server/model"
 )
 
+type InstanceGroupTaskBaseAction func(appCtx context.Context, igStore *model.InstanceGroupStore, opeStore *model.InstanceGroupOperationStore, m *model.InstanceGroup, ope *model.InstanceGroupOperation) error
+
 type InstanceGroupTaskBase struct {
 	WatchTaskPathFunc func(*model.InstanceGroupOperation) string
 	RespondOK         func(*app.CloudAsyncOperation) error
@@ -49,8 +51,6 @@ func (t *InstanceGroupTaskBase) WithInstanceGroupStore(ctx context.Context, orgI
 
 	return f(igStore, opeStore)
 }
-
-type InstanceGroupTaskBaseAction func(appCtx context.Context, igStore *model.InstanceGroupStore, opeStore *model.InstanceGroupOperationStore, m *model.InstanceGroup, ope *model.InstanceGroupOperation) error
 
 func (t *InstanceGroupTaskBase) Routes(actions map[model.InstanceGroupStatus]InstanceGroupTaskBaseAction) {
 	t.actions = actions
