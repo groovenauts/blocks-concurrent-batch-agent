@@ -20,13 +20,6 @@ var CloudAsyncOperation = MediaType("application/vnd.cloud-async-operation+json"
 	}
 	Attributes(func() {
 		UseTrait(IdTrait)
-		Attribute("owner_type", String, "Owner type name", func() {
-			Example("InstanceGroup")
-		})
-		Attribute("owner_name", String, "Owner name", func() {
-			Example("pipeline1-123-ig-456")
-		})
-
 		Attribute("name", String, "Name", func() {
 			Example("instancegroup-ope1")
 		})
