@@ -10,7 +10,7 @@ var CloudAsyncOperation = MediaType("application/vnd.cloud-async-operation+json"
 	attrNames := []string{
 		"id",
 		"owner_type",
-		"owner_id",
+		"owner_name",
 		"name",
 		"service",
 		"operation_type",
@@ -23,8 +23,8 @@ var CloudAsyncOperation = MediaType("application/vnd.cloud-async-operation+json"
 		Attribute("owner_type", String, "Owner type name", func() {
 			Example("InstanceGroup")
 		})
-		Attribute("owner_id", String, "Owner id", func() {
-			Example("bd2d5ee3-d8be-4024-85a7-334dee9c1c88")
+		Attribute("owner_name", String, "Owner name", func() {
+			Example("pipeline1-123-ig-456")
 		})
 
 		Attribute("name", String, "Name", func() {
