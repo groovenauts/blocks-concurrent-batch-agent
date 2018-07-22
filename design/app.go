@@ -55,11 +55,12 @@ var _ = API("appengine", func() {
 	})
 
 	Trait(TaskResponsesTrait, func() {
-		Response(OK, CloudAsyncOperation)           // 200 (他のなにかによって)既に完了済み
-		Response(Created, CloudAsyncOperation)      // 201 継続
-		Response(Accepted, CloudAsyncOperation)     // 202 完了
-		Response(NoContent, CloudAsyncOperation)    // 204 エラー
-		Response(ResetContent, CloudAsyncOperation) // 205 成功(再実行)
+		Response(OK, CloudAsyncOperation)             // 200 (他のなにかによって)既に完了済み
+		Response(Created, CloudAsyncOperation)        // 201 継続
+		Response(Accepted, CloudAsyncOperation)       // 202 完了
+		Response(NoContent, CloudAsyncOperation)      // 204 エラー
+		Response(ResetContent, CloudAsyncOperation)   // 205 成功(再実行)
+		Response(PartialContent, CloudAsyncOperation) // 206 致命的でないエラーあり
 		UseTrait(DefaultResponseTrait)
 	})
 
