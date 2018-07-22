@@ -32,9 +32,18 @@ var CloudAsyncOperation = MediaType("application/vnd.cloud-async-operation+json"
 		})
 		Attribute("service", String, "Service name", func() {
 			Example("deploymentmanager")
+			Example("custom") // For health check
 		})
-		Attribute("operation_type", String, "Operation Type")
-		Attribute("status", String, "Operation Status")
+		Attribute("operation_type", String, "Operation Type", func() {
+			Example("insert")
+			Example("update")
+			Example("delete")
+		})
+		Attribute("status", String, "Operation Status", func() {
+			Example("PENDING")
+			Example("RUNNING")
+			Example("DONE")
+		})
 
 		Attribute("project_id", String, "GCP Project ID", func() {
 			Example("dummy-proj-999")
