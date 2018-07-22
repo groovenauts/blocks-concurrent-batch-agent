@@ -27,9 +27,6 @@ func (c *InstanceGroupResizingTaskController) Start(ctx *app.StartInstanceGroupR
 
 	// Put your logic here
 	base := InstanceGroupTaskBase{
-		ProcessorFactory: func(ctx context.Context) (model.InstanceGroupProcessor, error) {
-			return model.NewInstanceGroupScaler(ctx)
-		},
 		WatchTaskPathFunc: func(ope *model.InstanceGroupOperation) string {
 			return pathToInstanceGroupResizingTask(ctx.OrgID, ctx.Name, ope.Id)
 		},
@@ -40,8 +37,10 @@ func (c *InstanceGroupResizingTaskController) Start(ctx *app.StartInstanceGroupR
 
 	base.Routes(
 		map[model.InstanceGroupStatus]InstanceGroupTaskBaseAction{
-			model.ResizeStarting: base.RunProcessorFunc(model.ResizeRunning),
-			model.ResizeRunning:  base.Skip,
+			model.ResizeStarting: base.RunProcessorFunc(model.ResizeRunning, func(ctx context.Context) (model.InstanceGroupProcessor, error) {
+				return model.NewInstanceGroupScaler(ctx)
+			}),
+			model.ResizeRunning: base.Skip,
 		})
 
 	return base.Start(appengine.NewContext(ctx.Request), ctx.OrgID, ctx.Name)

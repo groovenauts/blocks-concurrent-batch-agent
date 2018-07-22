@@ -27,9 +27,6 @@ func (c *InstanceGroupDestructionTaskController) Start(ctx *app.StartInstanceGro
 
 	// Put your logic here
 	base := InstanceGroupTaskBase{
-		ProcessorFactory: func(ctx context.Context) (model.InstanceGroupProcessor, error) {
-			return model.NewInstanceGroupDestructor(ctx)
-		},
 		WatchTaskPathFunc: func(ope *model.InstanceGroupOperation) string {
 			return pathToInstanceGroupDestructionTask(ctx.OrgID, ctx.Name, ope.Id)
 		},
@@ -40,10 +37,12 @@ func (c *InstanceGroupDestructionTaskController) Start(ctx *app.StartInstanceGro
 
 	base.Routes(
 		map[model.InstanceGroupStatus]InstanceGroupTaskBaseAction{
-			model.ConstructionStarting: base.RunProcessorFunc(model.DestructionStarting),
-			model.DestructionRunning:   base.Skip,
-			model.DestructionError:     base.Skip,
-			model.Destructed:           base.Skip,
+			model.ConstructionStarting: base.RunProcessorFunc(model.DestructionStarting, func(ctx context.Context) (model.InstanceGroupProcessor, error) {
+				return model.NewInstanceGroupDestructor(ctx)
+			}),
+			model.DestructionRunning: base.Skip,
+			model.DestructionError:   base.Skip,
+			model.Destructed:         base.Skip,
 		})
 
 	return base.Start(appengine.NewContext(ctx.Request), ctx.OrgID, ctx.Name)

@@ -27,9 +27,6 @@ func (c *InstanceGroupConstructionTaskController) Start(ctx *app.StartInstanceGr
 
 	// Put your logic here
 	base := InstanceGroupTaskBase{
-		ProcessorFactory: func(ctx context.Context) (model.InstanceGroupProcessor, error) {
-			return model.NewInstanceGroupConstructor(ctx)
-		},
 		WatchTaskPathFunc: func(ope *model.InstanceGroupOperation) string {
 			return pathToInstanceGroupConstructionTask(ctx.OrgID, ctx.Name, ope.Id)
 		},
@@ -40,11 +37,13 @@ func (c *InstanceGroupConstructionTaskController) Start(ctx *app.StartInstanceGr
 
 	base.Routes(
 		map[model.InstanceGroupStatus]InstanceGroupTaskBaseAction{
-			model.ConstructionStarting: base.RunProcessorFunc(model.ConstructionRunning),
-			model.ConstructionRunning:  base.Skip,
-			model.ConstructionError:    base.Skip,
-			model.Constructed:          base.Skip,
-			model.HealthCheckError:     base.Skip,
+			model.ConstructionStarting: base.RunProcessorFunc(model.ConstructionRunning, func(ctx context.Context) (model.InstanceGroupProcessor, error) {
+				return model.NewInstanceGroupConstructor(ctx)
+			}),
+			model.ConstructionRunning: base.Skip,
+			model.ConstructionError:   base.Skip,
+			model.Constructed:         base.Skip,
+			model.HealthCheckError:    base.Skip,
 		})
 
 	return base.Start(appengine.NewContext(ctx.Request), ctx.OrgID, ctx.Name)

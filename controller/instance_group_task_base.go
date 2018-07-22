@@ -17,7 +17,6 @@ import (
 )
 
 type InstanceGroupTaskBase struct {
-	ProcessorFactory  func(ctx context.Context) (model.InstanceGroupProcessor, error)
 	RemoteOpeFunc     func(context.Context, *model.InstanceGroupOperation) (model.RemoteOperationWrapper, error)
 	WatchTaskPathFunc func(*model.InstanceGroupOperation) string
 	RespondOK         func(*app.CloudAsyncOperation) error
@@ -91,9 +90,11 @@ func (t *InstanceGroupTaskBase) Start(appCtx context.Context, orgId, name string
 	})
 }
 
-func (t *InstanceGroupTaskBase) RunProcessorFunc(nextStatus model.InstanceGroupStatus) InstanceGroupTaskBaseAction {
+type ProcessorFactory func(context.Context) (model.InstanceGroupProcessor, error)
+
+func (t *InstanceGroupTaskBase) RunProcessorFunc(nextStatus model.InstanceGroupStatus, processorFactory ProcessorFactory) InstanceGroupTaskBaseAction {
 	return func(appCtx context.Context, igStore *model.InstanceGroupStore, opeStore *model.InstanceGroupOperationStore, m *model.InstanceGroup, ope *model.InstanceGroupOperation) error {
-		processor, err := t.ProcessorFactory(appCtx)
+		processor, err := processorFactory(appCtx)
 		if err != nil {
 			return err
 		}
