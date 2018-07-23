@@ -1,3 +1,13 @@
+<%-
+# Generate app.yaml
+# $ erb -T - app/concurrent-batch-agent/app.yaml.erb > app/concurrent-batch-agent/app.yaml
+#
+# Set APP_YAML_EXTRA_PATH to specify the file included by app.yaml
+# This path must be relative path from app.yaml.
+#
+# Example:
+# $ APP_YAML_EXTRA_PATH=autoscale-default.yaml erb -T - app/concurrent-batch-agent/app.yaml.erb > app/concurrent-batch-agent/app.yaml
+-%>
 service: concurrent-batch-agent # see https://cloud.google.com/appengine/docs/go/
 runtime: go                     # see https://cloud.google.com/appengine/docs/go/
 api_version: go1                # used when appengine supports different go versions
@@ -22,3 +32,7 @@ skip_files:
 
 env_variables:
   TRANSACTION_ATTEMPTS: '10'
+
+<%- if included = ENV['APP_YAML_EXTRA_PATH'] -%>
+<%=   File.read(File.expand_path("../#{included}", __FILE__)) %>
+<%- end -%>
