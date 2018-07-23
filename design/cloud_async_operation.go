@@ -44,6 +44,10 @@ var CloudAsyncOperation = MediaType("application/vnd.cloud-async-operation+json"
 		Attribute("zone", String, "GCP zone", func() {
 			Example("us-central1-f")
 		})
+		Attribute("last_result", String, "Last result", func() {
+			Example("Operation data or something")
+		})
+
 		UseTrait(TimestampsAttrTrait)
 
 		Required(attrNames...)
