@@ -10,6 +10,7 @@ import (
 
 	"github.com/labstack/echo"
 	"golang.org/x/net/context"
+	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 )
 
@@ -60,7 +61,9 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 		}
 	}
 
-	jobs, err := pl.JobAccessor().All(ctx)
+	jobs, err := pl.JobAccessor().AllWith(ctx, func(q *datastore.Query) (*datastore.Query, error) {
+		return q.Project("id_by_client", "status"), nil
+	})
 	if err != nil {
 		log.Errorf(ctx, "Failed to m.JobAccessor#All() because of %v\n", err)
 		return err
