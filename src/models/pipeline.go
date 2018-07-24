@@ -568,7 +568,7 @@ func (em ErrorMessages) Error() error {
 }
 
 func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
-	s := &PubsubSubscriber{MessagePerPull: 10}
+	s := &PubsubSubscriber{MessagePerPull: 100}
 	err := s.setup(ctx)
 	if err != nil {
 		return err
