@@ -577,6 +577,8 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 		return err
 	}
 
+	log.Debugf(ctx, "PullAndUpdateJobStatus #1\n")
+
 	messagesForJob := map[string][]*pubsub.ReceivedMessage{}
 
 	accessor := m.JobAccessor()
@@ -595,27 +597,35 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 		return err
 	}
 
+	log.Debugf(ctx, "PullAndUpdateJobStatus #2\n")
+
 	for _, recvMsgs := range messagesForJob {
 		sort.Sort(ByPublishTime(recvMsgs))
 	}
 
+	log.Debugf(ctx, "PullAndUpdateJobStatus #3\n")
+
 	errors := ErrorMessages{}
 	for jobId, recvMsgs := range messagesForJob {
+		log.Debugf(ctx, "PullAndUpdateJobStatus #4.1\n")
 		job, err := accessor.Find(ctx, jobId)
 		if err != nil {
 			return err
 		}
+		log.Debugf(ctx, "PullAndUpdateJobStatus #4.2\n")
 
 		err = m.OverwriteJobByMessages(ctx, job, recvMsgs)
 		if err != nil {
 			errors = append(errors, err.Error())
 			continue
 		}
+		log.Debugf(ctx, "PullAndUpdateJobStatus #4.3\n")
 		err = job.Update(ctx)
 		if err != nil {
 			errors = append(errors, err.Error())
 			continue
 		}
+		log.Debugf(ctx, "PullAndUpdateJobStatus #4.4\n")
 		for _, recvMsg := range recvMsgs {
 			err := s.sendAck(ctx, subscription, recvMsg)
 			if err != nil {
@@ -623,6 +633,7 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 				break
 			}
 		}
+		log.Debugf(ctx, "PullAndUpdateJobStatus #4.5\n")
 	}
 
 	return errors.Error()
