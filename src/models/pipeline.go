@@ -568,6 +568,9 @@ func (em ErrorMessages) Error() error {
 }
 
 func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
+	log.Infof(ctx, "PullAndUpdateJobStatus start\n")
+	defer log.Infof(ctx, "PullAndUpdateJobStatus end\n")
+
 	s := &PubsubSubscriber{MessagePerPull: 100}
 	err := s.setup(ctx)
 	if err != nil {

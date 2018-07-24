@@ -63,6 +63,9 @@ func (ps *PubsubSubscriber) subscribeAndAck(ctx context.Context, subscription st
 }
 
 func (ps *PubsubSubscriber) subscribe(ctx context.Context, subscription string, f func(*pubsub.ReceivedMessage) error) error {
+	log.Infof(ctx, "PubsubSubscriber.subscribe start\n")
+	defer log.Infof(ctx, "PubsubSubscriber.subscribe end\n")
+
 	pullRequest := &pubsub.PullRequest{
 		ReturnImmediately: true,
 		MaxMessages:       ps.MessagePerPull,
