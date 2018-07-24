@@ -70,27 +70,30 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 	}
 	log.Debugf(ctx, "Pipeline has %v jobs\n", len(jobs))
 
-	pendings, err := models.GlobalPipelineAccessor.PendingsFor(ctx, jobs.Finished().IDs())
-	if err != nil {
-		return err
-	}
-
-	for _, pending := range pendings {
-		org := c.Get("organization").(*models.Organization)
-		pending.Organization = org
-		err := pending.UpdateIfReserveOrWait(ctx)
-		if err != nil {
-			log.Errorf(ctx, "Failed to UpdateIfReserveOrWait pending: %v\n%v\n", pending, err)
-			return err
-		}
-		if pending.Status == models.Reserved {
-			err = h.PostPipelineTaskIfPossible(c, pending)
-			if err != nil {
-				log.Errorf(ctx, "Failed to PostPipelineTaskIfPossible pending: %v\n%v\n", pending, err)
-				return err
-			}
-		}
-	}
+	// // Comment out the following code
+	// // Because there are no dependency control actually.
+	//
+	// pendings, err := models.GlobalPipelineAccessor.PendingsFor(ctx, jobs.Finished().IDs())
+	// if err != nil {
+	// 	return err
+	// }
+	//
+	// for _, pending := range pendings {
+	// 	org := c.Get("organization").(*models.Organization)
+	// 	pending.Organization = org
+	// 	err := pending.UpdateIfReserveOrWait(ctx)
+	// 	if err != nil {
+	// 		log.Errorf(ctx, "Failed to UpdateIfReserveOrWait pending: %v\n%v\n", pending, err)
+	// 		return err
+	// 	}
+	// 	if pending.Status == models.Reserved {
+	// 		err = h.PostPipelineTaskIfPossible(c, pending)
+	// 		if err != nil {
+	// 			log.Errorf(ctx, "Failed to PostPipelineTaskIfPossible pending: %v\n%v\n", pending, err)
+	// 			return err
+	// 		}
+	// 	}
+	// }
 
 	if jobs.AllFinished() {
 		if pl.ClosePolicy.Match(jobs) {
