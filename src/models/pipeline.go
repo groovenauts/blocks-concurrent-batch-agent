@@ -106,6 +106,11 @@ type (
 		MaxInstanceSize int  `json:"max_instance_size"`
 	}
 
+	Pulling struct {
+		MessagePerPull  int64 `json:"message_per_pull"`
+		IntervalSeconds int64 `json:"interval_seconds"`
+	}
+
 	Pipeline struct {
 		ID                   string         `json:"id"             datastore:"-"`
 		Organization         *Organization  `json:"-"              validate:"required" datastore:"-"`
@@ -132,6 +137,7 @@ type (
 		HibernationDelay     int            `json:"hibernation_delay,omitempty"` // seconds
 		HibernationStartedAt time.Time      `json:"hibernation_started_at,omitempty"`
 		JobScaler            JobScaler      `json:"job_scaler,omitempty"`
+		Pulling              Pulling        `json:"pulling"`
 		InstanceSize         int            `json:"-"`
 		CreatedAt            time.Time      `json:"created_at"`
 		UpdatedAt            time.Time      `json:"updated_at"`
@@ -571,7 +577,7 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 	log.Infof(ctx, "PullAndUpdateJobStatus start\n")
 	defer log.Infof(ctx, "PullAndUpdateJobStatus end\n")
 
-	s := &PubsubSubscriber{MessagePerPull: 100}
+	s := &PubsubSubscriber{MessagePerPull: Int64WithDefault(m.Pulling.MessagePerPull, 100)}
 	err := s.setup(ctx)
 	if err != nil {
 		return err

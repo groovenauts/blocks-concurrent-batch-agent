@@ -118,7 +118,8 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 		}
 	} else {
 		return ReturnJsonWith(c, pl, http.StatusAccepted, func() error {
-			return PostPipelineTaskWithETA(c, "subscribe_task", pl, started.Add(30*time.Second))
+			interval := time.Duration(models.Int64WithDefault(pl.Pulling.IntervalSeconds, 30))
+			return PostPipelineTaskWithETA(c, "subscribe_task", pl, started.Add(interval*time.Second))
 		})
 	}
 }
