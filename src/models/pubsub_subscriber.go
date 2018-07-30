@@ -89,9 +89,9 @@ func (ps *PubsubSubscriber) subscribe(ctx context.Context, subscription string, 
 		log.Debugf(ctx, "Pulled Message #%v AckId: %v, MessageId: %v, PublishTime: %v, Attributes: %v, Data: %v\n", i, recv.AckId, m.MessageId, m.PublishTime, m.Attributes, m.Data)
 	}
 
-	for i, recv := range res.ReceivedMessages {
-		m := recv.Message
-		log.Debugf(ctx, "Pulled Message #%v AckId: %v, MessageId: %v, PublishTime: %v\n", i, recv.AckId, m.MessageId, m.PublishTime)
+	for _, recv := range res.ReceivedMessages {
+		// m := recv.Message
+		// log.Debugf(ctx, "Pulled Message #%v AckId: %v, MessageId: %v, PublishTime: %v\n", i, recv.AckId, m.MessageId, m.PublishTime)
 		err := f(recv)
 		if err != nil {
 			return err
