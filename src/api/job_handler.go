@@ -90,9 +90,19 @@ func (h *JobHandler) index(c echo.Context) error {
 type BulkGetJobsPayload struct {
 	JobIds []string `json:"job_ids"`
 }
+type BulkGetJobsMediaTypeJob struct {
+	ID          string           `json:"id"`
+	IdByClient  string           `json:"id_by_client"`
+	Status      models.JobStatus `json:"status"`
+	PublishedAt time.Time        `json:"published_at,omitempty"`
+	StartTime   string           `json:"start_time"`
+	FinishTime  string           `json:"finish_time"`
+	CreatedAt   time.Time        `json:"created_at"`
+	UpdatedAt   time.Time        `json:"updated_at"`
+}
 type BulkGetJobsMediaType struct {
-	Jobs   map[string]*models.Job `json:"jobs"`
-	Errors map[string]error       `json:"errors"`
+	Jobs   map[string]*BulkGetJobsMediaTypeJob `json:"jobs"`
+	Errors map[string]error                    `json:"errors"`
 }
 
 // curl -v -X POST http://localhost:8080/pipelines/3/bulk_get_jobs --data '{"job_ids":["1","2","5"]}' -H 'Content-Type: application/json'
@@ -107,10 +117,27 @@ func (h *JobHandler) BulkGetJobs(c echo.Context) error {
 	pl := c.Get("pipeline").(*models.Pipeline)
 	jobs, errors := pl.JobAccessor().BulkGet(ctx, payload.JobIds)
 	r := &BulkGetJobsMediaType{
-		Jobs:   jobs,
+		Jobs:   h.JobsFromModelToMediaType(jobs),
 		Errors: errors,
 	}
 	return c.JSON(http.StatusOK, r)
+}
+
+func (h *JobHandler) JobsFromModelToMediaType(models map[string]*models.Job) map[string]*BulkGetJobsMediaTypeJob {
+	r := map[string]*BulkGetJobsMediaTypeJob{}
+	for key, model := range models {
+		r[key] = &BulkGetJobsMediaTypeJob{
+			ID:          model.ID,
+			IdByClient:  model.IdByClient,
+			Status:      model.Status,
+			PublishedAt: model.PublishedAt,
+			StartTime:   model.StartTime,
+			FinishTime:  model.FinishTime,
+			CreatedAt:   model.CreatedAt,
+			UpdatedAt:   model.UpdatedAt,
+		}
+	}
+	return r
 }
 
 type BulkJobStatusesMediaType struct {
