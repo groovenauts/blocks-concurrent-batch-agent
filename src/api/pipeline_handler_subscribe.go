@@ -101,25 +101,25 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 				return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
 					return PostPipelineTask(c, "close_task", pl)
 				})
-			} else {
-				err := pl.WaitHibernation(ctx)
-				if err != nil {
-					return err
-				}
-				now := time.Now()
-				eta := now.Add(time.Duration(pl.HibernationDelay) * time.Second)
-				params := url.Values{
-					"since": []string{now.Format(time.RFC3339)},
-				}
-				return PostPipelineTaskWith(c, "check_hibernation_task", pl, params, SetETAFunc(eta))
 			}
-		} else {
-			return c.JSON(http.StatusOK, pl)
+
+			err := pl.WaitHibernation(ctx)
+			if err != nil {
+				return err
+			}
+			now := time.Now()
+			eta := now.Add(time.Duration(pl.HibernationDelay) * time.Second)
+			params := url.Values{
+				"since": []string{now.Format(time.RFC3339)},
+			}
+			return PostPipelineTaskWith(c, "check_hibernation_task", pl, params, SetETAFunc(eta))
 		}
-	} else {
-		return ReturnJsonWith(c, pl, http.StatusAccepted, func() error {
-			interval := time.Duration(models.Int64WithDefault(pl.Pulling.IntervalSeconds, 30))
-			return PostPipelineTaskWithETA(c, "subscribe_task", pl, started.Add(interval*time.Second))
-		})
+
+		return c.JSON(http.StatusOK, pl)
 	}
+
+	return ReturnJsonWith(c, pl, http.StatusAccepted, func() error {
+		interval := time.Duration(models.Int64WithDefault(pl.Pulling.IntervalSeconds, 30))
+		return PostPipelineTaskWithETA(c, "subscribe_task", pl, started.Add(interval*time.Second))
+	})
 }
