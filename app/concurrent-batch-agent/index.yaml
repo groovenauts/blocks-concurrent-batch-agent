@@ -18,3 +18,7 @@ indexes:
   properties:
   - name: id_by_client
   - name: status
+- kind: Jobs
+  ancestor: yes
+  properties:
+  - name: status
