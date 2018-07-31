@@ -114,6 +114,7 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 
 				err := pl.WaitHibernation(ctx)
 				if err != nil {
+					log.Errorf(ctx, "Failed to Pipeline.WaitHibernation %v because of %v\n", pl.ID, err)
 					return err
 				}
 				now := time.Now()
