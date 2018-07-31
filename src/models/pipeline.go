@@ -613,33 +613,38 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 
 	errors := ErrorMessages{}
 	for jobId, recvMsgs := range messagesForJob {
-		// log.Debugf(ctx, "PullAndUpdateJobStatus #4.1\n")
-		job, err := accessor.Find(ctx, jobId)
-		if err != nil {
-			return err
-		}
-		// log.Debugf(ctx, "PullAndUpdateJobStatus #4.2\n")
+		err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+			// log.Debugf(ctx, "PullAndUpdateJobStatus #4.1\n")
+			job, err := accessor.Find(ctx, jobId)
+			if err != nil {
+				return err
+			}
+			// log.Debugf(ctx, "PullAndUpdateJobStatus #4.2\n")
 
-		err = m.OverwriteJobByMessages(ctx, job, recvMsgs)
-		if err != nil {
-			errors = append(errors, err.Error())
-			continue
-		}
-		// log.Debugf(ctx, "PullAndUpdateJobStatus #4.3\n")
-		err = job.Update(ctx)
-		if err != nil {
-			errors = append(errors, err.Error())
-			continue
-		}
-		// log.Debugf(ctx, "PullAndUpdateJobStatus #4.4\n")
-		for _, recvMsg := range recvMsgs {
-			err := s.sendAck(ctx, subscription, recvMsg)
+			err = m.OverwriteJobByMessages(ctx, job, recvMsgs)
 			if err != nil {
 				errors = append(errors, err.Error())
-				break
+				return err
 			}
+			// log.Debugf(ctx, "PullAndUpdateJobStatus #4.3\n")
+			err = job.Update(ctx)
+			if err != nil {
+				errors = append(errors, err.Error())
+				return nil
+			}
+			// log.Debugf(ctx, "PullAndUpdateJobStatus #4.4\n")
+			for _, recvMsg := range recvMsgs {
+				err := s.sendAck(ctx, subscription, recvMsg)
+				if err != nil {
+					errors = append(errors, err.Error())
+				}
+			}
+			// log.Debugf(ctx, "PullAndUpdateJobStatus #4.5\n")
+			return nil
+		}, nil)
+		if err != nil {
+			errors = append(errors, err.Error())
 		}
-		// log.Debugf(ctx, "PullAndUpdateJobStatus #4.5\n")
 	}
 
 	return errors.Error()
