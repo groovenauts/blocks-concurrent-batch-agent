@@ -21,27 +21,31 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 	pl := c.Get("pipeline").(*models.Pipeline)
 
 	if pl.Cancelled {
-		switch {
-		case models.StatusesOpened.Include(pl.Status):
-			log.Infof(ctx, "Pipeline is cancelled.\n")
-			return ReturnJsonWith(c, pl, http.StatusNoContent, func() error {
-				return PostPipelineTask(c, "close_task", pl)
-			})
-		case models.StatusesAlreadyClosing.Include(pl.Status):
-			log.Warningf(ctx, "Pipeline is cancelled but do nothing because it's already closed or being closed.\n")
-			return c.JSON(http.StatusOK, pl)
-		default:
-			return &models.InvalidStateTransition{
-				Msg: fmt.Sprintf("Invalid Pipeline#Status %v to subscribe a Pipeline cancelled", pl.Status),
+		return pl.DecreasePullingTaskSize(ctx, 1, func() error {
+			switch {
+			case models.StatusesOpened.Include(pl.Status):
+				log.Infof(ctx, "Pipeline is cancelled.\n")
+				return ReturnJsonWith(c, pl, http.StatusNoContent, func() error {
+					return PostPipelineTask(c, "close_task", pl)
+				})
+			case models.StatusesAlreadyClosing.Include(pl.Status):
+				log.Warningf(ctx, "Pipeline is cancelled but do nothing because it's already closed or being closed.\n")
+				return c.JSON(http.StatusOK, pl)
+			default:
+				return &models.InvalidStateTransition{
+					Msg: fmt.Sprintf("Invalid Pipeline#Status %v to subscribe a Pipeline cancelled", pl.Status),
+				}
 			}
-		}
+		})
 	}
 
 	switch {
 	case models.StatusesHibernationInProgresss.Include(pl.Status) ||
 		models.StatusesHibernating.Include(pl.Status):
-		log.Infof(ctx, "Pipeline is %v so now stopping subscribe_task. \n", pl.Status)
-		return c.JSON(http.StatusOK, pl)
+		return pl.DecreasePullingTaskSize(ctx, 1, func() error {
+			log.Infof(ctx, "Pipeline is %v so now stopping subscribe_task. \n", pl.Status)
+			return c.JSON(http.StatusOK, pl)
+		})
 	}
 
 	err := pl.PullAndUpdateJobStatus(ctx)
@@ -50,14 +54,18 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 		case *models.SubscriprionNotFound:
 			switch {
 			case models.StatusesAlreadyClosing.Include(pl.Status):
-				log.Infof(ctx, "Pipeline is already %v\n", pl.Status)
-				return c.JSON(http.StatusOK, pl)
+				return pl.DecreasePullingTaskSize(ctx, 1, func() error {
+					log.Infof(ctx, "Pipeline is already %v\n", pl.Status)
+					return c.JSON(http.StatusOK, pl)
+				})
 			default:
 				log.Infof(ctx, "Subscription is not found but the pipeline isn't closed because of %v\n", err)
 			}
 		default:
-			log.Errorf(ctx, "Failed to get Pipeline#PullAndUpdateJobStatus() because of %v\n", err)
-			return err
+			return pl.DecreasePullingTaskSize(ctx, 1, func() error {
+				log.Errorf(ctx, "Failed to get Pipeline#PullAndUpdateJobStatus() because of %v\n", err)
+				return err
+			})
 		}
 	}
 
@@ -96,26 +104,28 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 	// }
 
 	if jobs.AllFinished() {
-		if pl.ClosePolicy.Match(jobs) {
-			if pl.HibernationDelay == 0 {
-				return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
-					return PostPipelineTask(c, "close_task", pl)
-				})
+		return pl.DecreasePullingTaskSize(ctx, 1, func() error {
+			if pl.ClosePolicy.Match(jobs) {
+				if pl.HibernationDelay == 0 {
+					return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
+						return PostPipelineTask(c, "close_task", pl)
+					})
+				}
+
+				err := pl.WaitHibernation(ctx)
+				if err != nil {
+					return err
+				}
+				now := time.Now()
+				eta := now.Add(time.Duration(pl.HibernationDelay) * time.Second)
+				params := url.Values{
+					"since": []string{now.Format(time.RFC3339)},
+				}
+				return PostPipelineTaskWith(c, "check_hibernation_task", pl, params, SetETAFunc(eta))
 			}
 
-			err := pl.WaitHibernation(ctx)
-			if err != nil {
-				return err
-			}
-			now := time.Now()
-			eta := now.Add(time.Duration(pl.HibernationDelay) * time.Second)
-			params := url.Values{
-				"since": []string{now.Format(time.RFC3339)},
-			}
-			return PostPipelineTaskWith(c, "check_hibernation_task", pl, params, SetETAFunc(eta))
-		}
-
-		return c.JSON(http.StatusOK, pl)
+			return c.JSON(http.StatusOK, pl)
+		})
 	}
 
 	return ReturnJsonWith(c, pl, http.StatusAccepted, func() error {

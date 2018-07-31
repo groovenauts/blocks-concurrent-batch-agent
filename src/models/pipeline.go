@@ -761,6 +761,26 @@ func (m *Pipeline) CalcAndUpdatePullingTaskSize(ctx context.Context, f func(int)
 	return nil
 }
 
+func (m *Pipeline) DecreasePullingTaskSize(ctx context.Context, diff int, f func() error) error {
+	ret := f()
+	err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+		if err := m.Reload(ctx); err != nil {
+			log.Warningf(ctx, "Failed to reload on Pipeline.DecreasePullingTaskSize for %v because of %v\n", m.ID, err)
+			return err
+		}
+		m.PullingTaskSize = -diff
+		if err := m.Update(ctx); err != nil {
+			log.Warningf(ctx, "Failed to update on Pipeline.DecreasePullingTaskSize for %v because of %v\n", m.ID, err)
+			return err
+		}
+		return nil
+	}, nil)
+	if err != nil {
+		log.Errorf(ctx, "Failed to update on Pipeline.DecreasePullingTaskSize for %v because of %v\n", m.ID, err)
+	}
+	return ret
+}
+
 func (m *Pipeline) HasNewTaskSince(ctx context.Context, t time.Time) (bool, error) {
 	accessor := m.JobAccessor()
 	q, err := accessor.Query()
