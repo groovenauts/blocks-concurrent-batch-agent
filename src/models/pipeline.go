@@ -514,20 +514,38 @@ func (m *Pipeline) PublishJobs(ctx context.Context) error {
 	}()
 
 	accessor := m.JobAccessor()
-	jobs, err := accessor.All(ctx)
+	jobs, err := accessor.AllWith(ctx, func(q *datastore.Query) (*datastore.Query, error) {
+		return q.Project("status"), nil
+	})
 	if err != nil {
 		return err
 	}
 
-	for _, job := range jobs {
-		switch job.Status {
+	for _, j := range jobs {
+		switch j.Status {
 		case Preparing:
-			log.Debugf(ctx, "The job isn't published because it's preparing now: %v\n", job)
+			log.Debugf(ctx, "The job isn't published because it's preparing now: %v\n", j)
 		case Ready:
-			job.Pipeline = m
-			_, err := job.Publish(ctx)
+			jobId := j.ID
+			err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+				job, err := accessor.Find(ctx, jobId)
+				if err != nil {
+					log.Warningf(ctx, "Failed to get job %v because of %v\n", jobId, err)
+					return err
+				}
+				if job.Status != Ready {
+					return nil
+				}
+				job.Pipeline = m
+				_, err = job.Publish(ctx)
+				if err != nil {
+					log.Warningf(ctx, "Failed to publish job %v because of %v\n", job, err)
+					return err
+				}
+				return nil
+			}, nil)
 			if err != nil {
-				log.Errorf(ctx, "Failed to publish job %v because of %v\n", job, err)
+				log.Errorf(ctx, "Failed to Publish job %v because of %v\n", jobId, err)
 				return err
 			}
 		}
