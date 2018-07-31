@@ -509,6 +509,7 @@ func (m *Pipeline) PublishJobs(ctx context.Context) error {
 		return q.Project("status"), nil
 	})
 	if err != nil {
+		log.Errorf(ctx, "Failed to get jobs for %v because of %v\n", m.ID, err)
 		return err
 	}
 

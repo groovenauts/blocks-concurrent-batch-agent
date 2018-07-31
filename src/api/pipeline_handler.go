@@ -149,6 +149,7 @@ func (h *PipelineHandler) publishTask(c echo.Context) error {
 	pl := c.Get("pipeline").(*models.Pipeline)
 	err := pl.PublishJobs(ctx)
 	if err != nil {
+		log.Errorf(ctx, "Failed to Pipeline.PublishJobs for %v because of %v\n", pl.ID, err)
 		return err
 	}
 	return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
