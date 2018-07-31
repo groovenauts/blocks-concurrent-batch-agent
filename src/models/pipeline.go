@@ -109,6 +109,7 @@ type (
 	Pulling struct {
 		MessagePerPull  int64 `json:"message_per_pull"`
 		IntervalSeconds int64 `json:"interval_seconds"`
+		JobsPerTask     int   `json:"jobs_per_task"`
 	}
 
 	Pipeline struct {
@@ -138,6 +139,7 @@ type (
 		HibernationStartedAt time.Time      `json:"hibernation_started_at,omitempty"`
 		JobScaler            JobScaler      `json:"job_scaler,omitempty"`
 		Pulling              Pulling        `json:"pulling"`
+		PullingTaskSize      int            `json:"pulling_task_size"`
 		InstanceSize         int            `json:"-"`
 		CreatedAt            time.Time      `json:"created_at"`
 		UpdatedAt            time.Time      `json:"updated_at"`
@@ -502,17 +504,6 @@ func (m *Pipeline) Reload(ctx context.Context) error {
 }
 
 func (m *Pipeline) PublishJobs(ctx context.Context) error {
-	// m.AddActionLog(ctx, "publish-started")
-	err := m.Update(ctx)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		// m.AddActionLog(ctx, "publish-finished")
-		m.Update(ctx)
-		// ignore error
-	}()
-
 	accessor := m.JobAccessor()
 	jobs, err := accessor.AllWith(ctx, func(q *datastore.Query) (*datastore.Query, error) {
 		return q.Project("status"), nil
@@ -726,6 +717,48 @@ func (m *Pipeline) stringFromMapWithDefault(src map[string]string, key, defaultV
 		return defaultValue
 	}
 	return r
+}
+
+func (m *Pipeline) JobCountBy(ctx context.Context, st JobStatus) (int, error) {
+	accessor := m.JobAccessor()
+	q, err := accessor.Query()
+	if err != nil {
+		return 0, err
+	}
+	return q.Filter("status = ", int(st)).Count(ctx)
+}
+
+func (m *Pipeline) JobCount(ctx context.Context, statuses ...JobStatus) (int, error) {
+	r := 0
+	for _, st := range statuses {
+		c, err := m.JobCountBy(ctx, st)
+		if err != nil {
+			return 0, err
+		}
+		r += c
+	}
+	return r, nil
+}
+
+func (m *Pipeline) CalcAndUpdatePullingTaskSize(ctx context.Context, f func(int) error) error {
+	jobCount, err := m.JobCount(ctx, Publishing, Published, Executing)
+	if err != nil {
+		return err
+	}
+	jobsPerTask := m.Pulling.JobsPerTask
+	if jobsPerTask < 1 {
+		jobsPerTask = 50
+	}
+	tasks := (jobCount / jobsPerTask) + 1
+	newTasks := tasks - m.PullingTaskSize
+	if newTasks > 0 {
+		m.PullingTaskSize = tasks
+		if err := m.Update(ctx); err != nil {
+			return err
+		}
+		return f(newTasks)
+	}
+	return nil
 }
 
 func (m *Pipeline) HasNewTaskSince(ctx context.Context, t time.Time) (bool, error) {

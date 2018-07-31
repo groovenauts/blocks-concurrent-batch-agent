@@ -44,6 +44,7 @@ func (h *JobHandler) create(c echo.Context) error {
 
 	switch pl.Status {
 	case models.HibernationChecking:
+		pl.PullingTaskSize = 1
 		err := pl.BackToBeOpened(ctx)
 		if err != nil {
 			return err
@@ -260,6 +261,23 @@ func (h *JobHandler) PublishTask(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+
+	pl := c.Get("pipeline").(*models.Pipeline)
+	err = datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+		return pl.CalcAndUpdatePullingTaskSize(ctx, func(newTasks int) error {
+			for i := 0; i < newTasks; i++ {
+				if err := PostPipelineTask(c, "subscribe_task", pl); err != nil {
+					log.Warningf(ctx, "Failed to start subscribe_task for %v because of %v\n", pl.ID, err)
+					// return err
+				}
+			}
+			return nil
+		})
+	}, nil)
+	if err != nil {
+		log.Warningf(ctx, "Failed to CalcAndUpdatePullingTaskSize for %v because of %v\n", pl.ID, err)
+	}
+
 	return c.JSON(http.StatusOK, job)
 }
 
