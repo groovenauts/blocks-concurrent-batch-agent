@@ -248,13 +248,15 @@ func (h *JobHandler) WaitToPublishTask(c echo.Context) error {
 func (h *JobHandler) PublishTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	job := c.Get("job").(*models.Job)
-	job.Status = models.Publishing
-	log.Debugf(ctx, "PublishAndUpdate#1: %v\n", job)
-	err := job.Update(ctx)
-	if err != nil {
-		return err
+	if job.Status != models.Publishing {
+		job.Status = models.Publishing
+		log.Debugf(ctx, "PublishAndUpdate#1: %v\n", job)
+		err := job.Update(ctx)
+		if err != nil {
+			return err
+		}
 	}
-	err = job.PublishAndUpdate(ctx)
+	err := job.PublishAndUpdateWithTx(ctx)
 	if err != nil {
 		return err
 	}
