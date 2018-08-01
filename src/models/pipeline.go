@@ -50,7 +50,7 @@ var StatusStrings = map[Status]string{
 	Building:              "building",
 	Deploying:             "deploying",
 	Opened:                "opened",
-	HibernationChecking:   "hibernation_waiting",
+	HibernationChecking:   "hibernation_checking",
 	HibernationStarting:   "hibernation_starting",
 	HibernationProcessing: "hibernation_processing",
 	HibernationError:      "hibernation_error",
@@ -352,6 +352,7 @@ func (m *Pipeline) StateTransition(ctx context.Context, froms []Status, to Statu
 	if !allowed {
 		return &InvalidStateTransition{fmt.Sprintf("Forbidden state transition from %v to %v for pipeline: %v", m.Status, to, m)}
 	}
+	log.Infof(ctx, "Now Pipeline status transition is going from %v to %v\n", m.Status, to)
 	m.Status = to
 	return m.Update(ctx)
 }
@@ -375,7 +376,7 @@ func (m *Pipeline) CompleteDeploying(ctx context.Context) error {
 }
 
 func (m *Pipeline) WaitHibernation(ctx context.Context) error {
-	return m.StateTransition(ctx, []Status{Opened}, HibernationChecking)
+	return m.StateTransition(ctx, []Status{Opened, HibernationChecking}, HibernationChecking)
 }
 
 func (m *Pipeline) StartHibernation(ctx context.Context) error {
