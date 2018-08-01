@@ -104,7 +104,16 @@ func (m *PipelineOperation) ValidateAndPut(ctx context.Context, key *datastore.K
 		log.Errorf(ctx, "Failed to datastore.Put(ctx, %v, %v) because of %v\n", key, m, err)
 		return nil, err
 	}
+	log.Infof(ctx, "Succeed to datastore.Put(ctx, %v, %v)\n", key, m)
 	return key, nil
+}
+
+func (m *PipelineOperation) Reload(ctx context.Context) error {
+	err := GlobalPipelineOperationAccessor.LoadByID(ctx, m)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (m *PipelineOperation) AppendLog(msg string) {
