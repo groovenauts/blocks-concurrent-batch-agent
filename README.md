@@ -17,6 +17,8 @@ increases or descreases, `blocks-concurrent-batch-agent` detects it and scale yo
     - You can install goenv by [anyenv](https://github.com/riywo/anyenv)
 1. [Install the App Engine SDK for Go](https://cloud.google.com/appengine/docs/go/download?hl=ja)
 1. `git clone git@github.com:groovenauts/blocks-concurrent-batch-agent.git`
+1. Install Ruby
+  - https://www.ruby-lang.org/
 
 ## Run test
 
