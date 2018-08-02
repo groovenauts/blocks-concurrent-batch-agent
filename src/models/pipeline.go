@@ -650,6 +650,9 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 			return nil
 		}, &datastore.TransactionOptions{XG: true})
 		if err != nil {
+			if err == datastore.ErrConcurrentTransaction {
+				return err
+			}
 			errors = append(errors, err.Error())
 		}
 	}
