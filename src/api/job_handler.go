@@ -70,6 +70,10 @@ func (h *JobHandler) create(c echo.Context) error {
 	}
 	log.Debugf(ctx, "Created Job: %v\n", job)
 
+	if job.Status == models.Published {
+		h.IncreaseSubscribeTask(c, ctx, pl)
+	}
+
 	err = h.StartToWaitAndPublishIfNeeded(c, job)
 	if err != nil {
 		return err
