@@ -629,13 +629,11 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 			// log.Debugf(ctx, "PullAndUpdateJobStatus #4.2\n")
 
 			if err := m.OverwriteJobByMessages(ctx, job, recvMsgs); err != nil {
-				errors = append(errors, err.Error())
 				return err
 			}
 			// log.Debugf(ctx, "PullAndUpdateJobStatus #4.3\n")
 
 			if err := job.Update(ctx); err != nil {
-				errors = append(errors, err.Error())
 				return err
 			}
 			// log.Debugf(ctx, "PullAndUpdateJobStatus #4.4\n")
