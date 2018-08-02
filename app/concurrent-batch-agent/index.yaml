@@ -5,6 +5,7 @@ indexes:
   properties:
   - name: Status
   - name: CreatedAt
+
 - kind: Jobs
   ancestor: yes
   properties:
@@ -21,4 +22,8 @@ indexes:
 - kind: Jobs
   ancestor: yes
   properties:
+  - name: status
+- kind: Jobs
+  properties:
+  - name: pipeline_key
   - name: status
