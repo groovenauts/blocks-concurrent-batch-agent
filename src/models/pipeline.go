@@ -320,12 +320,6 @@ func (m *Pipeline) Update(ctx context.Context) error {
 	}
 
 	m.UpdatedAt = time.Now()
-	if m.Organization == nil {
-		err := m.LoadOrganization(ctx)
-		if err != nil {
-			return err
-		}
-	}
 
 	err := m.Validate()
 	if err != nil {
