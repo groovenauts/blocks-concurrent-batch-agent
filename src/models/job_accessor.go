@@ -63,12 +63,12 @@ func (aa *JobAccessor) BulkGet(ctx context.Context, ids []string) (map[string]*J
 	return jobs, errors
 }
 
-func (aa *JobAccessor) Query() (*datastore.Query, error) {
+func (aa *JobAccessor) Query() *datastore.Query {
 	q := datastore.NewQuery("Jobs")
 	if aa.PipelineKey != nil {
 		q = q.Filter("pipeline_key =", aa.PipelineKey)
 	}
-	return q, nil
+	return q
 }
 
 func (aa *JobAccessor) All(ctx context.Context) (Jobs, error) {
@@ -76,11 +76,9 @@ func (aa *JobAccessor) All(ctx context.Context) (Jobs, error) {
 }
 
 func (aa *JobAccessor) AllWith(ctx context.Context, f func(*datastore.Query) (*datastore.Query, error)) (Jobs, error) {
-	q, err := aa.Query()
-	if err != nil {
-		return nil, err
-	}
+	q := aa.Query()
 	if f != nil {
+		var err error
 		q, err = f(q)
 		if err != nil {
 			return nil, err

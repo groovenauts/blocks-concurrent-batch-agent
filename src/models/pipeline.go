@@ -723,7 +723,7 @@ func (m *Pipeline) stringFromMapWithDefault(src map[string]string, key, defaultV
 
 func (m *Pipeline) JobCountBy(ctx context.Context, st JobStatus) (int, error) {
 	accessor := m.JobAccessor()
-	q, err := accessor.Query()
+	q := accessor.Query()
 	if err != nil {
 		return 0, err
 	}
@@ -785,10 +785,7 @@ func (m *Pipeline) DecreasePullingTaskSize(ctx context.Context, diff int, f func
 
 func (m *Pipeline) HasNewTaskSince(ctx context.Context, t time.Time) (bool, error) {
 	accessor := m.JobAccessor()
-	q, err := accessor.Query()
-	if err != nil {
-		return false, err
-	}
+	q := accessor.Query()
 	q = q.Filter("CreatedAt >", t)
 	c, err := q.Count(ctx)
 	if err != nil {
