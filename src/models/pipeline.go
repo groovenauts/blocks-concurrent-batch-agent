@@ -648,7 +648,7 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 			}
 			// log.Debugf(ctx, "PullAndUpdateJobStatus #4.5\n")
 			return nil
-		}, &datastore.TransactionOptions{Attempts: 16})
+		}, &datastore.TransactionOptions{XG: true})
 		if err != nil {
 			errors = append(errors, err.Error())
 		}
@@ -770,7 +770,7 @@ func (m *Pipeline) DecreasePullingTaskSize(ctx context.Context, diff int, f func
 			return err
 		}
 		return nil
-	}, nil)
+	}, &datastore.TransactionOptions{XG: true})
 	if err != nil {
 		log.Errorf(ctx, "Failed to update on Pipeline.DecreasePullingTaskSize for %v because of %v\n", m.ID, err)
 	}
