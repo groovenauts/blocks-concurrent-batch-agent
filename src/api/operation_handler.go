@@ -107,26 +107,35 @@ func (h *OperationHandler) waitHibernationTask(c echo.Context) error {
 			})
 		}
 
-		pl := operation.Pipeline
-		log.Debugf(ctx, "waitHibernationTask operation done. Pipeline: %v\n", pl)
+		return nil
+	}, nil)
+	if err != nil {
+		log.Errorf(ctx, "Error occurred in TX %v\n", err)
+		return err
+	}
 
-		switch pl.Status {
-		case models.Hibernating:
-			if pl.Cancelled {
-				err := pl.CloseIfHibernating(ctx)
-				if err != nil {
-					log.Errorf(ctx, "Failed to CloseAfterHibernation because of %v\n", err)
-					return err
-				}
-				return c.JSON(http.StatusOK, pl)
-			}
+	pl := operation.Pipeline
+	log.Debugf(ctx, "waitHibernationTask operation done. Pipeline: %v\n", pl)
 
-			newTask, err := pl.HasNewTaskSince(ctx, pl.HibernationStartedAt)
+	switch pl.Status {
+	case models.Hibernating:
+		if pl.Cancelled {
+			err := pl.CloseIfHibernating(ctx)
 			if err != nil {
-				log.Errorf(ctx, "Failed to check new tasks because of %v\n", err)
+				log.Errorf(ctx, "Failed to CloseAfterHibernation because of %v\n", err)
 				return err
 			}
-			if newTask {
+			return c.JSON(http.StatusOK, pl)
+		}
+
+		newTask, err := pl.HasNewTaskSince(ctx, pl.HibernationStartedAt)
+		if err != nil {
+			log.Errorf(ctx, "Failed to check new tasks because of %v\n", err)
+			return err
+		}
+
+		if newTask {
+			err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
 				err := pl.BackToBeReserved(ctx)
 				if err != nil {
 					log.Errorf(ctx, "Failed to BackToReady because of %v\n", err)
@@ -135,24 +144,23 @@ func (h *OperationHandler) waitHibernationTask(c echo.Context) error {
 				return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
 					return PostPipelineTask(c, "build_task", pl)
 				})
-			} else {
-				return c.JSON(http.StatusOK, pl)
+			}, nil)
+			if err != nil {
+				log.Errorf(ctx, "Error occurred in TX %v\n", err)
+				return err
 			}
-		case models.HibernationError:
-			log.Infof(ctx, "Pipeline is already %v so quit wait_hibernation_task\n", pl.Status)
+		} else {
 			return c.JSON(http.StatusOK, pl)
-		default:
-			return &models.InvalidStateTransition{
-				Msg: fmt.Sprintf("Unexpected Status: %v for Pipeline: %v", pl.Status, pl),
-			}
 		}
-
-		return nil
-	}, nil)
-	if err != nil {
-		log.Errorf(ctx, "Error occurred in TX %v\n", err)
-		return err
+	case models.HibernationError:
+		log.Infof(ctx, "Pipeline is already %v so quit wait_hibernation_task\n", pl.Status)
+		return c.JSON(http.StatusOK, pl)
+	default:
+		return &models.InvalidStateTransition{
+			Msg: fmt.Sprintf("Unexpected Status: %v for Pipeline: %v", pl.Status, pl),
+		}
 	}
+
 	return nil
 }
 
