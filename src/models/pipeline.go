@@ -776,7 +776,7 @@ func (m *Pipeline) DecreasePullingTaskSize(ctx context.Context, diff int, f func
 			log.Warningf(ctx, "Failed to reload on Pipeline.DecreasePullingTaskSize for %v because of %v\n", m.ID, err)
 			return err
 		}
-		m.PullingTaskSize = -diff
+		m.PullingTaskSize -= diff
 		if m.PullingTaskSize < 0 {
 			m.PullingTaskSize = 0
 		}
