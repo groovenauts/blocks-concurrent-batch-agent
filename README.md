@@ -93,7 +93,7 @@ $ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X 
 Generate `app.yaml`
 
 ```
-$ erb erb -T - app/concurrent-batch-agent/app.yaml.erb > app/concurrent-batch-agent/app.yaml
+$ erb -T - app/concurrent-batch-agent/app.yaml.erb > app/concurrent-batch-agent/app.yaml
 ```
 
 See [app.yaml.erb](https://github.com/groovenauts/blocks-concurrent-batch-agent/blob/master/app/concurrent-batch-agent/app.yaml.erb) for more detail.
