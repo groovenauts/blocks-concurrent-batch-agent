@@ -751,6 +751,9 @@ func (m *Pipeline) CalcAndUpdatePullingTaskSize(ctx context.Context, jobCount in
 		jobsPerTask = 50
 	}
 	tasks := (jobCount / jobsPerTask) + 1
+	if m.PullingTaskSize < 0 {
+		m.PullingTaskSize = 0
+	}
 	newTasks := tasks - m.PullingTaskSize
 	if newTasks > 0 {
 		log.Infof(ctx, "Increasing PullingTaskSize +%d (from %d to %d) active jobs: %d, JobsPerTask: %d\n", newTasks, m.PullingTaskSize, tasks, jobCount, jobsPerTask)
@@ -771,6 +774,9 @@ func (m *Pipeline) DecreasePullingTaskSize(ctx context.Context, diff int, f func
 			return err
 		}
 		m.PullingTaskSize = -diff
+		if m.PullingTaskSize < 0 {
+			m.PullingTaskSize = 0
+		}
 		if err := m.Update(ctx); err != nil {
 			log.Warningf(ctx, "Failed to update on Pipeline.DecreasePullingTaskSize for %v because of %v\n", m.ID, err)
 			return err
