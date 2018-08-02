@@ -113,7 +113,8 @@ type (
 	}
 
 	Pipeline struct {
-		ID                   string         `json:"id"             datastore:"-"`
+		ID                   string `json:"id"             datastore:"-"`
+		key                  *datastore.Key
 		Organization         *Organization  `json:"-"              validate:"required" datastore:"-"`
 		Name                 string         `json:"name"           validate:"required"`
 		ProjectID            string         `json:"project_id"     validate:"required"`
@@ -288,6 +289,7 @@ func (m *Pipeline) PutWithNewKey(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	m.key = res
 	m.ID = res.Encode()
 
 	return nil
