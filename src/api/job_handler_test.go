@@ -317,6 +317,34 @@ func TestJobHandlerActions(t *testing.T) {
 		loaded, err := models.GlobalJobAccessor.Find(ctx, job.ID)
 		assert.NoError(t, err)
 		assert.Equal(t, models.Ready, loaded.Status)
+
+		if st == models.Ready {
+			// POST /jobs/:id/publish_task
+			path = "/jobs/" + job.ID + "/publish_task"
+			req, err = inst.NewRequest(echo.POST, path, strings.NewReader(""))
+			assert.NoError(t, err)
+			req.Header.Set(auth_header, token)
+
+			rec = httptest.NewRecorder()
+			c = e.NewContext(req, rec)
+			c.SetPath(path)
+			c.SetParamNames("id")
+			c.SetParamValues(job.ID)
+
+			msgId := "dummy-msg-id"
+			// GlobalPublisher
+			backup := models.GlobalPublisher
+			models.GlobalPublisher = &DummyPublisher{ResultMessageId: msgId}
+			defer (func() { models.GlobalPublisher = backup })()
+
+			assert.NoError(t, h.member(h.PublishTask)(c))
+			assert.Equal(t, http.StatusOK, rec.Code)
+
+			reloaded, err := models.GlobalJobAccessor.Find(ctx, job.ID)
+			assert.NoError(t, err)
+
+			assert.Equal(t, msgId, reloaded.MessageID)
+		}
 	}
 
 }
