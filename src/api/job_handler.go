@@ -288,9 +288,13 @@ func (h *JobHandler) IncreaseSubscribeTask(c echo.Context, ctx context.Context, 
 			}
 			return nil
 		})
-	}, nil)
+	}, &datastore.TransactionOptions{Attempts: 1})
 	if err != nil {
-		log.Warningf(ctx, "Failed to CalcAndUpdatePullingTaskSize for %v because of %v\n", pl.ID, err)
+		logFunc := log.Warningf
+		if err == datastore.ErrConcurrentTransaction {
+			logFunc = log.Infof
+		}
+		logFunc(ctx, "Failed to CalcAndUpdatePullingTaskSize for %v because of %v\n", pl.ID, err)
 	}
 
 	return
