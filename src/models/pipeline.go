@@ -637,16 +637,9 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 			err = job.Update(ctx)
 			if err != nil {
 				errors = append(errors, err.Error())
-				return nil
+				return err
 			}
 			// log.Debugf(ctx, "PullAndUpdateJobStatus #4.4\n")
-			for _, recvMsg := range recvMsgs {
-				err := s.sendAck(ctx, subscription, recvMsg)
-				if err != nil {
-					errors = append(errors, err.Error())
-				}
-			}
-			// log.Debugf(ctx, "PullAndUpdateJobStatus #4.5\n")
 			return nil
 		}, &datastore.TransactionOptions{XG: true})
 		if err != nil {
@@ -654,6 +647,14 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 				return err
 			}
 			errors = append(errors, err.Error())
+		}
+		// log.Debugf(ctx, "PullAndUpdateJobStatus #4.5\n")
+		for _, recvMsg := range recvMsgs {
+			err := s.sendAck(ctx, subscription, recvMsg)
+			if err != nil {
+				log.Warningf(ctx, "Failed to send ACK(%v) to %q because of %v. It will be delivered later again.\n", recvMsg.AckId, subscription, err)
+				errors = append(errors, err.Error())
+			}
 		}
 	}
 
