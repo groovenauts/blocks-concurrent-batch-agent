@@ -415,13 +415,11 @@ func (m *Pipeline) FailClosing(ctx context.Context) error {
 }
 
 func (m *Pipeline) CompleteClosing(ctx context.Context, pipelineProcesser func(*Pipeline) error) error {
-	err := m.LoadOrganization(ctx)
-	if err != nil {
+	if err := m.LoadOrganization(ctx); err != nil {
 		return err
 	}
 	return datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-		err := m.CancelLivingJobs(ctx)
-		if err != nil {
+		if err := m.CancelLivingJobs(ctx); err != nil {
 			return err
 		}
 
