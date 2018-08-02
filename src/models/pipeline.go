@@ -328,10 +328,12 @@ func (m *Pipeline) Update(ctx context.Context) error {
 
 	key, err := datastore.DecodeKey(m.ID)
 	if err != nil {
+		log.Errorf(ctx, "Failed to datastore.DecodeKey %q because of %v\n", m.ID, err)
 		return err
 	}
 	_, err = datastore.Put(ctx, key, m)
 	if err != nil {
+		log.Errorf(ctx, "Failed to datastore.Put %v with key %v because of %v\n", m, key, err)
 		return err
 	}
 	return nil
@@ -718,10 +720,12 @@ func (m *Pipeline) stringFromMapWithDefault(src map[string]string, key, defaultV
 func (m *Pipeline) JobCountBy(ctx context.Context, st JobStatus) (int, error) {
 	accessor := m.JobAccessor()
 	q := accessor.Query()
+	r, err := q.Filter("status = ", int(st)).Count(ctx)
 	if err != nil {
+		log.Errorf(ctx, "Failed to get Count by query %v because of %v\n", q, err)
 		return 0, err
 	}
-	return q.Filter("status = ", int(st)).Count(ctx)
+	return r, nil
 }
 
 func (m *Pipeline) JobCount(ctx context.Context, statuses ...JobStatus) (int, error) {
@@ -783,6 +787,7 @@ func (m *Pipeline) HasNewTaskSince(ctx context.Context, t time.Time) (bool, erro
 	q = q.Filter("CreatedAt >", t)
 	c, err := q.Count(ctx)
 	if err != nil {
+		log.Errorf(ctx, "Failed to get Count with query %v because of %v\n", q, err)
 		return false, err
 	}
 	return (c > 0), nil

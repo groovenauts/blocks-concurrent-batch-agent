@@ -159,7 +159,7 @@ func (h *PipelineHandler) publishTask(c echo.Context) error {
 				return err
 			}
 		}
-		return datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+		err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
 			return pl.CalcAndUpdatePullingTaskSize(ctx, func(newTasks int) error {
 				for i := 0; i < newTasks; i++ {
 					if err := PostPipelineTask(c, "subscribe_task", pl); err != nil {
@@ -170,5 +170,10 @@ func (h *PipelineHandler) publishTask(c echo.Context) error {
 				return nil
 			})
 		}, nil)
+		if err != nil {
+			log.Errorf(ctx, "Error occurred in TX %v", err)
+			return err
+		}
+		return nil
 	})
 }
