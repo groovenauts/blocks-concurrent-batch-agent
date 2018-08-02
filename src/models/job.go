@@ -140,13 +140,31 @@ func (m *Job) CopyFrom(src *Job) {
 	m.UpdatedAt = src.UpdatedAt
 }
 
-func (m *Job) Validate() error {
+func (m *Job) Validate(ctx context.Context) error {
+	log.Debugf(ctx, "Job.Validate start\n")
+	defer log.Debugf(ctx, "Job.Validate end\n")
+
 	v := validator.New()
-	for k, val := range Validators {
-		v.RegisterValidation(k, val)
+	if err := v.Struct(m); err != nil {
+		return err
 	}
-	err := v.Struct(m)
-	return err
+
+	if m.PipelineKey == nil {
+		if m.Pipeline == nil {
+			return fmt.Errorf("No PipelineKey set for job %v", m)
+		}
+		if m.Pipeline.key == nil {
+			key, err := datastore.DecodeKey(m.Pipeline.ID)
+			if err != nil {
+				return err
+			}
+			m.PipelineKey = key
+		} else {
+			m.PipelineKey = m.Pipeline.key
+		}
+	}
+
+	return nil
 }
 
 func (m *Job) InitStatus(ready bool) {
@@ -188,7 +206,7 @@ func (m *Job) Create(ctx context.Context) error {
 
 	log.Debugf(ctx, "Job#Create: %v\n", m)
 
-	err := m.Validate()
+	err := m.Validate(ctx)
 	if err != nil {
 		return err
 	}
@@ -256,7 +274,7 @@ func (m *Job) Update(ctx context.Context) error {
 		}
 	}
 
-	err := m.Validate()
+	err := m.Validate(ctx)
 	if err != nil {
 		return err
 	}
