@@ -489,7 +489,7 @@ func (m *Pipeline) LoadOrganization(ctx context.Context) error {
 }
 
 func (m *Pipeline) JobAccessor() *JobAccessor {
-	return &JobAccessor{Parent: m}
+	return &JobAccessor{PipelineKey: m.key}
 }
 
 func (m *Pipeline) OperationAccessor() *PipelineOperationAccessor {

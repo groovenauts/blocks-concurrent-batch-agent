@@ -9,7 +9,7 @@ import (
 )
 
 type JobAccessor struct {
-	Parent *Pipeline
+	PipelineKey *datastore.Key
 }
 
 var GlobalJobAccessor = &JobAccessor{}
@@ -23,15 +23,6 @@ func (aa *JobAccessor) Find(ctx context.Context, id string) (*Job, error) {
 		log.Errorf(ctx, "Failed to DecodeKey at JobAccessor#Find %v id: %q\n", err, id)
 		return nil, err
 	}
-	if aa.Parent != nil {
-		parentKey, err := datastore.DecodeKey(aa.Parent.ID)
-		if err != nil {
-			return nil, err
-		}
-		if !parentKey.Equal(key.Parent()) {
-			return nil, &InvalidParent{id}
-		}
-	}
 	// log.Debugf(ctx, "JobAccessor#Find key: %q\n", key)
 	m := &Job{ID: id}
 	err = datastore.Get(ctx, key, m)
@@ -41,6 +32,14 @@ func (aa *JobAccessor) Find(ctx context.Context, id string) (*Job, error) {
 	case err != nil:
 		log.Errorf(ctx, "Failed to Get at JobAccessor#Find %v id: %q\n", err, id)
 		return nil, err
+	}
+	if aa.PipelineKey != nil {
+		if m.PipelineKey == nil {
+			return nil, &InvalidReference{id}
+		}
+		if !aa.PipelineKey.Equal(m.PipelineKey) {
+			return nil, &InvalidReference{id}
+		}
 	}
 	msg := &m.Message
 	msg.EntriesToMap()
@@ -66,12 +65,8 @@ func (aa *JobAccessor) BulkGet(ctx context.Context, ids []string) (map[string]*J
 
 func (aa *JobAccessor) Query() (*datastore.Query, error) {
 	q := datastore.NewQuery("Jobs")
-	if aa.Parent != nil {
-		key, err := datastore.DecodeKey(aa.Parent.ID)
-		if err != nil {
-			return nil, err
-		}
-		q = q.Ancestor(key)
+	if aa.PipelineKey != nil {
+		q = q.Filter("pipeline_key =", aa.PipelineKey)
 	}
 	return q, nil
 }
