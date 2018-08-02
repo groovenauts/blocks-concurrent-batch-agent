@@ -370,7 +370,7 @@ func (m *Pipeline) FailDeploying(ctx context.Context) error {
 }
 
 func (m *Pipeline) CompleteDeploying(ctx context.Context) error {
-	return m.StateTransition(ctx, []Status{Deploying}, Opened)
+	return m.StateTransition(ctx, []Status{Building, Deploying}, Opened)
 }
 
 func (m *Pipeline) WaitHibernation(ctx context.Context) error {
