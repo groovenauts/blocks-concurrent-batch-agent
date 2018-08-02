@@ -750,7 +750,10 @@ func (m *Pipeline) CalcAndUpdatePullingTaskSize(ctx context.Context, jobCount in
 	if jobsPerTask < 1 {
 		jobsPerTask = 50
 	}
-	tasks := (jobCount / jobsPerTask) + 1
+	tasks := (jobCount / jobsPerTask)
+	if jobCount%jobsPerTask > 0 {
+		tasks += 1
+	}
 	if m.PullingTaskSize < 0 {
 		m.PullingTaskSize = 0
 	}
