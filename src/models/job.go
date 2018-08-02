@@ -176,16 +176,12 @@ func (m *Job) InitStatus(ready bool) {
 }
 
 func (m *Job) Key(ctx context.Context) (*datastore.Key, error) {
-	parentKey, err := datastore.DecodeKey(m.Pipeline.ID)
-	if err != nil {
-		return nil, err
-	}
 	var key *datastore.Key
 	if m.IdByClient == "" {
-		key = datastore.NewIncompleteKey(ctx, "Jobs", parentKey)
+		key = datastore.NewIncompleteKey(ctx, "Jobs", nil)
 		m.IdByClient = fmt.Sprintf("Generated-%s", time.Now().Format(time.RFC3339))
 	} else {
-		key = datastore.NewKey(ctx, "Jobs", m.IdByClient, 0, parentKey)
+		key = datastore.NewKey(ctx, "Jobs", m.IdByClient, 0, nil)
 	}
 	return key, nil
 }
@@ -304,15 +300,10 @@ func (m *Job) Destroy(ctx context.Context) error {
 }
 
 func (m *Job) LoadPipeline(ctx context.Context) error {
-	key, err := datastore.DecodeKey(m.ID)
-	if err != nil {
-		log.Errorf(ctx, "Failed to decode Key of pipeline %v because of %v\n", m.ID, err)
-		return err
-	}
-	plKey := key.Parent()
+	plKey := m.PipelineKey
 	if plKey == nil {
-		log.Errorf(ctx, "Pipline key has no parent. ID: %v\n", m.ID)
-		panic("Invalid pipeline key")
+		log.Errorf(ctx, "Job has no PipelineKey. ID: %v\n", m.ID)
+		return fmt.Errorf("No PipelineKey")
 	}
 	pl, err := GlobalPipelineAccessor.FindByKey(ctx, plKey)
 	if err != nil {
