@@ -641,7 +641,7 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 			}
 			// log.Debugf(ctx, "PullAndUpdateJobStatus #4.4\n")
 			return nil
-		}, &datastore.TransactionOptions{XG: true})
+		}, &datastore.TransactionOptions{Attempts: 10, XG: true})
 		if err != nil {
 			if err == datastore.ErrConcurrentTransaction {
 				return err
