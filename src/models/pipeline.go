@@ -420,10 +420,10 @@ func (m *Pipeline) CompleteClosing(ctx context.Context, pipelineProcesser func(*
 	if err := m.LoadOrganization(ctx); err != nil {
 		return err
 	}
+	if err := m.CancelLivingJobs(ctx); err != nil {
+		return err
+	}
 	return datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-		if err := m.CancelLivingJobs(ctx); err != nil {
-			return err
-		}
 
 		org, err := GlobalOrganizationAccessor.Find(ctx, m.Organization.ID)
 		if err != nil {
