@@ -21,6 +21,7 @@ func (u *DeploymentUpdater) Update(ctx context.Context, operation *PipelineOpera
 	}
 	oldStatus := operation.Status
 	if oldStatus == newOpe.Status {
+		log.Debugf(ctx, "No need to update\n")
 		return nil
 	}
 
@@ -29,6 +30,7 @@ func (u *DeploymentUpdater) Update(ctx context.Context, operation *PipelineOpera
 		operation.AppendLog(fmt.Sprintf("StatusChange from %s to %s", operation.Status, newOpe.Status))
 		err := operation.Update(ctx)
 		if err != nil {
+			log.Errorf(ctx, "Failed to update operation: %v because of %v\n", operation, err)
 			return err
 		}
 		return nil
@@ -47,11 +49,13 @@ func (u *DeploymentUpdater) Update(ctx context.Context, operation *PipelineOpera
 
 	err = operation.Update(ctx)
 	if err != nil {
+		log.Errorf(ctx, "Failed to second update operation: %v because of %v\n", operation, err)
 		return err
 	}
 
 	err = f(newOpe.EndTime)
 	if err != nil {
+		log.Errorf(ctx, "Error from callback %v because of %v\n", newOpe, err)
 		return err
 	}
 	return nil
