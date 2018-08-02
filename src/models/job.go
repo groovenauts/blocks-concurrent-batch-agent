@@ -111,20 +111,21 @@ func (m *JobMessage) EntriesToMap() {
 
 type (
 	Job struct {
-		ID          string     `json:"id"  datastore:"-"`
-		Pipeline    *Pipeline  `json:"-"   validate:"required" datastore:"-"`
-		IdByClient  string     `json:"id_by_client" validate:"required" datastore:"id_by_client"`
-		Status      JobStatus  `json:"status"       datastore:"status" `
-		Zone        string     `json:"zone" datastore:"zone"`
-		Hostname    string     `json:"hostname" datastore:"hostname"`
-		Message     JobMessage `json:"message" datastore:"message"`
-		MessageID   string     `json:"message_id"   datastore:"message_id"`
-		Output      string     `json:"output,omitempty"       datastore:"output,noindex"`
-		PublishedAt time.Time  `json:"published_at,omitempty"`
-		StartTime   string     `json:"start_time"`
-		FinishTime  string     `json:"finish_time"`
-		CreatedAt   time.Time  `json:"created_at"`
-		UpdatedAt   time.Time  `json:"updated_at"`
+		ID          string         `json:"id"  datastore:"-"`
+		PipelineKey *datastore.Key `json:"-"   datastore:"pipeline_key"`
+		Pipeline    *Pipeline      `json:"-"   validate:"required" datastore:"-"`
+		IdByClient  string         `json:"id_by_client" validate:"required" datastore:"id_by_client"`
+		Status      JobStatus      `json:"status"       datastore:"status" `
+		Zone        string         `json:"zone" datastore:"zone"`
+		Hostname    string         `json:"hostname" datastore:"hostname"`
+		Message     JobMessage     `json:"message" datastore:"message"`
+		MessageID   string         `json:"message_id"   datastore:"message_id"`
+		Output      string         `json:"output,omitempty"       datastore:"output,noindex"`
+		PublishedAt time.Time      `json:"published_at,omitempty"`
+		StartTime   string         `json:"start_time"`
+		FinishTime  string         `json:"finish_time"`
+		CreatedAt   time.Time      `json:"created_at"`
+		UpdatedAt   time.Time      `json:"updated_at"`
 	}
 )
 
