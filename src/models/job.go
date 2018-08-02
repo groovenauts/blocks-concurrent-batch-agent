@@ -175,7 +175,7 @@ func (m *Job) InitStatus(ready bool) {
 	}
 }
 
-func (m *Job) Key(ctx context.Context, prefix string) (*datastore.Key, error) {
+func (m *Job) Key(ctx context.Context, prefix string) *datastore.Key {
 	var key *datastore.Key
 	if m.IdByClient == "" {
 		key = datastore.NewIncompleteKey(ctx, "Jobs", nil)
@@ -183,7 +183,7 @@ func (m *Job) Key(ctx context.Context, prefix string) (*datastore.Key, error) {
 	} else {
 		key = datastore.NewKey(ctx, "Jobs", fmt.Sprintf("%s-%s", prefix, m.IdByClient), 0, nil)
 	}
-	return key, nil
+	return key
 }
 
 func (m *Job) Create(ctx context.Context) error {
@@ -207,11 +207,7 @@ func (m *Job) Create(ctx context.Context) error {
 		return err
 	}
 
-	key, err := m.Key(ctx, m.Pipeline.Name)
-	if err != nil {
-		return err
-	}
-
+	key := m.Key(ctx, m.Pipeline.Name)
 	res, err := datastore.Put(ctx, key, m)
 	if err != nil {
 		return err
@@ -235,10 +231,7 @@ func (m *Job) LoadBy(ctx context.Context, key *datastore.Key) error {
 
 func (m *Job) LoadOrCreate(ctx context.Context) error {
 	return datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-		key, err := m.Key(ctx, m.Pipeline.Name)
-		if err != nil {
-			return err
-		}
+		key := m.Key(ctx, m.Pipeline.Name)
 		if !key.Incomplete() {
 			err := m.LoadBy(ctx, key)
 			if err == nil {
