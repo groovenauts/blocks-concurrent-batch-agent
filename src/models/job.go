@@ -175,13 +175,13 @@ func (m *Job) InitStatus(ready bool) {
 	}
 }
 
-func (m *Job) Key(ctx context.Context) (*datastore.Key, error) {
+func (m *Job) Key(ctx context.Context, prefix string) (*datastore.Key, error) {
 	var key *datastore.Key
 	if m.IdByClient == "" {
 		key = datastore.NewIncompleteKey(ctx, "Jobs", nil)
-		m.IdByClient = fmt.Sprintf("Generated-%s", time.Now().Format(time.RFC3339))
+		m.IdByClient = fmt.Sprintf("%s-Generated-%s", prefix, time.Now().Format(time.RFC3339))
 	} else {
-		key = datastore.NewKey(ctx, "Jobs", m.IdByClient, 0, nil)
+		key = datastore.NewKey(ctx, "Jobs", fmt.Sprintf("%s-%s", prefix, m.IdByClient), 0, nil)
 	}
 	return key, nil
 }
@@ -207,7 +207,7 @@ func (m *Job) Create(ctx context.Context) error {
 		return err
 	}
 
-	key, err := m.Key(ctx)
+	key, err := m.Key(ctx, m.Pipeline.Name)
 	if err != nil {
 		return err
 	}
@@ -235,7 +235,7 @@ func (m *Job) LoadBy(ctx context.Context, key *datastore.Key) error {
 
 func (m *Job) LoadOrCreate(ctx context.Context) error {
 	return datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-		key, err := m.Key(ctx)
+		key, err := m.Key(ctx, m.Pipeline.Name)
 		if err != nil {
 			return err
 		}
