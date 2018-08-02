@@ -740,11 +740,7 @@ func (m *Pipeline) JobCount(ctx context.Context, statuses ...JobStatus) (int, er
 	return r, nil
 }
 
-func (m *Pipeline) CalcAndUpdatePullingTaskSize(ctx context.Context, f func(int) error) error {
-	jobCount, err := m.JobCount(ctx, Publishing, Published, Executing)
-	if err != nil {
-		return err
-	}
+func (m *Pipeline) CalcAndUpdatePullingTaskSize(ctx context.Context, jobCount int, f func(int) error) error {
 	jobsPerTask := m.Pulling.JobsPerTask
 	if jobsPerTask < 1 {
 		jobsPerTask = 50
