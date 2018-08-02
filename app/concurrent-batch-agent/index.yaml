@@ -7,23 +7,15 @@ indexes:
   - name: CreatedAt
 
 - kind: Jobs
-  ancestor: yes
   properties:
+  - name: pipeline_key
   - name: CreatedAt
 - kind: Jobs
-  ancestor: yes
   properties:
-  - name: Status
-- kind: Jobs
-  ancestor: yes
-  properties:
-  - name: id_by_client
-  - name: status
-- kind: Jobs
-  ancestor: yes
-  properties:
+  - name: pipeline_key
   - name: status
 - kind: Jobs
   properties:
   - name: pipeline_key
+  - name: id_by_client
   - name: status
