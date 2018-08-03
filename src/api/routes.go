@@ -30,10 +30,11 @@ func SetupRoutesOfPipelines() *PipelineHandler {
 	g.GET("/:id", h.show)
 	g.PUT("/:id/cancel", h.cancel)
 	g.PUT("/:id/close", h.cancel)
+	g.DELETE("/:id", h.destroy)
+
 	g.POST("/:id/close_task", h.closeTask)
 	g.POST("/:id/check_hibernation_task", h.checkHibernationTask)
 	g.POST("/:id/hibernate_task", h.hibernateTask)
-	g.DELETE("/:id", h.destroy)
 
 	g.POST("/:id/build_task", h.buildTask)
 	g.POST("/:id/publish_task", h.publishTask)
@@ -75,9 +76,10 @@ func SetupRoutesOfJobs() *JobHandler {
 	g = e.Group("/jobs", h.member)
 	g.GET("/:id", h.show)
 	g.POST("/:id/getready", h.getReady)
+	g.POST("/:id/cancel", h.Cancel)
+
 	g.POST("/:id/wait_task", h.WaitToPublishTask)
 	g.POST("/:id/publish_task", h.PublishTask)
-	g.POST("/:id/cancel", h.Cancel)
 
 	return h
 }
