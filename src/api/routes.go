@@ -70,9 +70,8 @@ func SetupRoutesOfJobs() *JobHandler {
 	g.GET("", h.index)
 	g.POST("", h.create)
 
-	g = e.Group("/pipelines/:pipeline_id", h.collection)
-	g.POST("/bulk_get_jobs", h.BulkGetJobs)
-	g.POST("/bulk_job_statuses", h.BulkJobStatuses)
+	e.POST("/pipelines/:pipeline_id/bulk_get_jobs", h.BulkGetJobs, h.collection)
+	e.POST("/pipelines/:pipeline_id/bulk_job_statuses", h.BulkJobStatuses, h.collection)
 
 	g = e.Group("/jobs", h.member)
 	g.GET("/:id", h.show)
