@@ -392,6 +392,7 @@ func (m *Pipeline) FailHibernation(ctx context.Context) error {
 
 func (m *Pipeline) CompleteHibernation(ctx context.Context) error {
 	m.InstanceSize = 0
+	m.PullingTaskSize = 0
 	return m.StateTransition(ctx, []Status{HibernationProcessing}, Hibernating)
 }
 
