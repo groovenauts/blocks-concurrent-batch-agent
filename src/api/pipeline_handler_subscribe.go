@@ -10,6 +10,7 @@ import (
 
 	"github.com/labstack/echo"
 	"golang.org/x/net/context"
+	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 )
 
@@ -20,27 +21,31 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 	pl := c.Get("pipeline").(*models.Pipeline)
 
 	if pl.Cancelled {
-		switch {
-		case models.StatusesOpened.Include(pl.Status):
-			log.Infof(ctx, "Pipeline is cancelled.\n")
-			return ReturnJsonWith(c, pl, http.StatusNoContent, func() error {
-				return PostPipelineTask(c, "close_task", pl)
-			})
-		case models.StatusesAlreadyClosing.Include(pl.Status):
-			log.Warningf(ctx, "Pipeline is cancelled but do nothing because it's already closed or being closed.\n")
-			return c.JSON(http.StatusOK, pl)
-		default:
-			return &models.InvalidStateTransition{
-				Msg: fmt.Sprintf("Invalid Pipeline#Status %v to subscribe a Pipeline cancelled", pl.Status),
+		return pl.DecreasePullingTaskSize(ctx, 1, func() error {
+			switch {
+			case models.StatusesOpened.Include(pl.Status):
+				log.Infof(ctx, "Pipeline is cancelled.\n")
+				return ReturnJsonWith(c, pl, http.StatusNoContent, func() error {
+					return PostPipelineTask(c, "close_task", pl)
+				})
+			case models.StatusesAlreadyClosing.Include(pl.Status):
+				log.Warningf(ctx, "Pipeline is cancelled but do nothing because it's already closed or being closed.\n")
+				return c.JSON(http.StatusOK, pl)
+			default:
+				return &models.InvalidStateTransition{
+					Msg: fmt.Sprintf("Invalid Pipeline#Status %v to subscribe a Pipeline cancelled", pl.Status),
+				}
 			}
-		}
+		})
 	}
 
 	switch {
 	case models.StatusesHibernationInProgresss.Include(pl.Status) ||
 		models.StatusesHibernating.Include(pl.Status):
-		log.Infof(ctx, "Pipeline is %v so now stopping subscribe_task. \n", pl.Status)
-		return c.JSON(http.StatusOK, pl)
+		return pl.DecreasePullingTaskSize(ctx, 1, func() error {
+			log.Infof(ctx, "Pipeline is %v so now stopping subscribe_task. \n", pl.Status)
+			return c.JSON(http.StatusOK, pl)
+		})
 	}
 
 	err := pl.PullAndUpdateJobStatus(ctx)
@@ -49,55 +54,67 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 		case *models.SubscriprionNotFound:
 			switch {
 			case models.StatusesAlreadyClosing.Include(pl.Status):
-				log.Infof(ctx, "Pipeline is already %v\n", pl.Status)
-				return c.JSON(http.StatusOK, pl)
+				return pl.DecreasePullingTaskSize(ctx, 1, func() error {
+					log.Infof(ctx, "Pipeline is already %v\n", pl.Status)
+					return c.JSON(http.StatusOK, pl)
+				})
 			default:
 				log.Infof(ctx, "Subscription is not found but the pipeline isn't closed because of %v\n", err)
 			}
 		default:
-			log.Errorf(ctx, "Failed to get Pipeline#PullAndUpdateJobStatus() because of %v\n", err)
-			return err
+			return pl.DecreasePullingTaskSize(ctx, 1, func() error {
+				log.Errorf(ctx, "Failed to get Pipeline#PullAndUpdateJobStatus() because of %v\n", err)
+				return err
+			})
 		}
 	}
 
-	jobs, err := pl.JobAccessor().All(ctx)
+	jobs, err := pl.JobAccessor().AllWith(ctx, func(q *datastore.Query) (*datastore.Query, error) {
+		return q.Project("id_by_client", "status"), nil
+	})
 	if err != nil {
 		log.Errorf(ctx, "Failed to m.JobAccessor#All() because of %v\n", err)
 		return err
 	}
 	log.Debugf(ctx, "Pipeline has %v jobs\n", len(jobs))
 
-	pendings, err := models.GlobalPipelineAccessor.PendingsFor(ctx, jobs.Finished().IDs())
-	if err != nil {
-		return err
-	}
-
-	for _, pending := range pendings {
-		org := c.Get("organization").(*models.Organization)
-		pending.Organization = org
-		err := pending.UpdateIfReserveOrWait(ctx)
-		if err != nil {
-			log.Errorf(ctx, "Failed to UpdateIfReserveOrWait pending: %v\n%v\n", pending, err)
-			return err
-		}
-		if pending.Status == models.Reserved {
-			err = h.PostPipelineTaskIfPossible(c, pending)
-			if err != nil {
-				log.Errorf(ctx, "Failed to PostPipelineTaskIfPossible pending: %v\n%v\n", pending, err)
-				return err
-			}
-		}
-	}
+	// // Comment out the following code
+	// // Because there are no dependency control actually.
+	//
+	// pendings, err := models.GlobalPipelineAccessor.PendingsFor(ctx, jobs.Finished().IDs())
+	// if err != nil {
+	// 	return err
+	// }
+	//
+	// for _, pending := range pendings {
+	// 	org := c.Get("organization").(*models.Organization)
+	// 	pending.Organization = org
+	// 	err := pending.UpdateIfReserveOrWait(ctx)
+	// 	if err != nil {
+	// 		log.Errorf(ctx, "Failed to UpdateIfReserveOrWait pending: %v\n%v\n", pending, err)
+	// 		return err
+	// 	}
+	// 	if pending.Status == models.Reserved {
+	// 		err = h.PostPipelineTaskIfPossible(c, pending)
+	// 		if err != nil {
+	// 			log.Errorf(ctx, "Failed to PostPipelineTaskIfPossible pending: %v\n%v\n", pending, err)
+	// 			return err
+	// 		}
+	// 	}
+	// }
 
 	if jobs.AllFinished() {
-		if pl.ClosePolicy.Match(jobs) {
-			if pl.HibernationDelay == 0 {
-				return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
-					return PostPipelineTask(c, "close_task", pl)
-				})
-			} else {
+		return pl.DecreasePullingTaskSize(ctx, 1, func() error {
+			if pl.ClosePolicy.Match(jobs) {
+				if pl.HibernationDelay == 0 {
+					return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
+						return PostPipelineTask(c, "close_task", pl)
+					})
+				}
+
 				err := pl.WaitHibernation(ctx)
 				if err != nil {
+					log.Errorf(ctx, "Failed to Pipeline.WaitHibernation %v because of %v\n", pl.ID, err)
 					return err
 				}
 				now := time.Now()
@@ -107,12 +124,13 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 				}
 				return PostPipelineTaskWith(c, "check_hibernation_task", pl, params, SetETAFunc(eta))
 			}
-		} else {
+
 			return c.JSON(http.StatusOK, pl)
-		}
-	} else {
-		return ReturnJsonWith(c, pl, http.StatusAccepted, func() error {
-			return PostPipelineTaskWithETA(c, "subscribe_task", pl, started.Add(30*time.Second))
 		})
 	}
+
+	return ReturnJsonWith(c, pl, http.StatusAccepted, func() error {
+		interval := time.Duration(models.Int64WithDefault(pl.Pulling.IntervalSeconds, 30))
+		return PostPipelineTaskWithETA(c, "subscribe_task", pl, started.Add(interval*time.Second))
+	})
 }

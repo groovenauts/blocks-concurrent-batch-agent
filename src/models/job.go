@@ -352,11 +352,6 @@ func (m *Job) Publish(ctx context.Context) (string, error) {
 func (m *Job) PublishAndUpdate(ctx context.Context) error {
 	msgId, err := m.Publish(ctx)
 	if err != nil {
-		m.Status = PublishError
-		e2 := m.Update(ctx)
-		if e2 != nil {
-			return e2
-		}
 		return err
 	}
 
@@ -368,6 +363,10 @@ func (m *Job) PublishAndUpdate(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func (m *Job) PublishAndUpdateWithTx(ctx context.Context) error {
+	return datastore.RunInTransaction(ctx, m.PublishAndUpdate, nil)
 }
 
 func (m *Job) CreateAndPublishIfPossible(ctx context.Context) error {

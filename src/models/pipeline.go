@@ -50,7 +50,7 @@ var StatusStrings = map[Status]string{
 	Building:              "building",
 	Deploying:             "deploying",
 	Opened:                "opened",
-	HibernationChecking:   "hibernation_waiting",
+	HibernationChecking:   "hibernation_checking",
 	HibernationStarting:   "hibernation_starting",
 	HibernationProcessing: "hibernation_processing",
 	HibernationError:      "hibernation_error",
@@ -106,6 +106,12 @@ type (
 		MaxInstanceSize int  `json:"max_instance_size"`
 	}
 
+	Pulling struct {
+		MessagePerPull  int64 `json:"message_per_pull"`
+		IntervalSeconds int64 `json:"interval_seconds"`
+		JobsPerTask     int   `json:"jobs_per_task"`
+	}
+
 	Pipeline struct {
 		ID                   string         `json:"id"             datastore:"-"`
 		Organization         *Organization  `json:"-"              validate:"required" datastore:"-"`
@@ -132,6 +138,8 @@ type (
 		HibernationDelay     int            `json:"hibernation_delay,omitempty"` // seconds
 		HibernationStartedAt time.Time      `json:"hibernation_started_at,omitempty"`
 		JobScaler            JobScaler      `json:"job_scaler,omitempty"`
+		Pulling              Pulling        `json:"pulling"`
+		PullingTaskSize      int            `json:"pulling_task_size"`
 		InstanceSize         int            `json:"-"`
 		CreatedAt            time.Time      `json:"created_at"`
 		UpdatedAt            time.Time      `json:"updated_at"`
@@ -344,6 +352,7 @@ func (m *Pipeline) StateTransition(ctx context.Context, froms []Status, to Statu
 	if !allowed {
 		return &InvalidStateTransition{fmt.Sprintf("Forbidden state transition from %v to %v for pipeline: %v", m.Status, to, m)}
 	}
+	log.Infof(ctx, "Now Pipeline status transition is going from %v to %v\n", m.Status, to)
 	m.Status = to
 	return m.Update(ctx)
 }
@@ -367,7 +376,7 @@ func (m *Pipeline) CompleteDeploying(ctx context.Context) error {
 }
 
 func (m *Pipeline) WaitHibernation(ctx context.Context) error {
-	return m.StateTransition(ctx, []Status{Opened}, HibernationChecking)
+	return m.StateTransition(ctx, []Status{Opened, HibernationChecking}, HibernationChecking)
 }
 
 func (m *Pipeline) StartHibernation(ctx context.Context) error {
@@ -496,32 +505,40 @@ func (m *Pipeline) Reload(ctx context.Context) error {
 }
 
 func (m *Pipeline) PublishJobs(ctx context.Context) error {
-	// m.AddActionLog(ctx, "publish-started")
-	err := m.Update(ctx)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		// m.AddActionLog(ctx, "publish-finished")
-		m.Update(ctx)
-		// ignore error
-	}()
-
 	accessor := m.JobAccessor()
-	jobs, err := accessor.All(ctx)
+	jobs, err := accessor.AllWith(ctx, func(q *datastore.Query) (*datastore.Query, error) {
+		return q.Project("status"), nil
+	})
 	if err != nil {
+		log.Errorf(ctx, "Failed to get jobs for %v because of %v\n", m.ID, err)
 		return err
 	}
 
-	for _, job := range jobs {
-		switch job.Status {
+	for _, j := range jobs {
+		switch j.Status {
 		case Preparing:
-			log.Debugf(ctx, "The job isn't published because it's preparing now: %v\n", job)
+			log.Debugf(ctx, "The job isn't published because it's preparing now: %v\n", j)
 		case Ready:
-			job.Pipeline = m
-			_, err := job.Publish(ctx)
+			jobId := j.ID
+			err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+				job, err := accessor.Find(ctx, jobId)
+				if err != nil {
+					log.Warningf(ctx, "Failed to get job %v because of %v\n", jobId, err)
+					return err
+				}
+				if job.Status != Ready {
+					return nil
+				}
+				job.Pipeline = m
+				_, err = job.Publish(ctx)
+				if err != nil {
+					log.Warningf(ctx, "Failed to publish job %v because of %v\n", job, err)
+					return err
+				}
+				return nil
+			}, nil)
 			if err != nil {
-				log.Errorf(ctx, "Failed to publish job %v because of %v\n", job, err)
+				log.Errorf(ctx, "Failed to Publish job %v because of %v\n", jobId, err)
 				return err
 			}
 		}
@@ -568,11 +585,16 @@ func (em ErrorMessages) Error() error {
 }
 
 func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
-	s := &PubsubSubscriber{MessagePerPull: 10}
+	log.Infof(ctx, "PullAndUpdateJobStatus start\n")
+	defer log.Infof(ctx, "PullAndUpdateJobStatus end\n")
+
+	s := &PubsubSubscriber{MessagePerPull: Int64WithDefault(m.Pulling.MessagePerPull, 100)}
 	err := s.setup(ctx)
 	if err != nil {
 		return err
 	}
+
+	// log.Debugf(ctx, "PullAndUpdateJobStatus #1\n")
 
 	messagesForJob := map[string][]*pubsub.ReceivedMessage{}
 
@@ -592,33 +614,47 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 		return err
 	}
 
+	// log.Debugf(ctx, "PullAndUpdateJobStatus #2\n")
+
 	for _, recvMsgs := range messagesForJob {
 		sort.Sort(ByPublishTime(recvMsgs))
 	}
 
+	// log.Debugf(ctx, "PullAndUpdateJobStatus #3\n")
+
 	errors := ErrorMessages{}
 	for jobId, recvMsgs := range messagesForJob {
-		job, err := accessor.Find(ctx, jobId)
-		if err != nil {
-			return err
-		}
+		err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+			// log.Debugf(ctx, "PullAndUpdateJobStatus #4.1\n")
+			job, err := accessor.Find(ctx, jobId)
+			if err != nil {
+				return err
+			}
+			// log.Debugf(ctx, "PullAndUpdateJobStatus #4.2\n")
 
-		err = m.OverwriteJobByMessages(ctx, job, recvMsgs)
-		if err != nil {
-			errors = append(errors, err.Error())
-			continue
-		}
-		err = job.Update(ctx)
-		if err != nil {
-			errors = append(errors, err.Error())
-			continue
-		}
-		for _, recvMsg := range recvMsgs {
-			err := s.sendAck(ctx, subscription, recvMsg)
+			err = m.OverwriteJobByMessages(ctx, job, recvMsgs)
 			if err != nil {
 				errors = append(errors, err.Error())
-				break
+				return err
 			}
+			// log.Debugf(ctx, "PullAndUpdateJobStatus #4.3\n")
+			err = job.Update(ctx)
+			if err != nil {
+				errors = append(errors, err.Error())
+				return nil
+			}
+			// log.Debugf(ctx, "PullAndUpdateJobStatus #4.4\n")
+			for _, recvMsg := range recvMsgs {
+				err := s.sendAck(ctx, subscription, recvMsg)
+				if err != nil {
+					errors = append(errors, err.Error())
+				}
+			}
+			// log.Debugf(ctx, "PullAndUpdateJobStatus #4.5\n")
+			return nil
+		}, &datastore.TransactionOptions{Attempts: 16})
+		if err != nil {
+			errors = append(errors, err.Error())
 		}
 	}
 
@@ -683,6 +719,68 @@ func (m *Pipeline) stringFromMapWithDefault(src map[string]string, key, defaultV
 		return defaultValue
 	}
 	return r
+}
+
+func (m *Pipeline) JobCountBy(ctx context.Context, st JobStatus) (int, error) {
+	accessor := m.JobAccessor()
+	q, err := accessor.Query()
+	if err != nil {
+		return 0, err
+	}
+	return q.Filter("status = ", int(st)).Count(ctx)
+}
+
+func (m *Pipeline) JobCount(ctx context.Context, statuses ...JobStatus) (int, error) {
+	r := 0
+	for _, st := range statuses {
+		c, err := m.JobCountBy(ctx, st)
+		if err != nil {
+			return 0, err
+		}
+		r += c
+	}
+	return r, nil
+}
+
+func (m *Pipeline) CalcAndUpdatePullingTaskSize(ctx context.Context, f func(int) error) error {
+	jobCount, err := m.JobCount(ctx, Publishing, Published, Executing)
+	if err != nil {
+		return err
+	}
+	jobsPerTask := m.Pulling.JobsPerTask
+	if jobsPerTask < 1 {
+		jobsPerTask = 50
+	}
+	tasks := (jobCount / jobsPerTask) + 1
+	newTasks := tasks - m.PullingTaskSize
+	if newTasks > 0 {
+		m.PullingTaskSize = tasks
+		if err := m.Update(ctx); err != nil {
+			return err
+		}
+		return f(newTasks)
+	}
+	return nil
+}
+
+func (m *Pipeline) DecreasePullingTaskSize(ctx context.Context, diff int, f func() error) error {
+	ret := f()
+	err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+		if err := m.Reload(ctx); err != nil {
+			log.Warningf(ctx, "Failed to reload on Pipeline.DecreasePullingTaskSize for %v because of %v\n", m.ID, err)
+			return err
+		}
+		m.PullingTaskSize = -diff
+		if err := m.Update(ctx); err != nil {
+			log.Warningf(ctx, "Failed to update on Pipeline.DecreasePullingTaskSize for %v because of %v\n", m.ID, err)
+			return err
+		}
+		return nil
+	}, nil)
+	if err != nil {
+		log.Errorf(ctx, "Failed to update on Pipeline.DecreasePullingTaskSize for %v because of %v\n", m.ID, err)
+	}
+	return ret
 }
 
 func (m *Pipeline) HasNewTaskSince(ctx context.Context, t time.Time) (bool, error) {

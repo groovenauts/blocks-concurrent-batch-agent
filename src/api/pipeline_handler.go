@@ -10,6 +10,7 @@ import (
 
 	"github.com/labstack/echo"
 	"golang.org/x/net/context"
+	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 )
 
@@ -148,19 +149,26 @@ func (h *PipelineHandler) publishTask(c echo.Context) error {
 	pl := c.Get("pipeline").(*models.Pipeline)
 	err := pl.PublishJobs(ctx)
 	if err != nil {
+		log.Errorf(ctx, "Failed to Pipeline.PublishJobs for %v because of %v\n", pl.ID, err)
 		return err
 	}
 	return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
-		err := PostPipelineTask(c, "subscribe_task", pl)
-		if err != nil {
-			return err
-		}
 		if pl.CanScale() {
 			err = PostPipelineTask(c, "check_scaling_task", pl)
 			if err != nil {
 				return err
 			}
 		}
-		return nil
+		return datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+			return pl.CalcAndUpdatePullingTaskSize(ctx, func(newTasks int) error {
+				for i := 0; i < newTasks; i++ {
+					if err := PostPipelineTask(c, "subscribe_task", pl); err != nil {
+						log.Warningf(ctx, "Failed to start subscribe_task for %v because of %v\n", pl.ID, err)
+						// return err
+					}
+				}
+				return nil
+			})
+		}, nil)
 	})
 }

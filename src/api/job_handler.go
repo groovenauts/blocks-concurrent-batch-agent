@@ -44,6 +44,7 @@ func (h *JobHandler) create(c echo.Context) error {
 
 	switch pl.Status {
 	case models.HibernationChecking:
+		pl.PullingTaskSize = 1
 		err := pl.BackToBeOpened(ctx)
 		if err != nil {
 			return err
@@ -90,9 +91,19 @@ func (h *JobHandler) index(c echo.Context) error {
 type BulkGetJobsPayload struct {
 	JobIds []string `json:"job_ids"`
 }
+type BulkGetJobsMediaTypeJob struct {
+	ID          string           `json:"id"`
+	IdByClient  string           `json:"id_by_client"`
+	Status      models.JobStatus `json:"status"`
+	PublishedAt time.Time        `json:"published_at,omitempty"`
+	StartTime   string           `json:"start_time"`
+	FinishTime  string           `json:"finish_time"`
+	CreatedAt   time.Time        `json:"created_at"`
+	UpdatedAt   time.Time        `json:"updated_at"`
+}
 type BulkGetJobsMediaType struct {
-	Jobs   map[string]*models.Job `json:"jobs"`
-	Errors map[string]error       `json:"errors"`
+	Jobs   map[string]*BulkGetJobsMediaTypeJob `json:"jobs"`
+	Errors map[string]error                    `json:"errors"`
 }
 
 // curl -v -X POST http://localhost:8080/pipelines/3/bulk_get_jobs --data '{"job_ids":["1","2","5"]}' -H 'Content-Type: application/json'
@@ -107,10 +118,27 @@ func (h *JobHandler) BulkGetJobs(c echo.Context) error {
 	pl := c.Get("pipeline").(*models.Pipeline)
 	jobs, errors := pl.JobAccessor().BulkGet(ctx, payload.JobIds)
 	r := &BulkGetJobsMediaType{
-		Jobs:   jobs,
+		Jobs:   h.JobsFromModelToMediaType(jobs),
 		Errors: errors,
 	}
 	return c.JSON(http.StatusOK, r)
+}
+
+func (h *JobHandler) JobsFromModelToMediaType(models map[string]*models.Job) map[string]*BulkGetJobsMediaTypeJob {
+	r := map[string]*BulkGetJobsMediaTypeJob{}
+	for key, model := range models {
+		r[key] = &BulkGetJobsMediaTypeJob{
+			ID:          model.ID,
+			IdByClient:  model.IdByClient,
+			Status:      model.Status,
+			PublishedAt: model.PublishedAt,
+			StartTime:   model.StartTime,
+			FinishTime:  model.FinishTime,
+			CreatedAt:   model.CreatedAt,
+			UpdatedAt:   model.UpdatedAt,
+		}
+	}
+	return r
 }
 
 type BulkJobStatusesMediaType struct {
@@ -221,16 +249,35 @@ func (h *JobHandler) WaitToPublishTask(c echo.Context) error {
 func (h *JobHandler) PublishTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	job := c.Get("job").(*models.Job)
-	job.Status = models.Publishing
-	log.Debugf(ctx, "PublishAndUpdate#1: %v\n", job)
-	err := job.Update(ctx)
+	if job.Status != models.Publishing {
+		job.Status = models.Publishing
+		log.Debugf(ctx, "PublishAndUpdate#1: %v\n", job)
+		err := job.Update(ctx)
+		if err != nil {
+			return err
+		}
+	}
+	err := job.PublishAndUpdateWithTx(ctx)
 	if err != nil {
 		return err
 	}
-	err = job.PublishAndUpdate(ctx)
+
+	pl := c.Get("pipeline").(*models.Pipeline)
+	err = datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+		return pl.CalcAndUpdatePullingTaskSize(ctx, func(newTasks int) error {
+			for i := 0; i < newTasks; i++ {
+				if err := PostPipelineTask(c, "subscribe_task", pl); err != nil {
+					log.Warningf(ctx, "Failed to start subscribe_task for %v because of %v\n", pl.ID, err)
+					// return err
+				}
+			}
+			return nil
+		})
+	}, nil)
 	if err != nil {
-		return err
+		log.Warningf(ctx, "Failed to CalcAndUpdatePullingTaskSize for %v because of %v\n", pl.ID, err)
 	}
+
 	return c.JSON(http.StatusOK, job)
 }
 

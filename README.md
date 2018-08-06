@@ -17,6 +17,8 @@ increases or descreases, `blocks-concurrent-batch-agent` detects it and scale yo
     - You can install goenv by [anyenv](https://github.com/riywo/anyenv)
 1. [Install the App Engine SDK for Go](https://cloud.google.com/appengine/docs/go/download?hl=ja)
 1. `git clone git@github.com:groovenauts/blocks-concurrent-batch-agent.git`
+1. Install Ruby
+  - https://www.ruby-lang.org/
 
 ## Run test
 
@@ -87,6 +89,14 @@ $ curl -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X 
 ```
 
 ## Deploy to appengine
+
+Generate `app.yaml`
+
+```
+$ erb -T - app/concurrent-batch-agent/app.yaml.erb > app/concurrent-batch-agent/app.yaml
+```
+
+See [app.yaml.erb](https://github.com/groovenauts/blocks-concurrent-batch-agent/blob/master/app/concurrent-batch-agent/app.yaml.erb) for more detail.
 
 ```
 $ export PROJECT=<YOUR_GCP_PROJECT>
@@ -187,6 +197,10 @@ $ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' 
 | job_scaler.max_instance_size | int | true     | Max instance size to increase by job_scaler |
 | machine_type            | string   | true     | VM Machine type: Run `gcloud compute machine-types list` |
 | name                    | string   | true     | Name of the pipeline |
+| pulling                 | object   | false    | Pulling settings |
+| pulling.message_per_pull | int     | false    | The number of messages to pull once. Default is 100. |
+| pulling.interval_seconds | int     | false    | The number of second of interval to pull. Default is 30. |
+| pulling.jobs_per_task    | int     | false    | The number of jobs to pull in a task. Default is 50. |
 | preemptible             | bool     | false    | If true, use preemptible VMs |
 | project_id              | string   | true     | GCP Project ID to run |
 | stackdriver_agent       | bool     | false    | If true, use stackdriver agent |

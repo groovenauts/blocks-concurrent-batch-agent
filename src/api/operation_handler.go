@@ -11,6 +11,8 @@ import (
 
 	"github.com/labstack/echo"
 	"golang.org/x/net/context"
+
+	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 )
 
@@ -24,7 +26,20 @@ func (h *OperationHandler) collection(action echo.HandlerFunc) echo.HandlerFunc 
 }
 
 func (h *OperationHandler) member(action echo.HandlerFunc) echo.HandlerFunc {
-	return gae_support.With(operationBy(h.operation_id_name, http.StatusNoContent, OperationToPl(PlToOrg(withAuth(action)))))
+	f1 := operationBy(h.operation_id_name, http.StatusNoContent, OperationToPl(PlToOrg(withAuth(action))))
+	f2 := func(c echo.Context) error {
+		ctx := c.Get("aecontext").(context.Context)
+		err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+			c.Set("aecontext", ctx)
+			return f1(c)
+		}, &datastore.TransactionOptions{Attempts: 16})
+		if err != nil {
+			log.Errorf(ctx, "Error occurred in TX %v\n", err)
+			return err
+		}
+		return nil
+	}
+	return gae_support.With(f2)
 }
 
 // curl -v -X POST http://localhost:8080/operations/3/wait_building_task --data '' -H 'Content-Type: application/json'
@@ -49,10 +64,8 @@ func (h *OperationHandler) waitBuildingTask(c echo.Context) error {
 		})
 	}
 
-	pl, err := operation.LoadPipeline(ctx)
-	if err != nil {
-		return err
-	}
+	pl := operation.Pipeline
+	log.Debugf(ctx, "waitHibernationTask operation done. Pipeline: %v\n", pl)
 
 	if pl.Status != models.Opened {
 		log.Errorf(ctx, "Invalid state transition: Pipeline must be Opened but %v. pipeline: %v\n", pl.Status, pl)
@@ -88,16 +101,17 @@ func (h *OperationHandler) waitHibernationTask(c echo.Context) error {
 		return err
 	}
 
-	if !operation.Done() {
+	done := operation.Done()
+	log.Debugf(ctx, "waitHibernationTask operation.Status: %v Done => %v\n", operation.Status, done)
+
+	if !done {
 		return ReturnJsonWith(c, operation, http.StatusAccepted, func() error {
 			return PostOperationTaskWithETA(c, "wait_hibernation_task", operation, started.Add(30*time.Second))
 		})
 	}
 
-	pl, err := operation.LoadPipeline(ctx)
-	if err != nil {
-		return err
-	}
+	pl := operation.Pipeline
+	log.Debugf(ctx, "waitHibernationTask operation done. Pipeline: %v\n", pl)
 
 	switch pl.Status {
 	case models.Hibernating:
@@ -161,10 +175,8 @@ func (h *OperationHandler) waitClosingTask(c echo.Context) error {
 		})
 	}
 
-	pl, err := operation.LoadPipeline(ctx)
-	if err != nil {
-		return err
-	}
+	pl := operation.Pipeline
+	log.Debugf(ctx, "waitHibernationTask operation done. Pipeline: %v\n", pl)
 
 	switch pl.Status {
 	case models.Closed:

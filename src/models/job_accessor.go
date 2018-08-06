@@ -51,6 +51,9 @@ func (aa *JobAccessor) BulkGet(ctx context.Context, ids []string) (map[string]*J
 	jobs := map[string]*Job{}
 	errors := map[string]error{}
 	for _, id := range ids {
+		if id == "" {
+			continue
+		}
 		job, err := aa.Find(ctx, id)
 		if err != nil {
 			errors[id] = err
