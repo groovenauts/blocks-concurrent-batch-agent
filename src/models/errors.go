@@ -13,6 +13,14 @@ func (e *InvalidParent) Error() string {
 	return fmt.Sprintf("Invalid parent from ID: %q", e.ID)
 }
 
+type InvalidReference struct {
+	ID string
+}
+
+func (e *InvalidReference) Error() string {
+	return fmt.Sprintf("Invalid reference from ID: %q", e.ID)
+}
+
 var ErrTimeout = errors.New("Timeout")
 
 type InvalidOperation struct {

@@ -159,8 +159,12 @@ func (h *PipelineHandler) publishTask(c echo.Context) error {
 				return err
 			}
 		}
-		return datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-			return pl.CalcAndUpdatePullingTaskSize(ctx, func(newTasks int) error {
+		jobCount, err := pl.JobCount(ctx, models.Publishing, models.Published, models.Executing)
+		if err != nil {
+			return err
+		}
+		err = datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+			return pl.CalcAndUpdatePullingTaskSize(ctx, jobCount, func(newTasks int) error {
 				for i := 0; i < newTasks; i++ {
 					if err := PostPipelineTask(c, "subscribe_task", pl); err != nil {
 						log.Warningf(ctx, "Failed to start subscribe_task for %v because of %v\n", pl.ID, err)
@@ -170,5 +174,10 @@ func (h *PipelineHandler) publishTask(c echo.Context) error {
 				return nil
 			})
 		}, nil)
+		if err != nil {
+			log.Errorf(ctx, "Error occurred in TX %v", err)
+			return err
+		}
+		return nil
 	})
 }

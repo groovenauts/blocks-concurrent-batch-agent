@@ -69,6 +69,7 @@ func (pa *PipelineAccessor) LoadByKey(ctx context.Context, key *datastore.Key, p
 		log.Errorf(ctx, "Failed to Get pipeline key(%v) to key because of %v \n", key, err)
 		return err
 	}
+	pl.key = key
 	pl.ID = key.Encode()
 	return nil
 }
@@ -110,6 +111,7 @@ func (pa *PipelineAccessor) GetByQuery(ctx context.Context, q *datastore.Query) 
 		if err != nil {
 			return nil, err
 		}
+		pl.key = key
 		pl.ID = key.Encode()
 		res = append(res, &pl)
 	}

@@ -111,20 +111,21 @@ func (m *JobMessage) EntriesToMap() {
 
 type (
 	Job struct {
-		ID          string     `json:"id"  datastore:"-"`
-		Pipeline    *Pipeline  `json:"-"   validate:"required" datastore:"-"`
-		IdByClient  string     `json:"id_by_client" validate:"required" datastore:"id_by_client"`
-		Status      JobStatus  `json:"status"       datastore:"status" `
-		Zone        string     `json:"zone" datastore:"zone"`
-		Hostname    string     `json:"hostname" datastore:"hostname"`
-		Message     JobMessage `json:"message" datastore:"message"`
-		MessageID   string     `json:"message_id"   datastore:"message_id"`
-		Output      string     `json:"output,omitempty"       datastore:"output,noindex"`
-		PublishedAt time.Time  `json:"published_at,omitempty"`
-		StartTime   string     `json:"start_time"`
-		FinishTime  string     `json:"finish_time"`
-		CreatedAt   time.Time  `json:"created_at"`
-		UpdatedAt   time.Time  `json:"updated_at"`
+		ID          string         `json:"id"  datastore:"-"`
+		PipelineKey *datastore.Key `json:"-"   datastore:"pipeline_key"`
+		Pipeline    *Pipeline      `json:"-"   validate:"required" datastore:"-"`
+		IdByClient  string         `json:"id_by_client" validate:"required" datastore:"id_by_client"`
+		Status      JobStatus      `json:"status"       datastore:"status" `
+		Zone        string         `json:"zone" datastore:"zone"`
+		Hostname    string         `json:"hostname" datastore:"hostname"`
+		Message     JobMessage     `json:"message" datastore:"message"`
+		MessageID   string         `json:"message_id"   datastore:"message_id"`
+		Output      string         `json:"output,omitempty"       datastore:"output,noindex"`
+		PublishedAt time.Time      `json:"published_at,omitempty"`
+		StartTime   string         `json:"start_time"`
+		FinishTime  string         `json:"finish_time"`
+		CreatedAt   time.Time      `json:"created_at"`
+		UpdatedAt   time.Time      `json:"updated_at"`
 	}
 )
 
@@ -139,13 +140,31 @@ func (m *Job) CopyFrom(src *Job) {
 	m.UpdatedAt = src.UpdatedAt
 }
 
-func (m *Job) Validate() error {
+func (m *Job) Validate(ctx context.Context) error {
+	log.Debugf(ctx, "Job.Validate start\n")
+	defer log.Debugf(ctx, "Job.Validate end\n")
+
 	v := validator.New()
-	for k, val := range Validators {
-		v.RegisterValidation(k, val)
+	if err := v.Struct(m); err != nil {
+		return err
 	}
-	err := v.Struct(m)
-	return err
+
+	if m.PipelineKey == nil {
+		if m.Pipeline == nil {
+			return fmt.Errorf("No PipelineKey set for job %v", m)
+		}
+		if m.Pipeline.key == nil {
+			key, err := datastore.DecodeKey(m.Pipeline.ID)
+			if err != nil {
+				return err
+			}
+			m.PipelineKey = key
+		} else {
+			m.PipelineKey = m.Pipeline.key
+		}
+	}
+
+	return nil
 }
 
 func (m *Job) InitStatus(ready bool) {
@@ -156,19 +175,15 @@ func (m *Job) InitStatus(ready bool) {
 	}
 }
 
-func (m *Job) Key(ctx context.Context) (*datastore.Key, error) {
-	parentKey, err := datastore.DecodeKey(m.Pipeline.ID)
-	if err != nil {
-		return nil, err
-	}
+func (m *Job) Key(ctx context.Context, prefix string) *datastore.Key {
 	var key *datastore.Key
 	if m.IdByClient == "" {
-		key = datastore.NewIncompleteKey(ctx, "Jobs", parentKey)
-		m.IdByClient = fmt.Sprintf("Generated-%s", time.Now().Format(time.RFC3339))
+		key = datastore.NewIncompleteKey(ctx, "Jobs", nil)
+		m.IdByClient = fmt.Sprintf("%s-Generated-%s", prefix, time.Now().Format(time.RFC3339))
 	} else {
-		key = datastore.NewKey(ctx, "Jobs", m.IdByClient, 0, parentKey)
+		key = datastore.NewKey(ctx, "Jobs", fmt.Sprintf("%s-%s", prefix, m.IdByClient), 0, nil)
 	}
-	return key, nil
+	return key
 }
 
 func (m *Job) Create(ctx context.Context) error {
@@ -187,16 +202,12 @@ func (m *Job) Create(ctx context.Context) error {
 
 	log.Debugf(ctx, "Job#Create: %v\n", m)
 
-	err := m.Validate()
+	err := m.Validate(ctx)
 	if err != nil {
 		return err
 	}
 
-	key, err := m.Key(ctx)
-	if err != nil {
-		return err
-	}
-
+	key := m.Key(ctx, m.Pipeline.Name)
 	res, err := datastore.Put(ctx, key, m)
 	if err != nil {
 		return err
@@ -220,10 +231,7 @@ func (m *Job) LoadBy(ctx context.Context, key *datastore.Key) error {
 
 func (m *Job) LoadOrCreate(ctx context.Context) error {
 	return datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-		key, err := m.Key(ctx)
-		if err != nil {
-			return err
-		}
+		key := m.Key(ctx, m.Pipeline.Name)
 		if !key.Incomplete() {
 			err := m.LoadBy(ctx, key)
 			if err == nil {
@@ -255,7 +263,7 @@ func (m *Job) Update(ctx context.Context) error {
 		}
 	}
 
-	err := m.Validate()
+	err := m.Validate(ctx)
 	if err != nil {
 		return err
 	}
@@ -285,15 +293,10 @@ func (m *Job) Destroy(ctx context.Context) error {
 }
 
 func (m *Job) LoadPipeline(ctx context.Context) error {
-	key, err := datastore.DecodeKey(m.ID)
-	if err != nil {
-		log.Errorf(ctx, "Failed to decode Key of pipeline %v because of %v\n", m.ID, err)
-		return err
-	}
-	plKey := key.Parent()
+	plKey := m.PipelineKey
 	if plKey == nil {
-		log.Errorf(ctx, "Pipline key has no parent. ID: %v\n", m.ID)
-		panic("Invalid pipeline key")
+		log.Errorf(ctx, "Job has no PipelineKey. ID: %v\n", m.ID)
+		return fmt.Errorf("No PipelineKey")
 	}
 	pl, err := GlobalPipelineAccessor.FindByKey(ctx, plKey)
 	if err != nil {

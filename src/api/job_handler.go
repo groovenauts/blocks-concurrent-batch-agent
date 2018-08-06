@@ -70,6 +70,10 @@ func (h *JobHandler) create(c echo.Context) error {
 	}
 	log.Debugf(ctx, "Created Job: %v\n", job)
 
+	if job.Status == models.Published {
+		h.IncreaseSubscribeTask(c, ctx, pl)
+	}
+
 	err = h.StartToWaitAndPublishIfNeeded(c, job)
 	if err != nil {
 		return err
@@ -262,23 +266,38 @@ func (h *JobHandler) PublishTask(c echo.Context) error {
 		return err
 	}
 
-	pl := c.Get("pipeline").(*models.Pipeline)
+	h.IncreaseSubscribeTask(c, ctx, c.Get("pipeline").(*models.Pipeline))
+
+	return c.JSON(http.StatusOK, job)
+}
+
+func (h *JobHandler) IncreaseSubscribeTask(c echo.Context, ctx context.Context, pl *models.Pipeline) {
+	jobCount, err := pl.JobCount(ctx, models.Publishing, models.Published, models.Executing)
+	if err != nil {
+		log.Warningf(ctx, "Failed to get JobCount(publishing, published, executing) because of %v\n", err)
+		return
+	}
+
 	err = datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-		return pl.CalcAndUpdatePullingTaskSize(ctx, func(newTasks int) error {
+		return pl.CalcAndUpdatePullingTaskSize(ctx, jobCount, func(newTasks int) error {
 			for i := 0; i < newTasks; i++ {
 				if err := PostPipelineTask(c, "subscribe_task", pl); err != nil {
 					log.Warningf(ctx, "Failed to start subscribe_task for %v because of %v\n", pl.ID, err)
-					// return err
+					return err
 				}
 			}
 			return nil
 		})
-	}, nil)
+	}, &datastore.TransactionOptions{Attempts: 1})
 	if err != nil {
-		log.Warningf(ctx, "Failed to CalcAndUpdatePullingTaskSize for %v because of %v\n", pl.ID, err)
+		logFunc := log.Warningf
+		if err == datastore.ErrConcurrentTransaction {
+			logFunc = log.Infof
+		}
+		logFunc(ctx, "Failed to CalcAndUpdatePullingTaskSize for %v because of %v\n", pl.ID, err)
 	}
 
-	return c.JSON(http.StatusOK, job)
+	return
 }
 
 // curl -v http://localhost:8080/jobs/1/cancel

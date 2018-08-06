@@ -17,32 +17,28 @@ import (
 func (h *PipelineHandler) checkHibernationTask(c echo.Context) error {
 	ctx := c.Get("aecontext").(context.Context)
 	pl := c.Get("pipeline").(*models.Pipeline)
-	err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-		err := pl.Reload(ctx)
-		if err != nil {
-			log.Warningf(ctx, "Failed to reload pipeline for %v because of %v\n", pl.ID, err)
-			return err
-		}
 
-		if pl.Status != models.HibernationChecking {
-			log.Debugf(ctx, "Quit checkHibernationTask because of the pipeline is %v\n", pl.Status)
-			return c.JSON(http.StatusOK, pl)
-		}
-		t, err := time.Parse(time.RFC3339, c.FormValue("since"))
-		if err != nil {
-			log.Warningf(ctx, "Failed to parse since %v because of %v\n", c.Param("since"), err)
-			return c.JSON(http.StatusBadRequest, map[string]string{
-				"error": err.Error(),
-			})
-		}
-		newTask, err := pl.HasNewTaskSince(ctx, t)
-		if err != nil {
-			log.Errorf(ctx, "Failed to check new tasks because of %v\n", err)
-			return err
-		}
-		if newTask {
-			return c.JSON(http.StatusOK, pl)
-		} else {
+	if pl.Status != models.HibernationChecking {
+		log.Debugf(ctx, "Quit checkHibernationTask because of the pipeline is %v\n", pl.Status)
+		return c.JSON(http.StatusOK, pl)
+	}
+	t, err := time.Parse(time.RFC3339, c.FormValue("since"))
+	if err != nil {
+		log.Warningf(ctx, "Failed to parse since %v because of %v\n", c.Param("since"), err)
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": err.Error(),
+		})
+	}
+	newTask, err := pl.HasNewTaskSince(ctx, t)
+	if err != nil {
+		log.Errorf(ctx, "Failed to check new tasks because of %v\n", err)
+		return err
+	}
+
+	if newTask {
+		return c.JSON(http.StatusOK, pl)
+	} else {
+		err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
 			err := pl.StartHibernation(ctx)
 			if err != nil {
 				log.Errorf(ctx, "Failed to StartHibernation because of %v\n", err)
@@ -51,13 +47,13 @@ func (h *PipelineHandler) checkHibernationTask(c echo.Context) error {
 			return ReturnJsonWith(c, pl, http.StatusCreated, func() error {
 				return PostPipelineTask(c, "hibernate_task", pl)
 			})
+		}, nil)
+		if err != nil {
+			log.Errorf(ctx, "Failed to Process check hibernation for %v because of %v\n", pl.ID, err)
+			return err
 		}
-	}, nil)
-	if err != nil {
-		log.Errorf(ctx, "Failed to Process check hibernation for %v because of %v\n", pl.ID, err)
-		return err
+		return nil
 	}
-	return nil
 }
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/hibernate_task

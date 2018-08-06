@@ -113,7 +113,8 @@ type (
 	}
 
 	Pipeline struct {
-		ID                   string         `json:"id"             datastore:"-"`
+		ID                   string `json:"id"             datastore:"-"`
+		key                  *datastore.Key
 		Organization         *Organization  `json:"-"              validate:"required" datastore:"-"`
 		Name                 string         `json:"name"           validate:"required"`
 		ProjectID            string         `json:"project_id"     validate:"required"`
@@ -288,6 +289,7 @@ func (m *Pipeline) PutWithNewKey(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	m.key = res
 	m.ID = res.Encode()
 
 	return nil
@@ -318,12 +320,6 @@ func (m *Pipeline) Update(ctx context.Context) error {
 	}
 
 	m.UpdatedAt = time.Now()
-	if m.Organization == nil {
-		err := m.LoadOrganization(ctx)
-		if err != nil {
-			return err
-		}
-	}
 
 	err := m.Validate()
 	if err != nil {
@@ -332,10 +328,12 @@ func (m *Pipeline) Update(ctx context.Context) error {
 
 	key, err := datastore.DecodeKey(m.ID)
 	if err != nil {
+		log.Errorf(ctx, "Failed to datastore.DecodeKey %q because of %v\n", m.ID, err)
 		return err
 	}
 	_, err = datastore.Put(ctx, key, m)
 	if err != nil {
+		log.Errorf(ctx, "Failed to datastore.Put %v with key %v because of %v\n", m, key, err)
 		return err
 	}
 	return nil
@@ -372,7 +370,7 @@ func (m *Pipeline) FailDeploying(ctx context.Context) error {
 }
 
 func (m *Pipeline) CompleteDeploying(ctx context.Context) error {
-	return m.StateTransition(ctx, []Status{Deploying}, Opened)
+	return m.StateTransition(ctx, []Status{Building, Deploying}, Opened)
 }
 
 func (m *Pipeline) WaitHibernation(ctx context.Context) error {
@@ -394,6 +392,7 @@ func (m *Pipeline) FailHibernation(ctx context.Context) error {
 
 func (m *Pipeline) CompleteHibernation(ctx context.Context) error {
 	m.InstanceSize = 0
+	m.PullingTaskSize = 0
 	return m.StateTransition(ctx, []Status{HibernationProcessing}, Hibernating)
 }
 
@@ -415,15 +414,13 @@ func (m *Pipeline) FailClosing(ctx context.Context) error {
 }
 
 func (m *Pipeline) CompleteClosing(ctx context.Context, pipelineProcesser func(*Pipeline) error) error {
-	err := m.LoadOrganization(ctx)
-	if err != nil {
+	if err := m.LoadOrganization(ctx); err != nil {
+		return err
+	}
+	if err := m.CancelLivingJobs(ctx); err != nil {
 		return err
 	}
 	return datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-		err := m.CancelLivingJobs(ctx)
-		if err != nil {
-			return err
-		}
 
 		org, err := GlobalOrganizationAccessor.Find(ctx, m.Organization.ID)
 		if err != nil {
@@ -489,7 +486,7 @@ func (m *Pipeline) LoadOrganization(ctx context.Context) error {
 }
 
 func (m *Pipeline) JobAccessor() *JobAccessor {
-	return &JobAccessor{Parent: m}
+	return &JobAccessor{PipelineKey: m.key}
 }
 
 func (m *Pipeline) OperationAccessor() *PipelineOperationAccessor {
@@ -632,29 +629,30 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 			}
 			// log.Debugf(ctx, "PullAndUpdateJobStatus #4.2\n")
 
-			err = m.OverwriteJobByMessages(ctx, job, recvMsgs)
-			if err != nil {
-				errors = append(errors, err.Error())
+			if err := m.OverwriteJobByMessages(ctx, job, recvMsgs); err != nil {
 				return err
 			}
 			// log.Debugf(ctx, "PullAndUpdateJobStatus #4.3\n")
-			err = job.Update(ctx)
-			if err != nil {
-				errors = append(errors, err.Error())
-				return nil
+
+			if err := job.Update(ctx); err != nil {
+				return err
 			}
 			// log.Debugf(ctx, "PullAndUpdateJobStatus #4.4\n")
-			for _, recvMsg := range recvMsgs {
-				err := s.sendAck(ctx, subscription, recvMsg)
-				if err != nil {
-					errors = append(errors, err.Error())
-				}
-			}
-			// log.Debugf(ctx, "PullAndUpdateJobStatus #4.5\n")
 			return nil
-		}, &datastore.TransactionOptions{Attempts: 16})
+		}, &datastore.TransactionOptions{Attempts: 10, XG: true})
 		if err != nil {
+			if err == datastore.ErrConcurrentTransaction {
+				return err
+			}
 			errors = append(errors, err.Error())
+		}
+		// log.Debugf(ctx, "PullAndUpdateJobStatus #4.5\n")
+		for _, recvMsg := range recvMsgs {
+			err := s.sendAck(ctx, subscription, recvMsg)
+			if err != nil {
+				log.Warningf(ctx, "Failed to send ACK(%v) to %q because of %v. It will be delivered later again.\n", recvMsg.AckId, subscription, err)
+				errors = append(errors, err.Error())
+			}
 		}
 	}
 
@@ -723,11 +721,13 @@ func (m *Pipeline) stringFromMapWithDefault(src map[string]string, key, defaultV
 
 func (m *Pipeline) JobCountBy(ctx context.Context, st JobStatus) (int, error) {
 	accessor := m.JobAccessor()
-	q, err := accessor.Query()
+	q := accessor.Query()
+	r, err := q.Filter("status = ", int(st)).Count(ctx)
 	if err != nil {
+		log.Errorf(ctx, "Failed to get Count by query %v because of %v\n", q, err)
 		return 0, err
 	}
-	return q.Filter("status = ", int(st)).Count(ctx)
+	return r, nil
 }
 
 func (m *Pipeline) JobCount(ctx context.Context, statuses ...JobStatus) (int, error) {
@@ -742,18 +742,25 @@ func (m *Pipeline) JobCount(ctx context.Context, statuses ...JobStatus) (int, er
 	return r, nil
 }
 
-func (m *Pipeline) CalcAndUpdatePullingTaskSize(ctx context.Context, f func(int) error) error {
-	jobCount, err := m.JobCount(ctx, Publishing, Published, Executing)
-	if err != nil {
+func (m *Pipeline) CalcAndUpdatePullingTaskSize(ctx context.Context, jobCount int, f func(int) error) error {
+	if err := m.Reload(ctx); err != nil {
 		return err
 	}
+
 	jobsPerTask := m.Pulling.JobsPerTask
 	if jobsPerTask < 1 {
 		jobsPerTask = 50
 	}
-	tasks := (jobCount / jobsPerTask) + 1
+	tasks := (jobCount / jobsPerTask)
+	if jobCount%jobsPerTask > 0 {
+		tasks += 1
+	}
+	if m.PullingTaskSize < 0 {
+		m.PullingTaskSize = 0
+	}
 	newTasks := tasks - m.PullingTaskSize
 	if newTasks > 0 {
+		log.Infof(ctx, "Increasing PullingTaskSize +%d (from %d to %d) active jobs: %d, JobsPerTask: %d\n", newTasks, m.PullingTaskSize, tasks, jobCount, jobsPerTask)
 		m.PullingTaskSize = tasks
 		if err := m.Update(ctx); err != nil {
 			return err
@@ -770,13 +777,16 @@ func (m *Pipeline) DecreasePullingTaskSize(ctx context.Context, diff int, f func
 			log.Warningf(ctx, "Failed to reload on Pipeline.DecreasePullingTaskSize for %v because of %v\n", m.ID, err)
 			return err
 		}
-		m.PullingTaskSize = -diff
+		m.PullingTaskSize -= diff
+		if m.PullingTaskSize < 0 {
+			m.PullingTaskSize = 0
+		}
 		if err := m.Update(ctx); err != nil {
 			log.Warningf(ctx, "Failed to update on Pipeline.DecreasePullingTaskSize for %v because of %v\n", m.ID, err)
 			return err
 		}
 		return nil
-	}, nil)
+	}, &datastore.TransactionOptions{XG: true})
 	if err != nil {
 		log.Errorf(ctx, "Failed to update on Pipeline.DecreasePullingTaskSize for %v because of %v\n", m.ID, err)
 	}
@@ -785,13 +795,11 @@ func (m *Pipeline) DecreasePullingTaskSize(ctx context.Context, diff int, f func
 
 func (m *Pipeline) HasNewTaskSince(ctx context.Context, t time.Time) (bool, error) {
 	accessor := m.JobAccessor()
-	q, err := accessor.Query()
-	if err != nil {
-		return false, err
-	}
+	q := accessor.Query()
 	q = q.Filter("CreatedAt >", t)
 	c, err := q.Count(ctx)
 	if err != nil {
+		log.Errorf(ctx, "Failed to get Count with query %v because of %v\n", q, err)
 		return false, err
 	}
 	return (c > 0), nil

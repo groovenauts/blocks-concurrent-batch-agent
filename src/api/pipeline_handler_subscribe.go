@@ -50,6 +50,10 @@ func (h *PipelineHandler) subscribeTask(c echo.Context) error {
 
 	err := pl.PullAndUpdateJobStatus(ctx)
 	if err != nil {
+		if err == datastore.ErrConcurrentTransaction {
+			log.Warningf(ctx, "Quit subscribe_task because of %v\n", err)
+			return c.JSON(http.StatusOK, pl)
+		}
 		switch err.(type) {
 		case *models.SubscriprionNotFound:
 			switch {
