@@ -1,12 +1,12 @@
 package models
 
 import (
+	"context"
 	"encoding/base64"
 	"math/rand"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
-	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 	"gopkg.in/go-playground/validator.v9"

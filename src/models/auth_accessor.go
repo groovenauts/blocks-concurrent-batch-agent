@@ -1,11 +1,11 @@
 package models
 
 import (
+	"context"
 	"errors"
 	"strings"
 
 	"golang.org/x/crypto/bcrypt"
-	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 )
