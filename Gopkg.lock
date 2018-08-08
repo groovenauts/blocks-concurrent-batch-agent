@@ -4,8 +4,8 @@
 [[projects]]
   name = "cloud.google.com/go"
   packages = ["compute/metadata"]
-  revision = "aad3f485ee528456e0768f20397b4d9dd941e755"
-  version = "v0.25.0"
+  revision = "64a2037ec6be8a4b0c1d1f706ed35b428b989239"
+  version = "v0.26.0"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -15,7 +15,10 @@
 
 [[projects]]
   name = "github.com/go-playground/locales"
-  packages = [".","currency"]
+  packages = [
+    ".",
+    "currency"
+  ]
   revision = "f63010822830b6fe52288ee52d5a1151088ce039"
   version = "v0.12.1"
 
@@ -39,9 +42,12 @@
 
 [[projects]]
   name = "github.com/labstack/gommon"
-  packages = ["color","log"]
-  revision = "588f4e8bddc6cb45c27b448e925c7fd6a5545434"
-  version = "0.2.5"
+  packages = [
+    "color",
+    "log"
+  ]
+  revision = "d6898124de917583f5ff5592ef931d1dfe0ddc05"
+  version = "0.2.6"
 
 [[projects]]
   name = "github.com/mattn/go-colorable"
@@ -64,8 +70,8 @@
 [[projects]]
   name = "github.com/stretchr/testify"
   packages = ["assert"]
-  revision = "12b6f73e6084dad08a7c6e575284b177ecafbc71"
-  version = "v1.2.1"
+  revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
+  version = "v1.2.2"
 
 [[projects]]
   branch = "master"
@@ -82,48 +88,87 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
-  packages = ["acme","acme/autocert","bcrypt","blowfish"]
-  revision = "1a580b3eff7814fc9b40602fd35256c63b50f491"
+  packages = [
+    "acme",
+    "acme/autocert",
+    "bcrypt",
+    "blowfish"
+  ]
+  revision = "f027049dab0ad238e394a753dba2d14753473a04"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
-  packages = ["context","context/ctxhttp"]
-  revision = "2491c5de3490fced2f6cff376127c667efeed857"
+  packages = [
+    "context",
+    "context/ctxhttp"
+  ]
+  revision = "f9ce57c11b242f0f1599cf25c89d8cb02c45295a"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/oauth2"
-  packages = [".","google","internal","jws","jwt"]
+  packages = [
+    ".",
+    "google",
+    "internal",
+    "jws",
+    "jwt"
+  ]
   revision = "3d292e4d0cdc3a0113e6d207bb137145ef1de42f"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "7c87d13f8e835d2fb3a70a2912c811ed0c1d241b"
+  revision = "acbc56fc7007d2a01796d5bde54f39e3b3e95945"
 
 [[projects]]
   branch = "master"
   name = "google.golang.org/api"
-  packages = ["compute/v1","deploymentmanager/v2","gensupport","googleapi","googleapi/internal/uritemplates","pubsub/v1"]
-  revision = "d7aa31fbd7da4467a8056610e654315a4c1f068e"
+  packages = [
+    "compute/v1",
+    "deploymentmanager/v2",
+    "gensupport",
+    "googleapi",
+    "googleapi/internal/uritemplates",
+    "pubsub/v1"
+  ]
+  revision = "6e1e03fd226b4390709001a431fb7283256a7d03"
 
 [[projects]]
   name = "google.golang.org/appengine"
-  packages = [".","aetest","datastore","internal","internal/app_identity","internal/base","internal/datastore","internal/log","internal/modules","internal/remote_api","internal/taskqueue","internal/urlfetch","internal/user","log","taskqueue","urlfetch","user"]
-  revision = "150dc57a1b433e64154302bdc40b6bb8aefa313a"
-  version = "v1.0.0"
+  packages = [
+    ".",
+    "aetest",
+    "datastore",
+    "internal",
+    "internal/app_identity",
+    "internal/base",
+    "internal/datastore",
+    "internal/log",
+    "internal/modules",
+    "internal/remote_api",
+    "internal/taskqueue",
+    "internal/urlfetch",
+    "internal/user",
+    "log",
+    "taskqueue",
+    "urlfetch",
+    "user"
+  ]
+  revision = "b1f26356af11148e710935ed1ac8a7f5702c7612"
+  version = "v1.1.0"
 
 [[projects]]
   name = "gopkg.in/go-playground/validator.v9"
   packages = ["."]
-  revision = "6d8c18553ea1ac493d049edd6f102f52e618f085"
-  version = "v9.3.6"
+  revision = "ab2a8a99087e827c9af87ed6777ba897348fb178"
+  version = "v9.20.2"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "4a7c0c6ded3050a5eaf1d73f79e85c28f572ec9d83aab2c84faae69fe8303ed2"
+  inputs-digest = "2b63590aa7aca2dd8b8604fc73f0000b08de2db85a8a309a05a05f36a0e3d901"
   solver-name = "gps-cdcl"
   solver-version = 1
