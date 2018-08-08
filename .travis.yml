@@ -4,7 +4,7 @@ go:
   - 1.8.3
 before_install:
   ## Install App Engine SDK for Go
-  - curl -o $HOME/go_appengine_sdk_linux_amd64.zip https://storage.googleapis.com/appengine-sdks/featured/go_appengine_sdk_linux_amd64-1.9.61.zip
+  - curl -o $HOME/go_appengine_sdk_linux_amd64.zip https://storage.googleapis.com/appengine-sdks/featured/go_appengine_sdk_linux_amd64-1.9.67.zip
   - mkdir $HOME/go_appengine
   - unzip -q -x $HOME/go_appengine_sdk_linux_amd64.zip -d $HOME
   - PATH=$PATH:$HOME/go_appengine
