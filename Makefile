@@ -79,7 +79,7 @@ $(BIN)/ghr: REPOSITORY=github.com/tcnksm/ghr
 
 .PHONY: build
 build: fmt vendor | $(BASE) ; $(info $(M) building executable…) @ ## Build program binary
-	$Q cd $(BASE) && $(GO) build $(MAIN_PACKAGES)
+	$Q cd $(BASE) && $(GOAPP) build $(MAIN_PACKAGES)
 
 
 .PHONY: run
