@@ -629,6 +629,9 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 			}
 			// log.Debugf(ctx, "PullAndUpdateJobStatus #4.2\n")
 
+			// To reduce DB access on Update
+			job.Pipeline = m
+
 			if err := m.OverwriteJobByMessages(ctx, job, recvMsgs); err != nil {
 				return err
 			}
@@ -705,7 +708,7 @@ func (m *Pipeline) OverwriteJob(ctx context.Context, job *Job, recvMsg *pubsub.R
 	job.StartTime = m.stringFromMapWithDefault(attrs, "job.start-time", "")
 	job.FinishTime = m.stringFromMapWithDefault(attrs, "job.finish-time", "")
 
-	log.Debugf(ctx, "PullAndUpdateJobStatus len(recvMsg.Message.Data): %v\n", len(recvMsg.Message.Data))
+	// log.Debugf(ctx, "PullAndUpdateJobStatus len(recvMsg.Message.Data): %v\n", len(recvMsg.Message.Data))
 
 	job.ApplyStatusIfGreaterThanBefore(ctx, completed, step, stepStatus)
 	return nil
