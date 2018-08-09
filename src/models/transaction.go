@@ -14,7 +14,7 @@ const (
 )
 
 func GetTransactionAttemptsFromEnv() int {
-	v := os.Getenv("TRANSACTION_ATTEMPTS")
+	v := os.Getenv("DEFAULT_TRANSACTION_ATTEMPTS")
 	if v != "" {
 		i, err := strconv.Atoi(v)
 		if err != nil {
