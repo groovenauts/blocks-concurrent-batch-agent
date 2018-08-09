@@ -1,11 +1,11 @@
 package models
 
 import (
+	"context"
 	"encoding/base64"
 	"fmt"
 	"time"
 
-	"golang.org/x/net/context"
 	pubsub "google.golang.org/api/pubsub/v1"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"

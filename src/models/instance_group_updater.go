@@ -1,9 +1,9 @@
 package models
 
 import (
+	"context"
 	"fmt"
 
-	"golang.org/x/net/context"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/appengine/log"
 )

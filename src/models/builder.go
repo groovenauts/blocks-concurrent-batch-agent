@@ -1,13 +1,13 @@
 package models
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"regexp"
 	"strings"
 	"time"
 
-	"golang.org/x/net/context"
 	"google.golang.org/api/deploymentmanager/v2"
 	"google.golang.org/appengine/log"
 )

@@ -1,7 +1,7 @@
 package models
 
 import (
-	"golang.org/x/net/context"
+	"context"
 )
 
 // endTime is RFC3339 time string from Operation.

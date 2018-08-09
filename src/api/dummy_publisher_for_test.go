@@ -1,7 +1,7 @@
 package api
 
 import (
-	"golang.org/x/net/context"
+	"context"
 
 	pubsub "google.golang.org/api/pubsub/v1"
 )

@@ -1,9 +1,9 @@
 package test_utils
 
 import (
+	"context"
 	"testing"
 
-	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 )
 

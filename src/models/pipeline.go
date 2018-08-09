@@ -1,6 +1,7 @@
 package models
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
@@ -12,7 +13,6 @@ import (
 
 	pubsub "google.golang.org/api/pubsub/v1"
 
-	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 

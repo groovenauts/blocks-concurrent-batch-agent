@@ -1,7 +1,7 @@
 package models
 
 import (
-	"golang.org/x/net/context"
+	"context"
 )
 
 type DependencyCondition int

@@ -1,12 +1,12 @@
 package models
 
 import (
+	// "context"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"regexp"
 	"testing"
-	// "golang.org/x/net/context"
-	"encoding/json"
-	"io/ioutil"
 
 	"gopkg.in/go-playground/validator.v9"
 

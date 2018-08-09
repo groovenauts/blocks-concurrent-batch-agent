@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"time"
@@ -8,7 +9,6 @@ import (
 	"models"
 
 	"github.com/labstack/echo"
-	"golang.org/x/net/context"
 	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/taskqueue"
 )

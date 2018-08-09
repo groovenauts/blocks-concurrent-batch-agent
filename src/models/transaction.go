@@ -1,10 +1,10 @@
 package models
 
 import (
+	"context"
 	"os"
 	"strconv"
 
-	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 )

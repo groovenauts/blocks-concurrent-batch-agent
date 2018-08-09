@@ -1,9 +1,10 @@
 package models
 
 import (
+	"context"
+
 	pubsub "google.golang.org/api/pubsub/v1"
 
-	"golang.org/x/net/context"
 	"golang.org/x/oauth2/google"
 
 	"google.golang.org/api/googleapi"

@@ -1,9 +1,9 @@
 package models
 
 import (
+	"context"
 	"fmt"
 
-	"golang.org/x/net/context"
 	pubsub "google.golang.org/api/pubsub/v1"
 )
 
