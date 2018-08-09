@@ -26,10 +26,5 @@ func GetTransactionAttemptsFromEnv() int {
 }
 
 func GetTransactionOptions(ctx context.Context) *datastore.TransactionOptions {
-	opts := datastore.TransactionOptions{
-		XG:       false,
-		Attempts: GetTransactionAttemptsFromEnv(),
-	}
-	// log.Debugf(ctx, "TransactionOptions: %v\n", opts)
-	return &opts
+	return &datastore.TransactionOptions{XG: false, Attempts: GetTransactionAttemptsFromEnv()}
 }
