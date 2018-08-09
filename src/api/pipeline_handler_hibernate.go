@@ -39,6 +39,16 @@ func (h *PipelineHandler) checkHibernationTask(c echo.Context) error {
 		return c.JSON(http.StatusOK, pl)
 	} else {
 		err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+			if err := pl.Reload(ctx); err != nil {
+				switch pl.Status {
+				case models.HibernationStarting,
+					models.HibernationProcessing,
+					models.HibernationError,
+					models.Hibernating:
+					log.Warningf(ctx, "Quit check_hibernation_task because the pipeline is alread %v\n", pl.Status)
+					return c.JSON(http.StatusOK, pl)
+				}
+			}
 			err := pl.StartHibernation(ctx)
 			if err != nil {
 				log.Errorf(ctx, "Failed to StartHibernation because of %v\n", err)
