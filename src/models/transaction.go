@@ -27,3 +27,7 @@ func GetTransactionAttemptsFromEnv() int {
 func GetTransactionOptions() *datastore.TransactionOptions {
 	return &datastore.TransactionOptions{XG: false, Attempts: GetTransactionAttemptsFromEnv()}
 }
+
+func GetTransactionOptionsWithXG() *datastore.TransactionOptions {
+	return &datastore.TransactionOptions{XG: true, Attempts: GetTransactionAttemptsFromEnv()}
+}

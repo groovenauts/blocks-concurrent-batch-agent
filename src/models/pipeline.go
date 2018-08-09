@@ -789,7 +789,7 @@ func (m *Pipeline) DecreasePullingTaskSize(ctx context.Context, diff int, f func
 			return err
 		}
 		return nil
-	}, &datastore.TransactionOptions{XG: true})
+	}, GetTransactionOptionsWithXG())
 	if err != nil {
 		log.Errorf(ctx, "Failed to update on Pipeline.DecreasePullingTaskSize for %v because of %v\n", m.ID, err)
 	}
