@@ -1,7 +1,6 @@
 package models
 
 import (
-	"context"
 	"os"
 	"strconv"
 
@@ -25,6 +24,6 @@ func GetTransactionAttemptsFromEnv() int {
 	return DefaultTransactionAttempts
 }
 
-func GetTransactionOptions(ctx context.Context) *datastore.TransactionOptions {
+func GetTransactionOptions() *datastore.TransactionOptions {
 	return &datastore.TransactionOptions{XG: false, Attempts: GetTransactionAttemptsFromEnv()}
 }

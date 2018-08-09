@@ -246,7 +246,7 @@ func (m *Job) LoadOrCreate(ctx context.Context) error {
 			}
 		}
 		return m.Create(ctx)
-	}, GetTransactionOptions(ctx))
+	}, GetTransactionOptions())
 }
 
 func (m *Job) Update(ctx context.Context) error {
