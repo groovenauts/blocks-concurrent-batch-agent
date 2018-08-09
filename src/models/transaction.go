@@ -12,8 +12,8 @@ const (
 	DefaultTransactionAttempts = 5
 )
 
-func GetTransactionAttemptsFromEnv() int {
-	v := os.Getenv("DEFAULT_TRANSACTION_ATTEMPTS")
+func GetTransactionAttemptsFromEnvWithName(name string) int {
+	v := os.Getenv(name)
 	if v != "" {
 		i, err := strconv.Atoi(v)
 		if err != nil {
@@ -22,6 +22,10 @@ func GetTransactionAttemptsFromEnv() int {
 		return i
 	}
 	return DefaultTransactionAttempts
+}
+
+func GetTransactionAttemptsFromEnv() int {
+	return GetTransactionAttemptsFromEnvWithName("DEFAULT_TRANSACTION_ATTEMPTS")
 }
 
 func GetTransactionOptions() *datastore.TransactionOptions {
