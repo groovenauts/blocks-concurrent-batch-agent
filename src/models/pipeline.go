@@ -619,6 +619,7 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 
 	// log.Debugf(ctx, "PullAndUpdateJobStatus #3\n")
 
+	txOpts := &datastore.TransactionOptions{XG: true, Attempts: 10}
 	errors := ErrorMessages{}
 	for jobId, recvMsgs := range messagesForJob {
 		err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
@@ -642,7 +643,7 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 			}
 			// log.Debugf(ctx, "PullAndUpdateJobStatus #4.4\n")
 			return nil
-		}, &datastore.TransactionOptions{Attempts: 10, XG: true})
+		}, txOpts)
 		if err != nil {
 			if err == datastore.ErrConcurrentTransaction {
 				return err
