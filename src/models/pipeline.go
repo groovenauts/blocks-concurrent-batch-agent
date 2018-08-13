@@ -245,7 +245,7 @@ func (m *Pipeline) ReserveOrWait(ctx context.Context, f func(context.Context) er
 		}
 
 		return f(ctx)
-	}, GetTransactionOptions(ctx))
+	}, GetTransactionOptions())
 
 	if err != nil {
 		log.Errorf(ctx, "Transaction failed: %v\n", err)
@@ -432,7 +432,7 @@ func (m *Pipeline) CompleteClosing(ctx context.Context, pipelineProcesser func(*
 		})
 
 		return m.StateTransition(ctx, []Status{Closing}, Closed)
-	}, GetTransactionOptions(ctx))
+	}, GetTransactionOptions())
 }
 
 func (m *Pipeline) CloseIfHibernating(ctx context.Context) error {
@@ -619,6 +619,10 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 
 	// log.Debugf(ctx, "PullAndUpdateJobStatus #3\n")
 
+	txOpts := &datastore.TransactionOptions{
+		XG:       true,
+		Attempts: GetTransactionAttemptsFromEnvWithName("SUBSCRIBE_TRANSACTION_ATTEMPTS"),
+	}
 	errors := ErrorMessages{}
 	for jobId, recvMsgs := range messagesForJob {
 		err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
@@ -628,6 +632,9 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 				return err
 			}
 			// log.Debugf(ctx, "PullAndUpdateJobStatus #4.2\n")
+
+			// To reduce DB access on Update
+			job.Pipeline = m
 
 			if err := m.OverwriteJobByMessages(ctx, job, recvMsgs); err != nil {
 				return err
@@ -639,7 +646,7 @@ func (m *Pipeline) PullAndUpdateJobStatus(ctx context.Context) error {
 			}
 			// log.Debugf(ctx, "PullAndUpdateJobStatus #4.4\n")
 			return nil
-		}, &datastore.TransactionOptions{Attempts: 10, XG: true})
+		}, txOpts)
 		if err != nil {
 			if err == datastore.ErrConcurrentTransaction {
 				return err
@@ -705,7 +712,7 @@ func (m *Pipeline) OverwriteJob(ctx context.Context, job *Job, recvMsg *pubsub.R
 	job.StartTime = m.stringFromMapWithDefault(attrs, "job.start-time", "")
 	job.FinishTime = m.stringFromMapWithDefault(attrs, "job.finish-time", "")
 
-	log.Debugf(ctx, "PullAndUpdateJobStatus len(recvMsg.Message.Data): %v\n", len(recvMsg.Message.Data))
+	// log.Debugf(ctx, "PullAndUpdateJobStatus len(recvMsg.Message.Data): %v\n", len(recvMsg.Message.Data))
 
 	job.ApplyStatusIfGreaterThanBefore(ctx, completed, step, stepStatus)
 	return nil
@@ -786,7 +793,7 @@ func (m *Pipeline) DecreasePullingTaskSize(ctx context.Context, diff int, f func
 			return err
 		}
 		return nil
-	}, &datastore.TransactionOptions{XG: true})
+	}, GetTransactionOptionsWithXG())
 	if err != nil {
 		log.Errorf(ctx, "Failed to update on Pipeline.DecreasePullingTaskSize for %v because of %v\n", m.ID, err)
 	}

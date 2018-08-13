@@ -1,20 +1,19 @@
 package models
 
 import (
-	"context"
 	"os"
 	"strconv"
 
 	"google.golang.org/appengine/datastore"
-	"google.golang.org/appengine/log"
+	// "google.golang.org/appengine/log"
 )
 
 const (
 	DefaultTransactionAttempts = 5
 )
 
-func GetTransactionAttemptsFromEnv() int {
-	v := os.Getenv("TRANSACTION_ATTEMPTS")
+func GetTransactionAttemptsFromEnvWithName(name string) int {
+	v := os.Getenv(name)
 	if v != "" {
 		i, err := strconv.Atoi(v)
 		if err != nil {
@@ -25,11 +24,14 @@ func GetTransactionAttemptsFromEnv() int {
 	return DefaultTransactionAttempts
 }
 
-func GetTransactionOptions(ctx context.Context) *datastore.TransactionOptions {
-	opts := datastore.TransactionOptions{
-		XG:       false,
-		Attempts: GetTransactionAttemptsFromEnv(),
-	}
-	log.Debugf(ctx, "TransactionOptions: %v\n", opts)
-	return &opts
+func GetTransactionAttemptsFromEnv() int {
+	return GetTransactionAttemptsFromEnvWithName("DEFAULT_TRANSACTION_ATTEMPTS")
+}
+
+func GetTransactionOptions() *datastore.TransactionOptions {
+	return &datastore.TransactionOptions{XG: false, Attempts: GetTransactionAttemptsFromEnv()}
+}
+
+func GetTransactionOptionsWithXG() *datastore.TransactionOptions {
+	return &datastore.TransactionOptions{XG: true, Attempts: GetTransactionAttemptsFromEnv()}
 }
