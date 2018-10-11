@@ -22,11 +22,11 @@ type OperationHandler struct {
 }
 
 func (h *OperationHandler) collection(action echo.HandlerFunc) echo.HandlerFunc {
-	return gae_support.With(plBy(h.pipeline_id_name, http.StatusNoContent, PlToOrg(withAuth(action))))
+	return gae_support.With(plBy(h.pipeline_id_name, http.StatusNotFound, PlToOrg(withAuth(action))))
 }
 
 func (h *OperationHandler) member(action echo.HandlerFunc) echo.HandlerFunc {
-	return gae_support.With(operationBy(h.operation_id_name, http.StatusNoContent, OperationToPl(PlToOrg(withAuth(action)))))
+	return gae_support.With(operationBy(h.operation_id_name, http.StatusNotFound, OperationToPl(PlToOrg(withAuth(action)))))
 }
 
 // curl -v -X POST http://localhost:8080/operations/3/wait_building_task --data '' -H 'Content-Type: application/json'
