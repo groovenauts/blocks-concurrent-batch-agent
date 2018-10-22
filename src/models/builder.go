@@ -294,11 +294,13 @@ func (b *Builder) buildStartupScript(pl *Pipeline) string {
 	if usingGcr {
 		docker = docker + " --config /home/chronos/.docker"
 		host := GcrImageHostRegexp.FindString(pl.ContainerName)
+		// See the following URL for more detail about Accessing Private Google Container Registry with docker login
+		// https://cloud.google.com/container-optimized-os/docs/how-to/run-container-instance#accessing_private_google_container_registry
 		r = append(r,
 			"METADATA=http://metadata.google.internal/computeMetadata/v1",
 			"SVC_ACCT=$METADATA/instance/service-accounts/default",
 			"ACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'\"' -f 4)",
-			"with_backoff "+docker+" login -e 1234@5678.com -u _token -p $ACCESS_TOKEN https://"+host,
+			"with_backoff "+docker+" login -u oauth2accesstoken -p $ACCESS_TOKEN https://"+host,
 		)
 	}
 
