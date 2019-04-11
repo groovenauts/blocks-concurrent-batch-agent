@@ -12,13 +12,13 @@ increases or descreases, `blocks-concurrent-batch-agent` detects it and scale yo
 ## Setup
 
 1. Install Go
-  - https://golang.org/doc/install
-  - Or use [goenv](https://github.com/kaneshin/goenv)
-    - You can install goenv by [anyenv](https://github.com/riywo/anyenv)
+    - https://golang.org/doc/install
+    - Or use [goenv](https://github.com/kaneshin/goenv)
+        - You can install goenv by [anyenv](https://github.com/riywo/anyenv)
 1. [Install the App Engine SDK for Go](https://cloud.google.com/appengine/docs/go/download?hl=ja)
 1. `git clone git@github.com:groovenauts/blocks-concurrent-batch-agent.git`
 1. Install Ruby
-  - https://www.ruby-lang.org/
+    - https://www.ruby-lang.org/
 
 ## Run test
 
