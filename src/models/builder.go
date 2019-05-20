@@ -337,8 +337,8 @@ func (b *Builder) buildInstallCuda(pl *Pipeline) string {
 	return `
 if ! dpkg-query -W cuda; then
    apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/7fa2af80.pub
-   curl -O http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_9.2.88-1_amd64.deb
-   dpkg -i ./cuda-repo-ubuntu1604_9.2.88-1_amd64.deb
+   curl -O http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_10.1.168-1_amd64.deb
+   dpkg -i ./cuda-repo-ubuntu1604_10.1.168-1_amd64.deb
    apt-get update
    apt-get -y install cuda
 fi
@@ -375,6 +375,6 @@ apt-get update
 apt-get install -y nvidia-docker2
 pkill -SIGHUP dockerd
 
-docker run --runtime=nvidia --rm nvidia/cuda:9.2-base nvidia-smi
+docker run --runtime=nvidia --rm nvidia/cuda:10.1-base nvidia-smi
 `
 }
