@@ -288,11 +288,13 @@ func (b *Builder) buildStartupScript(pl *Pipeline) string {
 		docker = "nvidia-docker"
 	}
 
-	usingGcr :=
-		CosCloudProjectRegexp.MatchString(pl.BootDisk.SourceImage) &&
-			GcrContainerImageRegexp.MatchString(pl.ContainerName)
+	usingGcr := GcrContainerImageRegexp.MatchString(pl.ContainerName)
+	usingCosCloud := CosCloudProjectRegexp.MatchString(pl.BootDisk.SourceImage)
+
 	if usingGcr {
-		docker = docker + " --config /home/chronos/.docker"
+		if usingCosCloud {
+			docker = docker + " --config /home/chronos/.docker"
+		}
 		host := GcrImageHostRegexp.FindString(pl.ContainerName)
 		// See the following URL for more detail about Accessing Private Google Container Registry with docker login
 		// https://cloud.google.com/container-optimized-os/docs/how-to/run-container-instance#accessing_private_google_container_registry
@@ -334,8 +336,9 @@ func (b *Builder) buildStartupScript(pl *Pipeline) string {
 func (b *Builder) buildInstallCuda(pl *Pipeline) string {
 	return `
 if ! dpkg-query -W cuda; then
-   curl -O http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_8.0.61-1_amd64.deb
-   dpkg -i ./cuda-repo-ubuntu1604_8.0.61-1_amd64.deb
+   apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/7fa2af80.pub
+   curl -O http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_10.1.168-1_amd64.deb
+   dpkg -i ./cuda-repo-ubuntu1604_10.1.168-1_amd64.deb
    apt-get update
    apt-get -y install cuda
 fi
@@ -362,8 +365,16 @@ docker run hello-world
 
 func (b *Builder) buildInstallNvidiaDocker(pl *Pipeline) string {
 	return `
-wget -P /tmp https://github.com/NVIDIA/nvidia-docker/releases/download/v1.0.1/nvidia-docker_1.0.1-1_amd64.deb
-dpkg -i /tmp/nvidia-docker*.deb && rm /tmp/nvidia-docker*.deb
-nvidia-docker run --rm nvidia/cuda nvidia-smi
+docker volume ls -q -f driver=nvidia-docker | xargs -r -I{} -n1 docker ps -q -a -f volume={} | xargs -r docker rm -f
+apt-get purge -y nvidia-docker
+curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+apt-get update
+
+apt-get install -y nvidia-docker2
+pkill -SIGHUP dockerd
+
+docker run --runtime=nvidia --rm nvidia/cuda:10.1-base nvidia-smi
 `
 }
