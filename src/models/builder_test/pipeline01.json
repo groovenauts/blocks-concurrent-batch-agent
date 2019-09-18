@@ -90,6 +90,7 @@
       "name": "pipeline01-igm",
       "type": "compute.v1.instanceGroupManagers",
       "properties": {
+        "name": "pipeline01-igm",
         "baseInstanceName": "pipeline01-instance",
         "instanceTemplate": "$(ref.pipeline01-it.selfLink)",
         "targetSize": 2,
