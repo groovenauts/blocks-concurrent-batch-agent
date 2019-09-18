@@ -202,10 +202,12 @@ func (b *Builder) buildGuestAccelerators(pl *Pipeline) map[string]interface{} {
 }
 
 func (b *Builder) buildIgmResource(pl *Pipeline) Resource {
+	name := pl.Name + "-igm"
 	return Resource{
 		Type: "compute.v1.instanceGroupManagers",
-		Name: pl.Name + "-igm",
+		Name: name,
 		Properties: map[string]interface{}{
+			"name":             name,
 			"baseInstanceName": pl.Name + "-instance",
 			"instanceTemplate": "$(ref." + pl.Name + "-it.selfLink)",
 			"targetSize":       pl.TargetSize,
