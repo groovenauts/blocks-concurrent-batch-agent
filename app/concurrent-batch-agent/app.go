@@ -3,6 +3,8 @@ package main
 import (
 	"net/http"
 
+	"google.golang.org/appengine"
+
 	"github.com/labstack/echo"
 
 	"admin"
@@ -18,6 +20,7 @@ func main() {
 	api.SetupRoutes(e)
 
 	http.Handle("/", e)
+	appengine.Main()
 }
 
 // reference our echo instance and create it early
