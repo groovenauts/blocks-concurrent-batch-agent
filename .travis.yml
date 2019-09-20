@@ -6,7 +6,7 @@ go_import_path: github.com/groovenauts/blocks-concurrent-batch-server
 
 # See https://github.com/GoogleCloudPlatform/Template/blob/master/.travis.yml for more details
 env:
-  - PATH=$PATH:$HOME/gcloud/google-cloud-sdk/bin
+  - PATH=$HOME/gcloud/google-cloud-sdk/bin:$PATH
 before_install:
   - test -d $GOPATH/bin || mkdir -p $GOPATH/bin
   - if [ ! -d $HOME/gcloud/google-cloud-sdk ]; then
