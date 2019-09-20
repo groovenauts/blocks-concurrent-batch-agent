@@ -7,11 +7,11 @@ import (
 	"net/url"
 	"time"
 
-	"models"
-
 	"github.com/labstack/echo"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
+
+	"github.com/groovenauts/blocks-concurrent-batch-server/src/models"
 )
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/subscribe_task

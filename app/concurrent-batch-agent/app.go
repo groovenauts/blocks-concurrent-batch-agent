@@ -7,8 +7,8 @@ import (
 
 	"github.com/labstack/echo"
 
-	"admin"
-	"api"
+	"github.com/groovenauts/blocks-concurrent-batch-server/src/admin"
+	"github.com/groovenauts/blocks-concurrent-batch-server/src/api"
 )
 
 func main() {

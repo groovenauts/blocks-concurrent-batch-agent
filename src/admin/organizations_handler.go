@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"models"
-
 	"github.com/labstack/echo"
 	// "google.golang.org/appengine"
 	"google.golang.org/appengine/log"
+
+	"github.com/groovenauts/blocks-concurrent-batch-server/src/models"
 )
 
 type OrganizationsHandler struct {

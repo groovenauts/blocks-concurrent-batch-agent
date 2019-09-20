@@ -6,11 +6,11 @@ import (
 	"net/url"
 	"time"
 
-	"models"
-
 	"github.com/labstack/echo"
 	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/taskqueue"
+
+	"github.com/groovenauts/blocks-concurrent-batch-server/src/models"
 )
 
 // Methods For Pipeline

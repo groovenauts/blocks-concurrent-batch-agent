@@ -7,13 +7,13 @@ import (
 	"net/url"
 	"time"
 
-	"gae_support"
-	"models"
-
 	"github.com/labstack/echo"
 
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
+
+	"github.com/groovenauts/blocks-concurrent-batch-server/src/gae_support"
+	"github.com/groovenauts/blocks-concurrent-batch-server/src/models"
 )
 
 type OperationHandler struct {

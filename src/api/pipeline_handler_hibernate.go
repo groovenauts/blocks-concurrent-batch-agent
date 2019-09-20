@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"time"
 
-	"models"
-
 	"github.com/labstack/echo"
 	"google.golang.org/api/googleapi"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
+
+	"github.com/groovenauts/blocks-concurrent-batch-server/src/models"
 )
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/check_hibernation_task
