@@ -78,7 +78,7 @@ func PostTaskWith(c echo.Context, path string, params url.Values, f func(*taskqu
 	if f != nil {
 		err := f(t)
 		if err != nil {
-			log.Errorf(ctx, "Failed to callback because of \v\n", err)
+			log.Errorf(ctx, "Failed to callback because of %v\n", err)
 			return err
 		}
 	}
