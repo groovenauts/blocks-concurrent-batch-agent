@@ -4,6 +4,7 @@ SERVICE_NAME=concurrent-batch-agent
 
 VERSION ?= $(shell cat ./VERSION)
 
+GOPATH=$(shell go env GOPATH)
 BASE_PACKAGE_PATH=$(REPO)
 APP_PATH=app/concurrent-batch-agent
 APP_PACKAGE_PATH=$(REPO)/$(APP_PATH)
@@ -11,15 +12,18 @@ TEST_PACKAGES=$(SERVERBASE_PACKAGE_PATH)/... $(BASE_PACKAGE_PATH)/ $(BASE_PACKAG
 
 APP_YAML_PATH=$(APP_PATH)/app.yaml
 
+$(GOPATH)/bin/dep:
+	go get -u github.com/golang/dep/cmd/dep
+
 .PHONY: dep_ensure
-dep_ensure:
+dep_ensure: $(GOPATH)/bin/dep
 	dep ensure
 
 .PHONY: dep_update
-dep_update:
+dep_update: $(GOPATH)/bin/dep
 	dep ensure -update
 
-vendor:
+vendor: $(GOPATH)/bin/dep
 	dep ensure -vendor-only
 
 .PHONY: build
@@ -30,6 +34,10 @@ build: vendor
 .PHONY: test
 test: vendor
 	go test $(BASE_PACKAGE_PATH)/src/...
+
+.PHONY: GOPATH
+GOPATH:
+	@go env GOPATH
 
 .PHONY: version
 version:
