@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"regexp"
 
-	"models"
-
 	"github.com/labstack/echo"
+
+	"github.com/groovenauts/blocks-concurrent-batch-server/src/models"
 )
 
 const (

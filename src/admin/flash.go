@@ -6,7 +6,7 @@ import (
 
 	"github.com/labstack/echo"
 
-	"gae_support"
+	"github.com/groovenauts/blocks-concurrent-batch-server/src/gae_support"
 )
 
 type Flash struct {

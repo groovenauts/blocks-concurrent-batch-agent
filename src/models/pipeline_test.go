@@ -6,14 +6,14 @@ import (
 	"testing"
 	"time"
 
-	"test_utils"
-
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/aetest"
 	"google.golang.org/appengine/datastore"
 	// "google.golang.org/appengine/log"
 	"gopkg.in/go-playground/validator.v9"
+
+	"github.com/groovenauts/blocks-concurrent-batch-server/src/test_utils"
 )
 
 const (

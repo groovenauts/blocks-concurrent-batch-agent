@@ -1,14 +1,23 @@
 sudo: false
 language: go
 go:
-  - 1.9.7
+  - 1.11.13
+go_import_path: github.com/groovenauts/blocks-concurrent-batch-server
+
+# See https://github.com/GoogleCloudPlatform/Template/blob/master/.travis.yml for more details
+env:
+  - PATH=$HOME/gcloud/google-cloud-sdk/bin:$PATH
 before_install:
-  ## Install App Engine SDK for Go
-  - curl -o $HOME/go_appengine_sdk_linux_amd64.zip https://storage.googleapis.com/appengine-sdks/featured/go_appengine_sdk_linux_amd64-1.9.67.zip
-  - mkdir $HOME/go_appengine
-  - unzip -q -x $HOME/go_appengine_sdk_linux_amd64.zip -d $HOME
-  - PATH=$PATH:$HOME/go_appengine
-  - goapp version
   - test -d $GOPATH/bin || mkdir -p $GOPATH/bin
+  - if [ ! -d $HOME/gcloud/google-cloud-sdk ]; then
+        mkdir -p $HOME/gcloud &&
+        wget https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz --directory-prefix=$HOME/gcloud &&
+        cd $HOME/gcloud &&
+        tar xzf google-cloud-sdk.tar.gz &&
+        printf '\ny\n\ny\ny\n' | ./google-cloud-sdk/install.sh &&
+        cd $TRAVIS_BUILD_DIR;
+    fi
+  - gcloud -q components update
+  - gcloud -q components install app-engine-go
 script:
   - make ci

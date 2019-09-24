@@ -7,13 +7,13 @@ import (
 	"strings"
 	"testing"
 
-	"models"
-	"test_utils"
-
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/aetest"
+
+	"github.com/groovenauts/blocks-concurrent-batch-server/src/models"
+	"github.com/groovenauts/blocks-concurrent-batch-server/src/test_utils"
 )
 
 const (

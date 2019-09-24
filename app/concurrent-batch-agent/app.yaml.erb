@@ -9,8 +9,7 @@
 # $ APP_YAML_EXTRA_PATH=autoscale-default.yaml erb -T - app/concurrent-batch-agent/app.yaml.erb > app/concurrent-batch-agent/app.yaml
 -%>
 service: concurrent-batch-agent # see https://cloud.google.com/appengine/docs/go/
-runtime: go                     # see https://cloud.google.com/appengine/docs/go/
-api_version: go1.9              # used when appengine supports different go versions
+runtime: go111                     # see https://cloud.google.com/appengine/docs/go/
 
 # These are specified by using command line flag
 # application: my-application-id  # defined when you create your app using google dev console
@@ -18,17 +17,11 @@ api_version: go1.9              # used when appengine supports different go vers
 
 handlers:
 - url: /admin/.*
-  script: _go_app
+  script: auto
   login: admin
 
 - url: /.*
-  script: _go_app
-
-nobuild_files:
-- vendor/
-
-skip_files:
-- vendor/
+  script: auto
 
 env_variables:
   TRANSACTION_ATTEMPTS: '10'
