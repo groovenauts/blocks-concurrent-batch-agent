@@ -1,4 +1,4 @@
-REPO:=github.com/groovenauts/blocks-concurrent-batch-server
+REPO:=github.com/groovenauts/blocks-concurrent-batch-agent
 
 SERVICE_NAME=concurrent-batch-agent
 
