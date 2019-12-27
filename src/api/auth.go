@@ -7,7 +7,7 @@ import (
 
 	"github.com/labstack/echo"
 
-	"github.com/groovenauts/blocks-concurrent-batch-server/src/models"
+	"github.com/groovenauts/blocks-concurrent-batch-agent/src/models"
 )
 
 const (

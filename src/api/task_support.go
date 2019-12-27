@@ -10,7 +10,7 @@ import (
 	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/taskqueue"
 
-	"github.com/groovenauts/blocks-concurrent-batch-server/src/models"
+	"github.com/groovenauts/blocks-concurrent-batch-agent/src/models"
 )
 
 // Methods For Pipeline

@@ -7,7 +7,7 @@ import (
 	"github.com/labstack/echo"
 	"google.golang.org/appengine/log"
 
-	"github.com/groovenauts/blocks-concurrent-batch-server/src/models"
+	"github.com/groovenauts/blocks-concurrent-batch-agent/src/models"
 )
 
 func orgBy(key string, statusNotFound int, f func(c echo.Context) error) func(echo.Context) error {

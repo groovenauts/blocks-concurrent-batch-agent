@@ -10,7 +10,7 @@ import (
 	"google.golang.org/appengine/aetest"
 	// "google.golang.org/appengine/log"
 
-	"github.com/groovenauts/blocks-concurrent-batch-server/src/test_utils"
+	"github.com/groovenauts/blocks-concurrent-batch-agent/src/test_utils"
 )
 
 func TestJobCRUD(t *testing.T) {

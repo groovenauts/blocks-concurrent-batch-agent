@@ -10,7 +10,7 @@ import (
 	// "google.golang.org/appengine/log"
 	// "gopkg.in/go-playground/validator.v9"
 
-	"github.com/groovenauts/blocks-concurrent-batch-server/src/test_utils"
+	"github.com/groovenauts/blocks-concurrent-batch-agent/src/test_utils"
 )
 
 func TestPipelineInstanceSizeLogCreate(t *testing.T) {

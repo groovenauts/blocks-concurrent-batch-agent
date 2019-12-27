@@ -10,8 +10,8 @@ import (
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 
-	"github.com/groovenauts/blocks-concurrent-batch-server/src/gae_support"
-	"github.com/groovenauts/blocks-concurrent-batch-server/src/models"
+	"github.com/groovenauts/blocks-concurrent-batch-agent/src/gae_support"
+	"github.com/groovenauts/blocks-concurrent-batch-agent/src/models"
 )
 
 type PipelineHandler struct {

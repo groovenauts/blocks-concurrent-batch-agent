@@ -10,7 +10,7 @@ import (
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 
-	"github.com/groovenauts/blocks-concurrent-batch-server/src/models"
+	"github.com/groovenauts/blocks-concurrent-batch-agent/src/models"
 )
 
 // curl -v -X	POST http://localhost:8080/pipelines/1/check_hibernation_task
