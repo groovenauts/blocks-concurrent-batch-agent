@@ -12,27 +12,15 @@ TEST_PACKAGES=$(SERVERBASE_PACKAGE_PATH)/... $(BASE_PACKAGE_PATH)/ $(BASE_PACKAG
 
 APP_YAML_PATH=$(APP_PATH)/app.yaml
 
-$(GOPATH)/bin/dep:
-	go get -u github.com/golang/dep/cmd/dep
-
-.PHONY: dep_ensure
-dep_ensure: $(GOPATH)/bin/dep
-	dep ensure
-
-.PHONY: dep_update
-dep_update: $(GOPATH)/bin/dep
-	dep ensure -update
-
-vendor: $(GOPATH)/bin/dep
-	dep ensure -vendor-only
+tmp:
+	mkdir -p tmp
 
 .PHONY: build
-build: vendor
-	mkdir -p tmp/ && \
+build: tmp
 	go build -o tmp/build $(APP_PACKAGE_PATH)
 
 .PHONY: test
-test: vendor
+test:
 	go test $(BASE_PACKAGE_PATH)/src/...
 
 .PHONY: GOPATH
