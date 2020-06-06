@@ -198,12 +198,28 @@ func TestBuildStartupScript1(t *testing.T) {
 			" \\\n    -e ZONE=" + pl.Zone +
 			" \\\n    -e BLOCKS_BATCH_PUBSUB_SUBSCRIPTION=$(ref." + pl.Name + "-job-subscription.name)" +
 			" \\\n    -e BLOCKS_BATCH_PROGRESS_TOPIC=$(ref." + pl.Name + "-progress-topic.name)"
+
+	startupScriptDockerBody :=
+		"\n\napt-get update" +
+			"\napt-get -y install " +
+			"\\\n     apt-transport-https " +
+			"\\\n     ca-certificates " +
+			"\\\n     curl " +
+			"\\\n     software-properties-common" +
+			"\ncurl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo \"$ID\")/gpg | sudo apt-key add -" +
+			"\napt-key fingerprint 0EBFCD88" +
+			"\nadd-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/$(. /etc/os-release; echo \"$ID\") $(lsb_release -cs) stable\"" +
+			"\napt-get update" +
+			"\napt-get -y install docker-ce" +
+			"\ndocker run hello-world" +
+			"\ngcloud auth configure-docker\n\n"
+
 	startupScriptBody0 := startupScriptBodyBase +
 		" \\\n    " + pl.ContainerName +
 		" \\\n    " + pl.Command +
 		"\ndone"
 
-	assert.Equal(t, StartupScriptHeader+"\n"+startupScriptBody0, ss)
+	assert.Equal(t, StartupScriptHeader+startupScriptDockerBody+startupScriptBody0, ss)
 
 	// Use with DockerRunOptions
 	// https://docs.docker.com/engine/reference/commandline/run/#restart-policies---restart
@@ -214,7 +230,7 @@ func TestBuildStartupScript1(t *testing.T) {
 		" \\\n    " + pl.ContainerName +
 		" \\\n    " + pl.Command +
 		"\ndone"
-	assert.Equal(t, StartupScriptHeader+"\n"+startupScriptBody1, ss1)
+	assert.Equal(t, StartupScriptHeader+startupScriptDockerBody+startupScriptBody1, ss1)
 	pl.DockerRunOptions = "" // Reset
 
 	// Use cos-cloud project's image

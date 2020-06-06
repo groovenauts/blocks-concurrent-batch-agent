@@ -280,32 +280,36 @@ const StackdriverAgentCommand = "docker run -d -e MONITOR_HOST=true -v /proc:/mn
 func (b *Builder) buildStartupScript(pl *Pipeline) string {
 	r := []string{StartupScriptHeader}
 
-	docker := "docker"
-	if pl.GpuAccelerators.Count > 0 {
-		r = append(r,
-			b.buildInstallCuda(pl),
-			b.buildInstallDocker(pl),
-			b.buildInstallNvidiaDocker(pl),
-		)
-		docker = "nvidia-docker"
-	}
-
 	usingGcr := GcrContainerImageRegexp.MatchString(pl.ContainerName)
 	usingCosCloud := CosCloudProjectRegexp.MatchString(pl.BootDisk.SourceImage)
 
-	if usingGcr {
-		if usingCosCloud {
+	docker := "docker"
+
+	if usingCosCloud {
+		if usingGcr {
 			docker = docker + " --config /home/chronos/.docker"
+			host := GcrImageHostRegexp.FindString(pl.ContainerName)
+			// See the following URL for more detail about Accessing Private Google Container Registry with docker login
+			// https://cloud.google.com/container-optimized-os/docs/how-to/run-container-instance#accessing_private_google_container_registry
+			r = append(r,
+				"METADATA=http://metadata.google.internal/computeMetadata/v1",
+				"SVC_ACCT=$METADATA/instance/service-accounts/default",
+				"ACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'\"' -f 4)",
+				"with_backoff "+docker+" login -u oauth2accesstoken -p $ACCESS_TOKEN https://"+host,
+			)
 		}
-		host := GcrImageHostRegexp.FindString(pl.ContainerName)
-		// See the following URL for more detail about Accessing Private Google Container Registry with docker login
-		// https://cloud.google.com/container-optimized-os/docs/how-to/run-container-instance#accessing_private_google_container_registry
+	} else {
 		r = append(r,
-			"METADATA=http://metadata.google.internal/computeMetadata/v1",
-			"SVC_ACCT=$METADATA/instance/service-accounts/default",
-			"ACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token | cut -d'\"' -f 4)",
-			"with_backoff "+docker+" login -u oauth2accesstoken -p $ACCESS_TOKEN https://"+host,
+			b.buildInstallDocker(pl),
 		)
+	}
+
+	if pl.GpuAccelerators.Count > 0 {
+		r = append(r,
+			b.buildInstallCuda(pl),
+			b.buildInstallNvidiaDocker(pl),
+		)
+		docker = "nvidia-docker"
 	}
 
 	if pl.StackdriverAgent {
@@ -356,12 +360,13 @@ apt-get -y install \
      ca-certificates \
      curl \
      software-properties-common
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID")/gpg | sudo apt-key add -
 apt-key fingerprint 0EBFCD88
-add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") $(lsb_release -cs) stable"
 apt-get update
 apt-get -y install docker-ce
 docker run hello-world
+gcloud auth configure-docker
 `
 }
 
